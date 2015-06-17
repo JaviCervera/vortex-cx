@@ -17,6 +17,7 @@ Public
 	Const BILLBOARD_CYLINDRICAL% = 2
 
 	Function Create:Drawable(mesh:Mesh)
+		If mesh = Null Then Return Null
 		Local d:Drawable = New Drawable
 		d.mBillboardType = BILLBOARD_NONE
 		d.mMesh = mesh
@@ -29,6 +30,7 @@ Public
 	End
 	
 	Function Create:Drawable(surface:Surface)
+		If surface = Null Then Return Null
 		Local d:Drawable = New Drawable
 		d.mBillboardType = BILLBOARD_NONE
 		d.mMesh = Null

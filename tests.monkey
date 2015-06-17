@@ -61,7 +61,7 @@ Public
 		
 		'Make triangle
 		Local surf:Surface = Surface.Create()
-		surf.GetBrush().SetFlags(Brush.NOCULLING)
+		surf.GetBrush().SetCulling(False)
 		surf.AddTriangle(0, 1, 2)
 		surf.AddVertex(0,0,0.5,     0,-1,0, 1,0,0,1, 0,0)
 		surf.AddVertex(-0.5,0,-0.5, 0,-1,0, 0,1,0,1, 0,0)
@@ -199,13 +199,13 @@ Public
 				Painter.SetColor(prim.r, prim.g, prim.b)
 				Select prim.type
 					Case PRIM_POINT
-						Painter.DrawPoint(prim.x, prim.y)
+						Painter.PaintPoint(prim.x, prim.y)
 					Case PRIM_LINE
-						Painter.DrawLine(prim.x, prim.y, prim.z, prim.w)
+						Painter.PaintLine(prim.x, prim.y, prim.z, prim.w)
 					Case PRIM_RECT
-						Painter.DrawRect(prim.x, prim.y, prim.z, prim.w)
+						Painter.PaintRect(prim.x, prim.y, prim.z, prim.w)
 					Case PRIM_ELLIPSE
-						Painter.DrawEllipse(prim.x, prim.y, prim.z, prim.w)
+						Painter.PaintEllipse(prim.x, prim.y, prim.z, prim.w)
 				End
 			Next
 			Painter.SetColor(Rnd(), Rnd(), Rnd())
@@ -231,7 +231,7 @@ Public
 		
 		Painter.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		Painter.SetColor(0, 0, 0)
-		Painter.DrawRect(0, DeviceHeight() - 24, DeviceWidth(), 24)
+		Painter.PaintRect(0, DeviceHeight() - 24, DeviceWidth(), 24)
 		Painter.SetColor(0, 1, 0)
 		Local text$ = "<Press space key or touch screen to change test>"
 		font.Draw((DeviceWidth() - font.GetTextWidth(text))/2, DeviceHeight() - font.GetTextHeight(text), text)
