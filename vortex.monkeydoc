@@ -8,21 +8,781 @@ Coordinate system and rotations:
 
 Vortex uses a right-handed coordinate system, where X points right, Y points away from the viewer, and Z points up. Rotations can be expressed both using quaternions and euler angles (expressed in degrees).
 
-# Class vortex.Vortex
+Screen coordinates:
 
-This class performs the required initialization of the library, and reports any errors that took place when compiling the standard shaders.
+Coordinates 0,0 represent the bottom left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the top right. While it is common on modern graphics libraries to use this convetion (which is a standard to define the Euclidean plane), you must have in mind that it is reversed vertically from other traditional graphics libraries (like Mojo), where the Y axis goes from top to bottom.
 
-# Function Init:Bool()
+Texture coordinates:
 
-Initializes the Vortex library. This should be called before any other function in the library.
+Texture coordinates are mapped from the bottom left (coordinates 0,0) to the top right (coordinates 1,1).
 
-# Function GetShaderError:String()
+Triangle order:
 
-Reports any errors that took place while compiling the shaders on initialization.
+Front facing triangles are those that are mapped to the screen in counter clockwise order. Back facing triangles are by default occluded by Vortex.
+
+Submodules:
+
+The base functionality of the library is provided in the vortex.core submodule. A vortex.ext module is also provided, which included the following functionality:
+
+* Loading of fonts created with the bundled fonttool application.
+* Loading of meshes created with the bundled meshtool application.
+* Caching of resources, so a single resource is only loaded once in memory.
+
+When you import the vortex module, both core and ext are included. If you want to replace the builtin functionality with your own custom loaders and cache manager, you can import vortex.core only.
+
+
+
+
+# Class vortex.core.Brush
+
+This class represent a brush or material with visual information such as base texture and color. It is used to render geometry with an specific look.
+
+# Const BLEND_ALPHA%
+# Const BLEND_ADD%
+# Const BLEND_MUL%
+
+# Function Create:Brush(baseTex:Texture = Null)
+
+Creates a new brush, with an optional base texture.
+
+# Method Set:Void(other:Brush)
+
+Changes this brush with the visual information defined in another brush passed as parameter.
+
+# Method SetBaseColor:Void(r#, g#, b#)
+
+Sets the base color. Geometry is tinted using the base color, and it is also calculated as the diffuse component of the geometry using this brush in lighting calculations. The default value is white (1,1,1).
+
+# Method GetRed#()
+
+Returns the red component of the base color.
+
+# Method GetGreen#()
+
+Returns the green component of the base color.
+
+# Method GetBlue#()
+
+Returns the blue component of the base color.
+
+# Method SetOpacity:Void(opacity#)
+
+Sets the opacity of the brush, with 0 being completely transparent and 1 being completely opaque. The default value is 1.
+
+# Method GetOpacity#()
+
+Returns the opacity of the brush.
+
+# Method SetBaseTexture:Void(tex:Texture)
+
+Sets the base texture of the brush.
+
+# Method GetBaseTexture:Texture()
+
+Returns the base texture of the brush, or Null if there is no base texture.
+
+# Method SetBlendMode:Void(mode%)
+
+Sets the blend mode of the brush. This defines how the final look of the geometry using this brush blends with the background, after computing texture, color and lighting information.
+
+It takes one of the following values:
+
+| Value             | Meaning
+| Brush.BLEND_ALPHA | The computed alpha value of the brush (taking into account both brush opacity and texture alpha values) is used to blend with the background. This is the default value.
+| Brush.BLEND_ADD   | The computed color of the brush is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
+| Brush.BLEND_MUL   | The computed color of the brush is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
+
+# Method GetBlendMode%()
+
+Returns the blend mode of the brush.
+
+# Method SetShininess:Void(shininess#)
+
+Sets the specular shininess of the brush. A value of 0 will disable specular reflections entirely, whereas a value in the range (0,1] will indicate the size of the specular reflection.
+
+# Method GetShininess#()
+
+Returns the specular shininess of the brush.
+
+# Method SetCulling:Void(enable:Bool)
+
+Enables or disables backface culling. When it is enabled, internal faces of the geometry using this brush will not be rendered. It is enabled by default.
+
+# Method GetCulling:Bool()
+
+Returns whether backface culling is enabled or not.
+
+# Method SetDepthWrite:Void(enable:Bool)
+
+Enabled or disables depth buffer writing. When it is disabled, other geometry further away from the viewer may occlude the geometry that uses this brush. It is enabled by default.
+
+# Method GetDepthWrite:Bool()
+
+Returns whether depth buffer writing is enabled or not.
+
+# Method Prepare:Void()
+
+Prepares this brush for rendering. All subsequent geometry rendered will use the visual properties of this brush. You normally do not need to use this method directly, it is used internally by Drawable.Draw().
+
+
+
+
+# Class vortex.core.Drawable
+
+A drawable is one of the key elements in Vortex. It represent a visible object that can be rendered in 3D a position of 3D space, with an specific rotation and scale. A drawable can be one of the following objects:
+
+* A mesh, which can be static or animated, and can contain one or more surfaces (a surface is a set of geometry that uses the same brush).
+* A single surface.
+* A billboard that always faces the camera.
+
+# Const BILLBOARD_NONE%
+# Const BILLBOARD_SPHERICAL%
+# Const BILLBOARD_CYLINDRICAL%
+
+# Function Create:Drawable(mesh:Mesh)
+
+Creates a new drawable that renders a mesh.
+
+# Function Create:Drawable(surface:Surface)
+
+Creates a new drawable that renders a surface.
+
+# Function Create:Drawable(brush:Brush, width# = 0, height# = 0, type% = BILLBOARD_SPHERICAL)
+
+Creates a new drawable that renders a billboard. We must specify a brush that will define how the billboard looks. We can specify a custom with and height or, if the brush contains a base texture, leave these values at 0 to use the texture size.
+
+The type parameter indicates how the billboard is rotated to face the viewer, and can take one of the following values:
+
+| Value                           | Meaning
+| Drawable.BILLBOARD_SPHERICAL    | The billboard's X and Z axes are rotated to face the viewer.
+| Drawable.BILLBOARD_CYLINDRICAL  | The billboard's Z axis is rotated to face the viewer.
+
+# Method Discard:Void()
+
+When a drawable is no longer going to be used, we can use this method to deallocate the resources that it uses. If the drawable renders a single surface, the internal buffers of the surface are deallocated. Otherwise, it has no effect.
+
+# Method Draw:Void(animated:Bool = False, frame# = 0, sequence% = 0)
+
+Renders a drawable with its current transformation in the 3D space (position, rotation and scale). If the drawable contains an animated mesh, we can indicate whether we want to draw the mesh static or animated, the desired animation frame, and the animation sequence.
+
+# Method GetBillboardType:Int()
+
+Returns the type of billboard that this drawable contains, or Drawable.BILLBOARD_NONE if the drawable is not a billboard.
+
+# Method GetMesh:Mesh()
+
+Returns the mesh attached to this billboard, or Null if there is none.
+
+# Method GetSurface:Surface()
+
+Returns the surface attached to this billboard, or Null if there is none.
+
+# Method SetPosition:Void(x#, y#, z#)
+
+Set the position of the drawable in the 3D space.
+
+# Method GetX#()
+
+Returns the X position of the drawable in the 3D space.
+
+# Method GetY#()
+
+Returns the Y position of the drawable in the 3D space.
+
+# Method GetZ#()
+
+Returns the Z position of the drawable in the 3D space.
+
+# Method SetEuler:Void(x#, y#, z#)
+
+Sets the rotation of the drawable, specified as an euler rotation around its XYZ axes.
+
+# Method GetEulerX#()
+
+Returns the euler rotation of the drawable around its X axis.
+
+# Method GetEulerY#()
+
+Returns the euler rotation of the drawable around its Y axis.
+
+# Method GetEulerZ#()
+
+Returns the euler rotation of the drawable around its Z axis.
+
+# Method SetQuat:Void(w#, x#, y#, z#)
+
+Sets the rotation of the drawable, specified as a quaternion.
+
+# Method GetQuatW#()
+
+Returns the W component of the quaternion rotation of the drawable.
+
+# Method GetQuatX#()
+
+Returns the X component of the quaternion rotation of the drawable.
+
+# Method GetQuatY#()
+
+Returns the Y component of the quaternion rotation of the drawable.
+
+# Method GetQuatZ#()
+
+Returns the Z component of the quaternion rotation of the drawable.
+
+# Method SetScale:Void(x#, y#, z#)
+
+Sets the scale of the drawable, with 1,1,1 being its default size, 2,2,2 being twice its original size, etc.
+
+# Method GetScaleX#()
+
+Returns the X scale of the drawable.
+
+# Method GetScaleY#()
+
+Returns the Y scale of the drawable.
+
+# Method GetScaleZ#()
+
+Returns the Z scale of the drawable.
+
+# Method Move:Void(x#, y#, z#)
+
+Translates the drawable from its current position the amount of points specified by the parameters, taking into account the current rotation of the drawable. For example, drawable.Move(0, 1, 0) will move the drawable 1 point in the direction that it is facing.
+
+
+
+
+# Class vortex.core.Font
+
+A font is used to render texts in Vortex. It is composed by a texture which contains the characters used to render texts, and a set of glyphs which contains the coordinates of each character within the texture and its offset. You normally don't generate fonts by hand, but by using the bundled fonttool app, so you will never need to use most methods in this class.
+
+# Function Create:Font(filename$, height#, tex:Texture)
+
+Creates a new font, assigning a filename to it, the heigth in pixels of the font, and the texture map that will be used to render texts with this font. After creating it, you should define its glyphs. You normally don't need to use this function, as Cache.GetFont gives you a font ready to use.
+
+# Method Discard:Void()
+
+When you are not going to render text usign this font anymore, you can call this method to deallocate its resources. If you are using the default Cache for loading resources, you don't need to call this method, since all cache resources are deallocated when clearing the cache.
+
+# Method GetFilename$()
+
+Returns the filename of the font.
+
+# Method GetHeight#()
+
+Returns the height in pixels of the font.
+
+# Method GetTextWidth#(text$)
+
+Returns the width in pixels that the specified text needs to be rendered with the font.
+
+# Method GetTextHeight#(text$)
+
+Returns the width in pixels that the specified text needs to be rendered with the font.
+
+# Method SetGlyphData:Void(index%, x#, y#, w#, h#, yoffset#)
+
+Sets the rectangle within the font texture where the character with the specified index (it's ASCII code) is located, and the Y offset to render the character relative to the Y drawing coordinate.
+
+# Method Draw:Void(x#, y#, text$)
+
+Draws the specified text at the x, y screen coordinates.
+
+
+
+
+# Class vortex.core.Lighting
+
+This class is used to handle the lighting properties of your scene. The maximum number of lights that a scene can contain simultanously is specified in the Lighting.NUM_LIGHTS constant (currently 8). Vortex uses a forward shading system to calculate lighting.
+
+# Const NUM_LIGHTS%
+# Const DIRECTIONAL%
+# Const POINT%
+
+# Function SetLightEnabled:Void(index%, enabled:Bool)
+
+Sets whether the light with the specified index (in the range [0,Lighting.NUM_LIGHTS-1]) must be taken into account when computing lighting or not.
+
+# Function IsLightEnabled:Bool(index%)
+
+Returns whether the specified light is enabled or not.
+
+# Function SetLightType:Void(index%, type%)
+
+Sets the type of the specified light. It can take one of the following values:
+
+| Value     				| Meaning
+| Lighting.DIRECTIONAL		| A directional light. This light behaves as a light source coming from infinity with the direction specified by a normal vector, and this type of lighting is commonly used to represent the sun light. This is the default value.
+| Lighting.POINT           | A point light. This light is placed at a position in the 3D space, and attenuates with distance. The linear attenuation factor can be specified with the Lighting.SetLightAttenuation method.
+
+# Function GetLightType%(index%)
+
+Returns the type of the specified light.
+
+# Function SetLightPosition:Void(index%, x#, y#, z#)
+
+Sets the position of the specified light in 3D space. In directional lights, this value is a normal vector that indicates the direction that the light is coming from.
+
+# Function GetLightX#(index%)
+
+Returns the X position of the specified light.
+
+# Function GetLightY#(index%)
+
+Returns the Y position of the specified light.
+
+# Function GetLightZ#(index%)
+
+Returns the Z position of the specified light.
+
+# Function SetLightColor:Void(index%, r#, g#, b#)
+
+Sets the color that the specified light emits. White by default (1,1,1).
+
+# Function GetLightRed#(index%)
+
+Returns the red component of the specified light color.
+
+# Function GetLightGreen#(index%)
+
+Returns the green component of the specified light color.
+
+# Function GetLightBlue#(index%)
+
+Returns the blue component of the specified light color.
+
+# Function SetLightAttenuation:Void(index%, att#)
+
+Sets the attenuation factor of the specified light. This value is ignored for directional lights.
+
+# Function GetLightAttenuation#(index%)
+
+Returns the attenuation factor of the specified light.
+
+# Function Prepare:Void(ambientRed# = 0.3, ambientGreen# = 0.3, ambientBlue# = 0.3)
+
+Prepares the engine to render with lighting in the next frame, using the color color components specified as parameters as the ambient color (this is, the lighting that will be received by all geometry independent from the light sources). Required lights must have been previously enabled and configured. If you do not call this before drawing your scene, no lighting information will be computed, despite of which lights were enabled.
+
+# Class vortex.core.Mesh
+
+A mesh is the description of a set of geometry, brushes and optional animations that belong to one object. For every brush that we need, there will be a Surface object in the mesh containing the geometry to be drawn with that brush. The standard way to draw a mesh on the 3D space is by creating a drawable from this mesh, and giving it a position, rotation and scale. Several drawables can be created from the same mesh.
+
+# Function Create:Mesh(filename$ = "")
+
+Creates a new empty mesh, indicating a filename for it. It will not load any mesh from the filename, this value is only given as reference to the mesh (for example, if we are writing our own mesh loader, we can indicate the filename that we are going to create the mesh from). This function is used if we are writing a custom mesh loader or if we want to generate meshes procedurally. Normally, we will load our meshes using the function Cache.GetMesh from the vortex.ext module.
+
+# Method Discard:Void()
+
+When we don't need to use this mesh anymore (for example, if there are no more drawables that use it and we do not plan to create new ones), we can use Discard to deallocate its resources. If the mesh has been created with Cache.GetMesh, we should not call this method.
+
+# Method GetFilename$()
+
+Returns the filename assigned to this mesh when it cas created.
+
+# Method AddSurface:Void(surf:Surface)
+
+Adds a new surface to the mesh. A surface is a set of geometry that use the same brush.
+
+# Method GetNumSurfaces%()
+
+Returns the number of surfaces that this mesh contains.
+
+# Method GetSurface:Surface(index%)
+
+Returns a surface contained in the mesh. The value of index must be in the range [0, GetNumSurfaces()-1]
+
+# Method AddSequence%(name$, firstFrame%, lastFrame%)
+
+Adds a named animation sequence, indicating from which to which of the frames contained in the mesh that sequence iterates (different animation sequences can be "idle", "ealk", "die", "shoot", etc).
+
+# Method GetNumSequences%()
+
+Returns the number of animation sequences defined for this mesh.
+
+# Method FindSequence%(name$)
+
+Returns the index within the mesh of the animation sequence with the specified mesh, or -1 ir the sequence could not be found.
+
+# Method GetSequenceName$(index%)
+
+Returns the name of the animation sequence with the specified index within the frame. The value of index must be in the range [0, GetNumSequences()-1].
+
+# Method GetSequenceFirstFrame%(index%)
+
+Gets the first frame within the mesh that belongs to the specified animation sequence.
+
+# Method GetSequenceLastFrame%(index%)
+
+Gets the last frame within the mesh that belongs to the specified animation sequence.
+
+# Method GetSequenceNumFrames%(index%)
+
+Returns the number of frames (total frames, not just keyframes) that the specified sequence contains.
+
+# Method SetRootBone:Bool(bone:Bone)
+
+For an animated mesh, indicates the root bone in its structure.
+
+# Method GetRootBone:Bone()
+
+Return the root bone of the mesh, or Null if the mesh is not animated.
+
+# Method Draw:Void(animated:Bool, frame#, sequence%)
+
+Draws the specified mesh. If it is an animated mesh, we can indicate whether we want to draw the mesh static or animated, the desired animation frame, and the animation sequence. You should not use this method directly, but rather draw the mesh using a Drawable, which will previously setup a transformation matrix based on the position, rotation and scale of the drawable.
+
+# Class vortex.core.Painter
+
+The Painter is used to draw 2D graphics on the screen. If you want to draw your 2D graphics above the 3D scene, after drawing all your 3D geometry, you must call Painter.Setup2D to setup the context for 2D drawing, and then perform your drawing operations.
+
+# Function Setup2D:Void(x%, y%, width%, height%)
+
+Setup the context for 2D painting. The parameters define the rectangle within the screen where drawing will take place. You must call this function before doing any 2D drawing.
+
+# Function Setup3D:Void(x%, y%, width%, height%)
+
+Setup the context for 3D painting. The parameters define the rectangle within the screen where drawing will take place. You must call this function if you want to draw 3D geometry using Mesh.Draw and Surface.Draw. If you are going to render geometry using viewers and drawables (the usual thing), then you don't need to call this function.
+
+# Function SetProjectionMatrix:Void(m#[])
+
+Setup the projection matrix. The parameter must be a float array with 16 values, sorted in column major order. You must call this function if you want to draw 3D geometry using Mesh.Draw and Surface.Draw. If you are going to render geometry using viewers and drawables (the usual thing), then you don't need to call this function.
+
+# Function GetProjectionMatrix:Void(m#[])
+
+Fills the specified 16 elements float array with the currently active projection matrix.
+
+# Function SetViewMatrix:Void(m#[])
+
+Setup the view matrix. The parameter must be a float array with 16 values, sorted in column major order. You must call this function if you want to draw 3D geometry using Mesh.Draw and Surface.Draw. If you are going to render geometry using viewers and drawables (the usual thing), then you don't need to call this function.
+
+# Function GetViewMatrix:Void(m#[])
+
+Fills the specified 16 elements float array with the currently active view matrix.
+
+# Function SetModelMatrix:Void(m#[])
+
+Setup the model matrix. The parameter must be a float array with 16 values, sorted in column major order. You must call this function if you want to draw 3D geometry using Mesh.Draw and Surface.Draw. If you are going to render geometry using viewers and drawables (the usual thing), then you don't need to call this function.
+
+# Function GetModelMatrix:Void(m#[])
+
+Fills the specified 16 elements float array with the currently active model matrix.
+
+# Function SetBlendMode:Void(mode%)
+
+Sets the blend mode to use when painting. Possible values are:
+
+| Value             | Meaning
+| Brush.BLEND_ALPHA | The computed alpha value (taking into account both opacity and texture alpha values) is used to blend with the background. This is the default value.
+| Brush.BLEND_ADD   | The computed color is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
+| Brush.BLEND_MUL   | The computed color is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
+
+# Function SetColor:Void(r#, g#, b#, opacity# = 1)
+
+Sets the drawing color.
+
+# Function Cls:Void(r# = 0, g# = 0, b# = 0)
+
+Clears the background (actually, the boundaries defined when the call to Painter.Setup2D or Painter.Setup3D was made) with the specified color.
+
+# Function PaintPoint:Void(x#, y#)
+
+Draws a point at the specified coordinates.
+
+# Function PaintLine:Void(x1#, y1#, x2#, y2#)
+
+Draws a line that goes from x1, y1 to x2, y2.
+
+# Function PaintRect:Void(x#, y#, width#, height#)
+
+Draws a filled rectangle at the specified coordinates, with the given width and height.
+
+# Function PaintEllipse:Void(x#, y#, width#, height#)
+
+Draw a filled ellipse at the specified coordinates, with the given width and height.
+
+
+
+
+# Class vortex.core.Surface
+
+The Surface class contains a set of geometry (vertices and indices) and a Brush to draw that geometry.
+
+# Function Create:Surface(brush:Brush = Null)
+
+Creates a new brush, which can be a copy of another brush passed as parameter.
+
+# Method Discard:Void()
+
+Deallocates all the resources used by this surface. You don't normally need to call this method directly, since meshes call this method on all their surfaces when the mesh itself is discarded, and drawables that contain a single surface also discard the surface when the drawable is discarded.
+
+# Method GetBrush:Brush()
+
+Returns the brush that this surface uses.
+
+# Method AddTriangle%(v0%, v1%, v2%)
+
+Adds a new triangle to the surface. A triangle contains three indices, that reference the vertices in the surface. Returns the index of the triangle within the surface.
+
+# Method GetNumTriangles%()
+
+Returns the number of triangles in the surface.
+
+# Method SetTriangleVertices:Void(index%, v0%, v1%, v2%)
+
+Changes the vertex indices used by a specified triangle.
+
+# Method GetTriangleV0%(index%)
+
+Returns the index of the first vertex in the specified triangle.
+
+# Method GetTriangleV1%(index%)
+
+Returns the index of the second vertex in the specified triangle.
+
+# Method GetTriangleV2%(index%)
+
+Returns the index of the third vertex in the specified triangle.
+
+# Method AddVertex%(x#, y#, z#, nx#, ny#, nz#, r#, g#, b#, a#, u#, v#)
+
+Adds a new vertex to the surface, with the given position, normal, color, and texture coordinates. Returns the index of the vertex within the surface.
+
+# Method GetNumVertices%()
+
+Returns the number of vertices in the surface.
+
+# Method SetVertexPosition:Void(index%, x#, y#, z#)
+
+Sets the position of the specified vertex.
+
+# Method SetVertexNormal:Void(index%, nx#, ny#, nz#)
+
+Sets the normal vector of the specified vertex.
+
+# Method SetVertexColor:Void(index%, r#, g#, b#, a#)
+
+Sets the color of the specified vertex.
+
+# Method SetVertexTexCoords:Void(index%, u#, v#)
+
+Sets the texture coordinates of the specified vertex.
+
+# Method GetVertexX#(index%)
+
+Returns the X position of the specified vertex.
+
+# Method GetVertexY#(index%)
+
+Returns the Y position of the specified vertex.
+
+# Method GetVertexZ#(index%)
+
+Returns the Z position of the specified vertex.
+
+# Method GetVertexNX#(index%)
+
+Returns the X component of the normal of the specified vertex.
+
+# Method GetVertexNY#(index%)
+
+Returns the Y component of the normal of the specified vertex.
+
+# Method GetVertexNZ#(index%)
+
+Returns the Z component of the normal of the specified vertex.
+
+# Method GetVertexRed#(index%)
+
+Returns the red component of the color of the specified vertex.
+
+# Method GetVertexGreen#(index%)
+
+Returns the green component of the color of the specified vertex.
+
+# Method GetVertexBlue#(index%)
+
+Returns the blue component of the color of the specified vertex.
+
+# Method GetVertexAlpha#(index%)
+
+Returns the alpha component of the color of the specified vertex.
+
+# Method GetVertexU#(index%)
+
+Return the U texture coordinate of the specified vertex.
+
+# Method GetVertexV#(index%)
+
+Return the V texture coordinate of the specified vertex.
+
+# Method Rebuild:Void()
+
+Rebuilds th einternal representation of the geometry in the surface. To increase rendering performance, Vortex holds a copy of the data of all surfaces in video memory, so whenever you make a change to the geometry of a surface, you must call this method. When you add a surface to a mesh, the mesh automatically calls this method.
+
+# Method Draw:Void()
+
+Draws the surface. You don't normally need to call this method directly, but draw surfaces through drawables directly (or indirectly through drawables that contain surfaces).
+
+
+
+
+# Class vortex.core.Texture
+
+The Texture class represent a buffer in video memory that contains pixel data. Textures can be contained in brushes an dapplied to 3D greometry, or drawn to the screen directly.
+
+# Const FILTER_NONE%
+# Const FILTER_LINEAR%
+# Const FILTER_BILINEAR%
+# Const FILTER_TRILINEAR%
+
+# Function Create:Texture(filename$, filter%)
+
+Creates a new texture. Its pixel data will be loaded from the file specified by filename, and we must specify one of the following filtering modes:
+
+* FILTER_NONE
+* FILTER_LINEAR
+* FILTER_BILINEAR
+* FILTER_TRILINEAR
+
+You won't normally use this method directly, but will load textures with the Cache.GetTexture function instead.
+
+# Method Discard:Void()
+
+Deallocates the resources used by this texture. If you created the texture with the Cache.GetTexture function, you don't need to call this function.
+
+# Method GetFilename$()
+
+Returns the file name that this texture was created from.
+
+# Method GetHandle%()
+
+Returns the internal handle of this texture. This is an identifier in video memory, and you don't normally need to use this value.
+
+# Method GetWidth%()
+
+Returns the width, in pixels, of the texture.
+
+# Method GetHeight%()
+
+Returns the height, in pixels, of the texture.
+
+# Method Draw:Void(x#, y#, width# = 0, height# = 0, rectx# = 0, recty# = 0, rectwidth# = 0, rectheight# = 0)
+
+Draws the texture to the specified screen coordinates. You can also specified a width and an height different than its original size, and a rectangle to draw instead of the whole texture.
+
+
+
+
+# Class vortex.core.Viewer
+
+The Viewer class represents observers of the 3D world. It has a position and rotation in 3D space, a rectangle in the screen to draw to, as well as other parameters. In a single player game, you should have at least one viewer representing what the player sees on the entire screen. In a split screen multiplayer game, you will have one viewer per player, each drawing to a different rectangle of the screen.
+
+The default way to render 3D objects in Vortex is by placing whese objects using Drawable instances, and drawing to the screen with the data specified by one or more viewers.
+
+# Function Create:Viewer(vx%, vy%, vw%, vh%)
+
+Creates a new viewer that draws in the specified screen viewport (rectangle).
+
+# Method SetPerspective:Void(fovy#, ratio#, near#, far#)
+
+Sets the perspective setup for this viewer. The value of fovy represents the vertical focal angle that the screen captures. Values normally go in the range [45,70]. The ratio is the proportion between the width and the height of the viewport that the viewer draws to (for example, 4/3, 16/9, 16/10... you normally get this value with the float division of the viewport width and height). The values of near and far indicate the distance range from the viewer at which geometry is visible. Nothing closer than near of further way than far is drawn.
+
+# Method SetFrustum:Void(left#, right#, bottom#, top#, near#, far#)
+
+Sets the perspective frustum for this viewer. The method SetPerspective is easier to use and can achieve the same effect.
+
+# Method SetOrtho:Void(left#, right#, bottom#, top#, near#, far#)
+
+Sets the viewer to use an orthographic projection. This can be used for isometric games, or in general any game where we don't want to use perspective (this is, we don't want objects to get smaller with distance).
+
+# Method SetClearColor:Void(r#, g#, b#)
+
+Sets the color with which the viewer viewport will be cleared before drawing thnrought this viewer's point of view.
+
+# Method GetClearRed#()
+
+Returns the red component of the viewer's clearing color.
+
+# Method GetClearGreen#()
+
+Returns the green component of the viewer's clearing color.
+
+# Method GetClearBlue#()
+
+Returns the blue component of the viewer's clearing color.
+
+# Method SetViewport:Void(x%, y%, w%, h%)
+
+Sets the viewport that this viewer draws to.
+
+# Method Prepare:Void()
+
+You must call this method before drawing any drawables. It will prepare the viewport, clear it, defined projection and view matrices, and averything else that needs to be done to be able to draw geometry in 3D space.
+
+# Method SetPosition:Void(x#, y#, z#)
+
+Set the position of the viewer in the 3D space.
+
+# Method GetX#()
+
+Returns the X position of the viewer in the 3D space.
+
+# Method GetY#()
+
+Returns the Y position of the viewer in the 3D space.
+
+# Method GetZ#()
+
+Returns the Z position of the viewer in the 3D space.
+
+# Method SetEuler:Void(x#, y#, z#)
+
+Sets the rotation of the viewer, specified as an euler rotation around its XYZ axes.
+
+# Method GetEulerX#()
+
+Returns the euler rotation of the viewer around its X axis.
+
+# Method GetEulerY#()
+
+Returns the euler rotation of the viewer around its Y axis.
+
+# Method GetEulerZ#()
+
+Returns the euler rotation of the viewer around its Z axis.
+
+# Method SetQuat:Void(w#, x#, y#, z#)
+
+Sets the rotation of the viewer, specified as a quaternion.
+
+# Method GetQuatW#()
+
+Returns the W component of the quaternion rotation of the viewer.
+
+# Method GetQuatX#()
+
+Returns the X component of the quaternion rotation of the viewer.
+
+# Method GetQuatY#()
+
+Returns the Y component of the quaternion rotation of the viewer.
+
+# Method GetQuatZ#()
+
+Returns the Z component of the quaternion rotation of the viewer.
+
+# Method Move:Void(x#, y#, z#)
+
+Translates the viewer from its current position the amount of points specified by the parameters, taking into account the current rotation of the drawable. For example, viewer.Move(0, 1, 0) will move the viewer 1 point in the direction that it is facing.
+
+
+
 
 # Class vortex.core.Bone
 
-This class is used to represent a bone within an animated mesh. Bones can contain a list of transformations to be applied to the geometry attached to this bone when using animations. You don't normally need to deal with this class directly.
+This class is used to represent a bone within an animated mesh. Bones can contain a list of transformations to be applied to the geometry attached to this bone when using animations.
+
+NOTE: You don't normally need to deal with this class directly.
 
 # Function Create:Bone(name:String)
 
@@ -30,7 +790,7 @@ Creates a new bone with the specified name.
 
 # Method GetName:String()
 
-Returns the name of the bone
+Returns the name of the bone.
 
 # Method SetDefaultTransform:Void(px#, py#, pz#, rw#, rx#, ry#, rz#, sx#, sy#, sz#)
 
@@ -74,4 +834,86 @@ Returns the specified child bone attached to this bone. The value of index goes 
 
 # Method Find:Bone(name$)
 
-If the bone or any child 
+If the bone or any child has the name indicated as parameter, returns the bone or its child. Otherwise, it returns Null.
+
+# Method AddPositionKey:Void(keyframe%, x#, y#, z#)
+
+Adds a new position transformation to the bone at the specified keyframe.
+
+# Method AddRotationKey:Void(keyframe%, w#, x#, y#, z#)
+
+Adds a new rotation quaternion to the bone at the specified keyframe.
+
+# Method AddScaleKey:Void(keyframe%, x#, y#, z#)
+
+Adds a new scale transformation to the bone at the specified keyframe.
+
+# Method Draw:Void(animated:Bool, frame#, firstSeqFrame%, lastSeqFrame%)
+
+Render the mesh surfaces linked to this bone at the specified frame. The first and last frames that form the sequence that we want to play must be specified.
+
+
+
+
+# Class vortex.core.Vortex
+
+This class performs the required initialization of the library, and reports any errors that took place when compiling the standard shaders.
+
+# Function Init:Bool()
+
+Initializes the Vortex library. This should be called before any other function in the library.
+
+# Function GetShaderError:String()
+
+Reports any errors that took place while compiling the shaders on initialization.
+
+
+
+
+# Class vortex.ext.Cache
+
+The Cache class is used to avoid loading resources from disk more that once. When you want to load a resource from disk (a texture, a mesh, or a font), you load it through the cache instead of their respective Create functions. If the resource was already loaded, the same instance is returned to you, so it is always present just once in memory.
+
+The Cache class holds a stack of cache objects. You can add a new object with the Cache.Push function, and all the resources loaded afterwards will be deallocated when the cache object is removed from the stack with Cache.Pop. For example, on game initialization you could push one object onto the stack, and then load all the resources that are used throughout the entire game (menu textures and fonts, for example). Then, when you are loading a new level, you push a new cache object and load all the resource of the level. When you exit the level, you pop the cache object from the stack, deallocating all level resources, but the menu resources remain intact. When you exit the game, you pop the last cache object, and all the resources allocated are cleared.
+
+# Function Push:Void()
+
+Pushes a new cache object onto the stack. All resources loaded afterwards are handled by this cache object. When you pop this stack object with the Cache.Pop function, all the resources are deallocated.
+
+# Function Pop:Void()
+
+Pops the last pushed cache object from the stack, deallocating all the resources that were loaded after the creation of the cache object.
+
+# Function GetFont:Font(filename$)
+
+Returns the font with the specified filename. If the font has been loaded previously by any cache object, that same object will be returned. Otherwise, the last pushed cache object will load and return a new font.
+
+# Function GetMesh:Mesh(filename$, texFilter% = Texture.FILTER_TRILINEAR)
+
+Returns the mesh with the specified filename. If the mesh has been loaded previously by any cache object, that same object will be returned. Otherwise, the last pushed cache object will load and return a new mesh.
+
+# Function GetTexture:Texture(filename$, filter% = Texture.FILTER_TRILINEAR)
+
+Returns the texture with the specified filename. If the texture has been loaded previously by any cache object, that same object will be returned. Otherwise, the last pushed cache object will load and return a new texture.
+
+
+
+
+# Class vortex.ext.FontLoader
+
+This class is used to load fonts created with the bundled fonttool application.
+
+# Function Load:Font(filename$)
+
+Loads and returns a font with the specified filename. You normally won't use this function directly, but will instead use Cache.GetFont to get the font.
+
+
+
+
+# Class vortex.ext.MeshLoader
+
+This class is used to load meshes created with the bundled meshtool application.
+
+# Function Load:Mesh(filename$, texFilter%)
+
+Loads and returns a mesh with the specified filename. You normally won't use this function directly, but will instead use Cache.GetMesh to get the mesh.

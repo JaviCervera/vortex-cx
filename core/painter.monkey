@@ -52,8 +52,8 @@ Public
 		Renderer.SetBlendMode(mode)
 	End
 	
-	Function SetColor:Void(r#, g#, b#, a# = 1)
-		Renderer.SetBaseColor(r, g, b, a)
+	Function SetColor:Void(r#, g#, b#, opacity# = 1)
+		Renderer.SetBaseColor(r, g, b, opacity)
 	End
 	
 	Function Cls:Void(r# = 0, g# = 0, b# = 0)
