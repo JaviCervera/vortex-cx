@@ -20,7 +20,7 @@ DEFINES += _CRT_SECURE_NO_WARNINGS
 
 INCLUDEPATH += assimp/
 
-win32:LIBS += -L../source/assimp/ -lassimp
+win32:LIBS += -L../source/assimp/ -lassimp.win32 -lzlibstatic.win32
 mac:LIBS += -L../ -lassimp
 unix:!mac:LIBS += -L../source/assimp/ -lassimp.linux64 -lz
 

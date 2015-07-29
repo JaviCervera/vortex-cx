@@ -2,6 +2,7 @@
 #include "stb_image_write.h"
 #include "../../meshtool/source/stringutils.h"
 #include <iostream>
+#include <stdlib.h>
 
 using namespace std;
 

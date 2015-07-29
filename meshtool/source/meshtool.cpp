@@ -276,7 +276,7 @@ static void ExportJSONMesh(const aiScene* scene, const string& filename) {
 				const aiAnimation* anim = scene->mAnimations[j];
 
 				// Search channel for this bone
-				const aiNodeAnim* channel = nullptr;
+				const aiNodeAnim* channel = NULL;
 				for ( unsigned int channelIndex = 0; channelIndex < anim->mNumChannels; channelIndex++ ) {
 					if ( anim->mChannels[channelIndex]->mNodeName == bone->mName ) {
 						channel = anim->mChannels[channelIndex];
@@ -286,7 +286,7 @@ static void ExportJSONMesh(const aiScene* scene, const string& filename) {
 				}
 
 				// Write transforms
-				if ( channel != nullptr ) {
+				if ( channel != NULL ) {
 					// Positions
 					for ( unsigned int k = 0; k < channel->mNumPositionKeys; k++ ) {
 						const aiVectorKey& pos = channel->mPositionKeys[k];
