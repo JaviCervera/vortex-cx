@@ -22,7 +22,7 @@ Front facing triangles are those that are mapped to the screen in counter clockw
 
 Submodules:
 
-The base functionality of the library is provided in the vortex.core submodule. A vortex.ext module is also provided, which included the following functionality:
+The base functionality of the library is provided in the vortex.core submodule. A vortex.ext module is also provided, which includes the following functionality:
 
 * Loading of fonts created with the bundled fonttool application.
 * Loading of meshes created with the bundled meshtool application.
