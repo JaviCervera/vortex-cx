@@ -22,7 +22,7 @@ INCLUDEPATH += assimp/
 
 win32:LIBS += -L../source/assimp/ -lassimp.win32 -lzlibstatic.win32
 mac:LIBS += -L../source/assimp/ -lassimp.mac32 -lz
-unix:!mac:LIBS += -L../source/assimp/ -lassimp.linux64 -lz
+unix:!mac:LIBS += -L../source/assimp/ -lassimp.linux64 -lzlibstatic.linux64
 
 SOURCES += \
 	meshtool.cpp
