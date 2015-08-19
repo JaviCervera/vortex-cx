@@ -190,7 +190,7 @@ static void ExportJSONMesh(const aiScene* scene, const string& filename) {
 	if ( scene->HasAnimations() )
 		WriteString("\t],\n", filename);
 	else
-		WriteString("\t\n", filename);
+		WriteString("\t]\n", filename);
 
 	// Write animation info
 	if ( scene->HasAnimations() ) {
