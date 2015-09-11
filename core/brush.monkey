@@ -16,10 +16,10 @@ Public
 		brush.mRed = 1
 		brush.mGreen = 1
 		brush.mBlue = 1
-		brush.mAlpha = 1
+		brush.mOpacity = 1
+		brush.mShininess = 0
 		brush.mBaseTex = baseTex
 		brush.mBlendMode = BLEND_ALPHA
-		brush.mShininess = 0
 		brush.mCulling = True
 		brush.mDepthWrite = True
 		Return brush
@@ -29,7 +29,7 @@ Public
 		mRed = other.mRed
 		mGreen = other.mGreen
 		mBlue = other.mBlue
-		mAlpha = other.mAlpha
+		mOpacity = other.mOpacity
 		mBaseTex = other.mBaseTex
 		mBlendMode = other.mBlendMode
 		mShininess = other.mShininess
@@ -56,11 +56,19 @@ Public
 	End
 	
 	Method SetOpacity:Void(opacity#)
-		mAlpha = opacity
+		mOpacity = opacity
 	End
 	
 	Method GetOpacity#()
-		Return mAlpha
+		Return mOpacity
+	End
+	
+	Method SetShininess:Void(shininess#)
+		mShininess = shininess
+	End
+	
+	Method GetShininess#()
+		Return mShininess
 	End
 	
 	Method SetBaseTexture:Void(tex:Texture)
@@ -77,14 +85,6 @@ Public
 	
 	Method GetBlendMode%()
 		Return mBlendMode
-	End
-	
-	Method SetShininess:Void(shininess#)
-		mShininess = shininess
-	End
-	
-	Method GetShininess#()
-		Return mShininess
 	End
 	
 	Method SetCulling:Void(enable:Bool)
@@ -106,9 +106,9 @@ Public
 	Method Prepare:Void()
 		Local shininess% = 0
 		If mShininess > 0 Then shininess = Int((1.0 - mShininess) * 128)
-		Renderer.SetBaseColor(mRed, mGreen, mBlue, mAlpha)
-		Renderer.SetBlendMode(mBlendMode)
+		Renderer.SetBaseColor(mRed, mGreen, mBlue, mOpacity)
 		Renderer.SetShininess(shininess)
+		Renderer.SetBlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)
 		Renderer.SetDepthWriting(mDepthWrite)
 		If mBaseTex <> Null Then Renderer.SetTexture(mBaseTex.GetHandle()) Else Renderer.SetTexture(0)
@@ -120,11 +120,10 @@ Private
 	Field mRed			: Float
 	Field mGreen		: Float
 	Field mBlue			: Float
-	Field mAlpha		: Float
+	Field mOpacity		: Float
+	Field mShininess	: Float
 	Field mBaseTex		: Texture
 	Field mBlendMode	: Int
-	Field mFlags		: Int
-	Field mShininess	: Float
 	Field mCulling		: Bool
 	Field mDepthWrite	: Bool
 End

@@ -131,5 +131,5 @@ Private
 		End
 	End
 	
-	Global mLights	: LightData[NUM_LIGHTS]
+	Global mLights		: LightData[NUM_LIGHTS]
 End

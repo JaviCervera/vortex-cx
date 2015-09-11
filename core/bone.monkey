@@ -102,9 +102,11 @@ Public
 	End
 	
 	Method AddChild:Void(bone:Bone)
-		bone.mParent = Self
-		mChildren = mChildren.Resize(mChildren.Length() + 1)
-		mChildren[mChildren.Length() - 1] = bone
+		If bone.mParent = Null
+			bone.mParent = Self
+			mChildren = mChildren.Resize(mChildren.Length() + 1)
+			mChildren[mChildren.Length() - 1] = bone
+		End
 	End
 	
 	Method GetNumChildren%()

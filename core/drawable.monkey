@@ -218,7 +218,7 @@ Private
 		mTempArray[1] = Renderer.GetViewMatrix().m[4]
 		mTempArray[2] = Renderer.GetViewMatrix().m[8]
 		mTempArray[3] = 0
-		mTempArray[4] = Renderer.GetViewMatrix().m[0]
+		mTempArray[4] = Renderer.GetViewMatrix().m[2]
 		mTempArray[5] = Renderer.GetViewMatrix().m[6]
 		mTempArray[6] = Renderer.GetViewMatrix().m[10]
 		mTempArray[7] = 0

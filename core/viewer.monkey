@@ -64,23 +64,20 @@ Public
 		mVHeight = h
 	End
 	
-	Method Prepare:Void()
-		'Calculate look direction
-		mQuat.Mul(0, 1, 0)
-		
-		'Get view matrix
-		mViewMatrix.LookAt(GetX(), GetY(), GetZ(), GetX() + Quat.ResultVector().x, GetY() + Quat.ResultVector().y, GetZ() + Quat.ResultVector().z, 0, 0, 1)
-		
-		'Setup for 3D rendering
-		Renderer.Setup3D(mVX, mVY, mVWidth, mVHeight)
-		
-		'Setup matrices
-		Renderer.SetProjectionMatrix(mProjMatrix)
-		Renderer.SetViewMatrix(mViewMatrix)
-		
-		'Clear buffers
-		Renderer.ClearColorBuffer(mRed, mGreen, mBlue)
-		Renderer.ClearDepthBuffer()
+	Method GetViewportX#()
+		Return mVX
+	End
+	
+	Method GetViewportY#()
+		Return mVY
+	End
+	
+	Method GetViewportWidth#()
+		Return mVWidth
+	End
+	
+	Method GetViewportHeight#()
+		Return mVHeight
 	End
 	
 	Method SetPosition:Void(x#, y#, z#)
@@ -142,6 +139,25 @@ Public
 		mTempVec.Set(x, y, z)
 		mQuat.Mul(mTempVec)
 		mPosition.Sum(Quat.ResultVector())
+	End
+	
+	Method Prepare:Void()
+		'Calculate look direction
+		mQuat.Mul(0, 1, 0)
+		
+		'Get view matrix
+		mViewMatrix.LookAt(GetX(), GetY(), GetZ(), GetX() + Quat.ResultVector().x, GetY() + Quat.ResultVector().y, GetZ() + Quat.ResultVector().z, 0, 0, 1)
+		
+		'Setup for 3D rendering
+		Renderer.Setup3D(mVX, mVY, mVWidth, mVHeight)
+		
+		'Setup matrices
+		Renderer.SetProjectionMatrix(mProjMatrix)
+		Renderer.SetViewMatrix(mViewMatrix)
+		
+		'Clear buffers
+		Renderer.ClearColorBuffer(mRed, mGreen, mBlue)
+		Renderer.ClearDepthBuffer()
 	End
 Private
 	Method New()

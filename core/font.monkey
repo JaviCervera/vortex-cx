@@ -38,7 +38,7 @@ Public
 	End
 	
 	Method GetTextWidth#(text$)
-		Local width% = 0
+		Local width# = 0
 		For Local i% = 0 Until text.Length()
 			If String.FromChar(text[i]) = " " Then
 				width += mHeight/3
@@ -50,7 +50,7 @@ Public
 	End
 	
 	Method GetTextHeight#(text$)
-		Local height% = 0
+		Local height# = 0
 		For Local i% = 0 Until text.Length()
 			If mGlyphs[text[i]-32].mHeight > height Then height = mGlyphs[text[i]-32].mHeight
 		Next

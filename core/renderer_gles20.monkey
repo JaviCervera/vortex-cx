@@ -152,7 +152,7 @@ Public
 	Function SetBaseColor:Void(r#, g#, b#, a#)
 		If mBaseColorLoc <> -1 Then glUniform4f(mBaseColorLoc, r, g, b, a)
 	End
-	
+
 	Function SetAmbient:Void(r#, g#, b#)
 		If mAmbientLoc <> -1 Then glUniform3f(mAmbientLoc, r, g, b)
 	End
@@ -170,15 +170,15 @@ Public
 	End
 	
 	Function SetLighting:Void(enable:Bool)
-		glUniform1i(mLightingEnabledLoc, enable)
+		If mLightingEnabledLoc <> -1 Then glUniform1i(mLightingEnabledLoc, enable)
 	End
 	
 	Function SetLight:Void(index%, enable:Bool, x#, y#, z#, w#, r#, g#, b#, att#)
-		glUniform1i(mLightEnabledLoc[index], enable)
+		If mLightEnabledLoc[index] <> -1 Then glUniform1i(mLightEnabledLoc[index], enable)
 		If enable
-			glUniform4f(mLightPosLoc[index], x, y, z, w)
-			glUniform3f(mLightColorLoc[index], r, g, b)
-			glUniform1f(mLightAttenuationLoc[index], att)
+			If mLightPosLoc[index] <> -1 Then glUniform4f(mLightPosLoc[index], x, y, z, w)
+			If mLightColorLoc[index] <> -1 Then glUniform3f(mLightColorLoc[index], r, g, b)
+			If mLightAttenuationLoc[index] <> -1 Then glUniform1f(mLightAttenuationLoc[index], att)
 		End
 	End
 	
@@ -359,18 +359,11 @@ Public
 	Function DrawBuffers:Void(vertexBuffer%, indexBuffer%, numIndices%, coordsOffset%, normalsOffset%, colorsOffset%, texCoordsOffset%, stride%)
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer)
-		If coordsOffset >= 0 And mVPosLoc > -1 Then glEnableVertexAttribArray(mVPosLoc)
-		If normalsOffset >= 0 And mVNormalLoc > -1 Then glEnableVertexAttribArray(mVNormalLoc)
-		If colorsOffset >= 0 And mVColorLoc > -1 Then glEnableVertexAttribArray(mVColorLoc)
-		If texCoordsOffset >= 0 And mVTexLoc > -1 Then glEnableVertexAttribArray(mVTexLoc)
-		
-		If coordsOffset >= 0 And mVPosLoc > -1 Then glVertexAttribPointer(mVPosLoc, 3, GL_FLOAT, False, stride, coordsOffset)
-		If normalsOffset >= 0 And mVNormalLoc > -1 Then glVertexAttribPointer(mVNormalLoc, 3, GL_FLOAT, False, stride, normalsOffset)
-		If colorsOffset >= 0 And mVColorLoc > -1 Then glVertexAttribPointer(mVColorLoc, 4, GL_FLOAT, False, stride, colorsOffset)
-		If texCoordsOffset >= 0 And mVTexLoc > -1 Then glVertexAttribPointer(mVTexLoc, 2, GL_FLOAT, False, stride, texCoordsOffset)
-		
+		If coordsOffset >= 0 And mVPosLoc > -1 Then glEnableVertexAttribArray(mVPosLoc); glVertexAttribPointer(mVPosLoc, 3, GL_FLOAT, False, stride, coordsOffset)
+		If normalsOffset >= 0 And mVNormalLoc > -1 Then glEnableVertexAttribArray(mVNormalLoc); glVertexAttribPointer(mVNormalLoc, 3, GL_FLOAT, False, stride, normalsOffset)
+		If colorsOffset >= 0 And mVColorLoc > -1 Then glEnableVertexAttribArray(mVColorLoc); glVertexAttribPointer(mVColorLoc, 4, GL_FLOAT, False, stride, colorsOffset)
+		If texCoordsOffset >= 0 And mVTexLoc > -1 Then glEnableVertexAttribArray(mVTexLoc); glVertexAttribPointer(mVTexLoc, 2, GL_FLOAT, False, stride, texCoordsOffset)
 		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0)
-		
 		If mVPosLoc > -1 Then glDisableVertexAttribArray(mVPosLoc)
 		If mVNormalLoc > -1 Then glDisableVertexAttribArray(mVNormalLoc)
 		If mVColorLoc > -1 Then glDisableVertexAttribArray(mVColorLoc)
