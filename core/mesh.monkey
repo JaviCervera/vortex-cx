@@ -90,7 +90,13 @@ Public
 	
 	Method Draw:Void(animated:Bool, frame#, sequence%)
 		If mRootBone <> Null
-			mRootBone.Draw(animated, frame, mSequences[sequence].GetFirstFrame(), mSequences[sequence].GetLastFrame())
+			Local firstFrame% = 0
+			Local lastFrame% = 0
+			If animated
+				firstFrame = mSequences[sequence].GetFirstFrame()
+				lastFrame = mSequences[sequence].GetLastFrame()
+			End
+			mRootBone.Draw(animated, frame, firstFrame, lastFrame)
 		Else
 			For Local i% = 0 Until GetNumSurfaces()
 				GetSurface(i).Draw()
