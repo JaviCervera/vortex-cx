@@ -24,6 +24,14 @@ Public
 	Function GetShaderError$()
 		Return Renderer.GetProgramError()
 	End
+	
+	Function GetAPIVersion:Float()
+		Return Renderer.GetAPIVersion()
+	End Function
+	
+	Function GetShadingVersion:Float()
+		Return Renderer.GetShadingVersion()
+	End Function
 Private
 	Method New()
 	End

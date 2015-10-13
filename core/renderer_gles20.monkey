@@ -31,6 +31,10 @@ Public
 	'---------------------------------------------------------------------------
 
 	Function Init:Bool()
+		'Get GL and GLSL versions
+		mVersion = Float(glGetString(GL_VERSION).Split(" ")[0])
+		mShadingVersion = Float(glGetString(GL_SHADING_LANGUAGE_VERSION).Split(" ")[0])
+	
 		'Prepare default program
 		mDefaultProgram = CreateProgram(STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
 		If mDefaultProgram = 0 Then Return False
@@ -455,6 +459,14 @@ Public
 	Function GetProgramError$()
 		Return mProgramError
 	End
+	
+	Function GetAPIVersion:Float()
+		Return mVersion
+	End Function
+	
+	Function GetShadingVersion:Float()
+		Return mShadingVersion
+	End Function
 Private
 	Method New()
 	End
@@ -488,6 +500,10 @@ Private
 			Return GL_LINEAR
 		End
 	End
+	
+	'GL and GLSL version
+	Global mVersion#
+	Global mShadingVersion#
 	
 	'Localization of vars in shaders
 	Global mMVPLoc%

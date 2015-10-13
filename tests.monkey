@@ -40,7 +40,9 @@ Public
 	
 		'Init vortex
 		Vortex.Init()
-		Print Vortex.GetShaderError()
+		Print "API version: " + Vortex.GetAPIVersion()
+		Print "Shading version: " + Vortex.GetShadingVersion()
+		Print "Shader compilation: " + Vortex.GetShaderError()
 		
 		'Initialize cache
 		Cache.Push()
