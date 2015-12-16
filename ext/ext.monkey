@@ -1,5 +1,5 @@
 Strict
 
 Import vortex.ext.cache
-Import vortex.ext.fontloader
-Import vortex.ext.meshloader
+Import vortex.ext.fontloader_json
+Import vortex.ext.meshloader_xml

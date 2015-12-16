@@ -1,3 +1,6 @@
+#CMake folders
+meshtool/_BUILD/
+
 # Tests build folder
 tests.build*/
 

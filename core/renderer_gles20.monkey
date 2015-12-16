@@ -32,8 +32,15 @@ Public
 
 	Function Init:Bool()
 		'Get GL and GLSL versions
+#If LANG = "js"
+		Local glVersionStr$[] = glGetString(GL_VERSION).Split(" ")
+		Local glslVersionStr$[] = glGetString(GL_SHADING_LANGUAGE_VERSION).Split(" ")
+		mVersion = Float(glVersionStr[glVersionStr.Length() - 1])
+		mShadingVersion = Float(glslVersionStr[glslVersionStr.Length() - 1])
+#Else
 		mVersion = Float(glGetString(GL_VERSION).Split(" ")[0])
 		mShadingVersion = Float(glGetString(GL_SHADING_LANGUAGE_VERSION).Split(" ")[0])
+#End
 	
 		'Prepare default program
 		mDefaultProgram = CreateProgram(STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
@@ -56,7 +63,7 @@ Public
 		'Disable 3D states
 		SetCulling(False)
 		glDisable(GL_DEPTH_TEST)
-		glBindTexture(GL_TEXTURE_2D, 0)
+		'glBindTexture(GL_TEXTURE_2D, 0)
 		
 		'Setup 2D
 		glEnable(GL_BLEND)
@@ -82,7 +89,7 @@ Public
 		UseProgram(mDefaultProgram)
 	
 		'Disable 2D & mojo states
-		glBindTexture(GL_TEXTURE_2D, 0)
+		'glBindTexture(GL_TEXTURE_2D, 0)
 		
 		'Setup 3D
 		glEnable(GL_BLEND)
@@ -91,7 +98,7 @@ Public
 		glDepthFunc(GL_LEQUAL)
 		SetLighting(False)
 		SetCulling(True)
-		SetDepthWriting(True)
+		SetDepthWrite(True)
 		SetBlendMode(BLEND_ALPHA)
 		SetBaseColor(1,1,1,1)
 		
@@ -169,7 +176,7 @@ Public
 		If enable Then glEnable(GL_CULL_FACE) Else glDisable(GL_CULL_FACE)
 	End
 	
-	Function SetDepthWriting:Void(enable:Bool)
+	Function SetDepthWrite:Void(enable:Bool)
 		glDepthMask(enable)
 	End
 	
@@ -298,7 +305,7 @@ Public
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + filename)
 		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
-		glBindTexture(GL_TEXTURE_2D, 0)
+		'glBindTexture(GL_TEXTURE_2D, 0)
 		
 		'Trick to get texture size
 		If size.Length() >= 2
@@ -323,7 +330,7 @@ Public
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer)
 		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
-		glBindTexture(GL_TEXTURE_2D, 0)
+		'glBindTexture(GL_TEXTURE_2D, 0)
 		Return texture
 	End
 	
@@ -332,7 +339,7 @@ Public
 	End
 	
 	Function SetTexture:Void(texture%)
-		glBindTexture(GL_TEXTURE_2D, texture)
+		If texture <> 0 Then glBindTexture(GL_TEXTURE_2D, texture)
 		If mBaseTexModeLoc <> -1 Then glUniform1i(mBaseTexModeLoc, texture <> 0)
 	End
 	

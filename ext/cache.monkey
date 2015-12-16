@@ -4,8 +4,8 @@ Private
 Import vortex.core.font
 Import vortex.core.mesh
 Import vortex.core.texture
-Import vortex.ext.fontloader
-Import vortex.ext.meshloader
+Import vortex.ext.fontloader_json
+Import vortex.ext.meshloader_xml
 
 Public
 Class Cache Final
@@ -29,7 +29,7 @@ Public
 		Next
 		
 		'If it was not found, load it
-		Local font:Font = FontLoader.Load(filename)
+		Local font:Font = FontLoader_JSON.Load(filename)
 		If font <> Null Then mStack[mStack.Length() -1].mFonts.Set(filename, font)
 		Return font
 	End
@@ -43,7 +43,7 @@ Public
 		Next
 		
 		'If it was not found, load it
-		Local mesh:Mesh = MeshLoader.Load(filename, texFilter)
+		Local mesh:Mesh = MeshLoader_XML.Load(filename, texFilter)
 		If mesh <> Null Then mStack[mStack.Length() -1].mMeshes.Set(filename, mesh)
 		Return mesh
 	End

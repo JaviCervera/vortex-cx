@@ -110,7 +110,7 @@ Public
 		Renderer.SetShininess(shininess)
 		Renderer.SetBlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)
-		Renderer.SetDepthWriting(mDepthWrite)
+		Renderer.SetDepthWrite(mDepthWrite)
 		If mBaseTex <> Null Then Renderer.SetTexture(mBaseTex.GetHandle()) Else Renderer.SetTexture(0)
 	End
 Private

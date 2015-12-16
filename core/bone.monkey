@@ -30,6 +30,10 @@ Public
 		Return mName
 	End
 	
+	Method GetParent:Bone()
+		Return mParent
+	End
+	
 	Method SetDefaultTransform:Void(px#, py#, pz#, rw#, rx#, ry#, rz#, sx#, sy#, sz#)
 		mTempQuat.Set(rw, rx, ry, rz)
 		mTempQuat.CalcAxis()
@@ -145,6 +149,70 @@ Public
 		mScales = mScales.Resize(mScales.Length() + 1)
 		mScaleKeys[mScaleKeys.Length() - 1] = keyframe
 		mScales[mScales.Length() - 1] = Vec3.Create(x, y, z)
+	End
+	
+	Method GetNumPositionKeys:Int()
+		Return mPositionKeys.Length()
+	End
+	
+	Method GetPositionKeyFrame:Int(index:Int)
+		Return mPositionKeys[index]
+	End
+	
+	Method GetPositionKeyX:Float(index:Int)
+		Return mPositions[index].x
+	End
+	
+	Method GetPositionKeyY:Float(index:Int)
+		Return mPositions[index].y
+	End
+	
+	Method GetPositionKeyZ:Float(index:Int)
+		Return mPositions[index].z
+	End
+	
+	Method GetNumRotationKeys:Int()
+		Return mRotationsKeys.Length()
+	End
+	
+	Method GetRotationKeyFrame:Int(index:Int)
+		Return mRotationKeys[index]
+	End
+	
+	Method GetRotationKeyW:Float(index:Int)
+		Return mRotations[index].w
+	End
+	
+	Method GetRotationKeyX:Float(index:Int)
+		Return mRotations[index].x
+	End
+	
+	Method GetRotationKeyY:Float(index:Int)
+		Return mRotations[index].y
+	End
+	
+	Method GetRotationKeyZ:Float(index:Int)
+		Return mRotations[index].z
+	End
+	
+	Method GetNumScaleKeys:Int()
+		Return mScaleKeys.Length()
+	End
+	
+	Method GetScaleKeyFrame:Int(index:Int)
+		Return mScaleKeys[index]
+	End
+	
+	Method GetScaleKeyX:Float(index:Int)
+		Return mScales[index].x
+	End
+	
+	Method GetScaleKeyY:Float(index:Int)
+		Return mScales[index].y
+	End
+	
+	Method GetScaleKeyZ:Float(index:Int)
+		Return mScales[index].z
 	End
 	
 	Method Draw:Void(animated:Bool, frame#, firstSeqFrame%, lastSeqFrame%)
