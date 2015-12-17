@@ -88,7 +88,7 @@ Public
 		mSurface = Null
 	End
 	
-	Method Draw:Void(animated:Bool = False, frame# = 0, sequence% = 0)
+	Method Draw:Void(animated:Bool = False, frame# = 0, firstFrame% = 0, lastFrame% = 0)
 		'Calculate transform matrix
 		Select mBillboardType
 			Case BILLBOARD_NONE
@@ -112,7 +112,7 @@ Public
 		
 		'Draw
 		If mMesh <> Null
-			mMesh.Draw(animated, frame, sequence)
+			mMesh.Draw(animated, frame, firstFrame, lastFrame)
 		Elseif mSurface <> Null
 			mSurface.Draw()
 		End

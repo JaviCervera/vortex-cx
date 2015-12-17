@@ -73,7 +73,7 @@ Public
 		tri = Drawable.Create(mesh)
 		
 		'Load sphere mesh
-		Local sphere:Mesh = Cache.GetMesh("sphere.msh.json")
+		Local sphere:Mesh = Cache.GetMesh("sphere.msh.xml")
 		spheres = New Drawable[81]
 		Local x% = -32, y% = -32
 		For Local i% = 0 Until spheres.Length()
@@ -114,7 +114,7 @@ Public
 		lightsEulerZ[2] = 240
 		
 		'Create swat
-		swatMesh = Cache.GetMesh("swat.msh.json")
+		swatMesh = Cache.GetMesh("swat.msh.xml")
 		swat = Drawable.Create(swatMesh)
 			
 		Return False
@@ -171,7 +171,7 @@ Public
 			viewer.SetPosition(0, -4, 2)
 			viewer.SetEuler(-15, 0, 0)
 			currentFrame += 16 * GetDeltaTime()
-			If currentFrame > swatMesh.GetSequenceLastFrame(0)+1 Then currentFrame = swatMesh.GetSequenceFirstFrame(0) + (currentFrame - Int(currentFrame))
+			If currentFrame > swatMesh.GetLastFrame()+1 Then currentFrame = currentFrame - Int(currentFrame)
 		End
 
 		Return False
@@ -257,7 +257,7 @@ Public
 		Case TEST_PRIMITIVES
 			numPrimitives = 0
 		Case TEST_ANIMATION
-			currentFrame = swatMesh.GetSequenceFirstFrame(0)
+			currentFrame = 0
 		End
 	End
 	

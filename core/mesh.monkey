@@ -3,7 +3,6 @@ Strict
 Private
 Import vortex.core.bone
 Import vortex.core.renderer
-Import vortex.core.sequence
 Import vortex.core.surface
 
 Public
@@ -13,7 +12,7 @@ Public
 		Local mesh:Mesh = New Mesh
 		mesh.mFilename = filename
 		mesh.mSurfaces = New Surface[0]
-		mesh.mSequences = New Sequence[0]
+		mesh.mLastFrame = 0
 		mesh.mRootBone = Null
 		Return mesh
 	End
@@ -42,37 +41,12 @@ Public
 		Return mSurfaces[index]
 	End
 	
-	Method AddSequence%(name$, firstFrame%, lastFrame%)
-		mSequences = mSequences.Resize(mSequences.Length() + 1)
-		mSequences[mSequences.Length()-1] = Sequence.Create(name, firstFrame, lastFrame)
-		Return GetNumSequences()-1
+	Method SetLastFrame:Void(lastFrame:Int)
+		mLastFrame = lastFrame
 	End
 	
-	Method GetNumSequences%()
-		Return mSequences.Length()
-	End
-	
-	Method FindSequence%(name$)
-		For Local i% = 0 Until GetNumSequences()
-			If GetSequenceName(i) = name Then Return i
-		Next
-		Return -1
-	End
-	
-	Method GetSequenceName$(index%)
-		Return mSequences[index].GetName()
-	End
-	
-	Method GetSequenceFirstFrame%(index%)
-		Return mSequences[index].GetFirstFrame()
-	End
-	
-	Method GetSequenceLastFrame%(index%)
-		Return mSequences[index].GetLastFrame()
-	End
-	
-	Method GetSequenceNumFrames%(index%)
-		Return mSequences[index].GetNumFrames()
+	Method GetLastFrame:Int()
+		Return mLastFrame
 	End
 	
 	Method SetRootBone:Bool(bone:Bone)
@@ -88,14 +62,9 @@ Public
 		Return mRootBone
 	End
 	
-	Method Draw:Void(animated:Bool, frame#, sequence%)
+	Method Draw:Void(animated:Bool, frame#, firstFrame% = 0, lastFrame% = 0)
 		If mRootBone <> Null
-			Local firstFrame% = 0
-			Local lastFrame% = 0
-			If animated
-				firstFrame = mSequences[sequence].GetFirstFrame()
-				lastFrame = mSequences[sequence].GetLastFrame()
-			End
+			If animated And lastFrame = 0 Then lastFrame = mLastFrame
 			mRootBone.Draw(animated, frame, firstFrame, lastFrame)
 		Else
 			For Local i% = 0 Until GetNumSurfaces()
@@ -109,6 +78,6 @@ Private
 
 	Field mFilename		: String
 	Field mSurfaces		: Surface[]
-	Field mSequences	: Sequence[]
+	Field mLastFrame	: Int
 	Field mRootBone		: Bone
 End

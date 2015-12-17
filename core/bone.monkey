@@ -215,13 +215,13 @@ Public
 		Return mScales[index].z
 	End
 	
-	Method Draw:Void(animated:Bool, frame#, firstSeqFrame%, lastSeqFrame%)
+	Method Draw:Void(animated:Bool, frame#, firstFrame%, lastFrame%)
 		'Store model matrix
 		mPrevMatrix.Set(Renderer.GetModelMatrix())
 		
 		'Set new model matrix
 		If animated
-			CalcCurrentTransform(frame, firstSeqFrame, lastSeqFrame)
+			CalcCurrentTransform(frame, firstFrame, lastFrame)
 			Renderer.GetModelMatrix().Mul(GetCurrentTransform())
 		Else
 			Renderer.GetModelMatrix().Mul(GetDefaultTransform())
@@ -235,7 +235,7 @@ Public
 		
 		'Draw children
 		For Local child:Bone = Eachin mChildren
-			child.Draw(animated, frame, firstSeqFrame, lastSeqFrame)
+			child.Draw(animated, frame, firstFrame, lastFrame)
 		Next
 		
 		'Restore previous model matrix

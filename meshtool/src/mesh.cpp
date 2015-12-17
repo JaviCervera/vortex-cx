@@ -240,7 +240,7 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 			if (joints[i]->RotationKeys.size() > 0) {
 				buffer += "\t\t\t<rotations>";
 				for (u32 j = 0; j < joints[i]->RotationKeys.size(); ++j) {
-					buffer += StringFromNumber(int(joints[i]->RotationKeys[j].frame)) + "," + StringFromNumber(-joints[i]->RotationKeys[j].rotation.W) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.X) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Z) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Y);
+					buffer += StringFromNumber(int(joints[i]->RotationKeys[j].frame)) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.W) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.X) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Z) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Y);
 					if (j < joints[i]->RotationKeys.size() - 1) buffer += ",";
 				}
 				buffer += "</rotations>\n";

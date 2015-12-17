@@ -25,7 +25,7 @@ Public
 		'Get arrays
 		Local brushesNode:XMLNode = parser.GetRootNode().GetChild("brushes")
 		Local surfacesNode:XMLNode = parser.GetRootNode().GetChild("surfaces")
-		Local sequencesNode:XMLNode = parser.GetRootNode().GetChild("sequences")
+		Local lastFrameNode:XMLNode = parser.GetRootNode().GetChild("last_frame")
 		Local bonesNode:XMLNode = parser.GetRootNode().GetChild("bones")
 		If Not surfacesNode Then Return Null
 	
@@ -96,7 +96,6 @@ Public
 			Local normalsStr$[] = surfaceNode.GetChildValue("normals", "").Split(",")
 			Local colorsStr$[] = surfaceNode.GetChildValue("colors", "").Split(",")
 			Local texcoordsStr$[] = surfaceNode.GetChildValue("texcoords", "").Split(",")
-			If indicesStr.Length() < 1 Or coordsStr.Length() < 1 Then Return Null
 		
 			'Create surface
 			Local surf:Surface = Surface.Create(brushMap.Get(brushStr))
@@ -143,95 +142,82 @@ Public
 			mesh.AddSurface(surf)
 		Next
 		
-		#rem
-		'Parse sequences
-		If sequences <> Null
-			For Local i% = 0 Until sequences.Length()
-				Local jseq:JsonObject = JsonObject(sequences.Get(i))
-				If Not jseq Then Return Null
-			
-				'Get sequence data
-				Local name$ = jseq.GetString("name")
-				Local first_frame% = jseq.GetInt("first_frame")
-				Local last_frame% = jseq.GetInt("last_frame")
-			
-				'Add sequence
-				mesh.AddSequence(name, first_frame, last_frame)
-			Next
-		End
+		'Parse last frame
+		If lastFrameNode Then mesh.SetLastFrame(Int(lastFrameNode.GetValue()))
 		
 		'Parse bones
-		If bones
-			For Local i% = 0 Until bones.Length()
-				Local jbone:JsonObject = JsonObject(bones.Get(i))
-				If Not jbone Then Return Null
+		If bonesNode
+			For Local i% = 0 Until bonesNode.GetNumChildren()
+				Local boneNode:XMLNode = bonesNode.GetChild(i)
+				If boneNode.GetName() <> "bone"
+					DebugLog "Unexpected node '" + boneNode.GetName() + "' found in bones section. Ignoring..."
+					Continue
+				End
 			
 				'Get node data
-				Local name$ = jbone.GetString("name")
-				Local parent$ = jbone.GetString("parent")
-				Local position:JsonArray = JsonArray(jbone.Get("def_position"))
-				Local rotation:JsonArray = JsonArray(jbone.Get("def_rotation"))
-				Local scale:JsonArray = JsonArray(jbone.Get("def_scale"))
-				Local surfaces:JsonArray = JsonArray(jbone.Get("surfaces"))
-				If Not position Or Not rotation Or Not scale Then Return Null
-				If position.Length() <> 3 Or rotation.Length() <> 4 Or scale.Length() <> 3 Then Return Null
+				Local nameStr$ = boneNode.GetChildValue("name", "")
+				Local parentStr$ = boneNode.GetChildValue("parent", "")
+				Local defPositionStr$[] = boneNode.GetChildValue("def_position", "0,0,0").Split(",")
+				Local defRotationStr$[] = boneNode.GetChildValue("def_rotation", "1,0,0,0").Split(",")
+				Local defScaleStr$[] = boneNode.GetChildValue("def_scale", "1,1,1").Split(",")
+				Local surfacesStr$[] = boneNode.GetChildValue("surfaces", "").Split(",")
+				If defPositionStr.Length() <> 3 Or defRotationStr.Length() <> 4 Or defScaleStr.Length() <> 3 Then Return Null
 				
 				'Add bone
-				Local bone:Bone = Bone.Create(name)
-				bone.SetDefaultTransform(position.GetFloat(0), position.GetFloat(1), position.GetFloat(2), rotation.GetFloat(0), rotation.GetFloat(1), rotation.GetFloat(2), rotation.GetFloat(3), scale.GetFloat(0), scale.GetFloat(1), scale.GetFloat(2))
+				Local bone:Bone = Bone.Create(nameStr)
+				bone.SetDefaultTransform(Float(defPositionStr[0]), Float(defPositionStr[1]), Float(defPositionStr[2]), Float(defRotationStr[0]), Float(defRotationStr[1]), Float(defRotationStr[2]), Float(defRotationStr[3]), Float(defScaleStr[0]), Float(defScaleStr[1]), Float(defScaleStr[2]))
 
 				'Add into hierarchy
-				If parent = ""	'Root node
+				If parentStr = ""	'Root node
 					If Not mesh.SetRootBone(bone) Then Return Null	'There can only be one root bone
 				Else
 					If Not mesh.GetRootBone() Then Return Null		'Parent bone must already exist
-					Local parentBone:Bone = mesh.GetRootBone().Find(parent)
+					Local parentBone:Bone = mesh.GetRootBone().Find(parentStr)
 					If Not parentBone Then Return Null					'Parent node must exist
 					parentBone.AddChild(bone)
 				End
 			
 				'Add surfaces
-				If surfaces <> Null
-					For Local j% = 0 Until surfaces.Length()
-						bone.AddSurface(mesh.GetSurface(surfaces.GetInt(j)))
+				If surfacesStr[0] <> ""
+					For Local j% = 0 Until surfacesStr.Length()
+						bone.AddSurface(mesh.GetSurface(Int(surfacesStr[j])))
 					Next
 				End
 				
 				'Add position frames
-				Local positions:JsonArray = JsonArray(jbone.Get("position_frames"))
-				If positions <> Null
-					For Local k% = 0 Until positions.Length() Step 4
-						Local frame% = positions.GetInt(k)
-						Local x# = positions.GetFloat(k+1)
-						Local y# = positions.GetFloat(k+2)
-						Local z# = positions.GetFloat(k+3)
+				Local positionsStr$[] = boneNode.GetChildValue("positions", "").Split(",")
+				If positionsStr.Length() >= 4
+					For Local k% = 0 Until positionsStr.Length() Step 4
+						Local frame% = Int(positionsStr[k])
+						Local x# = Float(positionsStr[k+1])
+						Local y# = Float(positionsStr[k+2])
+						Local z# = Float(positionsStr[k+3])
 						bone.AddPositionKey(frame, x, y, z)
 					Next
 				End
-				Local rotations:JsonArray = JsonArray(jbone.Get("rotation_frames"))
-				If rotations <> Null
-					For Local k% = 0 Until rotations.Length() Step 5
-						Local frame% = rotations.GetInt(k)
-						Local w# = rotations.GetFloat(k+1)
-						Local x# = rotations.GetFloat(k+2)
-						Local y# = rotations.GetFloat(k+3)
-						Local z# = rotations.GetFloat(k+4)
+				Local rotationsStr$[] = boneNode.GetChildValue("rotations", "").Split(",")
+				If rotationsStr.Length() >= 5
+					For Local k% = 0 Until rotationsStr.Length() Step 5
+						Local frame% = Int(rotationsStr[k])
+						Local w# = Float(rotationsStr[k+1])
+						Local x# = Float(rotationsStr[k+2])
+						Local y# = Float(rotationsStr[k+3])
+						Local z# = Float(rotationsStr[k+4])
 						bone.AddRotationKey(frame, w, x, y, z)
 					Next
 				End
-				Local scales:JsonArray = JsonArray(jbone.Get("scale_frames"))
-				If scales <> Null
-					For Local k% = 0 Until scales.Length() Step 4
-						Local frame% = scales.GetInt(k)
-						Local x# = scales.GetFloat(k+1)
-						Local y# = scales.GetFloat(k+2)
-						Local z# = scales.GetFloat(k+3)
+				Local scalesStr$[] = boneNode.GetChildValue("scales", "").Split(",")
+				If scalesStr.Length() >= 4
+					For Local k% = 0 Until scalesStr.Length() Step 4
+						Local frame% = Int(scalesStr[k])
+						Local x# = Float(scalesStr[k+1])
+						Local y# = Float(scalesStr[k+2])
+						Local z# = Float(scalesStr[k+3])
 						bone.AddScaleKey(frame, x, y, z)
 					Next
 				End
 			Next
 		End
-		#end
 	
 		Return mesh
 	End
