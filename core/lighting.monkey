@@ -31,85 +31,85 @@ End
 Public
 Class Lighting Final
 Public
-	Const NUM_LIGHTS%			= Renderer.MAX_LIGHTS
+	Const NUM_LIGHTS%	= Renderer.MAX_LIGHTS
 	Const DIRECTIONAL%	= 0
-	Const POINT%			= 1
+	Const POINT%		= 1
 	
-	Function SetLightEnabled:Void(index%, enabled:Bool)
+	Function SetLightEnabled:Void(index:Int, enabled:Bool)
 		InitLights()
 		mLights[index].mEnabled = enabled
 	End
 	
-	Function IsLightEnabled:Bool(index%)
+	Function IsLightEnabled:Bool(index:Int)
 		InitLights()
 		Return mLights[index].mEnabled
 	End
 	
-	Function SetLightType:Void(index%, type%)
+	Function SetLightType:Void(index:Int, type:Int)
 		InitLights()
 		If type = DIRECTIONAL Or type = POINT Then mLights[index].mW = type
 	End
 	
-	Function GetLightType%(index%)
+	Function GetLightType:Int(index:Int)
 		InitLights()
 		Return mLights[index].mW
 	End
 	
-	Function SetLightPosition:Void(index%, x#, y#, z#)
+	Function SetLightPosition:Void(index:Int, x:Float, y:Float, z:Float)
 		InitLights()
 		mLights[index].mX = x
 		mLights[index].mY = y
 		mLights[index].mZ = z
 	End
 	
-	Function GetLightX#(index%)
+	Function GetLightX:Float(index:Int)
 		InitLights()
 		Return mLights[index].mX
 	End
 	
-	Function GetLightY#(index%)
+	Function GetLightY:Float(index:Int)
 		InitLights()
 		Return mLights[index].mY
 	End
 	
-	Function GetLightZ#(index%)
+	Function GetLightZ:Float(index:Int)
 		InitLights()
 		Return mLights[index].mZ
 	End
 	
-	Function SetLightColor:Void(index%, r#, g#, b#)
+	Function SetLightColor:Void(index:Int, r:Float, g:Float, b:Float)
 		InitLights()
 		mLights[index].mRed = r
 		mLights[index].mGreen = g
 		mLights[index].mBlue = b
 	End
 	
-	Function GetLightRed#(index%)
+	Function GetLightRed:Float(index:Int)
 		InitLights()
 		Return mLights[index].mRed
 	End
 	
-	Function GetLightGreen#(index%)
+	Function GetLightGreen:Float(index:Int)
 		InitLights()
 		Return mLights[index].mGreen
 	End
 	
-	Function GetLightBlue#(index%)
+	Function GetLightBlue:Float(index:Int)
 		InitLights()
 		Return mLights[index].mBlue
 	End
 	
-	Function SetLightAttenuation:Void(index%, att#)
+	Function SetLightAttenuation:Void(index:Int, att:Float)
 		InitLights()
 		mLights[index].mAttenuation = att
 	End
 	
-	Function GetLightAttenuation#(index%)
+	Function GetLightAttenuation:Float(index:Int)
 		InitLights()
 		Return mLights[index].mAttenuation
 	End
 	
-	Function Prepare:Void(ambientRed# = 0.3, ambientGreen# = 0.3, ambientBlue# = 0.3)
+	Function Prepare:Void(ambientRed:Float = 0.3, ambientGreen:Float = 0.3, ambientBlue:Float = 0.3)
 		InitLights()
 		Renderer.SetLighting(True)
 		Renderer.SetAmbient(ambientRed, ambientGreen, ambientBlue)

@@ -14,7 +14,7 @@ End
 Public
 Class Font Final
 Public
-	Function Create:Font(filename$, height#, tex:Texture)
+	Function Create:Font(filename:String, height:Float, tex:Texture)
 		Local f:Font = New Font
 		f.mFilename = filename
 		f.mHeight = height
@@ -29,15 +29,15 @@ Public
 		mTexture.Discard()
 	End
 	
-	Method GetFilename$()
+	Method GetFilename:String()
 		Return mFilename
 	End
 	
-	Method GetHeight#()
+	Method GetHeight:Float()
 		Return mHeight
 	End
 	
-	Method GetTextWidth#(text$)
+	Method GetTextWidth:Float(text:String)
 		Local width# = 0
 		For Local i% = 0 Until text.Length()
 			If String.FromChar(text[i]) = " " Then
@@ -49,7 +49,7 @@ Public
 		Return width
 	End
 	
-	Method GetTextHeight#(text$)
+	Method GetTextHeight:Float(text:String)
 		Local height# = 0
 		For Local i% = 0 Until text.Length()
 			If mGlyphs[text[i]-32].mHeight > height Then height = mGlyphs[text[i]-32].mHeight
@@ -57,7 +57,7 @@ Public
 		Return height
 	End
 	
-	Method SetGlyphData:Void(index%, x#, y#, w#, h#, yoffset#)
+	Method SetGlyphData:Void(index:Int, x:Float, y:Float, w:Float, h:Float, yoffset:Float)
 		mGlyphs[index].mX = x
 		mGlyphs[index].mY = y
 		mGlyphs[index].mWidth = w
@@ -65,7 +65,7 @@ Public
 		mGlyphs[index].mYOffset = yoffset
 	End
 	
-	Method Draw:Void(x#, y#, text$)
+	Method Draw:Void(x:Float, y:Float, text:String)
 		For Local i% = 0 Until text.Length()
 			Local glyph:Glyph = mGlyphs[text[i]-32]
 			If ( String.FromChar(text[i]) = " " )

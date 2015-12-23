@@ -8,7 +8,7 @@ Import vortex.core.surface
 Public
 Class Bone Final
 Public
-	Function Create:Bone(name$)
+	Function Create:Bone(name:String)
 		Local bone:Bone = New Bone
 		bone.mName = name
 		bone.mParent = Null
@@ -26,7 +26,7 @@ Public
 		Return bone
 	End
 	
-	Method GetName$()
+	Method GetName:String()
 		Return mName
 	End
 	
@@ -34,7 +34,7 @@ Public
 		Return mParent
 	End
 	
-	Method SetDefaultTransform:Void(px#, py#, pz#, rw#, rx#, ry#, rz#, sx#, sy#, sz#)
+	Method SetDefaultTransform:Void(px:Float, py:Float, pz:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
 		mTempQuat.Set(rw, rx, ry, rz)
 		mTempQuat.CalcAxis()
 		mDefaultTransform.SetIdentity()
@@ -43,15 +43,15 @@ Public
 		mDefaultTransform.Scale(sx, sy, sz)
 	End
 	
-	Method GetDefaultTransform#[]()
+	Method GetDefaultTransform:Float[]()
 		Return mDefaultTransform.m
 	End
 	
-	Method GetCurrentTransform#[]()
+	Method GetCurrentTransform:Float[]()
 		Return mCurrentTransform.m
 	End
 	
-	Method CalcCurrentTransform:Void(frame#, firstSeqFrame%, lastSeqFrame%)
+	Method CalcCurrentTransform:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
 		'Check if there is a keyframe within range
 		Local keyInRange:Bool = False
 		For Local i% = Eachin mPositionKeys
@@ -97,11 +97,11 @@ Public
 		mSurfaces[mSurfaces.Length() - 1] = surf
 	End
 	
-	Method GetNumSurfaces%()
+	Method GetNumSurfaces:Int()
 		Return mSurfaces.Length()
 	End
 	
-	Method GetSurface:Surface(index%)
+	Method GetSurface:Surface(index:Int)
 		Return mSurfaces[index]
 	End
 	
@@ -113,15 +113,15 @@ Public
 		End
 	End
 	
-	Method GetNumChildren%()
+	Method GetNumChildren:Int()
 		Return mChildren.Length()
 	End
 	
-	Method GetChild:Bone(index%)
+	Method GetChild:Bone(index:Int)
 		Return mChildren[index]
 	End
 	
-	Method Find:Bone(name$)
+	Method Find:Bone(name:String)
 		If mName = name Return Self
 		For Local child:Bone = Eachin mChildren
 			Local bone:Bone = child.Find(name)
@@ -130,21 +130,21 @@ Public
 		Return Null
 	End
 	
-	Method AddPositionKey:Void(keyframe%, x#, y#, z#)
+	Method AddPositionKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
 		mPositionKeys = mPositionKeys.Resize(mPositionKeys.Length() + 1)
 		mPositions = mPositions.Resize(mPositions.Length() + 1)
 		mPositionKeys[mPositionKeys.Length() - 1] = keyframe
 		mPositions[mPositions.Length() - 1] = Vec3.Create(x, y, z)
 	End
 	
-	Method AddRotationKey:Void(keyframe%, w#, x#, y#, z#)
+	Method AddRotationKey:Void(keyframe:Int, w:Float, x:Float, y:Float, z:Float)
 		mRotationKeys = mRotationKeys.Resize(mRotationKeys.Length() + 1)
 		mRotations = mRotations.Resize(mRotations.Length() + 1)
 		mRotationKeys[mRotationKeys.Length() - 1] = keyframe
 		mRotations[mRotations.Length() - 1] = Quat.Create(w, x, y, z)
 	End
 	
-	Method AddScaleKey:Void(keyframe%, x#, y#, z#)
+	Method AddScaleKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
 		mScaleKeys = mScaleKeys.Resize(mScaleKeys.Length() + 1)
 		mScales = mScales.Resize(mScales.Length() + 1)
 		mScaleKeys[mScaleKeys.Length() - 1] = keyframe
@@ -215,7 +215,7 @@ Public
 		Return mScales[index].z
 	End
 	
-	Method Draw:Void(animated:Bool, frame#, firstFrame%, lastFrame%)
+	Method Draw:Void(animated:Bool, frame:Float, firstFrame:Int, lastFrame:Int)
 		'Store model matrix
 		mPrevMatrix.Set(Renderer.GetModelMatrix())
 		
@@ -245,7 +245,7 @@ Private
 	Method New()
 	End
 	
-	Method CalcPosition:Void(frame#, firstSeqFrame%, lastSeqFrame%)
+	Method CalcPosition:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
 		Local firstFrameIndex% = -1
 		For Local i% = 0 Until mPositionKeys.Length()
 			'Find first frame
@@ -275,7 +275,7 @@ Private
 		mTempVec.Mix(mPositions[firstFrameIndex], frame - Int(frame))
 	End
 	
-	Method CalcRotation:Void(frame#, firstSeqFrame%, lastSeqFrame%)
+	Method CalcRotation:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
 		Local firstFrameIndex% = -1
 		For Local i% = 0 Until mRotationKeys.Length()
 			'Find first frame
@@ -305,7 +305,7 @@ Private
 		mTempQuat.Slerp(mRotations[firstFrameIndex], frame - Int(frame))
 	End
 	
-	Method CalcScale:Void(frame#, firstSeqFrame%, lastSeqFrame%)
+	Method CalcScale:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
 		Local firstFrameIndex% = -1
 		For Local i% = 0 Until mScaleKeys.Length()
 			'Find first frame

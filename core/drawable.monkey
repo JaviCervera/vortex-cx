@@ -19,7 +19,7 @@ Public
 	Function Create:Drawable(mesh:Mesh)
 		If mesh = Null Then Return Null
 		Local d:Drawable = New Drawable
-		d.mBillboardType = BILLBOARD_NONE
+		d.mBillboardMode = BILLBOARD_NONE
 		d.mMesh = mesh
 		d.mSurface = Null
 		d.mPosition = Vec3.Create(0,0,0)
@@ -32,7 +32,7 @@ Public
 	Function Create:Drawable(surface:Surface)
 		If surface = Null Then Return Null
 		Local d:Drawable = New Drawable
-		d.mBillboardType = BILLBOARD_NONE
+		d.mBillboardMode = BILLBOARD_NONE
 		d.mMesh = Null
 		d.mSurface = surface
 		d.mPosition = Vec3.Create(0,0,0)
@@ -42,7 +42,7 @@ Public
 		Return d
 	End
 	
-	Function Create:Drawable(brush:Brush, width# = 0, height# = 0, type% = BILLBOARD_SPHERICAL)
+	Function Create:Drawable(brush:Brush, width:Float = 0, height:Float = 0, mode:Int = BILLBOARD_SPHERICAL)
 		If brush <> Null And brush.GetBaseTexture() <> Null
 			If width = 0 Then width = brush.GetBaseTexture().GetWidth()
 			If height = 0 Then height = brush.GetBaseTexture().GetHeight()
@@ -53,7 +53,7 @@ Public
 		
 		'Create drawable
 		Local d:Drawable = New Drawable
-		d.mBillboardType = type
+		d.mBillboardMode = mode
 		d.mMesh = Null
 		d.mPosition = Vec3.Create(0,0,0)
 		d.mEuler = Vec3.Create(0,0,0)
@@ -108,9 +108,9 @@ Public
 		mSurface = Null
 	End
 	
-	Method Draw:Void(animated:Bool = False, frame# = 0, firstFrame% = 0, lastFrame% = 0)
+	Method Draw:Void(animated:Bool = False, frame:Float = 0, firstFrame:Int = 0, lastFrame:Int = 0)
 		'Calculate transform matrix
-		Select mBillboardType
+		Select mBillboardMode
 			Case BILLBOARD_NONE
 				mQuat.CalcAxis()
 				mTempMatrix.SetIdentity()
@@ -146,8 +146,8 @@ Public
 		End
 	End
 	
-	Method GetBillboardType:Int()
-		Return mBillboardType
+	Method GetBillboardMode:Int()
+		Return mBillboardMode
 	End
 	
 	Method GetMesh:Mesh()
@@ -158,78 +158,78 @@ Public
 		Return mSurface
 	End
 	
-	Method SetPosition:Void(x#, y#, z#)
+	Method SetPosition:Void(x:Float, y:Float, z:Float)
 		mPosition.Set(x, y, z)
 	End
 	
-	Method GetX#()
+	Method GetX:Float()
 		Return mPosition.x
 	End
 	
-	Method GetY#()
+	Method GetY:Float()
 		Return mPosition.y
 	End
 	
-	Method GetZ#()
+	Method GetZ:Float()
 		Return mPosition.z
 	End
 	
-	Method SetEuler:Void(x#, y#, z#)
+	Method SetEuler:Void(x:Float, y:Float, z:Float)
 		mEuler.Set(x, y, z)
 		mQuat.SetEuler(x, y, z)
 	End
 	
-	Method GetEulerX#()
+	Method GetEulerX:Float()
 		Return mEuler.x
 	End
 	
-	Method GetEulerY#()
+	Method GetEulerY:Float()
 		Return mEuler.y
 	End
 	
-	Method GetEulerZ#()
+	Method GetEulerZ:Float()
 		Return mEuler.z
 	End
 	
-	Method SetQuat:Void(w#, x#, y#, z#)
+	Method SetQuat:Void(w:Float, x:Float, y:Float, z:Float)
 		mQuat.Set(w, x, y, z)
 		mQuat.CalcEuler()
 		mEuler.Set(mQuat.ResultVector())
 	End
 	
-	Method GetQuatW#()
+	Method GetQuatW:Float()
 		Return mQuat.w
 	End
 	
-	Method GetQuatX#()
+	Method GetQuatX:Float()
 		Return mQuat.x
 	End
 	
-	Method GetQuatY#()
+	Method GetQuatY:Float()
 		Return mQuat.y
 	End
 	
-	Method GetQuatZ#()
+	Method GetQuatZ:Float()
 		Return mQuat.z
 	End
 	
-	Method SetScale:Void(x#, y#, z#)
+	Method SetScale:Void(x:Float, y:Float, z:Float)
 		mScale.Set(x, y, z)
 	End
 	
-	Method GetScaleX#()
+	Method GetScaleX:Float()
 		Return mScale.x
 	End
 	
-	Method GetScaleY#()
+	Method GetScaleY:Float()
 		Return mScale.y
 	End
 
-	Method GetScaleZ#()
+	Method GetScaleZ:Float()
 		Return mScale.z
 	End
 	
-	Method Move:Void(x#, y#, z#)
+	Method Move:Void(x:Float, y:Float, z:Float)
 		mQuat.Mul(x, y, z)
 		mPosition.Sum(Quat.ResultVector())
 	End
@@ -247,7 +247,7 @@ Private
 		mTempArray[2] = Renderer.GetViewMatrix().m[8]
 		mTempArray[3] = 0
 #If VORTEX_HANDEDNESS=VORTEX_LH Or VORTEX_HANDEDNESS=VORTEX_RH_Y
-		If mBillboardType = BILLBOARD_SPHERICAL
+		If mBillboardMode = BILLBOARD_SPHERICAL
 			mTempArray[4] = Renderer.GetViewMatrix().m[1]
 			mTempArray[5] = Renderer.GetViewMatrix().m[5]
 			mTempArray[6] = Renderer.GetViewMatrix().m[9]
@@ -265,7 +265,7 @@ Private
 		mTempArray[5] = Renderer.GetViewMatrix().m[6]
 		mTempArray[6] = Renderer.GetViewMatrix().m[10]
 		mTempArray[7] = 0
-		If mBillboardType = BILLBOARD_SPHERICAL
+		If mBillboardMode = BILLBOARD_SPHERICAL
 			mTempArray[8] = Renderer.GetViewMatrix().m[1]
 			mTempArray[9] = Renderer.GetViewMatrix().m[5]
 			mTempArray[10] = Renderer.GetViewMatrix().m[9]
@@ -282,7 +282,7 @@ Private
 		mTempArray[15] = 1
 	End
 	
-	Field mBillboardType	: Int
+	Field mBillboardMode	: Int
 	Field mMesh				: Mesh		'For mesh drawables
 	Field mSurface			: Surface	'For billboard drawables
 	Field mPosition			: Vec3

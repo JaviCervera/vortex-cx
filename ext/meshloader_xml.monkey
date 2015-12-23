@@ -79,7 +79,8 @@ Public
 		End
 	
 		'Create mesh object
-		Local mesh:Mesh = Mesh.Create(filename)
+		Local mesh:Mesh = Mesh.Create()
+		mesh.SetFilename(filename)
 	
 		'Parse surfaces
 		For Local i% = 0 Until surfacesNode.GetNumChildren()

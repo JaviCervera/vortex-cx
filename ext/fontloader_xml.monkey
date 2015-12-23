@@ -1,0 +1,59 @@
+Strict
+
+Private
+Import brl.filepath
+Import mojo.app
+Import vortex.core.font
+Import vortex.core.texture
+Import xml
+
+Public
+Class FontLoader_XML Final
+Public
+	Function Load:Font(filename$)
+		'Parse XML font
+		Local xmlString$ = LoadString(filename)
+		If xmlString = "" Then Return Null
+		Local parser:XMLParser = New XMLParser(xmlString)
+		If Not parser.Parse() Then DebugLog parser.GetError(); Return Null
+		If parser.GetRootNode().GetName() <> "font" Then Return Null
+		
+		'Get data
+		Local image$ = parser.GetRootNode().GetChildValue("image", "")
+		Local height% = Int(parser.GetRootNode().GetChildValue("height", "0"))
+		Local glyphsNode:XMLNode = parser.GetRootNode().GetChild("glyphs")
+		If height = 0 Or Not glyphsNode Then Return Null
+		
+		'Load texture map
+		If ExtractDir(filename) <> "" Then image = ExtractDir(filename) + "/" + image
+		Local tex:Texture = Texture.Create(image, Texture.FILTER_NONE)
+		If Not tex Then Return Null
+		
+		'Create font
+		Local font:Font = Font.Create(filename, height, tex)
+		
+		'Parse glyphs
+		For Local i% = 0 Until glyphsNode.GetNumChildren()
+			Local glyphNode:XMLNode = glyphsNode.GetChild(i)
+			If glyphNode.GetName() <> "glyph"
+				DebugLog "Unexpected node '" + glyphNode.GetName() + "' found in glyphs section. Ignoring..."
+				Continue
+			End
+			
+			'Get glyph data
+			Local x# = Float(glyphNode.GetChildValue("x", "0"))
+			Local y# = Float(glyphNode.GetChildValue("y", "0"))
+			Local w# = Float(glyphNode.GetChildValue("width", "0"))
+			Local h# = Float(glyphNode.GetChildValue("height", "0"))
+			Local yoffset# = Float(glyphNode.GetChildValue("yoffset", "0"))
+			
+			'Add glyph
+			font.SetGlyphData(i, x, y, w, h, yoffset)
+		Next
+		
+		Return font
+	End
+Private
+	Method New()
+	End
+End

@@ -7,7 +7,7 @@ Import vortex.core.renderer
 Public
 Class Viewer Final
 Public
-	Function Create:Viewer(vx%, vy%, vw%, vh%)
+	Function Create:Viewer(vx:Int, vy:Int, vw:Int, vh:Int)
 		Local v:Viewer = New Viewer
 		v.mProjMatrix = Mat4.Create()
 		v.mViewMatrix = Mat4.Create()
@@ -24,7 +24,7 @@ Public
 		Return v
 	End
 	
-	Method SetPerspective:Void(fovy#, ratio#, near#, far#)
+	Method SetPerspective:Void(fovy:Float, ratio:Float, near:Float, far:Float)
 		mProjMatrix.SetIdentity()
 #If VORTEX_HANDEDNESS=VORTEX_LH
 		mProjMatrix.SetPerspectiveLH(fovy, ratio, near, far)
@@ -33,7 +33,7 @@ Public
 #End
 	End
 	
-	Method SetFrustum:Void(left#, right#, bottom#, top#, near#, far#)
+	Method SetFrustum:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
 		mProjMatrix.SetIdentity()
 #If VORTEX_HANDEDNESS=VORTEX_LH
 		mProjMatrix.SetFrustumLH(left, right, bottom, top, near, far)
@@ -42,7 +42,7 @@ Public
 #End
 	End
 	
-	Method SetOrtho:Void(left#, right#, bottom#, top#, near#, far#)
+	Method SetOrtho:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
 		mProjMatrix.SetIdentity()
 #If VORTEX_HANDEDNESS=VORTEX_LH
 		mProjMatrix.SetOrthoLH(left, right, bottom, top, near, far)
@@ -51,103 +51,103 @@ Public
 #End
 	End
 	
-	Method SetClearColor:Void(r#, g#, b#)
+	Method SetClearColor:Void(r:Float, g:Float, b:Float)
 		mRed = r
 		mGreen = g
 		mBlue = b
 	End
 	
-	Method GetClearRed#()
+	Method GetClearRed:Float()
 		Return mRed
 	End
 	
-	Method GetClearGreen#()
+	Method GetClearGreen:Float()
 		Return mGreen
 	End
 	
-	Method GetClearBlue#()
+	Method GetClearBlue:Float()
 		Return mBlue
 	End
 	
-	Method SetViewport:Void(x%, y%, w%, h%)
+	Method SetViewport:Void(x:Int, y:Int, w:Int, h:Int)
 		mVX = x
 		mVY = y
 		mVWidth = w
 		mVHeight = h
 	End
 	
-	Method GetViewportX#()
+	Method GetViewportX:Float()
 		Return mVX
 	End
 	
-	Method GetViewportY#()
+	Method GetViewportY:Float()
 		Return mVY
 	End
 	
-	Method GetViewportWidth#()
+	Method GetViewportWidth:Float()
 		Return mVWidth
 	End
 	
-	Method GetViewportHeight#()
+	Method GetViewportHeight:Float()
 		Return mVHeight
 	End
 	
-	Method SetPosition:Void(x#, y#, z#)
+	Method SetPosition:Void(x:Float, y:Float, z:Float)
 		mPosition.Set(x, y, z)
 	End
 	
-	Method GetX#()
+	Method GetX:Float()
 		Return mPosition.x
 	End
 	
-	Method GetY#()
+	Method GetY:Float()
 		Return mPosition.y
 	End
 	
-	Method GetZ#()
+	Method GetZ:Float()
 		Return mPosition.z
 	End
 	
-	Method SetEuler:Void(x#, y#, z#)
+	Method SetEuler:Void(x:Float, y:Float, z:Float)
 		mEuler.Set(x, y, z)
 		mQuat.SetEuler(x, y, z)
 	End
 	
-	Method GetEulerX#()
+	Method GetEulerX:Float()
 		Return mEuler.x
 	End
 	
-	Method GetEulerY#()
+	Method GetEulerY:Float()
 		Return mEuler.y
 	End
 	
-	Method GetEulerZ#()
+	Method GetEulerZ:Float()
 		Return mEuler.z
 	End
 	
-	Method SetQuat:Void(w#, x#, y#, z#)
+	Method SetQuat:Void(w:Float, x:Float, y:Float, z:Float)
 		mQuat.Set(w, x, y, z)
 		mQuat.CalcEuler()
 		mEuler.Set(mQuat.ResultVector())
 	End
 	
-	Method GetQuatW#()
+	Method GetQuatW:Float()
 		Return mQuat.w
 	End
 	
-	Method GetQuatX#()
+	Method GetQuatX:Float()
 		Return mQuat.x
 	End
 	
-	Method GetQuatY#()
+	Method GetQuatY:Float()
 		Return mQuat.y
 	End
 	
-	Method GetQuatZ#()
+	Method GetQuatZ:Float()
 		Return mQuat.z
 	End
 	
-	Method Move:Void(x#, y#, z#)
+	Method Move:Void(x:Float, y:Float, z:Float)
 		mTempVec.Set(x, y, z)
 		mQuat.Mul(mTempVec)
 		mPosition.Sum(Quat.ResultVector())

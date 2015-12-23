@@ -37,37 +37,37 @@ Public
 		mDepthWrite = other.mDepthWrite
 	End
 	
-	Method SetBaseColor:Void(r#, g#, b#)
+	Method SetBaseColor:Void(r:Float, g:Float, b:Float)
 		mRed = r
 		mGreen = g
 		mBlue = b
 	End
 	
-	Method GetRed#()
+	Method GetRed:Float()
 		Return mRed
 	End
 	
-	Method GetGreen#()
+	Method GetGreen:Float()
 		Return mGreen
 	End
 	
-	Method GetBlue#()
+	Method GetBlue:Float()
 		Return mBlue
 	End
 	
-	Method SetOpacity:Void(opacity#)
+	Method SetOpacity:Void(opacity:Float)
 		mOpacity = opacity
 	End
 	
-	Method GetOpacity#()
+	Method GetOpacity:Float()
 		Return mOpacity
 	End
 	
-	Method SetShininess:Void(shininess#)
+	Method SetShininess:Void(shininess:Float)
 		mShininess = shininess
 	End
 	
-	Method GetShininess#()
+	Method GetShininess:Float()
 		Return mShininess
 	End
 	
@@ -79,11 +79,11 @@ Public
 		Return mBaseTex
 	End
 	
-	Method SetBlendMode:Void(mode%)
+	Method SetBlendMode:Void(mode:Int)
 		mBlendMode = mode
 	End
 	
-	Method GetBlendMode%()
+	Method GetBlendMode:Int()
 		Return mBlendMode
 	End
 	

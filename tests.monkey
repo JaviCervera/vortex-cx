@@ -60,7 +60,7 @@ Public
 		tex = Cache.GetTexture("smile.png")
 		
 		'Load font
-		font = Cache.GetFont("eurofurence_24.fnt.json")
+		font = Cache.GetFont("eurofurence_24.fnt.xml")
 		
 		'Create viewer
 		viewer = Viewer.Create(0, 0, DeviceWidth(), DeviceHeight())

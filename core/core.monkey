@@ -22,7 +22,7 @@ Public
 		Return Renderer.Init()
 	End
 	
-	Function GetShaderError$()
+	Function GetShaderError:String()
 		Return Renderer.GetProgramError()
 	End
 	

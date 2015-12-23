@@ -8,9 +8,8 @@ Import vortex.core.surface
 Public
 Class Mesh Final
 Public
-	Function Create:Mesh(filename$ = "")
+	Function Create:Mesh()
 		Local mesh:Mesh = New Mesh
-		mesh.mFilename = filename
 		mesh.mSurfaces = New Surface[0]
 		mesh.mLastFrame = 0
 		mesh.mRootBone = Null
@@ -23,8 +22,12 @@ Public
 		Next
 	End
 	
-	Method GetFilename$()
+	Method GetFilename:String()
 		Return mFilename
+	End
+	
+	Method SetFilename:Void(filename:String)
+		mFilename = filename
 	End
 	
 	Method AddSurface:Void(surf:Surface)
@@ -33,11 +36,11 @@ Public
 		surf.Rebuild()
 	End
 	
-	Method GetNumSurfaces%()
+	Method GetNumSurfaces:Int()
 		Return mSurfaces.Length()
 	End
 	
-	Method GetSurface:Surface(index%)
+	Method GetSurface:Surface(index:Int)
 		Return mSurfaces[index]
 	End
 	
@@ -62,7 +65,7 @@ Public
 		Return mRootBone
 	End
 	
-	Method Draw:Void(animated:Bool, frame#, firstFrame% = 0, lastFrame% = 0)
+	Method Draw:Void(animated:Bool, frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
 		If mRootBone <> Null
 			If animated And lastFrame = 0 Then lastFrame = mLastFrame
 			mRootBone.Draw(animated, frame, firstFrame, lastFrame)

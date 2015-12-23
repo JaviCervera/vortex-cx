@@ -32,11 +32,11 @@ Public
 		Return mBrush
 	End
 	
-	Method AddTriangle%(v0%, v1%, v2%)
+	Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
 		'Create new buffer if current is too short
 		If mIndices.Length() < (mNumIndices + 3) * 2
 			'Read data in an array
-			Local data%[mIndices.Length()]
+			Local data:Int[mIndices.Length()]
 			mIndices.PeekBytes(0, data, 0, mIndices.Length())
 			
 			'Copy into new buffer
@@ -54,31 +54,31 @@ Public
 		Return GetNumTriangles()-1
 	End
 	
-	Method GetNumTriangles%()
+	Method GetNumTriangles:Int()
 		Return mNumIndices / 3
 	End
 	
-	Method SetTriangleVertices:Void(index%, v0%, v1%, v2%)
+	Method SetTriangleVertices:Void(index:Int, v0:Int, v1:Int, v2:Int)
 		mIndices.PokeShorts(index * 6, [v0, v1, v2], 0, 3)
 	End
 	
-	Method GetTriangleV0%(index%)
+	Method GetTriangleV0:Int(index:Int)
 		Return mIndices.PeekShort(index*6)
 	End
 	
-	Method GetTriangleV1%(index%)
+	Method GetTriangleV1:Int(index:Int)
 		Return mIndices.PeekShort(index*6 + 2)
 	End
 	
-	Method GetTriangleV2%(index%)
+	Method GetTriangleV2:Int(index:Int)
 		Return mIndices.PeekShort(index*6 + 4)
 	End
 	
-	Method AddVertex%(x#, y#, z#, nx#, ny#, nz#, r#, g#, b#, a#, u#, v#)
+	Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, r:Float, g:Float, b:Float, a:Float, u:Float, v:Float)
 		'Create new buffer if current is too short
 		If mVertices.Length() < (GetNumVertices() + 1) * VERTEX_SIZE
 			'Read data in an array
-			Local data%[mVertices.Length()]
+			Local data:Int[mVertices.Length()]
 			mVertices.PeekBytes(0, data, 0, mVertices.Length())
 			
 			'Copy into new buffer
@@ -97,71 +97,71 @@ Public
 		Return GetNumVertices()-1
 	End
 	
-	Method GetNumVertices%()
+	Method GetNumVertices:Int()
 		Return mNumVertices
 	End
 	
-	Method SetVertexPosition:Void(index%, x#, y#, z#)
+	Method SetVertexPosition:Void(index:Int, x:Float, y:Float, z:Float)
 		mVertices.PokeFloats(index * VERTEX_SIZE + POS_OFFSET, [x, y, z], 0, 3)
 	End
 	
-	Method SetVertexNormal:Void(index%, nx#, ny#, nz#)
+	Method SetVertexNormal:Void(index:Int, nx:Float, ny:Float, nz:Float)
 		mVertices.PokeFloats(index * VERTEX_SIZE + NORMAL_OFFSET, [nx, ny, nz], 0, 3)
 	End
 	
-	Method SetVertexColor:Void(index%, r#, g#, b#, a#)
+	Method SetVertexColor:Void(index:Int, r:Float, g:Float, b:Float, a:Float)
 		mVertices.PokeFloats(index * VERTEX_SIZE + COLOR_OFFSET, [r, g, b, a], 0, 4)
 	End
 	
-	Method SetVertexTexCoords:Void(index%, u#, v#)
+	Method SetVertexTexCoords:Void(index:Int, u:Float, v:Float)
 		mVertices.PokeFloats(index * VERTEX_SIZE + TEX_OFFSET, [u, v], 0, 2)
 	End
 	
-	Method GetVertexX#(index%)
+	Method GetVertexX:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + POS_OFFSET)
 	End
 	
-	Method GetVertexY#(index%)
+	Method GetVertexY:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + POS_OFFSET + 4)
 	End
 	
-	Method GetVertexZ#(index%)
+	Method GetVertexZ:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + POS_OFFSET + 8)
 	End
 	
-	Method GetVertexNX#(index%)
+	Method GetVertexNX:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + NORMAL_OFFSET)
 	End
 	
-	Method GetVertexNY#(index%)
+	Method GetVertexNY:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + NORMAL_OFFSET + 4)
 	End
 	
-	Method GetVertexNZ#(index%)
+	Method GetVertexNZ:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + NORMAL_OFFSET + 8)
 	End
 	
-	Method GetVertexRed#(index%)
+	Method GetVertexRed:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET)
 	End
 	
-	Method GetVertexGreen#(index%)
+	Method GetVertexGreen:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 4)
 	End
 	
-	Method GetVertexBlue#(index%)
+	Method GetVertexBlue:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 8)
 	End
 	
-	Method GetVertexAlpha#(index%)
+	Method GetVertexOpacity:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 12)
 	End
 	
-	Method GetVertexU#(index%)
+	Method GetVertexU:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET)
 	End
 	
-	Method GetVertexV#(index%)
+	Method GetVertexV:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET + 4)
 	End
 	
@@ -178,12 +178,12 @@ Private
 	Method New()
 	End
 	
-	Const POS_OFFSET% = 0
-	Const NORMAL_OFFSET% = 12
-	Const COLOR_OFFSET% = 24
-	Const TEX_OFFSET% = 40
-	Const VERTEX_SIZE% = 48
-	Const INC% = 128
+	Const POS_OFFSET:Int = 0
+	Const NORMAL_OFFSET:Int = 12
+	Const COLOR_OFFSET:Int = 24
+	Const TEX_OFFSET:Int = 40
+	Const VERTEX_SIZE:Int = 48
+	Const INC:Int = 128
 
 	Field mBrush		: Brush
 	Field mIndices		: DataBuffer

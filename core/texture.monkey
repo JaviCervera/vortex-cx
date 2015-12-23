@@ -7,13 +7,13 @@ Import vortex.core.renderer
 Public
 Class Texture Final
 Public
-	Const FILTER_NONE% = Renderer.FILTER_NONE
-	Const FILTER_LINEAR% = Renderer.FILTER_LINEAR
-	Const FILTER_BILINEAR% = Renderer.FILTER_BILINEAR
-	Const FILTER_TRILINEAR% = Renderer.FILTER_TRILINEAR
+	Const FILTER_NONE:Int = Renderer.FILTER_NONE
+	Const FILTER_LINEAR:Int = Renderer.FILTER_LINEAR
+	Const FILTER_BILINEAR:Int = Renderer.FILTER_BILINEAR
+	Const FILTER_TRILINEAR:Int = Renderer.FILTER_TRILINEAR
 	
-	Function Create:Texture(filename$, filter%)
-		Local handle% = Renderer.LoadTexture(filename, mSizeArr, filter)
+	Function Create:Texture(filename:String, filter:Int)
+		Local handle:Int = Renderer.LoadTexture(filename, mSizeArr, filter)
 		If mSizeArr[0] > 0
 			Local tex:Texture = New Texture
 			tex.mFilename = filename
@@ -26,37 +26,45 @@ Public
 		End
 	End
 	
+	Function Create:Texture(buffer:DataBuffer, width:Int, height:Int, filter:Int)
+		Local tex:Texture = New Texture
+		tex.mHandle = Renderer.GenTexture(buffer, width, height, filter)
+		tex.mWidth = width
+		tex.mHeight = height
+		Return tex
+	End
+	
 	Method Discard:Void()
 		Renderer.FreeTexture(mHandle)
 	End
 	
-	Method GetFilename$()
+	Method GetFilename:String()
 		Return mFilename
 	End
 	
-	Method GetHandle%()
+	Method GetHandle:Int()
 		Return mHandle
 	End
 	
-	Method GetWidth%()
+	Method GetWidth:Int()
 		Return mWidth
 	End
 	
-	Method GetHeight%()
+	Method GetHeight:Int()
 		Return mHeight
 	End
 	
-	Method Draw:Void(x#, y#, width# = 0, height# = 0, rectx# = 0, recty# = 0, rectwidth# = 0, rectheight# = 0)
+	Method Draw:Void(x:Float, y:Float, width:Float = 0, height:Float = 0, rectx:Float = 0, recty:Float = 0, rectwidth:Float = 0, rectheight:Float = 0)
 		If rectwidth = 0 Then rectwidth = GetWidth()
 		If rectheight = 0 Then rectheight = GetHeight()
 		If width = 0 Then width = rectwidth
 		If height = 0 Then height = rectheight
 		
 		'Calculate texcoords in 0..1 range, independently from frame
-		Local u0# = rectx / GetWidth()
-		Local v0# = recty / GetHeight()
-		Local u1# = (rectx + rectwidth) / GetWidth()
-		Local v1# = (recty + rectheight) / GetHeight()
+		Local u0:Float = rectx / GetWidth()
+		Local v0:Float = recty / GetHeight()
+		Local u1:Float = (rectx + rectwidth) / GetWidth()
+		Local v1:Float = (recty + rectheight) / GetHeight()
 		
 		'Fill buffer
 		mBuffer.PokeFloat(0, x)
