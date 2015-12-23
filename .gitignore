@@ -1,8 +1,8 @@
 #CMake folders
 meshtool/_BUILD/
 
-# Tests build folder
-tests.build*/
+# Tests build folders
+*.build*/
 
 # BlitzMax build folders
 .bmx/

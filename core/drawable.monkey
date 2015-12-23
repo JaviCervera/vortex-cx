@@ -63,19 +63,39 @@ Public
 		'Add surface
 		d.mSurface = Surface.Create(brush)
 		
-		'Add triangles
-		d.mSurface.AddTriangle(0, 2, 1)
-		d.mSurface.AddTriangle(2, 3, 1)
-		
-		'Add vertices
+		'Add vertices and indices
 		Local x0# = -width/2
 		Local x1# =  width/2
 		Local z0# = -height/2
 		Local z1# =  height/2
+#If VORTEX_HANDEDNESS=VORTEX_LH
+		'Add triangles
+		d.mSurface.AddTriangle(0, 1, 2)
+		d.mSurface.AddTriangle(2, 1, 3)
+		
+		d.mSurface.AddVertex(x0, z1, 0, 0, 0, -1, 1, 1, 1, 1, 0, 0)
+		d.mSurface.AddVertex(x1, z1, 0, 0, 0, -1, 1, 1, 1, 1, 1, 0)
+		d.mSurface.AddVertex(x0, z0, 0, 0, 0, -1, 1, 1, 1, 1, 0, 1)
+		d.mSurface.AddVertex(x1, z0, 0, 0, 0, -1, 1, 1, 1, 1, 1, 1)
+#Elseif VORTEX_HANDEDNESS=VORTEX_RH_Y
+		'Add triangles
+		d.mSurface.AddTriangle(0, 2, 1)
+		d.mSurface.AddTriangle(2, 3, 1)
+		
+		d.mSurface.AddVertex(x0, z1, 0, 0, -1, 0, 1, 1, 1, 1, 0, 1)
+		d.mSurface.AddVertex(x1, z1, 0, 0, -1, 0, 1, 1, 1, 1, 1, 1)
+		d.mSurface.AddVertex(x0, z0, 0, 0, -1, 0, 1, 1, 1, 1, 0, 0)
+		d.mSurface.AddVertex(x1, z0, 0, 0, -1, 0, 1, 1, 1, 1, 1, 0)
+#Else
+		'Add triangles
+		d.mSurface.AddTriangle(0, 2, 1)
+		d.mSurface.AddTriangle(2, 3, 1)
+		
 		d.mSurface.AddVertex(x0, 0, z1, 0, -1, 0, 1, 1, 1, 1, 0, 1)
 		d.mSurface.AddVertex(x1, 0, z1, 0, -1, 0, 1, 1, 1, 1, 1, 1)
 		d.mSurface.AddVertex(x0, 0, z0, 0, -1, 0, 1, 1, 1, 1, 0, 0)
 		d.mSurface.AddVertex(x1, 0, z0, 0, -1, 0, 1, 1, 1, 1, 1, 0)
+#End
 		
 		'Rebuild surface
 		d.mSurface.Rebuild()
@@ -100,12 +120,20 @@ Public
 			Case BILLBOARD_SPHERICAL
 				FillTransformArray()
 				mTempMatrix.Set(mTempArray)
-				mTempMatrix.Rotate(-mEuler.y, 0, 1, 0)
+#If VORTEX_HANDEDNESS=VORTEX_LH Or VORTEX_HANDEDNESS=VORTEX_RH_Y
+				mTempMatrix.Rotate(mEuler.z, 0, 0, 1)
+#Else
+				mTempMatrix.Rotate(mEuler.y, 0, 1, 0)
+#End
 				mTempMatrix.Scale(GetScaleX(), GetScaleY(), GetScaleZ())
 			Case BILLBOARD_CYLINDRICAL
 				FillTransformArray()
 				mTempMatrix.Set(mTempArray)
-				mTempMatrix.Rotate(-mEuler.y, 0, 1, 0)
+#If VORTEX_HANDEDNESS=VORTEX_LH Or VORTEX_HANDEDNESS=VORTEX_RH_Y
+				mTempMatrix.Rotate(mEuler.z, 0, 0, 1)
+#Else
+				mTempMatrix.Rotate(mEuler.y, 0, 1, 0)
+#End
 				mTempMatrix.Scale(GetScaleX(), GetScaleY(), GetScaleZ())
 		End
 		Renderer.SetModelMatrix(mTempMatrix)
@@ -218,6 +246,21 @@ Private
 		mTempArray[1] = Renderer.GetViewMatrix().m[4]
 		mTempArray[2] = Renderer.GetViewMatrix().m[8]
 		mTempArray[3] = 0
+#If VORTEX_HANDEDNESS=VORTEX_LH Or VORTEX_HANDEDNESS=VORTEX_RH_Y
+		If mBillboardType = BILLBOARD_SPHERICAL
+			mTempArray[4] = Renderer.GetViewMatrix().m[1]
+			mTempArray[5] = Renderer.GetViewMatrix().m[5]
+			mTempArray[6] = Renderer.GetViewMatrix().m[9]
+		Else
+			mTempArray[4] = 0
+			mTempArray[5] = 1
+			mTempArray[6] = 0
+		End
+		mTempArray[7] = 0
+		mTempArray[8] = Renderer.GetViewMatrix().m[2]
+		mTempArray[9] = Renderer.GetViewMatrix().m[6]
+		mTempArray[10] = Renderer.GetViewMatrix().m[10]
+#Else
 		mTempArray[4] = Renderer.GetViewMatrix().m[2]
 		mTempArray[5] = Renderer.GetViewMatrix().m[6]
 		mTempArray[6] = Renderer.GetViewMatrix().m[10]
@@ -231,6 +274,7 @@ Private
 			mTempArray[9] = 0
 			mTempArray[10] = 1
 		End
+#End
 		mTempArray[11] = 0
 		mTempArray[12] = GetX()
 		mTempArray[13] = GetY()

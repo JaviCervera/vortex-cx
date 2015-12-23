@@ -26,17 +26,29 @@ Public
 	
 	Method SetPerspective:Void(fovy#, ratio#, near#, far#)
 		mProjMatrix.SetIdentity()
-		mProjMatrix.SetPerspective(fovy, ratio, near, far)
+#If VORTEX_HANDEDNESS=VORTEX_LH
+		mProjMatrix.SetPerspectiveLH(fovy, ratio, near, far)
+#Else
+		mProjMatrix.SetPerspectiveRH(fovy, ratio, near, far)
+#End
 	End
 	
 	Method SetFrustum:Void(left#, right#, bottom#, top#, near#, far#)
 		mProjMatrix.SetIdentity()
-		mProjMatrix.SetFrustum(left, right, bottom, top, near, far)
+#If VORTEX_HANDEDNESS=VORTEX_LH
+		mProjMatrix.SetFrustumLH(left, right, bottom, top, near, far)
+#Else
+		mProjMatrix.SetFrustumRH(left, right, bottom, top, near, far)
+#End
 	End
 	
 	Method SetOrtho:Void(left#, right#, bottom#, top#, near#, far#)
 		mProjMatrix.SetIdentity()
-		mProjMatrix.SetOrtho(left, right, bottom, top, near, far)
+#If VORTEX_HANDEDNESS=VORTEX_LH
+		mProjMatrix.SetOrthoLH(left, right, bottom, top, near, far)
+#Else
+		mProjMatrix.SetOrthoRH(left, right, bottom, top, near, far)
+#End
 	End
 	
 	Method SetClearColor:Void(r#, g#, b#)
@@ -142,11 +154,20 @@ Public
 	End
 	
 	Method Prepare:Void()
+		'Get view matrix
+#If VORTEX_HANDEDNESS=VORTEX_LH
+		'Calculate look direction
+		mQuat.Mul(0, 0, 1)
+		mViewMatrix.LookAtLH(GetX(), GetY(), GetZ(), GetX() + Quat.ResultVector().x, GetY() + Quat.ResultVector().y, GetZ() + Quat.ResultVector().z, 0, 1, 0)
+#Elseif VORTEX_HANDEDNESS=VORTEX_RH_Y
+		'Calculate look direction
+		mQuat.Mul(0, 0, -1)
+		mViewMatrix.LookAtRH(GetX(), GetY(), GetZ(), GetX() + Quat.ResultVector().x, GetY() + Quat.ResultVector().y, GetZ() + Quat.ResultVector().z, 0, 1, 0)
+#Elseif VORTEX_HANDEDNESS=VORTEX_RH_Z
 		'Calculate look direction
 		mQuat.Mul(0, 1, 0)
-		
-		'Get view matrix
-		mViewMatrix.LookAt(GetX(), GetY(), GetZ(), GetX() + Quat.ResultVector().x, GetY() + Quat.ResultVector().y, GetZ() + Quat.ResultVector().z, 0, 0, 1)
+		mViewMatrix.LookAtRH(GetX(), GetY(), GetZ(), GetX() + Quat.ResultVector().x, GetY() + Quat.ResultVector().y, GetZ() + Quat.ResultVector().z, 0, 0, 1)
+#End
 		
 		'Setup for 3D rendering
 		Renderer.Setup3D(mVX, mVY, mVWidth, mVHeight)

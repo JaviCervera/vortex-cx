@@ -5,6 +5,7 @@
 #include "../irrlicht/irrlicht.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
+#include "handedness.h"
 #include "mesh.h"
 #include "stringutils.h"
 #include "../glm/glm.hpp"
@@ -12,6 +13,9 @@
 #include "../glm/gtc/random.hpp"
 #include "../glm/gtc/type_ptr.hpp"
 #include <iostream>
+
+// NOTE: Change this to match engine handedness !!!
+#define VORTEX_HANDEDNESS VORTEX_LH
 
 using namespace irr;
 
@@ -102,7 +106,11 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 		buffer += "\t\t\t<indices>";
 		for (u32 i = 0; i < meshBuffer->getIndexCount(); i += 3) {
 			if (i > 0) buffer += ",";
-			buffer += StringFromNumber(meshBuffer->getIndices()[i]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 2]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 1]);
+			if (VORTEX_HANDEDNESS == VORTEX_LH) {
+				buffer += StringFromNumber(meshBuffer->getIndices()[i]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 1]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 2]);
+			} else {
+				buffer += StringFromNumber(meshBuffer->getIndices()[i]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 2]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 1]);
+			}
 		}
 		buffer += "</indices>\n";
 
@@ -119,10 +127,22 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 				if (exportTangents) tangents += ",";
 				texcoords += ",";
 			}
-			coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Z) + "," + StringFromNumber(meshBuffer->getPosition(v).Y);
-			if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Z) + "," + StringFromNumber(meshBuffer->getNormal(v).Y);
-			//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Z) + "," + StringFromNumber(verticesTangents[v].Tangent.Y);
-			texcoords += StringFromNumber(meshBuffer->getTCoords(v).X) + "," + StringFromNumber(-meshBuffer->getTCoords(v).Y);
+			if (VORTEX_HANDEDNESS == VORTEX_LH) {
+				coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Y) + "," + StringFromNumber(meshBuffer->getPosition(v).Z);
+				if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Y) + "," + StringFromNumber(meshBuffer->getNormal(v).Z);
+				//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Y) + "," + StringFromNumber(verticesTangents[v].Tangent.Z);
+				texcoords += StringFromNumber(meshBuffer->getTCoords(v).X) + "," + StringFromNumber(meshBuffer->getTCoords(v).Y);
+			} else if (VORTEX_HANDEDNESS == VORTEX_RH_Y) {
+				coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Y) + "," + StringFromNumber(-meshBuffer->getPosition(v).Z);
+				if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Y) + "," + StringFromNumber(-meshBuffer->getNormal(v).Z);
+				//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Y) + "," + StringFromNumber(-verticesTangents[v].Tangent.Z);
+				texcoords += StringFromNumber(meshBuffer->getTCoords(v).X) + "," + StringFromNumber(-meshBuffer->getTCoords(v).Y);
+			} else {
+				coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Z) + "," + StringFromNumber(meshBuffer->getPosition(v).Y);
+				if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Z) + "," + StringFromNumber(meshBuffer->getNormal(v).Y);
+				//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Z) + "," + StringFromNumber(verticesTangents[v].Tangent.Y);
+				texcoords += StringFromNumber(meshBuffer->getTCoords(v).X) + "," + StringFromNumber(-meshBuffer->getTCoords(v).Y);
+			}
 		}
 		coords += "</coords>\n";
 		normals += "</normals>\n";
@@ -151,7 +171,12 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 				buffer += "\t\t\t<indices>";
 				for (u32 i = 0; i < meshBuffer->getIndexCount(); i += 3) {
 					if (i > 0) buffer += ",";
-					buffer += StringFromNumber(meshBuffer->getIndices()[i]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 2]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 1]);
+					if (VORTEX_HANDEDNESS == VORTEX_LH) {
+						buffer += StringFromNumber(meshBuffer->getIndices()[i]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 1]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 2]);
+					}
+					else {
+						buffer += StringFromNumber(meshBuffer->getIndices()[i]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 2]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 1]);
+					}
 				}
 				buffer += "</indices>\n";
 
@@ -169,10 +194,22 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 						if (exportTangents) tangents += ",";
 						texcoords += ",";
 					}
-					coords += StringFromNumber(vertices2t[v].Pos.X) + "," + StringFromNumber(vertices2t[v].Pos.Z) + "," + StringFromNumber(vertices2t[v].Pos.Y);
-					if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Z) + "," + StringFromNumber(meshBuffer->getNormal(v).Y);
-					//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Z) + "," + StringFromNumber(verticesTangents[v].Tangent.Y);
-					texcoords += StringFromNumber(vertices2t[v].TCoords2.X) + "," + StringFromNumber(-vertices2t[v].TCoords2.Y);
+					if (VORTEX_HANDEDNESS == VORTEX_LH) {
+						coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Y) + "," + StringFromNumber(meshBuffer->getPosition(v).Z);
+						if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Y) + "," + StringFromNumber(meshBuffer->getNormal(v).Z);
+						//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Y) + "," + StringFromNumber(verticesTangents[v].Tangent.Z);
+						texcoords += StringFromNumber(vertices2t[v].TCoords2.X) + "," + StringFromNumber(vertices2t[v].TCoords2.Y);
+					} else if (VORTEX_HANDEDNESS == VORTEX_RH_Y) {
+						coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Y) + "," + StringFromNumber(-meshBuffer->getPosition(v).Z);
+						if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Y) + "," + StringFromNumber(-meshBuffer->getNormal(v).Z);
+						//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Y) + "," + StringFromNumber(-verticesTangents[v].Tangent.Z);
+						texcoords += StringFromNumber(vertices2t[v].TCoords2.X) + "," + StringFromNumber(-vertices2t[v].TCoords2.Y);
+					} else {
+						coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Z) + "," + StringFromNumber(-meshBuffer->getPosition(v).Y);
+						if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Z) + "," + StringFromNumber(meshBuffer->getNormal(v).Y);
+						//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Z) + "," + StringFromNumber(verticesTangents[v].Tangent.Y);
+						texcoords += StringFromNumber(vertices2t[v].TCoords2.X) + "," + StringFromNumber(-vertices2t[v].TCoords2.Y);
+					}
 				}
 				coords += "</coords>\n";
 				normals += "</normals>\n";
@@ -212,9 +249,20 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 			core::vector3df irrRotation = joints[i]->LocalMatrix.getRotationDegrees();
 			core::vector3df irrScale = joints[i]->LocalMatrix.getScale();
 			glm::quat rotation(glm::radians(glm::vec3(irrRotation.X, irrRotation.Y, irrRotation.Z)));
-			buffer += "\t\t\t<def_position>" + StringFromNumber(irrPosition.X) + "," + StringFromNumber(irrPosition.Z) + "," + StringFromNumber(irrPosition.Y) + "</def_position>\n";
-			buffer += "\t\t\t<def_rotation>" + StringFromNumber(-rotation.w) + "," + StringFromNumber(rotation.x) + "," + StringFromNumber(rotation.z) + "," + StringFromNumber(rotation.y) + "</def_rotation>\n";
-			buffer += "\t\t\t<def_scale>" + StringFromNumber(irrScale.X) + "," + StringFromNumber(irrScale.Z) + "," + StringFromNumber(irrScale.Y) + "</def_scale>\n";
+			if (VORTEX_HANDEDNESS == VORTEX_LH) {
+				buffer += "\t\t\t<def_position>" + StringFromNumber(irrPosition.X) + "," + StringFromNumber(irrPosition.Y) + "," + StringFromNumber(irrPosition.Z) + "</def_position>\n";
+				buffer += "\t\t\t<def_rotation>" + StringFromNumber(rotation.w) + "," + StringFromNumber(rotation.x) + "," + StringFromNumber(rotation.y) + "," + StringFromNumber(rotation.z) + "</def_rotation>\n";
+				buffer += "\t\t\t<def_scale>" + StringFromNumber(irrScale.X) + "," + StringFromNumber(irrScale.Y) + "," + StringFromNumber(irrScale.Z) + "</def_scale>\n";
+			} else if (VORTEX_HANDEDNESS == VORTEX_RH_Y) {
+				rotation = glm::quat(glm::radians(glm::vec3(-irrRotation.X, -irrRotation.Y, -irrRotation.Z)));
+				buffer += "\t\t\t<def_position>" + StringFromNumber(irrPosition.X) + "," + StringFromNumber(irrPosition.Y) + "," + StringFromNumber(-irrPosition.Z) + "</def_position>\n";
+				buffer += "\t\t\t<def_rotation>" + StringFromNumber(rotation.w) + "," + StringFromNumber(rotation.x) + "," + StringFromNumber(rotation.y) + "," + StringFromNumber(rotation.z) + "</def_rotation>\n";
+				buffer += "\t\t\t<def_scale>" + StringFromNumber(irrScale.X) + "," + StringFromNumber(irrScale.Y) + "," + StringFromNumber(irrScale.Z) + "</def_scale>\n";
+			} else {
+				buffer += "\t\t\t<def_position>" + StringFromNumber(irrPosition.X) + "," + StringFromNumber(irrPosition.Z) + "," + StringFromNumber(irrPosition.Y) + "</def_position>\n";
+				buffer += "\t\t\t<def_rotation>" + StringFromNumber(-rotation.w) + "," + StringFromNumber(rotation.x) + "," + StringFromNumber(rotation.y) + "," + StringFromNumber(rotation.z) + "</def_rotation>\n";
+				buffer += "\t\t\t<def_scale>" + StringFromNumber(irrScale.X) + "," + StringFromNumber(irrScale.Z) + "," + StringFromNumber(irrScale.Y) + "</def_scale>\n";
+			}
 
 			if (joints[i]->AttachedMeshes.size() > 0) {
 				buffer += "\t\t\t<surfaces>";
@@ -228,7 +276,13 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 			if (joints[i]->PositionKeys.size() > 0) {
 				buffer += "\t\t\t<positions>";
 				for (u32 j = 0; j < joints[i]->PositionKeys.size(); ++j) {
-					buffer += StringFromNumber(int(joints[i]->PositionKeys[j].frame)) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.X) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.Z) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.Y);
+					if (VORTEX_HANDEDNESS == VORTEX_LH) {
+						buffer += StringFromNumber(int(joints[i]->PositionKeys[j].frame)) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.X) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.Y) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.Z);
+					} else if (VORTEX_HANDEDNESS == VORTEX_RH_Y) {
+						buffer += StringFromNumber(int(joints[i]->PositionKeys[j].frame)) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.X) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.Y) + "," + StringFromNumber(-joints[i]->PositionKeys[j].position.Z);
+					} else {
+						buffer += StringFromNumber(int(joints[i]->PositionKeys[j].frame)) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.X) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.Z) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.Y);
+					}
 					if (j < joints[i]->PositionKeys.size() - 1) buffer += ",";
 				}
 				buffer += "</positions>\n";
@@ -240,7 +294,13 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 			if (joints[i]->RotationKeys.size() > 0) {
 				buffer += "\t\t\t<rotations>";
 				for (u32 j = 0; j < joints[i]->RotationKeys.size(); ++j) {
-					buffer += StringFromNumber(int(joints[i]->RotationKeys[j].frame)) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.W) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.X) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Z) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Y);
+					if (VORTEX_HANDEDNESS == VORTEX_LH) {
+						buffer += StringFromNumber(int(joints[i]->RotationKeys[j].frame)) + "," + StringFromNumber(-joints[i]->RotationKeys[j].rotation.W) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.X) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Y) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Z);
+					} else if (VORTEX_HANDEDNESS == VORTEX_RH_Y) {
+						buffer += StringFromNumber(int(joints[i]->RotationKeys[j].frame)) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.W) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.X) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Y) + "," + StringFromNumber(-joints[i]->RotationKeys[j].rotation.Z);
+					} else {
+						buffer += StringFromNumber(int(joints[i]->RotationKeys[j].frame)) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.W) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.X) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Z) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Y);
+					}
 					if (j < joints[i]->RotationKeys.size() - 1) buffer += ",";
 				}
 				buffer += "</rotations>\n";
@@ -252,7 +312,11 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 			if (joints[i]->ScaleKeys.size() > 0) {
 				buffer += "\t\t\t<scales>";
 				for (u32 j = 0; j < joints[i]->ScaleKeys.size(); ++j) {
-					buffer += StringFromNumber(int(joints[i]->ScaleKeys[j].frame)) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.X) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.Z) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.Y);
+					if (VORTEX_HANDEDNESS == VORTEX_RH_Z) {
+						buffer += StringFromNumber(int(joints[i]->ScaleKeys[j].frame)) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.X) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.Z) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.Y);
+					} else {
+						buffer += StringFromNumber(int(joints[i]->ScaleKeys[j].frame)) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.X) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.Y) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.Z);
+					}
 					if (j < joints[i]->ScaleKeys.size() - 1) buffer += ",";
 				}
 				buffer += "</scales>\n";

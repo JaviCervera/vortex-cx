@@ -29,7 +29,7 @@ Public
 		'Create viewer
 		viewer = Viewer.Create(0, 0, DeviceWidth(), DeviceHeight())
 		viewer.SetClearColor(0,0,0)
-		viewer.SetPosition(0, 0, 100)
+		viewer.SetPosition(0, 0, -100)
 		
 		'Load level mesh
 		Local mesh:Mesh = Cache.GetMesh("simple-dm5.msh.xml")
@@ -51,7 +51,7 @@ Public
 		'Update viewer perspective and viewport
 		viewer.SetPerspective(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10000)
 		viewer.SetViewport(0, 0, DeviceWidth(), DeviceHeight())
-		viewer.SetEuler(viewer.GetEulerX(), viewer.GetEulerY(), viewer.GetEulerZ() + 32 * GetDeltaTime())
+		viewer.SetEuler(viewer.GetEulerX(), viewer.GetEulerY() + 32 * GetDeltaTime(), viewer.GetEulerZ())
 
 		Return False
 	End

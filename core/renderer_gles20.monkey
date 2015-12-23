@@ -43,7 +43,11 @@ Public
 #End
 	
 		'Prepare default program
+#If VORTEX_HANDEDNESS=VORTEX_LH
+		mDefaultProgram = CreateProgram(STD_VERTEX_SHADER, "#define UV_TOPLEFT~n" + STD_FRAGMENT_SHADER)
+#Else
 		mDefaultProgram = CreateProgram(STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
+#End
 		If mDefaultProgram = 0 Then Return False
 		m2DProgram = CreateProgram(_2D_VERTEX_SHADER, _2D_FRAGMENT_SHADER)
 		If m2DProgram = 0 Then Return False
@@ -68,6 +72,7 @@ Public
 		'Setup 2D
 		glEnable(GL_BLEND)
 		glEnable(GL_SCISSOR_TEST)
+		glFrontFace(GL_CCW)
 		SetBlendMode(BLEND_ALPHA)
 		SetBaseColor(1,1,1,1)
 		
@@ -77,7 +82,11 @@ Public
 		
 		'Setup matrices
 		mTempMatrix.SetIdentity()
-		mTempMatrix.SetOrtho(0, x+w, 0, y+h, 0, 100)
+#If VORTEX_HANDEDNESS=VORTEX_LH
+		mTempMatrix.SetOrthoLH(0, x+w, 0, y+h, 0, 100)
+#Else
+		mTempMatrix.SetOrthoRH(0, x+w, 0, y+h, 0, 100)
+#End
 		Renderer.SetProjectionMatrix(mTempMatrix)
 		mTempMatrix.SetIdentity()
 		Renderer.SetViewMatrix(mTempMatrix)
@@ -96,8 +105,14 @@ Public
 		glEnable(GL_DEPTH_TEST)
 		glEnable(GL_SCISSOR_TEST)
 		glDepthFunc(GL_LEQUAL)
+
 		SetLighting(False)
 		SetCulling(True)
+#If VORTEX_HANDEDNESS=VORTEX_LH
+		glFrontFace(GL_CW)
+#Else
+		glFrontFace(GL_CCW)
+#End
 		SetDepthWrite(True)
 		SetBlendMode(BLEND_ALPHA)
 		SetBaseColor(1,1,1,1)

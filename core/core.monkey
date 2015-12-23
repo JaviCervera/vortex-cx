@@ -8,6 +8,7 @@ Import vortex.core.bone
 Import vortex.core.brush
 Import vortex.core.drawable
 Import vortex.core.font
+Import vortex.core.handedness
 Import vortex.core.lighting
 Import vortex.core.mesh
 Import vortex.core.painter

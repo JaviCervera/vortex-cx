@@ -5,14 +5,12 @@ Public
 	Field x#, y#, z#
 	
 	Function Create:Vec3(x# = 0, y# = 0, z# = 0)
-		'DebugLog "Vec3.Create"
 		Local v:Vec3 = New Vec3
 		v.Set(x, y, z)
 		Return v
 	End
 	
 	Function Create:Vec3(other:Vec3)
-		'DebugLog "Vec3.Create"
 		Local v:Vec3 = New Vec3
 		v.Set(other)
 		Return v
@@ -101,9 +99,13 @@ Public
 	End
 	
 	Method Cross:Void(other:Vec3)
-		Local newx# = y*other.z - z*other.y
-		Local newy# = z*other.x - x*other.z
-		Local newz# = x*other.y - y*other.x
+		Cross(other.x, other.y, other.z)
+	End
+	
+	Method Cross:Void(otherx#, othery#, otherz#)
+		Local newx# = y*otherz - z*othery
+		Local newy# = z*otherx - x*otherz
+		Local newz# = x*othery - y*otherx
 		Set(newx, newy, newz)
 	End
 	
@@ -125,14 +127,12 @@ Public
 	Field w#, x#, y#, z#
 	
 	Function Create:Quat(w# = 1, x# = 0, y# = 0, z# = 0)
-		'DebugLog "Quat.Create"
 		Local q:Quat = New Quat
 		q.Set(w, x, y, z)
 		Return q
 	End
 	
 	Function Create:Quat(other:Quat)
-		'DebugLog "Quat.Create"
 		Local q:Quat = New Quat
 		q.Set(other)
 		Return q
@@ -330,14 +330,12 @@ Public
 	Field m#[16]
 	
 	Function Create:Mat4()
-		'DebugLog "Mat4.Create"
 		Local m:Mat4 = New Mat4
 		m.SetIdentity()
 		Return m
 	End
 	
 	Function Create:Mat4(other:Mat4)
-		'DebugLog "Mat4.Create"
 		Local m:Mat4 = New Mat4
 		For Local i% = 0 Until 16
 			m.m[i] = other.m[i]
@@ -346,7 +344,6 @@ Public
 	End
 	
 	Function Create:Mat4(values#[])
-		'DebugLog "Mat4.Create"
 		Local m:Mat4 = New Mat4
 		m.Set(values)
 		Return m
@@ -418,7 +415,7 @@ Public
 		t1.SetTranslation(x, y, z)
 		Self.Mul(t1)
 	End
-	
+
 	Method Rotate:Void(angle#, x#, y#, z#)
 		t1.SetIdentity()
 		t1.SetRotation(angle, x, y, z)
@@ -468,35 +465,86 @@ Public
 		Next
 	End
 	
-	Method SetOrtho:Void(left#, right#, bottom#, top#, near#, far#)
+	Method SetOrthoLH:Void(left#, right#, bottom#, top#, near#, far#)
 		Local a# = 2 / (right-left)
 		Local b# = 2 / (top-bottom)
-		Local c# = -2 / (far-near)
-		Local tx# = -(right+left) / (right-left)
-		Local ty# = -(top+bottom) / (top-bottom)
-		Local tz# = -(far+near) / (far-near)
+		Local c# = 2 / (far-near)
+		Local tx# = (left+right) / (left-right)
+		Local ty# = (top+bottom) / (bottom-top)
+		Local tz# = (near+far) / (near-far)
 		Local m#[] = [a,0,0,0, 0,b,0,0, 0,0,c,0, tx,ty,tz,1]
 		Set(m)
 	End
-	
-	Method SetFrustum:Void(left#, right#, bottom#, top#, near#, far#)
+
+	Method SetOrthoRH:Void(left#, right#, bottom#, top#, near#, far#)
+		Local a# = 2 / (right-left)
+		Local b# = 2 / (top-bottom)
+		Local c# = 2 / (near-far)
+		Local tx# = (left+right) / (left-right)
+		Local ty# = (top+bottom) / (bottom-top)
+		Local tz# = (near+far) / (near-far)
+		Local m#[] = [a,0,0,0, 0,b,0,0, 0,0,c,0, tx,ty,tz,1]
+		Set(m)
+	End
+
+	Method SetFrustumLH:Void(left#, right#, bottom#, top#, near#, far#)
+		m[0]  = 2 * near / (right - left)
+		m[5]  = 2 * near / (top - bottom)
+		m[8]  = (left + right) / (left - right)
+		m[9]  = (bottom + top) / (bottom - top)
+		m[10] = (far + near) / (far - near)
+		m[11] = 1
+		m[14] = (2 * near * far) / (near - far)
+		m[15] = 0
+	End
+
+	Method SetFrustumRH:Void(left#, right#, bottom#, top#, near#, far#)
 		m[0]  = 2 * near / (right - left)
 		m[5]  = 2 * near / (top - bottom)
 		m[8]  = (right + left) / (right - left)
 		m[9]  = (top + bottom) / (top - bottom)
-		m[10] = -(far + near) / (far - near)
+		m[10] = (far + near) / (near - far)
 		m[11] = -1
-		m[14] = -(2 * far * near) / (far - near)
+		m[14] = (2 * near * far) / (near - far)
 		m[15] = 0
 	End
 	
-	Method SetPerspective:Void(fovy#, aspect#, near#, far#)
+	Method SetPerspectiveLH:Void(fovy#, aspect#, near#, far#)
 		Local height# = near * Tan(fovy*0.5)
 		Local width# = height * aspect
-		SetFrustum(-width, width, -height, height, near, far)
+		SetFrustumLH(-width, width, -height, height, near, far)
+	End
+
+	Method SetPerspectiveRH:Void(fovy#, aspect#, near#, far#)
+		Local height# = near * Tan(fovy*0.5)
+		Local width# = height * aspect
+		SetFrustumRH(-width, width, -height, height, near, far)
 	End
 	
-	Method LookAt:Void(eyex#, eyey#, eyez#, centerx#, centery#, centerz#, upx#, upy#, upz#)
+	Method LookAtLH:Void(eyex#, eyey#, eyez#, centerx#, centery#, centerz#, upx#, upy#, upz#)
+		'Calculate z
+		tv3.Set(centerx, centery, centerz)
+		tv3.Sub(eyex, eyey, eyez)
+		tv3.Normalize()
+		
+		'Calculate x
+		tv1.Set(upx, upy, upz)
+		tv1.Cross(tv3)
+		tv1.Normalize()
+		
+		'Calculate y
+		tv2.Set(tv3)
+		tv2.Cross(tv1)
+		
+		'Set matrix data
+		m[0] = tv1.x; m[1] = tv2.x; m[2] = tv3.x; m[3] = 0
+		m[4] = tv1.y; m[5] = tv2.y; m[6] = tv3.y; m[7] = 0
+		m[8] = tv1.z; m[9] = tv2.z; m[10] = tv3.z; m[11] = 0
+		m[12] = 0; m[13] = 0; m[14] = 0; m[15] = 1
+		Translate(-eyex, -eyey, -eyez)
+	End
+
+	Method LookAtRH:Void(eyex#, eyey#, eyez#, centerx#, centery#, centerz#, upx#, upy#, upz#)
 		'Calculate z
 		tv3.Set(eyex, eyey, eyez)
 		tv3.Sub(centerx, centery, centerz)
@@ -505,14 +553,11 @@ Public
 		'Calculate x
 		tv1.Set(upx, upy, upz)
 		tv1.Cross(tv3)
+		tv1.Normalize()
 		
 		'Calculate y
 		tv2.Set(tv3)
 		tv2.Cross(tv1)
-		
-		'Normalize x and y
-		tv1.Normalize()
-		tv2.Normalize()
 		
 		'Set matrix data
 		m[0] = tv1.x; m[1] = tv2.x; m[2] = tv3.x; m[3] = 0
@@ -534,7 +579,7 @@ Private
 		m[13] = y
 		m[14] = z
 	End
-	
+
 	Method SetRotation:Void(angle#, x#, y#, z#)
 		Local c# = Cos(angle)
 		Local s# = Sin(angle)

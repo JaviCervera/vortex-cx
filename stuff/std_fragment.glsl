@@ -14,7 +14,11 @@ void main() {
 	gl_FragColor = fcolor;
 
 	// Base texture
+#ifdef UV_TOPLEFT
+	if ( baseTexMode == 1 ) gl_FragColor *= texture2D(baseTexSampler, vec2(ftex.x, ftex.y));
+#else
 	if ( baseTexMode == 1 ) gl_FragColor *= texture2D(baseTexSampler, vec2(ftex.x, -ftex.y));
+#endif
 
 	// Reject fragment with low alpha
 	if ( gl_FragColor.a <= 0.004 ) discard;

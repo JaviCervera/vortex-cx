@@ -6,6 +6,10 @@ Strict
 #GLFW_WINDOW_RESIZABLE=True
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 
+'We want a left handed coordinate system
+'Import vortex.core.handedness
+'#VORTEX_HANDEDNESS=VORTEX_LH
+
 Import vortex
 Import mojo.app
 Import mojo.input
@@ -65,9 +69,9 @@ Public
 		Local surf:Surface = Surface.Create()
 		surf.GetBrush().SetCulling(False)
 		surf.AddTriangle(0, 1, 2)
-		surf.AddVertex(0,0,0.5,     0,-1,0, 1,0,0,1, 0,0)
-		surf.AddVertex(-0.5,0,-0.5, 0,-1,0, 0,1,0,1, 0,0)
-		surf.AddVertex(0.5,0,-0.5,  0,-1,0, 0,0,1,1, 0,0)
+		surf.AddVertex(0,0.5,0,     0,0,-1, 1,0,0,1, 0,0)
+		surf.AddVertex(0.5,-0.5,0,  0,0,-1, 0,1,0,1, 0,0)
+		surf.AddVertex(-0.5,-0.5,0, 0,0,-1, 0,0,1,1, 0,0)
 		Local mesh:Mesh = Mesh.Create()
 		mesh.AddSurface(surf)
 		tri = Drawable.Create(mesh)
@@ -75,28 +79,27 @@ Public
 		'Load sphere mesh
 		Local sphere:Mesh = Cache.GetMesh("sphere.msh.xml")
 		spheres = New Drawable[81]
-		Local x% = -32, y% = -32
+		Local x% = -32, z% = -32
 		For Local i% = 0 Until spheres.Length()
 			spheres[i] = Drawable.Create(sphere)
-			spheres[i].SetPosition(x, y, 0)
-			x += 8; If x > 32 Then x = -32; y += 8
+			spheres[i].SetPosition(x, 0, z)
+			x += 8; If x > 32 Then x = -32; z += 8
 		Next
 		
 		'Create billboards
 		Local brush:Brush = Brush.Create(tex)
 		billboards = New Drawable[64]
-		x = -8; y = -8
+		x = -8; z = -8
 		For Local i% = 0 Until billboards.Length()
 			brush.SetBaseColor(Rnd(0, 1), Rnd(0, 1), Rnd(0, 1))
 			billboards[i] = Drawable.Create(brush, 1, 1, Drawable.BILLBOARD_SPHERICAL)
 			'billboards[i].SetScale(Rnd(0.1, 2), 1, Rnd(0.1, 2))
 			'billboards[i].SetEuler(0, Rnd(0, 360), 0)
-			billboards[i].SetPosition(x, y, 0)
-			x += 2; If x >= 8 Then x = -8; y += 2
+			billboards[i].SetPosition(x, 0, z)
+			x += 2; If x >= 8 Then x = -8; z += 2
 		Next
 		
 		'Prepare lights
-		lightsEulerZ = New Float[3]
 		Lighting.SetLightEnabled(0, True)
 		Lighting.SetLightEnabled(1, True)
 		Lighting.SetLightEnabled(2, True)
@@ -109,9 +112,9 @@ Public
 		Lighting.SetLightColor(0, 1, 0, 0)
 		Lighting.SetLightColor(1, 0, 1, 0)
 		Lighting.SetLightColor(2, 0, 0, 1)
-		lightsEulerZ[0] = 0
-		lightsEulerZ[1] = 120
-		lightsEulerZ[2] = 240
+		lightsEulerY[0] = 0
+		lightsEulerY[1] = 120
+		lightsEulerY[2] = 240
 		
 		'Create swat
 		swatMesh = Cache.GetMesh("swat.msh.xml")
@@ -153,23 +156,23 @@ Public
 			primitives[numPrimitives-1].g = Rnd()
 			primitives[numPrimitives-1].b = Rnd()
 		Case TEST_TRIANGLE
-			viewer.SetPosition(0, -4, 0)
+			viewer.SetPosition(0, 0, -4)
 			viewer.SetEuler(0, 0, 0)
-			tri.SetEuler(0, 0, tri.GetEulerZ() + 64 * GetDeltaTime())
+			tri.SetEuler(0, tri.GetEulerY() + 64 * GetDeltaTime(), 0)
 		Case TEST_BILLBOARDS
 			viewer.SetPosition(0, 0, 0)
-			viewer.SetEuler(-45, 0, viewer.GetEulerZ() + 32 * GetDeltaTime())
-			viewer.Move(0, -8, 0)
+			viewer.SetEuler(45, viewer.GetEulerY() + 32 * GetDeltaTime(), 0)
+			viewer.Move(0, 0, -8)
 		Case TEST_LIGHTS
-			viewer.SetPosition(0, -90, 32)
-			viewer.SetEuler(-20, 0, 0)
-			For Local i% = 0 Until lightsEulerZ.Length()
-				lightsEulerZ[i] += 32 * GetDeltaTime()
-				Lighting.SetLightPosition(i, 48 * Cos(lightsEulerZ[i]), 48 * Sin(lightsEulerZ[i]), 0)
+			viewer.SetPosition(0, 32, -90)
+			viewer.SetEuler(20, 0, 0)
+			For Local i% = 0 Until lightsEulerY.Length()
+				lightsEulerY[i] += 32 * GetDeltaTime()
+				Lighting.SetLightPosition(i, 48 * Cos(lightsEulerY[i]), 0, 48 * Sin(lightsEulerY[i]))
 			Next
 		Case TEST_ANIMATION
-			viewer.SetPosition(0, -4, 2)
-			viewer.SetEuler(-15, 0, 0)
+			viewer.SetPosition(0, 2, -4)
+			viewer.SetEuler(15, 0, 0)
 			currentFrame += 16 * GetDeltaTime()
 			If currentFrame > swatMesh.GetLastFrame()+1 Then currentFrame = currentFrame - Int(currentFrame)
 		End
@@ -284,7 +287,7 @@ Private
 	Field tri:Drawable
 	Field billboards:Drawable[]
 	Field spheres:Drawable[]
-	Field lightsEulerZ#[]
+	Field lightsEulerY#[3]
 	Field swatMesh:Mesh
 	Field swat:Drawable
 	Field currentFrame#

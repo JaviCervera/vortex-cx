@@ -107,7 +107,7 @@ public:
 	void SetDevice(IrrlichtDevice* device) {
 		mDevice = device;
 		mDevice->setResizable(true);
-		mDevice->setWindowCaption(L"U-gine3D Mesh Tool");
+		mDevice->setWindowCaption(L"Vortex Mesh Tool");
 		mCam = mDevice->getSceneManager()->addCameraSceneNode();
 	}
 
@@ -152,8 +152,8 @@ int main(int, char**) {
 	//toolbar->addButton(MENU_SAVEJSON, nullptr, L"Save JSON Mesh", gDriver->getTexture("data/json.png"), nullptr, false, true);
 	gui->addCheckBox(true, core::rect<s32>(100, 4, 200, 23), nullptr, BUTTON_EXPORTMATERIALS, L"Brushes");
 	gui->addCheckBox(true, core::rect<s32>(200, 4, 300, 23), nullptr, BUTTON_EXPORTNORMALS, L"Normals");
-	gui->addCheckBox(true, core::rect<s32>(300, 4, 400, 23), nullptr, BUTTON_EXPORTTANGENTS, L"Tangents");
-	gui->addCheckBox(true, core::rect<s32>(400, 4, 500, 23), nullptr, BUTTON_EXPORTANIMATIONS, L"Animations");
+	//gui->addCheckBox(true, core::rect<s32>(300, 4, 400, 23), nullptr, BUTTON_EXPORTTANGENTS, L"Tangents");
+	gui->addCheckBox(true, core::rect<s32>(300, 4, 400, 23), nullptr, BUTTON_EXPORTANIMATIONS, L"Animations");
 
 	// setup camera;
 	eventReceiver.GetCamera()->bindTargetAndRotation(true);
