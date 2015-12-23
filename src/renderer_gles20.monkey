@@ -7,8 +7,8 @@ Import brl.databuffer
 Import mojo.app
 Import mojo.graphics
 Import opengl.gles20
-Import vortex.core.math3d
-Import vortex.core.renderer_gles20_shaders
+Import vortex.src.math3d
+Import vortex.src.renderer_gles20_shaders
 
 Public
 Class Renderer Final
@@ -25,7 +25,7 @@ Public
 	Const MAX_LIGHTS% = 8
 	Const TEXTURE_DISABLED% = 0
 	Const TEXTURE_2D% = 1
-	
+
 	'---------------------------------------------------------------------------
 	'Setup
 	'---------------------------------------------------------------------------
@@ -41,7 +41,7 @@ Public
 		mVersion = Float(glGetString(GL_VERSION).Split(" ")[0])
 		mShadingVersion = Float(glGetString(GL_SHADING_LANGUAGE_VERSION).Split(" ")[0])
 #End
-	
+
 		'Prepare default program
 #If VORTEX_HANDEDNESS=VORTEX_LH
 		mDefaultProgram = CreateProgram(STD_VERTEX_SHADER, "#define UV_TOPLEFT~n" + STD_FRAGMENT_SHADER)
@@ -52,34 +52,34 @@ Public
 		m2DProgram = CreateProgram(_2D_VERTEX_SHADER, _2D_FRAGMENT_SHADER)
 		If m2DProgram = 0 Then Return False
 		UseProgram(mDefaultProgram)
-		
+
 		'Create buffer for 2D rendering
 		mDataBuffer = New DataBuffer(ELLIPSEPOINTS*12)
 		mVertexBuffer2D = CreateBuffer()
-		
+
 		Return True
 	End
-	
+
 	Function Setup2D:Void(x%, y%, w%, h%)
 		'Switch to 2D program
 		UseProgram(m2DProgram)
-		
+
 		'Disable 3D states
 		SetCulling(False)
 		glDisable(GL_DEPTH_TEST)
 		'glBindTexture(GL_TEXTURE_2D, 0)
-		
+
 		'Setup 2D
 		glEnable(GL_BLEND)
 		glEnable(GL_SCISSOR_TEST)
 		glFrontFace(GL_CCW)
 		SetBlendMode(BLEND_ALPHA)
 		SetBaseColor(1,1,1,1)
-		
+
 		'Setup viewport
 		glViewport(x, y, w, h)
 		glScissor(x, y, w, h)
-		
+
 		'Setup matrices
 		mTempMatrix.SetIdentity()
 #If VORTEX_HANDEDNESS=VORTEX_LH
@@ -92,14 +92,14 @@ Public
 		Renderer.SetViewMatrix(mTempMatrix)
 		Renderer.SetModelMatrix(mTempMatrix)
 	End
-	
+
 	Function Setup3D:Void(x%, y%, w%, h%)
 		'Switch to 3D program
 		UseProgram(mDefaultProgram)
-	
+
 		'Disable 2D & mojo states
 		'glBindTexture(GL_TEXTURE_2D, 0)
-		
+
 		'Setup 3D
 		glEnable(GL_BLEND)
 		glEnable(GL_DEPTH_TEST)
@@ -116,54 +116,54 @@ Public
 		SetDepthWrite(True)
 		SetBlendMode(BLEND_ALPHA)
 		SetBaseColor(1,1,1,1)
-		
+
 		'Setup viewport
 		glViewport(x, y, w, h)
 		glScissor(x, y, w, h)
 	End
-	
+
 	Function SetProjectionMatrix:Void(m:Mat4)
 		mProjectionMatrix.Set(m)
 	End
-	
+
 	Function GetProjectionMatrix:Mat4()
 		Return mProjectionMatrix
 	End
-	
+
 	Function SetViewMatrix:Void(m:Mat4)
 		mViewMatrix.Set(m)
 	End
-	
+
 	Function GetViewMatrix:Mat4()
 		Return mViewMatrix
 	End
-	
+
 	Function SetModelMatrix:Void(m:Mat4)
 		If m <> mModelMatrix Then mModelMatrix.Set(m)
-		
+
 		'Calculate ModelView
 		mTempMatrix.Set(mViewMatrix)
 		mTempMatrix.Mul(mModelMatrix)
 		If mModelViewLoc <> -1 Then glUniformMatrix4fv(mModelViewLoc, 1, False, mTempMatrix.m)
-			
+
 		'Calculate normal
 		If mNormalMatrixLoc <> -1
 			mTempMatrix.Invert()
 			mTempMatrix.Transpose()
 			glUniformMatrix4fv(mNormalMatrixLoc, 1, False, mTempMatrix.m)
 		End
-		
+
 		'Calculate MVP
 		mTempMatrix.Set(mProjectionMatrix)
 		mTempMatrix.Mul(mViewMatrix)
 		mTempMatrix.Mul(mModelMatrix)
 		If mMVPLoc <> -1 Then glUniformMatrix4fv(mMVPLoc, 1, False, mTempMatrix.m)
 	End
-	
+
 	Function GetModelMatrix:Mat4()
 		Return mModelMatrix
 	End
-	
+
 	Function SetBlendMode:Void(mode%)
 		Select mode
 		Case BLEND_ALPHA
@@ -174,7 +174,7 @@ Public
 			glBlendFunc(GL_DST_COLOR, GL_ZERO)
 		End
 	End
-	
+
 	Function SetBaseColor:Void(r#, g#, b#, a#)
 		If mBaseColorLoc <> -1 Then glUniform4f(mBaseColorLoc, r, g, b, a)
 	End
@@ -182,23 +182,23 @@ Public
 	Function SetAmbient:Void(r#, g#, b#)
 		If mAmbientLoc <> -1 Then glUniform3f(mAmbientLoc, r, g, b)
 	End
-	
+
 	Function SetShininess:Void(shininess%)
 		If mShininessLoc <> -1 Then glUniform1i(mShininessLoc, shininess)
 	End
-	
+
 	Function SetCulling:Void(enable:Bool)
 		If enable Then glEnable(GL_CULL_FACE) Else glDisable(GL_CULL_FACE)
 	End
-	
+
 	Function SetDepthWrite:Void(enable:Bool)
 		glDepthMask(enable)
 	End
-	
+
 	Function SetLighting:Void(enable:Bool)
 		If mLightingEnabledLoc <> -1 Then glUniform1i(mLightingEnabledLoc, enable)
 	End
-	
+
 	Function SetLight:Void(index%, enable:Bool, x#, y#, z#, w#, r#, g#, b#, att#)
 		If mLightEnabledLoc[index] <> -1 Then glUniform1i(mLightEnabledLoc[index], enable)
 		If enable
@@ -207,20 +207,20 @@ Public
 			If mLightAttenuationLoc[index] <> -1 Then glUniform1f(mLightAttenuationLoc[index], att)
 		End
 	End
-	
+
 	'---------------------------------------------------------------------------
 	' Drawing
 	'---------------------------------------------------------------------------
-	
+
 	Function ClearColorBuffer:Void(r#, g#, b#)
 		glClearColor(r, g, b, 1)
 		glClear(GL_COLOR_BUFFER_BIT)
 	End
-	
+
 	Function ClearDepthBuffer:Void()
 		glClear(GL_DEPTH_BUFFER_BIT)
 	End
-	
+
 	Function DrawPoint:Void(x#, y#, z#)
 		mDataBuffer.PokeFloat(0, x)
 		mDataBuffer.PokeFloat(4, y)
@@ -233,7 +233,7 @@ Public
 		glDisableVertexAttribArray(mVPosLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
-	
+
 	Function DrawLine:Void(x1#, y1#, z1#, x2#, y2#, z2#)
 		mDataBuffer.PokeFloat(0, x1)
 		mDataBuffer.PokeFloat(4, y1)
@@ -249,7 +249,7 @@ Public
 		glDisableVertexAttribArray(mVPosLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
-	
+
 	Function DrawRect:Void(x#, y#, z#, width#, height#)
 		mDataBuffer.PokeFloat(0, x)
 		mDataBuffer.PokeFloat(4, y)
@@ -271,13 +271,13 @@ Public
 		glDisableVertexAttribArray(mVPosLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
-	
+
 	Function DrawEllipse:Void(x#, y#, z#, width#, height#)
 		Local xradius# = width/2
 		Local yradius# = height/2
 		Local xcenter# = x + xradius
 		Local ycenter# = y + yradius
-		
+
 		Local inc# = 360.0 / ELLIPSEPOINTS
 		For Local i% = 0 Until ELLIPSEPOINTS
 			Local c# = Cos(i * inc)
@@ -286,7 +286,7 @@ Public
 			mDataBuffer.PokeFloat(i*12 + 4, ycenter + s*yradius)
 			mDataBuffer.PokeFloat(i*12 + 8, z)
 		Next
-		
+
 		SetVertexBufferData(mVertexBuffer2D, mDataBuffer, ELLIPSEPOINTS * 12)
 		glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer2D)
 		glEnableVertexAttribArray(mVPosLoc)
@@ -295,7 +295,7 @@ Public
 		glDisableVertexAttribArray(mVPosLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
-	
+
 	Function DrawTexRect:Void(buffer:DataBuffer)
 		SetVertexBufferData(mVertexBuffer2D, buffer, buffer.Length())
 		glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer2D)
@@ -308,11 +308,11 @@ Public
 		glDisableVertexAttribArray(mVTexLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
-	
+
 	'---------------------------------------------------------------------------
 	' Texture
 	'---------------------------------------------------------------------------
-	
+
 	Function LoadTexture%(filename$, size%[], filter%)
 		Local texture% = glCreateTexture()
 		glBindTexture(GL_TEXTURE_2D, texture)
@@ -321,7 +321,7 @@ Public
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + filename)
 		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
 		'glBindTexture(GL_TEXTURE_2D, 0)
-		
+
 		'Trick to get texture size
 		If size.Length() >= 2
 			Local img:Image = LoadImage(filename)
@@ -334,10 +334,10 @@ Public
 				size[1] = 0
 			End
 		End
-		
+
 		Return texture
 	End
-	
+
 	Function GenTexture%(buffer:DataBuffer, width%, height%, filter%)
 		Local texture% = glCreateTexture()
 		glBindTexture(GL_TEXTURE_2D, texture)
@@ -348,40 +348,40 @@ Public
 		'glBindTexture(GL_TEXTURE_2D, 0)
 		Return texture
 	End
-	
+
 	Function FreeTexture:Void(texture%)
 		glDeleteTexture(texture)
 	End
-	
+
 	Function SetTexture:Void(texture%)
 		If texture <> 0 Then glBindTexture(GL_TEXTURE_2D, texture)
 		If mBaseTexModeLoc <> -1 Then glUniform1i(mBaseTexModeLoc, texture <> 0)
 	End
-	
+
 	'---------------------------------------------------------------------------
 	' VBO
 	'---------------------------------------------------------------------------
-	
+
 	Function CreateBuffer%()
 		Return glCreateBuffer()
 	End
-	
+
 	Function FreeBuffer:Void(buffer%)
 		glDeleteBuffer(buffer)
 	End
-	
+
 	Function SetVertexBufferData:Void(buffer%, data:DataBuffer, length%)
 		glBindBuffer(GL_ARRAY_BUFFER, buffer)
 		glBufferData(GL_ARRAY_BUFFER, length, data, GL_STATIC_DRAW)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
-	
+
 	Function SetIndexBufferData:Void(buffer%, data:DataBuffer, length%)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer)
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, length, data, GL_STATIC_DRAW)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
 	End
-	
+
 	Function DrawBuffers:Void(vertexBuffer%, indexBuffer%, numIndices%, coordsOffset%, normalsOffset%, colorsOffset%, texCoordsOffset%, stride%)
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer)
@@ -397,14 +397,14 @@ Public
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
 	End
-	
+
 	'---------------------------------------------------------------------------
 	' Shaders
 	'---------------------------------------------------------------------------
-	
+
 	Function CreateProgram%(vertex$, fragment$)
 		Local retCode%[1]
-		
+
 		'Create vertex shader
 		Local vshader% = glCreateShader(GL_VERTEX_SHADER)
 		glShaderSource(vshader, vertex)
@@ -427,7 +427,7 @@ Public
 			glDeleteShader(fshader)
 			Return 0
 		End
-		
+
 		'Create program
 		Local program% = glCreateProgram()
 		glAttachShader(program, vshader)
@@ -443,11 +443,11 @@ Public
 		End
 		Return program
 	End
-	
+
 	Function FreeProgram:Void(program%)
 		glDeleteProgram(program)
 	End
-	
+
 	Function UseProgram:Void(program%)
 		If program = 0 Then program = mDefaultProgram
 		glUseProgram(program)
@@ -469,30 +469,30 @@ Public
 		mVNormalLoc = glGetAttribLocation(program, "vnormal")
 		mVColorLoc = glGetAttribLocation(program, "vcolor")
 		mVTexLoc = glGetAttribLocation(program, "vtex")
-		
+
 		Local baseTexSamplerLoc% = glGetUniformLocation(program, "baseTexSampler")
 		If baseTexSamplerLoc <> -1 Then glUniform1i(baseTexSamplerLoc, 0)
 	End
-	
+
 	Function GetDefaultProgram%()
 		Return mDefaultProgram
 	End
-	
+
 	Function GetProgramError$()
 		Return mProgramError
 	End
-	
+
 	Function GetAPIVersion:Float()
 		Return mVersion
 	End Function
-	
+
 	Function GetShadingVersion:Float()
 		Return mShadingVersion
 	End Function
 Private
 	Method New()
 	End
-	
+
 	Function GetMagFilter%(filtering%)
 		Select filtering
 		Case FILTER_NONE
@@ -507,7 +507,7 @@ Private
 			Return GL_LINEAR
 		End
 	End
-	
+
 	Function GetMinFilter%(filtering%)
 		Select filtering
 		Case FILTER_NONE
@@ -522,11 +522,11 @@ Private
 			Return GL_LINEAR
 		End
 	End
-	
+
 	'GL and GLSL version
 	Global mVersion#
 	Global mShadingVersion#
-	
+
 	'Localization of vars in shaders
 	Global mMVPLoc%
 	Global mModelViewLoc%
@@ -544,7 +544,7 @@ Private
 	Global mVNormalLoc%
 	Global mVColorLoc%
 	Global mVTexLoc%
-	
+
 	Global mDataBuffer:DataBuffer
 	Global mVertexBuffer2D%
 	Global mModelMatrix:Mat4 = Mat4.Create()

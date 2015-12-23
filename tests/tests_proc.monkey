@@ -7,8 +7,8 @@ Strict
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 
 'We want a left handed coordinate system
-Import vortex.core.handedness
-#VORTEX_HANDEDNESS=VORTEX_LH
+'Import vortex.handedness
+'#VORTEX_HANDEDNESS=VORTEX_LH
 
 Import vortex.proc
 Import mojo.app

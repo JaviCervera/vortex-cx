@@ -1,8 +1,8 @@
 Strict
 
 Private
-Import vortex.core.math3d
-Import vortex.core.renderer
+Import vortex.src.math3d
+Import vortex.src.renderer
 
 Public
 Class Viewer Final
@@ -23,7 +23,7 @@ Public
 		v.mQuat = Quat.Create(1,0,0,0)
 		Return v
 	End
-	
+
 	Method SetPerspective:Void(fovy:Float, ratio:Float, near:Float, far:Float)
 		mProjMatrix.SetIdentity()
 #If VORTEX_HANDEDNESS=VORTEX_LH
@@ -32,7 +32,7 @@ Public
 		mProjMatrix.SetPerspectiveRH(fovy, ratio, near, far)
 #End
 	End
-	
+
 	Method SetFrustum:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
 		mProjMatrix.SetIdentity()
 #If VORTEX_HANDEDNESS=VORTEX_LH
@@ -41,7 +41,7 @@ Public
 		mProjMatrix.SetFrustumRH(left, right, bottom, top, near, far)
 #End
 	End
-	
+
 	Method SetOrtho:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
 		mProjMatrix.SetIdentity()
 #If VORTEX_HANDEDNESS=VORTEX_LH
@@ -50,109 +50,109 @@ Public
 		mProjMatrix.SetOrthoRH(left, right, bottom, top, near, far)
 #End
 	End
-	
+
 	Method SetClearColor:Void(r:Float, g:Float, b:Float)
 		mRed = r
 		mGreen = g
 		mBlue = b
 	End
-	
+
 	Method GetClearRed:Float()
 		Return mRed
 	End
-	
+
 	Method GetClearGreen:Float()
 		Return mGreen
 	End
-	
+
 	Method GetClearBlue:Float()
 		Return mBlue
 	End
-	
+
 	Method SetViewport:Void(x:Int, y:Int, w:Int, h:Int)
 		mVX = x
 		mVY = y
 		mVWidth = w
 		mVHeight = h
 	End
-	
+
 	Method GetViewportX:Float()
 		Return mVX
 	End
-	
+
 	Method GetViewportY:Float()
 		Return mVY
 	End
-	
+
 	Method GetViewportWidth:Float()
 		Return mVWidth
 	End
-	
+
 	Method GetViewportHeight:Float()
 		Return mVHeight
 	End
-	
+
 	Method SetPosition:Void(x:Float, y:Float, z:Float)
 		mPosition.Set(x, y, z)
 	End
-	
+
 	Method GetX:Float()
 		Return mPosition.x
 	End
-	
+
 	Method GetY:Float()
 		Return mPosition.y
 	End
-	
+
 	Method GetZ:Float()
 		Return mPosition.z
 	End
-	
+
 	Method SetEuler:Void(x:Float, y:Float, z:Float)
 		mEuler.Set(x, y, z)
 		mQuat.SetEuler(x, y, z)
 	End
-	
+
 	Method GetEulerX:Float()
 		Return mEuler.x
 	End
-	
+
 	Method GetEulerY:Float()
 		Return mEuler.y
 	End
-	
+
 	Method GetEulerZ:Float()
 		Return mEuler.z
 	End
-	
+
 	Method SetQuat:Void(w:Float, x:Float, y:Float, z:Float)
 		mQuat.Set(w, x, y, z)
 		mQuat.CalcEuler()
 		mEuler.Set(mQuat.ResultVector())
 	End
-	
+
 	Method GetQuatW:Float()
 		Return mQuat.w
 	End
-	
+
 	Method GetQuatX:Float()
 		Return mQuat.x
 	End
-	
+
 	Method GetQuatY:Float()
 		Return mQuat.y
 	End
-	
+
 	Method GetQuatZ:Float()
 		Return mQuat.z
 	End
-	
+
 	Method Move:Void(x:Float, y:Float, z:Float)
 		mTempVec.Set(x, y, z)
 		mQuat.Mul(mTempVec)
 		mPosition.Sum(Quat.ResultVector())
 	End
-	
+
 	Method Prepare:Void()
 		'Get view matrix
 #If VORTEX_HANDEDNESS=VORTEX_LH
@@ -168,14 +168,14 @@ Public
 		mQuat.Mul(0, 1, 0)
 		mViewMatrix.LookAtRH(GetX(), GetY(), GetZ(), GetX() + Quat.ResultVector().x, GetY() + Quat.ResultVector().y, GetZ() + Quat.ResultVector().z, 0, 0, 1)
 #End
-		
+
 		'Setup for 3D rendering
 		Renderer.Setup3D(mVX, mVY, mVWidth, mVHeight)
-		
+
 		'Setup matrices
 		Renderer.SetProjectionMatrix(mProjMatrix)
 		Renderer.SetViewMatrix(mViewMatrix)
-		
+
 		'Clear buffers
 		Renderer.ClearColorBuffer(mRed, mGreen, mBlue)
 		Renderer.ClearDepthBuffer()
@@ -183,7 +183,7 @@ Public
 Private
 	Method New()
 	End
-	
+
 	Field mProjMatrix	: Mat4
 	Field mViewMatrix	: Mat4
 	Field mRed			: Float

@@ -1,13 +1,12 @@
 Strict
 
 Private
-Import vortex.core.bone
-Import vortex.core.brush
-Import vortex.core.math3d
-Import vortex.core.mesh
-Import vortex.core.renderer
-Import vortex.core.sequence
-Import vortex.core.surface
+Import vortex.src.bone
+Import vortex.src.brush
+Import vortex.src.math3d
+Import vortex.src.mesh
+Import vortex.src.renderer
+Import vortex.src.surface
 
 Public
 Class Drawable Final
@@ -28,7 +27,7 @@ Public
 		d.mScale = Vec3.Create(1,1,1)
 		Return d
 	End
-	
+
 	Function Create:Drawable(surface:Surface)
 		If surface = Null Then Return Null
 		Local d:Drawable = New Drawable
@@ -41,7 +40,7 @@ Public
 		d.mScale = Vec3.Create(1,1,1)
 		Return d
 	End
-	
+
 	Function Create:Drawable(brush:Brush, width:Float = 0, height:Float = 0, mode:Int = BILLBOARD_SPHERICAL)
 		If brush <> Null And brush.GetBaseTexture() <> Null
 			If width = 0 Then width = brush.GetBaseTexture().GetWidth()
@@ -50,7 +49,7 @@ Public
 			If width = 0 Then width = 1
 			If height = 0 Then height = 1
 		End
-		
+
 		'Create drawable
 		Local d:Drawable = New Drawable
 		d.mBillboardMode = mode
@@ -59,10 +58,10 @@ Public
 		d.mEuler = Vec3.Create(0,0,0)
 		d.mQuat = Quat.Create(1,0,0,0)
 		d.mScale = Vec3.Create(1,1,1)
-		
+
 		'Add surface
 		d.mSurface = Surface.Create(brush)
-		
+
 		'Add vertices and indices
 		Local x0# = -width/2
 		Local x1# =  width/2
@@ -72,7 +71,7 @@ Public
 		'Add triangles
 		d.mSurface.AddTriangle(0, 1, 2)
 		d.mSurface.AddTriangle(2, 1, 3)
-		
+
 		d.mSurface.AddVertex(x0, z1, 0, 0, 0, -1, 1, 1, 1, 1, 0, 0)
 		d.mSurface.AddVertex(x1, z1, 0, 0, 0, -1, 1, 1, 1, 1, 1, 0)
 		d.mSurface.AddVertex(x0, z0, 0, 0, 0, -1, 1, 1, 1, 1, 0, 1)
@@ -81,7 +80,7 @@ Public
 		'Add triangles
 		d.mSurface.AddTriangle(0, 2, 1)
 		d.mSurface.AddTriangle(2, 3, 1)
-		
+
 		d.mSurface.AddVertex(x0, z1, 0, 0, -1, 0, 1, 1, 1, 1, 0, 1)
 		d.mSurface.AddVertex(x1, z1, 0, 0, -1, 0, 1, 1, 1, 1, 1, 1)
 		d.mSurface.AddVertex(x0, z0, 0, 0, -1, 0, 1, 1, 1, 1, 0, 0)
@@ -90,24 +89,24 @@ Public
 		'Add triangles
 		d.mSurface.AddTriangle(0, 2, 1)
 		d.mSurface.AddTriangle(2, 3, 1)
-		
+
 		d.mSurface.AddVertex(x0, 0, z1, 0, -1, 0, 1, 1, 1, 1, 0, 1)
 		d.mSurface.AddVertex(x1, 0, z1, 0, -1, 0, 1, 1, 1, 1, 1, 1)
 		d.mSurface.AddVertex(x0, 0, z0, 0, -1, 0, 1, 1, 1, 1, 0, 0)
 		d.mSurface.AddVertex(x1, 0, z0, 0, -1, 0, 1, 1, 1, 1, 1, 0)
 #End
-		
+
 		'Rebuild surface
 		d.mSurface.Rebuild()
-		
+
 		Return d
 	End
-	
+
 	Method Discard:Void()
 		If mSurface Then mSurface.Discard()
 		mSurface = Null
 	End
-	
+
 	Method Draw:Void(animated:Bool = False, frame:Float = 0, firstFrame:Int = 0, lastFrame:Int = 0)
 		'Calculate transform matrix
 		Select mBillboardMode
@@ -137,7 +136,7 @@ Public
 				mTempMatrix.Scale(GetScaleX(), GetScaleY(), GetScaleZ())
 		End
 		Renderer.SetModelMatrix(mTempMatrix)
-		
+
 		'Draw
 		If mMesh <> Null
 			mMesh.Draw(animated, frame, firstFrame, lastFrame)
@@ -145,82 +144,82 @@ Public
 			mSurface.Draw()
 		End
 	End
-	
+
 	Method GetBillboardMode:Int()
 		Return mBillboardMode
 	End
-	
+
 	Method GetMesh:Mesh()
 		Return mMesh
 	End
-	
+
 	Method GetSurface:Surface()
 		Return mSurface
 	End
-	
+
 	Method SetPosition:Void(x:Float, y:Float, z:Float)
 		mPosition.Set(x, y, z)
 	End
-	
+
 	Method GetX:Float()
 		Return mPosition.x
 	End
-	
+
 	Method GetY:Float()
 		Return mPosition.y
 	End
-	
+
 	Method GetZ:Float()
 		Return mPosition.z
 	End
-	
+
 	Method SetEuler:Void(x:Float, y:Float, z:Float)
 		mEuler.Set(x, y, z)
 		mQuat.SetEuler(x, y, z)
 	End
-	
+
 	Method GetEulerX:Float()
 		Return mEuler.x
 	End
-	
+
 	Method GetEulerY:Float()
 		Return mEuler.y
 	End
-	
+
 	Method GetEulerZ:Float()
 		Return mEuler.z
 	End
-	
+
 	Method SetQuat:Void(w:Float, x:Float, y:Float, z:Float)
 		mQuat.Set(w, x, y, z)
 		mQuat.CalcEuler()
 		mEuler.Set(mQuat.ResultVector())
 	End
-	
+
 	Method GetQuatW:Float()
 		Return mQuat.w
 	End
-	
+
 	Method GetQuatX:Float()
 		Return mQuat.x
 	End
-	
+
 	Method GetQuatY:Float()
 		Return mQuat.y
 	End
-	
+
 	Method GetQuatZ:Float()
 		Return mQuat.z
 	End
-	
+
 	Method SetScale:Void(x:Float, y:Float, z:Float)
 		mScale.Set(x, y, z)
 	End
-	
+
 	Method GetScaleX:Float()
 		Return mScale.x
 	End
-	
+
 	Method GetScaleY:Float()
 		Return mScale.y
 	End
@@ -228,19 +227,19 @@ Public
 	Method GetScaleZ:Float()
 		Return mScale.z
 	End
-	
+
 	Method Move:Void(x:Float, y:Float, z:Float)
 		mQuat.Mul(x, y, z)
 		mPosition.Sum(Quat.ResultVector())
 	End
-	
+
 	Method _GetQuat:Quat()
 		Return mQuat
 	End
 Private
 	Method New()
 	End
-	
+
 	Method FillTransformArray:Void()
 		mTempArray[0] = Renderer.GetViewMatrix().m[0]
 		mTempArray[1] = Renderer.GetViewMatrix().m[4]
@@ -281,7 +280,7 @@ Private
 		mTempArray[14] = GetZ()
 		mTempArray[15] = 1
 	End
-	
+
 	Field mBillboardMode	: Int
 	Field mMesh				: Mesh		'For mesh drawables
 	Field mSurface			: Surface	'For billboard drawables

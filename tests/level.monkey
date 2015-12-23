@@ -29,7 +29,7 @@ Public
 		'Create viewer
 		viewer = Viewer.Create(0, 0, DeviceWidth(), DeviceHeight())
 		viewer.SetClearColor(0,0,0)
-		viewer.SetPosition(0, 0, -100)
+		viewer.SetPosition(0, 100, -100)
 		
 		'Load level mesh
 		Local mesh:Mesh = Cache.GetMesh("simple-dm5.msh.xml")

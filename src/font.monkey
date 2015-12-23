@@ -1,7 +1,7 @@
 Strict
 
 Private
-Import vortex.core.texture
+Import vortex.src.texture
 
 Class Glyph Final
 	Field mX		: Float
@@ -24,19 +24,19 @@ Public
 		Next
 		Return f
 	End
-	
+
 	Method Discard:Void()
 		mTexture.Discard()
 	End
-	
+
 	Method GetFilename:String()
 		Return mFilename
 	End
-	
+
 	Method GetHeight:Float()
 		Return mHeight
 	End
-	
+
 	Method GetTextWidth:Float(text:String)
 		Local width# = 0
 		For Local i% = 0 Until text.Length()
@@ -48,7 +48,7 @@ Public
 		Next
 		Return width
 	End
-	
+
 	Method GetTextHeight:Float(text:String)
 		Local height# = 0
 		For Local i% = 0 Until text.Length()
@@ -56,7 +56,7 @@ Public
 		Next
 		Return height
 	End
-	
+
 	Method SetGlyphData:Void(index:Int, x:Float, y:Float, w:Float, h:Float, yoffset:Float)
 		mGlyphs[index].mX = x
 		mGlyphs[index].mY = y
@@ -64,7 +64,7 @@ Public
 		mGlyphs[index].mHeight = h
 		mGlyphs[index].mYOffset = yoffset
 	End
-	
+
 	Method Draw:Void(x:Float, y:Float, text:String)
 		For Local i% = 0 Until text.Length()
 			Local glyph:Glyph = mGlyphs[text[i]-32]

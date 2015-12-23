@@ -1,8 +1,7 @@
 Strict
 
 Private
-Import vortex.core
-Import vortex.ext
+Import vortex.vortex
 
 Public
 
@@ -487,7 +486,7 @@ End
 Function Mesh_GetNumSurfaces:Int(mesh:Object)
 	Return Mesh(mesh).GetNumSurfaces()
 End
-	
+
 Function Mesh_GetSurface:Object(mesh:Object, index:Int)
 	Return Mesh(mesh).GetSurface(index)
 End

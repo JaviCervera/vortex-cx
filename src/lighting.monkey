@@ -1,8 +1,8 @@
 Strict
 
 Private
-Import vortex.core.math3d
-Import vortex.core.renderer
+Import vortex.src.math3d
+Import vortex.src.renderer
 
 Class LightData Final
 	Method New()
@@ -34,81 +34,81 @@ Public
 	Const NUM_LIGHTS%	= Renderer.MAX_LIGHTS
 	Const DIRECTIONAL%	= 0
 	Const POINT%		= 1
-	
+
 	Function SetLightEnabled:Void(index:Int, enabled:Bool)
 		InitLights()
 		mLights[index].mEnabled = enabled
 	End
-	
+
 	Function IsLightEnabled:Bool(index:Int)
 		InitLights()
 		Return mLights[index].mEnabled
 	End
-	
+
 	Function SetLightType:Void(index:Int, type:Int)
 		InitLights()
 		If type = DIRECTIONAL Or type = POINT Then mLights[index].mW = type
 	End
-	
+
 	Function GetLightType:Int(index:Int)
 		InitLights()
 		Return mLights[index].mW
 	End
-	
+
 	Function SetLightPosition:Void(index:Int, x:Float, y:Float, z:Float)
 		InitLights()
 		mLights[index].mX = x
 		mLights[index].mY = y
 		mLights[index].mZ = z
 	End
-	
+
 	Function GetLightX:Float(index:Int)
 		InitLights()
 		Return mLights[index].mX
 	End
-	
+
 	Function GetLightY:Float(index:Int)
 		InitLights()
 		Return mLights[index].mY
 	End
-	
+
 	Function GetLightZ:Float(index:Int)
 		InitLights()
 		Return mLights[index].mZ
 	End
-	
+
 	Function SetLightColor:Void(index:Int, r:Float, g:Float, b:Float)
 		InitLights()
 		mLights[index].mRed = r
 		mLights[index].mGreen = g
 		mLights[index].mBlue = b
 	End
-	
+
 	Function GetLightRed:Float(index:Int)
 		InitLights()
 		Return mLights[index].mRed
 	End
-	
+
 	Function GetLightGreen:Float(index:Int)
 		InitLights()
 		Return mLights[index].mGreen
 	End
-	
+
 	Function GetLightBlue:Float(index:Int)
 		InitLights()
 		Return mLights[index].mBlue
 	End
-	
+
 	Function SetLightAttenuation:Void(index:Int, att:Float)
 		InitLights()
 		mLights[index].mAttenuation = att
 	End
-	
+
 	Function GetLightAttenuation:Float(index:Int)
 		InitLights()
 		Return mLights[index].mAttenuation
 	End
-	
+
 	Function Prepare:Void(ambientRed:Float = 0.3, ambientGreen:Float = 0.3, ambientBlue:Float = 0.3)
 		InitLights()
 		Renderer.SetLighting(True)
@@ -122,7 +122,7 @@ Public
 Private
 	Method New()
 	End
-	
+
 	Function InitLights:Void()
 		If mLights[0] = Null
 			For Local i% = 0 Until NUM_LIGHTS
@@ -130,6 +130,6 @@ Private
 			Next
 		End
 	End
-	
+
 	Global mLights		: LightData[NUM_LIGHTS]
 End

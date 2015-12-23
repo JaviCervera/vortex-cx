@@ -3,13 +3,13 @@ Strict
 Private
 Import brl.filepath
 Import mojo.app
-Import vortex.core.bone
-Import vortex.core.brush
-Import vortex.core.mesh
-Import vortex.core.surface
-Import vortex.core.texture
-Import vortex.ext.cache
-Import xml
+Import vortex.src.bone
+Import vortex.src.brush
+Import vortex.src.cache
+Import vortex.src.mesh
+Import vortex.src.surface
+Import vortex.src.texture
+Import vortex.src.xml
 
 Public
 Class MeshLoader_XML Final
@@ -21,14 +21,14 @@ Public
 		Local parser:XMLParser = New XMLParser(xmlString)
 		If Not parser.Parse() Then DebugLog parser.GetError(); Return Null
 		If parser.GetRootNode().GetName() <> "mesh" Then Return Null
-	
+
 		'Get arrays
 		Local brushesNode:XMLNode = parser.GetRootNode().GetChild("brushes")
 		Local surfacesNode:XMLNode = parser.GetRootNode().GetChild("surfaces")
 		Local lastFrameNode:XMLNode = parser.GetRootNode().GetChild("last_frame")
 		Local bonesNode:XMLNode = parser.GetRootNode().GetChild("bones")
 		If Not surfacesNode Then Return Null
-	
+
 		'Parse brushes
 		Local brushMap:StringMap<Brush> = New StringMap<Brush>
 		If brushesNode <> Null
@@ -38,7 +38,7 @@ Public
 					DebugLog "Unexpected node '" + brushNode.GetName() + "' found in brushes section. Ignoring..."
 					Continue
 				End
-			
+
 				'Get brush data
 				Local nameStr$ = brushNode.GetChildValue("name", "")
 				Local blendStr$ = brushNode.GetChildValue("blend", "alpha")
@@ -56,14 +56,14 @@ Public
 				baseColor[0] = Float(baseColorStr[0])
 				If baseColorStr.Length() > 1 Then baseColor[1] = Float(baseColorStr[1])
 				If baseColorStr.Length() > 2 Then baseColor[2] = Float(baseColorStr[2])
-			
+
 				'Load texture
 				Local baseTex:Texture = Null
 				If baseTexStr <> ""
 					If ExtractDir(filename) <> "" Then baseTexStr = ExtractDir(filename) + "/" + baseTexStr
 					baseTex = Cache.GetTexture(baseTexStr, texFilter)
 				End
-			
+
 				'Create brush
 				Local brush:Brush = Brush.Create(baseTex)
 				If blendStr.ToLower() = "alpha" Then brush.SetBlendMode(Brush.BLEND_ALPHA)
@@ -77,11 +77,11 @@ Public
 				brushMap.Set(nameStr, brush)
 			Next
 		End
-	
+
 		'Create mesh object
 		Local mesh:Mesh = Mesh.Create()
 		mesh.SetFilename(filename)
-	
+
 		'Parse surfaces
 		For Local i% = 0 Until surfacesNode.GetNumChildren()
 			Local surfaceNode:XMLNode = surfacesNode.GetChild(i)
@@ -89,7 +89,7 @@ Public
 				DebugLog "Unexpected node '" + surfaceNode.GetName() + "' found in surfaces section. Ignoring..."
 				Continue
 			end
-		
+
 			'Get surface data
 			Local brushStr$ = surfaceNode.GetChildValue("brush", "")
 			Local indicesStr$[] = surfaceNode.GetChildValue("indices", "").Split(",")
@@ -97,7 +97,7 @@ Public
 			Local normalsStr$[] = surfaceNode.GetChildValue("normals", "").Split(",")
 			Local colorsStr$[] = surfaceNode.GetChildValue("colors", "").Split(",")
 			Local texcoordsStr$[] = surfaceNode.GetChildValue("texcoords", "").Split(",")
-		
+
 			'Create surface
 			Local surf:Surface = Surface.Create(brushMap.Get(brushStr))
 			Local indicesLen% = indicesStr.Length()
@@ -110,19 +110,19 @@ Public
 				Local nx# = 1, ny# = 1, nz# = 1
 				Local r# = 1, g# = 1, b# = 1, a# = 1
 				Local u# = 0, v# = 0
-			
+
 				'Read coords
 				x = Float(coordsStr[j*3])
 				y = Float(coordsStr[j*3+1])
 				z = Float(coordsStr[j*3+2])
-			
+
 				'Read normals
 				If normalsStr.Length() > 1
 					nx = Float(normalsStr[j*3])
 					ny = Float(normalsStr[j*3+1])
 					nz = Float(normalsStr[j*3+2])
 				End
-				
+
 				'Read colors
 				If colorsStr.Length() > 1
 					r = Float(colorsStr[j*4])
@@ -130,22 +130,22 @@ Public
 					b = Float(colorsStr[j*4+2])
 					a = Float(colorsStr[j*4+3])
 				End
-			
+
 				'Read tex coords
 				If texcoordsStr.Length() > 1
 					u = Float(texcoordsStr[j*2])
 					v = Float(texcoordsStr[j*2+1])
 				End
-			
+
 				surf.AddVertex(x, y, z, nx, ny, nz, r, g, b, a, u, v)
 			Next
-		
+
 			mesh.AddSurface(surf)
 		Next
-		
+
 		'Parse last frame
 		If lastFrameNode Then mesh.SetLastFrame(Int(lastFrameNode.GetValue()))
-		
+
 		'Parse bones
 		If bonesNode
 			For Local i% = 0 Until bonesNode.GetNumChildren()
@@ -154,7 +154,7 @@ Public
 					DebugLog "Unexpected node '" + boneNode.GetName() + "' found in bones section. Ignoring..."
 					Continue
 				End
-			
+
 				'Get node data
 				Local nameStr$ = boneNode.GetChildValue("name", "")
 				Local parentStr$ = boneNode.GetChildValue("parent", "")
@@ -163,7 +163,7 @@ Public
 				Local defScaleStr$[] = boneNode.GetChildValue("def_scale", "1,1,1").Split(",")
 				Local surfacesStr$[] = boneNode.GetChildValue("surfaces", "").Split(",")
 				If defPositionStr.Length() <> 3 Or defRotationStr.Length() <> 4 Or defScaleStr.Length() <> 3 Then Return Null
-				
+
 				'Add bone
 				Local bone:Bone = Bone.Create(nameStr)
 				bone.SetDefaultTransform(Float(defPositionStr[0]), Float(defPositionStr[1]), Float(defPositionStr[2]), Float(defRotationStr[0]), Float(defRotationStr[1]), Float(defRotationStr[2]), Float(defRotationStr[3]), Float(defScaleStr[0]), Float(defScaleStr[1]), Float(defScaleStr[2]))
@@ -177,14 +177,14 @@ Public
 					If Not parentBone Then Return Null					'Parent node must exist
 					parentBone.AddChild(bone)
 				End
-			
+
 				'Add surfaces
 				If surfacesStr[0] <> ""
 					For Local j% = 0 Until surfacesStr.Length()
 						bone.AddSurface(mesh.GetSurface(Int(surfacesStr[j])))
 					Next
 				End
-				
+
 				'Add position frames
 				Local positionsStr$[] = boneNode.GetChildValue("positions", "").Split(",")
 				If positionsStr.Length() >= 4
@@ -219,7 +219,7 @@ Public
 				End
 			Next
 		End
-	
+
 		Return mesh
 	End
 Private
