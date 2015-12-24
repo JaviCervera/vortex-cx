@@ -8,6 +8,10 @@ meshtool/_BUILD/
 .bmx/
 */.bmx/
 
+# Tools
+meshtool
+fonttool
+
 # Qt
 /.qmake.cache
 /.qmake.stash
