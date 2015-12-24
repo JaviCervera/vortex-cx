@@ -145,11 +145,6 @@ private:
 };
 
 int main(int, char* argv[]) {
-	// On Mac, move to right dir
-#ifdef __APPLE__
-	chdir(ExtractPath(argv[0]).c_str());
-#endif
-
 	// Create event receiver
 	MyEventReceiver eventReceiver;
 
@@ -158,6 +153,11 @@ int main(int, char* argv[]) {
 	IrrlichtDevice* device = createDevice(driverType, core::dimension2d<u32>(800, 600), 32, false, false, true, &eventReceiver);
 	if (!device) return 1;
 	eventReceiver.SetDevice(device);
+
+	// On Mac, change to correct dir
+#ifdef __APPLE__
+	device->getFileSystem()->changeWorkingDirectoryTo(ExtractPath(argv[0]).c_str());
+#endif
 
 	// setup video driver
 	device->getVideoDriver()->setTextureCreationFlag(video::ETCF_ALWAYS_32_BIT, true);
