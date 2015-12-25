@@ -1,3 +1,35 @@
-V1.0.1
-- Fixed a bug in meshtool that prevented static meshes from being exported correctly.
-- Some bug fixes.
+V1.0
+- First public release
+- Platform specific versions contain precompiled tools
+- Source versions require Qt Creator 3.3.0 or higher to build the tools
+
+V1.1
+- Now Vortex supports changing handedness. To do that, you can do this at the
+  beginning of your program:
+
+    Import vortex.src.handedness
+    #VORTEX_HANDEDNESS=Mode
+
+    Where mode can be one of:
+    VORTEX_LH: Left handed coordinate system (the default now)
+    VORTEX_RH_Y: Right handed coordinate system, with Y as up vector
+    VORTEX_RH_Z: Right handed coordinate system, with Z as up vector
+                 (the default in previous versions of Vortex)
+
+    Left handed system uses clockwise order for rotations and triangle winding,
+    and maps textures from the top left to the bottom right.
+    Right handed systems use counter clockwise order for rotations and triangle
+    winding, and maps textures from the bottom left to the top right.
+- Added procedural API. Despite differences in implementation on the Object
+  Oriented layer, the procedural API should offer the same functions as a
+  future implementation of Vortex in C++
+- Added Vortex_GetAPIVersion and Vortex_GetShadingVersion
+- Support for JSON meshes and fonts replaced by XML versions
+- Meshtool replaced by Irrlicht-based version
+- Fonttool and meshtool are now build from a .bat file (requires TDM-GCC-32
+  on Windows)
+- Removed animation sequences from the engine. Now animations are a simple
+  linear of keyframes, and you decide the first and last frame for the
+  animation. This helps keeping Vortex a bit simpler, and it is not hard to add
+  sequence support on a higher level engine
+- Several bug fixes

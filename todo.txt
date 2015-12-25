@@ -1,3 +1,11 @@
-V1.0.1
-- Add multiple sequence support in meshtool
-- Check frame interpolation
+Possible roadmap (not guaranteed to be implemented in this order):
+
+V1.2
+- Add vertex animation
+- Add skinned animation
+
+V2.0
+- Add realtime shadow support
+- Improve meshtool
+- Add multitexturing, with cube, normal, specular, light & detail maps (maybe more)
+- Add render batching

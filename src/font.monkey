@@ -36,6 +36,10 @@ Public
 	Method GetHeight:Float()
 		Return mHeight
 	End
+	
+	Method GetTexture:Texture()
+		Return mTexture
+	End
 
 	Method GetTextWidth:Float(text:String)
 		Local width# = 0
