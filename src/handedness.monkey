@@ -1,5 +1,0 @@
-Strict
-
-#VORTEX_LH = 0
-#VORTEX_RH_Y = 1
-#VORTEX_RH_Z = 2

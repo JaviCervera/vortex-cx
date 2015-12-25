@@ -5,23 +5,30 @@ More than a full 3D engine, it provides a lower-level API, similar to what the o
 
 >>> Coordinate systems and rotations
 The handedness of the coordinate system can be selected when using Vortex.
-To do that, you can do this at the beginning of your program:
+To do that, you can write this at the beginning of your program:
 
-`Import vortex.src.handedness`~n
+`Import vortex.src.config`~n
 `#VORTEX_HANDEDNESS=Mode`
 
 Where `Mode` can be one of:
-| Mode | Description
-| VORTEX_LH | Left handed coordinate system where X points right, Y points up, and Z points away from the viewer. This is the convention in Direct3D, and the default mode in Vortex.
+| Mode        | Description
+| VORTEX_LH   | Left handed coordinate system where X points right, Y points up, and Z points away from the viewer. This is the convention in Direct3D, and the default mode in Vortex.
 | VORTEX_RH_Y | Right handed coordinate system where X points right, Y points up, and Z points towards the viewer. This is the convention in OpenGL.
 | VORTEX_RH_Z | Right handed coordinate system, where X points right, Y points away from the viewer, and Z points up. This was the default mode in previous versions of Vortex.
 
 Rotations can be expressed both using quaternions and euler angles (expressed in degrees).
 
 >>> Screen coordinates
-Coordinates 0,0 represent the bottom left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the top right.
-While it is common on modern graphics libraries to use this convention (which is a standard to define the Euclidean plane),
-you must have in mind that it is reversed vertically from other traditional graphics libraries (like Mojo), where the Y axis goes from top to bottom.
+The vertical direction of the screen can be selected when using Vortex.
+To do that, you can write this at the beginning of your program:
+
+`Import vortex.src.config`~n
+`#VORTEX_SCREENCOORDS=Mode`
+
+Where 'Mode' can be one of:
+| Mode          | Description
+| VORTEX_YDOWN  | Coordinates 0,0 represent the top left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the bottom right. This is common in several graphics libraries (like Mojo), and the default in Vortex.
+| VORTEX_YUP    | Coordinates 0,0 represent the bottom left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the top right. This is a standard in math to define the Euclidean plane.
 
 >>> Texture coordinates
 On left handed coordinate systems, texture coordinates are mapped from the top left (coordinates 0,0) to the bottom right (coordinates 1,1).~n

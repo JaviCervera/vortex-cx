@@ -11,5 +11,5 @@ finalStr :+ "Const STD_FRAGMENT_SHADER$ = ~q" + std_fragment + "~q~n"
 finalStr :+ "Const _2D_VERTEX_SHADER$ = ~q" + _2d_vertex + "~q~n"
 finalStr :+ "Const _2D_FRAGMENT_SHADER$ = ~q" + _2d_fragment + "~q~n"
 
-If FileType("../core/renderer_gles20_shaders.monkey") = FILETYPE_FILE Then DeleteFile "../core/renderer_gles20_shaders.monkey"
-SaveString(finalStr, "../core/renderer_gles20_shaders.monkey")
+If FileType("../src/renderer_gles20_shaders.monkey") = FILETYPE_FILE Then DeleteFile "../src/renderer_gles20_shaders.monkey"
+SaveString(finalStr, "../src/renderer_gles20_shaders.monkey")

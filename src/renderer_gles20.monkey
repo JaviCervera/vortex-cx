@@ -49,7 +49,11 @@ Public
 		mDefaultProgram = CreateProgram(STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
 #End
 		If mDefaultProgram = 0 Then Return False
+#If VORTEX_SCREENCOORDS=VORTEX_YDOWN
+		m2DProgram = CreateProgram(_2D_VERTEX_SHADER, "#define UV_TOPLEFT~n" + _2D_FRAGMENT_SHADER)
+#Else
 		m2DProgram = CreateProgram(_2D_VERTEX_SHADER, _2D_FRAGMENT_SHADER)
+#End
 		If m2DProgram = 0 Then Return False
 		UseProgram(mDefaultProgram)
 
@@ -81,11 +85,18 @@ Public
 		glScissor(x, y, w, h)
 
 		'Setup matrices
+#If VORTEX_SCREENCOORDS=VORTEX_YDOWN
+		Local bottom# = y+h
+		Local top# = 0
+#Else
+		Local bottom# = 0
+		Local top# = y+h
+#Endif
 		mTempMatrix.SetIdentity()
 #If VORTEX_HANDEDNESS=VORTEX_LH
-		mTempMatrix.SetOrthoLH(0, x+w, 0, y+h, 0, 100)
+		mTempMatrix.SetOrthoLH(0, x+w, bottom, top, 0, 100)
 #Else
-		mTempMatrix.SetOrthoRH(0, x+w, 0, y+h, 0, 100)
+		mTempMatrix.SetOrthoRH(0, x+w, bottom, top, 0, 100)
 #End
 		Renderer.SetProjectionMatrix(mTempMatrix)
 		mTempMatrix.SetIdentity()

@@ -2,12 +2,12 @@ Strict
 
 Private
 
+Import src.config
 Import src.bone
 Import src.brush
 Import src.cache
 Import src.drawable
 Import src.font
-Import src.handedness
 Import src.lighting
 Import src.mesh
 Import src.painter

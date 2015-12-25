@@ -1,6 +1,7 @@
 Strict
 
 Private
+Import vortex.src.config
 Import vortex.src.texture
 
 Class Glyph Final
@@ -70,12 +71,17 @@ Public
 	End
 
 	Method Draw:Void(x:Float, y:Float, text:String)
+		Local textHeight# = GetTextHeight(text)
 		For Local i% = 0 Until text.Length()
 			Local glyph:Glyph = mGlyphs[text[i]-32]
 			If ( String.FromChar(text[i]) = " " )
 				x += mHeight/3
 			Elseif glyph.mWidth <> 0 And glyph.mHeight <> 0
-				mTexture.Draw(x, y + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
+#If VORTEX_SCREENCOORDS=VORTEX_YDOWN
+				mTexture.Draw(x, y + (textHeight - glyph.mHeight) + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
+#Else
+				mTexture.Draw(x, y - glyph.mYOffset, 0, 0, glyph.mX, mTexture.GetHeight() - glyph.mY - glyph.mHeight, glyph.mWidth, glyph.mHeight)
+#End
 			End
 			x += glyph.mWidth
 		Next

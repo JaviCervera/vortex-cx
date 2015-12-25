@@ -6,9 +6,10 @@ Strict
 #GLFW_WINDOW_RESIZABLE=True
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 
-'We want a left handed coordinate system
-'Import vortex.handedness
-'#VORTEX_HANDEDNESS=VORTEX_LH
+'These are the default values
+Import vortex.src.config
+#VORTEX_HANDEDNESS=VORTEX_LH
+#VORTEX_SCREENCOORDS=VORTEX_YDOWN
 
 Import vortex
 Import mojo.app
@@ -244,21 +245,21 @@ Public
 		
 		'Paint black margin on top of screen
 		Painter_SetColor(0, 0, 0)
-		Painter_PaintRect(0, DeviceHeight() - 24, DeviceWidth(), 24)
+		Painter_PaintRect(0, 0, DeviceWidth(), 24)
 		
 		'Draw FPS
 		Painter_SetColor(1, 0, 0)
 		Local text$ = GetFPS() + " FPS"
-		Font_Draw(font, 2, DeviceHeight() - Font_GetTextHeight(font, text) - (24 - Font_GetTextHeight(font, text))/2, text)
+		Font_Draw(font, 2, 6, text)
 		
 		'Draw info
 		Painter_SetColor(1, 1, 0)
 		text = "<Press space key or touch screen to change test>"
-		Font_Draw(font, (DeviceWidth() - Font_GetTextWidth(font, text))/2, DeviceHeight() - Font_GetTextHeight(font, text) - (24 - Font_GetTextHeight(font, text))/2, text)
+		Font_Draw(font, (DeviceWidth() - Font_GetTextWidth(font, text))/2, 6, text)
 		
 		If currentTest = TEST_ANIMATION
 			Painter_SetColor(0, 0, 0)
-			Font_Draw(font, 4, 4, "Frame: " + Int(currentFrame))
+			Font_Draw(font, 4, DeviceHeight() - 20, "Frame: " + Int(currentFrame))
 		End
 	
 		Return False

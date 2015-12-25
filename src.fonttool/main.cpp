@@ -70,9 +70,9 @@ int main(int argc, char* argv[]) {
     float width = charData[i].x1 - charData[i].x0;
     float height = charData[i].y1 - charData[i].y0;
     float x = charData[i].x0;
-    float y = imgsize - charData[i].y0 - height;
+    float y = charData[i].y0; //imgsize - charData[i].y0 - height;
     //float xoffset = charData[i].xoff;
-    float yoffset = - (height + charData[i].yoff);
+    float yoffset = height + charData[i].yoff;
     fnt += "\t\t<glyph>\n";
     fnt += "\t\t\t<x>" + StringFromNumber(x) + "</x>\n";
     fnt += "\t\t\t<y>" + StringFromNumber(y) + "</y>\n";
