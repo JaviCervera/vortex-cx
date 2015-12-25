@@ -1,11 +1,18 @@
 Possible roadmap (not guaranteed to be implemented in this order):
 
+V1.1
+- Possibility to switch the vertical axis of screen coordinates for 2D (and maybe make downwards default?)
+
 V1.2
 - Add vertex animation
 - Add skinned animation
 
+V1.3
+- Add realtime stencil shadows
+- Add OpenGL ES 1 renderer, for better compatibility with older machines
+
 V2.0
-- Add realtime shadow support
+- Add shader based soft shadows
 - Improve meshtool
 - Add multitexturing, with cube, normal, specular, light & detail maps (maybe more)
 - Add render batching
