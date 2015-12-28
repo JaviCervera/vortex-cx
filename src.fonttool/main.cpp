@@ -73,14 +73,14 @@ int main(int argc, char* argv[]) {
     float y = charData[i].y0; //imgsize - charData[i].y0 - height;
     //float xoffset = charData[i].xoff;
     float yoffset = height + charData[i].yoff;
-    fnt += "\t\t<glyph>\n";
-    fnt += "\t\t\t<x>" + StringFromNumber(x) + "</x>\n";
-    fnt += "\t\t\t<y>" + StringFromNumber(y) + "</y>\n";
-    fnt += "\t\t\t<width>" + StringFromNumber(width) + "</width>\n";
-    fnt += "\t\t\t<height>" + StringFromNumber(height) + "</height>\n";
-    //fnt += "\t\t\t<xoffset>" + StringFromNumber(xoffset) + "</xoffset>\n";
-    fnt += "\t\t\t<yoffset>" + StringFromNumber(yoffset) + "</yoffset>\n";
-    fnt += "\t\t</glyph>\n";
+    fnt += "\t\t<glyph ";
+    fnt += "x=\"" + StringFromNumber(x) + "\" ";
+    fnt += "y=\"" + StringFromNumber(y) + "\" ";
+    fnt += "width=\"" + StringFromNumber(width) + "\" ";
+    fnt += "height=\"" + StringFromNumber(height) + "\" ";
+    //fnt += "xoffset=\"" + StringFromNumber(xoffset) + "\" ";
+    fnt += "yoffset=\"" + StringFromNumber(yoffset) + "\" ";
+    fnt += "/>\n";
   }
   fnt += "\t</glyphs>\n";
   fnt += "</font>\n";

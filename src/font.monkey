@@ -45,21 +45,25 @@ Public
 	Method GetTextWidth:Float(text:String)
 		Local width# = 0
 		For Local i% = 0 Until text.Length()
-			If String.FromChar(text[i]) = " " Then
-				width += mHeight/3
-			Else
+			'If String.FromChar(text[i]) = " " Then
+			'	width += mMaxWidth
+			'Else
 				width += mGlyphs[text[i]-32].mWidth
-			End
+			'End
 		Next
 		Return width
 	End
 
 	Method GetTextHeight:Float(text:String)
+		#Rem
 		Local height# = 0
 		For Local i% = 0 Until text.Length()
-			If mGlyphs[text[i]-32].mHeight > height Then height = mGlyphs[text[i]-32].mHeight
+			Local charHeight# = mGlyphs[text[i]-32].mHeight + mGlyphs[text[i]-32].mYOffset
+			If charHeight > height Then height = charHeight
 		Next
 		Return height
+		#End
+		Return mMaxHeight
 	End
 
 	Method SetGlyphData:Void(index:Int, x:Float, y:Float, w:Float, h:Float, yoffset:Float)
@@ -68,15 +72,15 @@ Public
 		mGlyphs[index].mWidth = w
 		mGlyphs[index].mHeight = h
 		mGlyphs[index].mYOffset = yoffset
+		If index = 33 And mGlyphs[0].mWidth = 0 Then mGlyphs[0].mWidth = w
+		If h > mMaxHeight Then mMaxHeight = h
 	End
 
 	Method Draw:Void(x:Float, y:Float, text:String)
-		Local textHeight# = GetTextHeight(text)
+		Local textHeight# = mMaxHeight
 		For Local i% = 0 Until text.Length()
 			Local glyph:Glyph = mGlyphs[text[i]-32]
-			If ( String.FromChar(text[i]) = " " )
-				x += mHeight/3
-			Elseif glyph.mWidth <> 0 And glyph.mHeight <> 0
+			If text[i]-32 <> 0 And glyph.mWidth <> 0 And glyph.mHeight <> 0
 #If VORTEX_SCREENCOORDS=VORTEX_YDOWN
 				mTexture.Draw(x, y + (textHeight - glyph.mHeight) + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
 #Else
@@ -90,8 +94,9 @@ Private
 	Method New()
 	End
 
-	Field mFilename	: String
-	Field mHeight	: Float
-	Field mTexture	: Texture
-	Field mGlyphs	: Glyph[224]
+	Field mFilename		: String
+	Field mHeight		: Float
+	Field mTexture		: Texture
+	Field mGlyphs		: Glyph[224]
+	Field mMaxHeight	: Float	'Height of the tallest char in this font
 End

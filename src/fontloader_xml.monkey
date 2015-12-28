@@ -41,11 +41,11 @@ Public
 			End
 
 			'Get glyph data
-			Local x# = Float(glyphNode.GetChildValue("x", "0"))
-			Local y# = Float(glyphNode.GetChildValue("y", "0"))
-			Local w# = Float(glyphNode.GetChildValue("width", "0"))
-			Local h# = Float(glyphNode.GetChildValue("height", "0"))
-			Local yoffset# = Float(glyphNode.GetChildValue("yoffset", "0"))
+			Local x# = Float(glyphNode.GetAttribute("x", "0"))
+			Local y# = Float(glyphNode.GetAttribute("y", "0"))
+			Local w# = Float(glyphNode.GetAttribute("width", "0"))
+			Local h# = Float(glyphNode.GetAttribute("height", "0"))
+			Local yoffset# = Float(glyphNode.GetAttribute("yoffset", "0"))
 
 			'Add glyph
 			font.SetGlyphData(i, x, y, w, h, yoffset)
