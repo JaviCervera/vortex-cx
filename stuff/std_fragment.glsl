@@ -5,9 +5,12 @@ precision mediump float;
 
 uniform int baseTexMode;
 uniform sampler2D baseTexSampler;
+uniform bool fogEnabled;
+uniform vec3 fogColor;
 varying vec4 fcolor;
 varying vec2 ftex;
 varying vec3 combinedSpecular;
+varying float fogFactor;
 
 void main() {
 	// Base color / lighting
@@ -25,4 +28,7 @@ void main() {
 
 	// Add specular
 	gl_FragColor += vec4(combinedSpecular, 0.0);
+	
+	// Add fog
+	if ( fogEnabled ) gl_FragColor = vec4(mix(fogColor, vec3(gl_FragColor), fogFactor), gl_FragColor.a);
 }

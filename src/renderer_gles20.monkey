@@ -197,6 +197,14 @@ Public
 	Function SetShininess:Void(shininess%)
 		If mShininessLoc <> -1 Then glUniform1i(mShininessLoc, shininess)
 	End
+	
+	Function SetFog:Void(enable:Bool, minDist:Float, maxDist:Float, r:Float, g:Float, b:Float)
+		glUniform1i(mFogEnabledLoc, enable)
+		If enable
+			glUniform2f(mFogDistLoc, minDist, maxDist)
+			glUniform3f(mFogColorLoc, r, g, b)
+		End
+	End
 
 	Function SetCulling:Void(enable:Bool)
 		If enable Then glEnable(GL_CULL_FACE) Else glDisable(GL_CULL_FACE)
@@ -476,6 +484,9 @@ Public
 		mBaseColorLoc = glGetUniformLocation(program, "baseColor")
 		mAmbientLoc = glGetUniformLocation(program, "ambient")
 		mShininessLoc = glGetUniformLocation(program, "shininess")
+		mFogEnabledLoc = glGetUniformLocation(program, "fogEnabled")
+		mFogDistLoc = glGetUniformLocation(program, "fogDist")
+		mFogColorLoc = glGetUniformLocation(program, "fogColor")
 		mVPosLoc = glGetAttribLocation(program, "vpos")
 		mVNormalLoc = glGetAttribLocation(program, "vnormal")
 		mVColorLoc = glGetAttribLocation(program, "vcolor")
@@ -551,6 +562,9 @@ Private
 	Global mBaseColorLoc%
 	Global mAmbientLoc%
 	Global mShininessLoc%
+	Global mFogEnabledLoc%
+	Global mFogDistLoc%
+	Global mFogColorLoc%
 	Global mVPosLoc%
 	Global mVNormalLoc%
 	Global mVColorLoc%

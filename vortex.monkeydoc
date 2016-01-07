@@ -725,6 +725,11 @@ Returns the green component of the viewer's clearing color.
 # Function Viewer_GetClearBlue:Float(viewer:Object)
 Returns the blue component of the viewer's clearing color.
 
+# Function Viewer_SetFog:Void(viewer:Object, enable:Bool, minDist:Float = 0, maxDist:Float = 0, r:Float = 0, g:Float = 0, b:Float = 0)
+Enables or disables fog rendering for the viewer.
+The value of `minDist` indicates the distance at which fog will begin to be visible, while `maxDist` indicates the distance to the viewer where the fog is completely opaque.
+You can also specify the color of the fog.
+
 # Function Viewer_SetViewport:Void(viewer:Object, x:Int, y:Int, w:Int, h:Int)
 Sets the viewport that this viewer draws to.
 

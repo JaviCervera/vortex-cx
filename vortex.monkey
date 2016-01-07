@@ -786,6 +786,10 @@ Function Viewer_GetClearBlue:Float(viewer:Object)
 	Return Viewer(viewer).GetClearBlue()
 End
 
+Function Viewer_SetFog:Void(viewer:Object, enable:Bool, minDist:Float = 0, maxDist:Float = 0, r:Float = 0, g:Float = 0, b:Float = 0)
+	Viewer(viewer).SetFog(enable, minDist, maxDist, r, g, b)
+End
+
 Function Viewer_SetViewport:Void(viewer:Object, x:Int, y:Int, w:Int, h:Int)
 	Viewer(viewer).SetViewport(x, y, w, h)
 End

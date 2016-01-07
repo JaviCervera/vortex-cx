@@ -68,6 +68,15 @@ Public
 	Method GetClearBlue:Float()
 		Return mBlue
 	End
+	
+	Method SetFog:Void(enable:Bool, minDist:Float = 0, maxDist:Float = 0, r:Float = 0, g:Float = 0, b:Float = 0)
+		mFogEnabled = enable
+		mFogMinDist = minDist
+		mFogMaxDist = maxDist
+		mFogRed = r
+		mFogGreen = g
+		mFogBlue = b
+	End
 
 	Method SetViewport:Void(x:Int, y:Int, w:Int, h:Int)
 		mVX = x
@@ -175,6 +184,9 @@ Public
 		'Setup matrices
 		Renderer.SetProjectionMatrix(mProjMatrix)
 		Renderer.SetViewMatrix(mViewMatrix)
+		
+		'Setup fog
+		Renderer.SetFog(mFogEnabled, mFogMinDist, mFogMaxDist, mFogRed, mFogGreen, mFogBlue)
 
 		'Clear buffers
 		Renderer.ClearColorBuffer(mRed, mGreen, mBlue)
@@ -189,6 +201,12 @@ Private
 	Field mRed			: Float
 	Field mGreen		: Float
 	Field mBlue			: Float
+	Field mFogEnabled	: Bool
+	Field mFogMinDist	: Float
+	Field mFogMaxDist	: Float
+	Field mFogRed		: Float
+	Field mFogGreen		: Float
+	Field mFogBlue		: Float
 	Field mVX			: Int
 	Field mVY			: Int
 	Field mVWidth		: Int

@@ -139,6 +139,7 @@ Public
 		'Update viewer perspective and viewport
 		Viewer_SetPerspective(viewer, 45, Float(DeviceWidth()) / DeviceHeight(), 0.1, 10000)
 		Viewer_SetViewport(viewer, 0, 0, DeviceWidth(), DeviceHeight())
+		Viewer_SetFog(viewer, False)
 		
 		'Update current test
 		Select currentTest
@@ -174,8 +175,9 @@ Public
 			currentFrame += 16 * GetDeltaTime()
 			If currentFrame > Mesh_GetLastFrame(swatMesh)+1 Then currentFrame = currentFrame - Int(currentFrame)
 		Case TEST_LEVEL
+			Viewer_SetFog(viewer, True, 100, 2000, 0, 0, 0)
 			Viewer_SetPosition(viewer, 0, 100, 0)
-			Viewer_SetEuler(viewer, 0, Viewer_GetEulerY(viewer) + 32 * GetDeltaTime(), 0)
+			Viewer_SetEuler(viewer, 0, Viewer_GetEulerY(viewer) - 32 * GetDeltaTime(), 0)
 		End
 
 		Return False

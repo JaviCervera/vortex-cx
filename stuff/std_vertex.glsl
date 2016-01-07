@@ -16,6 +16,8 @@ uniform float lightAttenuation[MAX_LIGHTS];
 uniform vec4 baseColor;
 uniform vec3 ambient;
 uniform int shininess;
+uniform bool fogEnabled;
+uniform vec2 fogDist;
 attribute vec3 vpos;
 attribute vec3 vnormal;
 attribute vec4 vcolor;
@@ -23,10 +25,13 @@ attribute vec2 vtex;
 varying vec4 fcolor;
 varying vec2 ftex;
 varying vec3 combinedSpecular;
+varying float fogFactor;
 
 void main() {
-	// Vertex position (projection space)
+	// Vertex position (projection and view spaces)
 	gl_Position = mvp * vec4(vpos, 1.0);
+	vec3 V;
+	if ( lightingEnabled || fogEnabled ) V = vec3(modelView * vec4(vpos, 1.0));
 
 	// Fragment color
 	fcolor = baseColor * vcolor;
@@ -40,8 +45,7 @@ void main() {
 		// Color that combines diffuse component of all lights
 		vec4 combinedColor = vec4(ambient, 1.0);
 
-		// Calculate vertex pos in viewer space
-		vec3 V = vec3(modelView * vec4(vpos, 1.0));
+		// Calculate vertex normal
 		vec3 NV = normalize(V);
 
 		// Calculate normal in viewer space
@@ -76,4 +80,7 @@ void main() {
 
 		fcolor *= combinedColor;
 	}
+	
+	// Fog
+	if ( fogEnabled ) fogFactor = clamp((fogDist[1] - abs(V.z)) / (fogDist[1] - fogDist[0]), 0.0, 1.0);
 }
