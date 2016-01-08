@@ -12,84 +12,48 @@ Public
 		Local bone:Bone = New Bone
 		bone.mName = name
 		bone.mParent = Null
-		bone.mDefaultTransform = Mat4.Create()
-		bone.mCurrentTransform = Mat4.Create()
+		bone.mPoseMatrix = Mat4.Create()
 		bone.mSurfaces = New Surface[0]
-		bone.mChildren = New Bone[0]
 		bone.mPositionKeys = New Int[0]
 		bone.mRotationKeys = New Int[0]
 		bone.mScaleKeys = New Int[0]
 		bone.mPositions = New Vec3[0]
 		bone.mRotations = New Quat[0]
 		bone.mScales = New Vec3[0]
-		bone.mPrevMatrix = Mat4.Create()
+		bone.mTempMatrix = Mat4.Create()
 		Return bone
 	End
 
 	Method GetName:String()
 		Return mName
 	End
+	
+	Method SetParent:Void(parent:Bone)
+		mParent = parent
+	End
 
 	Method GetParent:Bone()
 		Return mParent
 	End
-
-	Method SetDefaultTransform:Void(px:Float, py:Float, pz:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
+	
+	Method CalcPoseMatrix:Void(px:Float, py:Float, pz:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
 		mTempQuat.Set(rw, rx, ry, rz)
 		mTempQuat.CalcAxis()
-		mDefaultTransform.SetIdentity()
-		mDefaultTransform.Translate(px, py, pz)
-		mDefaultTransform.Rotate(mTempQuat.Angle(), mTempQuat.ResultVector().x, mTempQuat.ResultVector().y, mTempQuat.ResultVector().z)
-		mDefaultTransform.Scale(sx, sy, sz)
-	End
-
-	Method GetDefaultTransform:Float[]()
-		Return mDefaultTransform.m
-	End
-
-	Method GetCurrentTransform:Float[]()
-		Return mCurrentTransform.m
-	End
-
-	Method CalcCurrentTransform:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
-		'Check if there is a keyframe within range
-		Local keyInRange:Bool = False
-		For Local i% = Eachin mPositionKeys
-			If i >= firstSeqFrame And i <= lastSeqFrame
-				keyInRange = True
-				Exit
-			End
-		Next
-
-		'If there are keyframes in the sequence, interpolate
-		If keyInRange
-			Local px#, py#, pz#, sx#, sy#, sz#
-
-			'Calculate inteprolated position
-			CalcPosition(frame, firstSeqFrame, lastSeqFrame)
-			px = mTempVec.x
-			py = mTempVec.y
-			pz = mTempVec.z
-
-			'Calculate interpolated rotation
-			CalcRotation(frame, firstSeqFrame, lastSeqFrame)
-			mTempQuat.CalcAxis()
-
-			'Calculate interpolated scale
-			CalcScale(frame, firstSeqFrame, lastSeqFrame)
-			sx = mTempVec.x
-			sy = mTempVec.y
-			sz = mTempVec.z
-
-			'Set matrix
-			mCurrentTransform.SetIdentity()
-			mCurrentTransform.Translate(px, py, pz)
-			mCurrentTransform.Rotate(mTempQuat.Angle(), mTempQuat.ResultVector().x, mTempQuat.ResultVector().y, mTempQuat.ResultVector().z)
-			mCurrentTransform.Scale(sx, sy, sz)
-		'If not, define default transform
+		mTempMatrix.SetIdentity()
+		mTempMatrix.Translate(px, py, pz)
+		mTempMatrix.Rotate(mTempQuat.Angle(), mTempQuat.ResultVector().x, mTempQuat.ResultVector().y, mTempQuat.ResultVector().z)
+		mTempMatrix.Scale(sx, sy, sz)
+		
+		If mParent = Null
+			mPoseMatrix.Set(mTempMatrix)
 		Else
-			mCurrentTransform.Set(mDefaultTransform)
+			mPoseMatrix.Set(mParent.mPoseMatrix)
+			mPoseMatrix.Mul(mTempMatrix)
 		End
+	End
+	
+	Method GetPoseMatrix:Float[]()
+		Return mPoseMatrix.m
 	End
 
 	Method AddSurface:Void(surf:Surface)
@@ -103,31 +67,6 @@ Public
 
 	Method GetSurface:Surface(index:Int)
 		Return mSurfaces[index]
-	End
-
-	Method AddChild:Void(bone:Bone)
-		If bone.mParent = Null
-			bone.mParent = Self
-			mChildren = mChildren.Resize(mChildren.Length() + 1)
-			mChildren[mChildren.Length() - 1] = bone
-		End
-	End
-
-	Method GetNumChildren:Int()
-		Return mChildren.Length()
-	End
-
-	Method GetChild:Bone(index:Int)
-		Return mChildren[index]
-	End
-
-	Method Find:Bone(name:String)
-		If mName = name Return Self
-		For Local child:Bone = Eachin mChildren
-			Local bone:Bone = child.Find(name)
-			If bone <> Null Then Return bone
-		Next
-		Return Null
 	End
 
 	Method AddPositionKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
@@ -214,35 +153,74 @@ Public
 	Method GetScaleKeyZ:Float(index:Int)
 		Return mScales[index].z
 	End
+	
+	Method Animate:Void(animMatrix:Mat4, parentAnimMatrix:Mat4, frame:Float, firstFrame:Int, lastFrame:Int)
+		CalcAnimMatrix(animMatrix, parentAnimMatrix, frame, firstFrame, lastFrame)
+	End
 
-	Method Draw:Void(animated:Bool, frame:Float, firstFrame:Int, lastFrame:Int)
+	Method Draw:Void(animated:Bool, animMatrix:Mat4)
 		'Store model matrix
-		mPrevMatrix.Set(Renderer.GetModelMatrix())
+		mTempMatrix.Set(Renderer.GetModelMatrix())
 
 		'Set new model matrix
 		If animated
-			CalcCurrentTransform(frame, firstFrame, lastFrame)
-			Renderer.GetModelMatrix().Mul(GetCurrentTransform())
+			Renderer.GetModelMatrix().Mul(animMatrix)
 		Else
-			Renderer.GetModelMatrix().Mul(GetDefaultTransform())
+			Renderer.GetModelMatrix().Mul(GetPoseMatrix())
 		End
-		Renderer.SetModelMatrix(Renderer.GetModelMatrix())
+		Renderer.SetModelMatrix(Renderer.GetModelMatrix())	'Load the updated model matrix into the shader
 
 		'Draw surfaces
 		For Local surf:Surface = Eachin mSurfaces
 			surf.Draw()
 		Next
 
-		'Draw children
-		For Local child:Bone = Eachin mChildren
-			child.Draw(animated, frame, firstFrame, lastFrame)
-		Next
-
 		'Restore previous model matrix
-		Renderer.SetModelMatrix(mPrevMatrix)
+		Renderer.SetModelMatrix(mTempMatrix)
 	End
 Private
 	Method New()
+	End
+	
+	Method CalcAnimMatrix:Void(animMatrix:Mat4, parentAnimMatrix:Mat4, frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
+		'Check if there is a keyframe within range
+		Local keyInRange:Bool = False
+		For Local i% = Eachin mPositionKeys
+			If i >= firstSeqFrame And i <= lastSeqFrame
+				keyInRange = True
+				Exit
+			End
+		Next
+
+		'If there are keyframes in the sequence, interpolate
+		If keyInRange
+			Local px#, py#, pz#, sx#, sy#, sz#
+
+			'Calculate inteprolated position
+			CalcPosition(frame, firstSeqFrame, lastSeqFrame)
+			px = mTempVec.x
+			py = mTempVec.y
+			pz = mTempVec.z
+
+			'Calculate interpolated rotation
+			CalcRotation(frame, firstSeqFrame, lastSeqFrame)
+			mTempQuat.CalcAxis()
+
+			'Calculate interpolated scale
+			CalcScale(frame, firstSeqFrame, lastSeqFrame)
+			sx = mTempVec.x
+			sy = mTempVec.y
+			sz = mTempVec.z
+
+			'Set matrix
+			If parentAnimMatrix Then animMatrix.Set(parentAnimMatrix) Else animMatrix.SetIdentity()
+			animMatrix.Translate(px, py, pz)
+			animMatrix.Rotate(mTempQuat.Angle(), mTempQuat.ResultVector().x, mTempQuat.ResultVector().y, mTempQuat.ResultVector().z)
+			animMatrix.Scale(sx, sy, sz)
+		'If not, define default transform
+		Else
+			animMatrix.Set(mPoseMatrix)
+		End
 	End
 
 	Method CalcPosition:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
@@ -337,17 +315,15 @@ Private
 
 	Field mName				: String
 	Field mParent			: Bone
-	Field mDefaultTransform	: Mat4
-	Field mCurrentTransform	: Mat4
+	Field mPoseMatrix		: Mat4
 	Field mSurfaces			: Surface[]
-	Field mChildren			: Bone[]
 	Field mPositionKeys		: Int[]
 	Field mRotationKeys		: Int[]
 	Field mScaleKeys		: Int[]
 	Field mPositions		: Vec3[]
 	Field mRotations		: Quat[]
 	Field mScales			: Vec3[]
-	Field mPrevMatrix		: Mat4	'Used to store previous model matrix when rendering, so it can be restored later
+	Field mTempMatrix		: Mat4	'Used to store previous model matrix when rendering, so it can be restored later
 	Global mTempVec			: Vec3 = Vec3.Create()	'Used for temp operations
 	Global mTempQuat		: Quat = Quat.Create()	'Used for temp operations
 End

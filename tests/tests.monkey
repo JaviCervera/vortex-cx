@@ -4,10 +4,11 @@ Strict
 #GLFW_WINDOW_WIDTH=800
 #GLFW_WINDOW_HEIGHT=600
 #GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 
 'These are the default values
-Import vortex.src.config
+'Import vortex.src.config
 #VORTEX_HANDEDNESS=VORTEX_LH
 #VORTEX_SCREENCOORDS=VORTEX_YDOWN
 
@@ -174,6 +175,7 @@ Public
 			Viewer_SetEuler(viewer, 15, 0, 0)
 			currentFrame += 16 * GetDeltaTime()
 			If currentFrame > Mesh_GetLastFrame(swatMesh)+1 Then currentFrame = currentFrame - Int(currentFrame)
+			Drawable_Animate(swat, currentFrame)
 		Case TEST_LEVEL
 			Viewer_SetFog(viewer, True, 100, 2000, 0, 0, 0)
 			Viewer_SetPosition(viewer, 0, 100, 0)
@@ -237,7 +239,7 @@ Public
 				Drawable_Draw(sphere)
 			Next
 		Case TEST_ANIMATION
-			Drawable_Draw(swat, True, currentFrame)
+			Drawable_Draw(swat, True)
 		Case TEST_LEVEL
 			Drawable_Draw(level)
 		End

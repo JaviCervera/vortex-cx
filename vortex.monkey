@@ -72,24 +72,20 @@ Function Bone_GetName:String(bone:Object)
 	Return Bone(bone).GetName()
 End
 
+Function Bone_SetParent:Void(bone:Object, parent:Object)
+	Bone(bone).SetParent(Bone(parent))
+End
+
 Function Bone_GetParent:Object(bone:Object)
 	Return Bone(bone).GetParent()
 End
 
-Function Bone_SetDefaultTransform:Void(bone:Object, px:Float, py:Float, pz:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
-	Bone(bone).SetDefaultTransform(px, py, pz, rw, rx, ry, rz, sx, sy, sz)
+Function Bone_CalcPoseMatrix:Void(bone:Object, px:Float, py:Float, pz:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
+	Bone(bone).CalcPoseMatrix(px, py, pz, rw, rx, ry, rz, sx, sy, sz)
 End
 
-Function Bone_GetDefaultTransform:Float[](bone:Object)
-	Return Bone(bone).GetDefaultTransform()
-End
-
-Function Bone_GetCurrentTransform:Float[](bone:Object)
-	Return Bone(bone).GetCurrentTransform()
-End
-
-Function Bone_CalcCurrentTransform:Void(bone:Object, frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
-	Bone(bone).CalcCurrentTransform(frame, firstSeqFrame, lastSeqFrame)
+Function Bone_GetPoseMatrix:Float[](bone:Object)
+	Return Bone(bone).GetPoseMatrix()
 End
 
 Function Bone_AddSurface:Void(bone:Object, surf:Object)
@@ -102,22 +98,6 @@ End
 
 Function Bone_GetSurface:Object(bone:Object, index:Int)
 	Return Bone(bone).GetSurface(index)
-End
-
-Function Bone_AddChild:Void(bone:Object, child:Object)
-	Bone(bone).AddChild(Bone(child))
-End
-
-Function Bone_GetNumChildren:Int(bone:Object)
-	Return Bone(bone).GetNumChildren()
-End
-
-Function Bone_GetChild:Object(bone:Object, index:Int)
-	Return Bone(bone).GetChild(index)
-End
-
-Function Bone_Find:Object(bone:Object, name:String)
-	Return Bone(bone).Find(name)
 End
 
 Function Bone_AddPositionKey:Void(bone:Object, keyframe:Int, x:Float, y:Float, z:Float)
@@ -194,10 +174,6 @@ End
 
 Function Bone_GetScaleKeyZ:Float(bone:Object, index:Int)
 	Return Bone(bone).GetScaleKeyZ(index)
-End
-
-Function Bone_Draw:Void(bone:Object, animated:Bool, frame:Float, firstFrame:Int, lastFrame:Int)
-	Bone(bone).Draw(animated, frame, firstFrame, lastFrame)
 End
 
 '--------------------------------------
@@ -304,8 +280,12 @@ Function Drawable_Free:Void(drawable:Object)
 	Drawable(drawable).Discard()
 End
 
-Function Drawable_Draw:Void(drawable:Object, animated:Bool = False, frame:Float = 0, firstFrame:Int = 0, lastFrame:Int = 0)
-	Drawable(drawable).Draw(animated, frame, firstFrame, lastFrame)
+Function Drawable_Animate:Void(drawable:Object, frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
+	Drawable(drawable).Animate(frame, firstFrame, lastFrame)
+End
+
+Function Drawable_Draw:Void(drawable:Object, animated:Bool = False)
+	Drawable(drawable).Draw(animated)
 End
 
 Function Drawable_GetBillboardMode:Int(drawable:Object)
@@ -522,16 +502,20 @@ Function Mesh_GetLastFrame:Int(mesh:Object)
 	Return Mesh(mesh).GetLastFrame()
 End
 
-Function Mesh_SetRootBone:Bool(mesh:Object, bone:Object)
-	Return Mesh(mesh).SetRootBone(Bone(bone))
+Function Mesh_AddBone:Void(mesh:Object, bone:Object)
+	Mesh(mesh).AddBone(Bone(bone))
 End
 
-Function Mesh_GetRootBone:Object(mesh:Object)
-	Return Mesh(mesh).GetRootBone()
+Function Mesh_GetNumBones:Int(mesh:Object)
+	Return Mesh(mesh).GetNumBones()
 End
 
-Function Mesh_Draw:Void(animated:Bool, frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
-	Mesh(mesh).Draw(animated, frame, firstFrame, lastFrame)
+Function Mesh_GetBone:Object(mesh:Object, index:Int)
+	Return Mesh(mesh).GetBone(index)
+End
+
+Function Mesh_FindBone:Object(mesh:Object, name:String)
+	Return Mesh(mesh).FindBone(name)
 End
 
 '--------------------------------------

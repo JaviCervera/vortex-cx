@@ -25,6 +25,10 @@ Public
 		d.mEuler = Vec3.Create(0,0,0)
 		d.mQuat = Quat.Create(1,0,0,0)
 		d.mScale = Vec3.Create(1,1,1)
+		d.mAnimMatrices = New Mat4[mesh.GetNumBones()]
+		For Local i:Int = 0 Until d.mAnimMatrices.Length()
+			d.mAnimMatrices[i] = Mat4.Create()
+		Next
 		Return d
 	End
 
@@ -106,8 +110,12 @@ Public
 		If mSurface Then mSurface.Discard()
 		mSurface = Null
 	End
+	
+	Method Animate:Void(frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
+		mMesh.Animate(mAnimMatrices, frame, firstFrame, lastFrame)
+	End
 
-	Method Draw:Void(animated:Bool = False, frame:Float = 0, firstFrame:Int = 0, lastFrame:Int = 0)
+	Method Draw:Void(animated:Bool = False)
 		'Calculate transform matrix
 		Select mBillboardMode
 			Case BILLBOARD_NONE
@@ -139,7 +147,7 @@ Public
 
 		'Draw
 		If mMesh <> Null
-			mMesh.Draw(animated, frame, firstFrame, lastFrame)
+			mMesh.Draw(animated, mAnimMatrices)
 		Elseif mSurface <> Null
 			mSurface.Draw()
 		End
@@ -288,6 +296,7 @@ Private
 	Field mEuler			: Vec3
 	Field mQuat				: Quat
 	Field mScale			: Vec3
+	Field mAnimMatrices		: Mat4[]
 	Global mTempMatrix		: Mat4 = Mat4.Create()
 	Global mTempArray		: Float[16]
 End

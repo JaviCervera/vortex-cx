@@ -121,26 +121,21 @@ Creates a new bone with the specified name.
 # Function Bone_GetName:String(bone:Object)
 Returns the name of the bone.
 
+# Function Bone_SetParent:Void(bone:Object, parent:Object)
+Sets the parent of the bone.
+
 # Function Bone_GetParent:Object(bone:Object)
 Returns the parent of the bone, which will be another bone, or Null if it is the root bone in the mesh.
 
-# Function Bone_SetDefaultTransform:Void(bone:Object, px:Float, py:Float, pz:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
+# Function Bone_CalcPoseMatrix:Void(bone:Object, px:Float, py:Float, pz:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
 Sets the position, rotation (as a quaternion) and scale, relative to its parent, to be applied to the bone when it is not being rendered animated.
+Although the parameters you pass here are relative to its parent, the generated matrix contains the globals transformation, so the parent's pose matrix must have been previously defined.
 You don't need to use this function, unless you are generating meshes by hand. When loading a mesh from disk, this function will be called automatically by the loader.
 
-# Function Bone_GetDefaultTransform:Float[](bone:Object)
-Returns a 16 float array that contains the default transform matrix.
+# Function Bone_GetPoseMatrix:Float[](bone:Object)
+Returns a 16 float array that contains the global pose transform matrix.
 You don't normally need to call this function.
 It is used internally when rendering the geometry attached to the bone.
-
-# Function Bone_GetCurrentTransform:Float[](bone:Object)
-Returns a 16 float array that contains the transform matrix that will be used when rendering the geometry attached to this bone using a specific animation frame.
-You don't normally need to call this function. It is used internally when rendering the geometry attached to the bone.
-
-# Function Bone_CalcCurrentTransform:Void(bone:Object, frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
-Calculates the current transformation matrix needed to render the geometry attached to the bone in the specified animation frame.
-It also needs the indices of the first and last frame in the animation sequence that the frame belongs to.
-You don't normally need to call this function. It is used internally when rendering the geometry attached to the bone.
 
 # Function Bone_AddSurface:Void(bone:Object, surf:Object)
 Adds a new surface to the bone. Surfaces attached to a bone contain geometry that is rendered with the transformation defined by the bone.
@@ -151,18 +146,6 @@ Returns the number of surfaces attached to the bone.
 
 # Function Bone_GetSurface:Object(bone:Object, index:Int)
 Returns the specified surface attached to the bone. The value of `index` goes in the range `0 .. Bone_GetNumSurfaces(bone) - 1`.
-
-# Function Bone_AddChild:Void(bone:Object, child:Object)
-Adds a new child bone to a parent bone.
-
-# Function Bone_GetNumChildren:Int(bone:Object)
-Returns the number of children bones attached to the bone.
-
-# Function Bone_GetChild:Object(bone:Object, index:Int)
-Returns the specified child bone attached to the bone. The value of `index` goes in the range `0 .. Bone_GetNumChildren(bone) - 1`.
-
-# Function Bone_Find:Object(bone:Object, name:String)
-If the bone or any child has the name indicated as parameter, returns the bone or its child. Otherwise, it returns Null.
 
 # Function Bone_AddPositionKey:Void(bone:Object, keyframe:Int, x:Float, y:Float, z:Float)
 Adds a new position transformation to the bone at the specified keyframe.
@@ -220,9 +203,6 @@ Returns the Y coordinate of the specified scale keyframe. The value of `index` g
 
 # Function Bone_GetScaleKeyZ:Float(bone:Object, index:Int)
 Returns the Z coordinate of the specified scale keyframe. The value of `index` goes in the range `0 .. Bone_GetNumScaleKeys(bone) - 1`.
-
-# Function Bone_Draw:Void(bone:Object, animated:Bool, frame:Float, firstFrame:Int, lastFrame:Int)
-Draws the mesh surfaces linked to this bone at the specified frame. The first and last frames that form the sequence that we want to play must be specified.
 
 
 
@@ -319,9 +299,12 @@ The `mode` parameter indicates how the billboard is oriented to face the viewer,
 # Function Drawable_Free:Void(drawable:Object)
 When a drawable is no longer going to be used, we must use this method to deallocate the resources that it uses.
 
-# Function Drawable_Draw:Void(drawable:Object, animated:Bool = False, frame:Float = 0, firstFrame:Int = 0, lastFrame:Int = 0)
+# Function Drawable_Animate:Void(drawable:Object, frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
+Updates the internal animation matrices so hold the animation data for the specified `frame`. We can indicate the first and last frames in the animation sequence if the mesh contains frames for several animations (for example: walk, jump, shoot, etc).
+
+# Function Drawable_Draw:Void(drawable:Object, animated:Bool = False)
 Renders a drawable with its current transformation in the 3D space (position, rotation and scale).
-If the drawable contains an animated mesh, we can indicate whether we want to draw the mesh static or animated, the desired animation frame, and the first and last frames in the animation sequence.
+If the drawable contains an animated mesh, we can indicate whether we want to draw the mesh static or animated.
 
 # Function Drawable_GetBillboardMode:Int(drawable:Object)
 Returns the billboarding mode that this drawable has, or BILLBOARD_NONE if the drawable is not a billboard.
@@ -495,18 +478,17 @@ Returns a surface contained in the mesh. The value of `index` must be in the ran
 # Function Mesh_GetLastFrame:Int(mesh:Object)
 Returns the last animation frame contained in the mesh.
 
-# Function Mesh_SetRootBone:Bool(mesh:Object, bone:Object)
-For an animated mesh, indicates the root bone in its structure.
+# Function Mesh_AddBone:Void(mesh:Object, bone:Object)
+Adds a new bone to the mesh.
 
-You don't normally need to use this function, since the root bone is automatically set when loading meshes from disk.
+# Function Mesh_GetNumBones:Int(mesh:Object)
+Gets the number of bones in the mesh.
 
-# Function Mesh_GetRootBone:Object(mesh:Object)
-Returns the root bone in the mesh, or Null if the mesh does not have bones.
+# Function Mesh_GetBone:Object(mesh:Object, index:Int)
+Gets the bone at the specified `index`, which is a value between `0` and `Mesh_GetNumBones`.
 
-# Function Mesh_Draw:Void(animated:Bool, frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
-Draws a mesh. You can indicate whether you want to draw the mesh static or animated, the desired animation frame, and the first and last frames in the animation sequence.
-
-You don't normally need to use this function, since meshes are drawn with a transformation in the 3D space using the function `Drawable_Draw()`.
+# Function Mesh_FindBone:Object(mesh:Object, name:String)
+If a bone with the specified name is found on the mesh, returns it. If not, it returns `Null`.
 
 
 

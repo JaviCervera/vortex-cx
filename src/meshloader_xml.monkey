@@ -164,19 +164,21 @@ Public
 				Local surfacesStr$[] = boneNode.GetChildValue("surfaces", "").Split(",")
 				If defPositionStr.Length() <> 3 Or defRotationStr.Length() <> 4 Or defScaleStr.Length() <> 3 Then Return Null
 
-				'Add bone
+				'Create bone
 				Local bone:Bone = Bone.Create(nameStr)
-				bone.SetDefaultTransform(Float(defPositionStr[0]), Float(defPositionStr[1]), Float(defPositionStr[2]), Float(defRotationStr[0]), Float(defRotationStr[1]), Float(defRotationStr[2]), Float(defRotationStr[3]), Float(defScaleStr[0]), Float(defScaleStr[1]), Float(defScaleStr[2]))
-
-				'Add into hierarchy
-				If parentStr = ""	'Root node
-					If Not mesh.SetRootBone(bone) Then Return Null	'There can only be one root bone
-				Else
-					If Not mesh.GetRootBone() Then Return Null		'Parent bone must already exist
-					Local parentBone:Bone = mesh.GetRootBone().Find(parentStr)
-					If Not parentBone Then Return Null					'Parent node must exist
-					parentBone.AddChild(bone)
+				
+				'Set parent
+				If parentStr <> ""
+					Local parent:Bone = mesh.FindBone(parentStr)
+					If parent = Null Then Return Null	'Parent bone must exist
+					bone.SetParent(parent)
 				End
+				
+				'Set pose matrix
+				bone.CalcPoseMatrix(Float(defPositionStr[0]), Float(defPositionStr[1]), Float(defPositionStr[2]), Float(defRotationStr[0]), Float(defRotationStr[1]), Float(defRotationStr[2]), Float(defRotationStr[3]), Float(defScaleStr[0]), Float(defScaleStr[1]), Float(defScaleStr[2]))
+				
+				'Add to mesh
+				mesh.AddBone(bone)
 
 				'Add surfaces
 				If surfacesStr[0] <> ""
