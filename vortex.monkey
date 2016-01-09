@@ -88,6 +88,10 @@ Function Bone_GetPoseMatrix:Float[](bone:Object)
 	Return Bone(bone).GetPoseMatrix()
 End
 
+Function Bone_GetInversePoseMatrix:Float[](bone:Object)
+	Return Bone(bone).GetInversePoseMatrix()
+End
+
 Function Bone_AddSurface:Void(bone:Object, surf:Object)
 	Bone(bone).AddSurface(Surface(surf))
 End
@@ -472,7 +476,7 @@ Function Mesh_Cache:Object(filename:String, textureFilter:Int = FILTER_TRILINEAR
 	Return Cache.GetMesh(filename, textureFilter)
 End
 
-Function Mesh_Create:Object()
+Function Mesh_Create:Object(skinned:Bool)
 	Return Mesh.Create()
 End
 
@@ -482,6 +486,10 @@ End
 
 Function Mesh_GetFilename:String(mesh:Object)
 	Return Mesh(mesh).GetFilename()
+End
+
+Function Mesh_SetFilename:Void(mesh:Object, filename:String)
+	Mesh(mesh).SetFilename(filename)
 End
 
 Function Mesh_AddSurface:Object(mesh:Object)
@@ -638,6 +646,10 @@ Function Surface_SetVertexTexCoords:Void(surface:Object, index:Int, u:Float, v:F
 	Surface(surface).SetVertexTexCoords(index, u, v)
 End
 
+Function Surface_SetVertexBone:Void(surface:Object, vertex:Int, index:Int, bone:Int, weight:Float)
+	Surface(surface).SetVertexBone(vertex, index, bone, weight)
+End
+
 Function Surface_GetVertexX:Float(surface:Object, index:Int)
 	Return Surface(surface).GetVertexX(index)
 End
@@ -684,6 +696,14 @@ End
 
 Function Surface_GetVertexV:Float(surface:Object, index:Int)
 	Return Surface(surface).GetVertexV(index)
+End
+
+Function Surface_GetVertexBoneIndex:Int(surface:Object, vertex:Int, index:Int)
+	Return Surface(surface).GetVertexBoneIndex(vertex, index)
+End
+
+Function Surface_GetVertexBoneWeight:Float(surface:Object, vertex:Int, index:Int)
+	Return Surface(surface).GetVertexBoneWeight(vertex, index)
 End
 
 Function Surface_Rebuild:Void(surface:Object)
@@ -859,11 +879,9 @@ End
 '--------------------------------------
 
 Function Vortex_Init:Bool()
-	If Vortex.Init()
-		Cache.Push()
-		Return True
-	End
-	Return False
+	Local ret:Bool = Vortex.Init()
+	Cache.Push()
+	Return ret
 End
 
 Function Vortex_GetShaderError:String()

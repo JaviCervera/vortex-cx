@@ -77,9 +77,14 @@ Public
 				brushMap.Set(nameStr, brush)
 			Next
 		End
+		
+		'Check if mesh is weighted
+		Local weighted:Bool = False
+		Local surfaceNode:XMLNode = surfacesNode.GetChild("surface")
+		If surfaceNode <> Null And surfaceNode.GetChild("bone_indices") <> Null Then weighted = True
 
 		'Create mesh object
-		Local mesh:Mesh = Mesh.Create()
+		Local mesh:Mesh = Mesh.Create(weighted)
 		mesh.SetFilename(filename)
 
 		'Parse surfaces
@@ -97,6 +102,8 @@ Public
 			Local normalsStr$[] = surfaceNode.GetChildValue("normals", "").Split(",")
 			Local colorsStr$[] = surfaceNode.GetChildValue("colors", "").Split(",")
 			Local texcoordsStr$[] = surfaceNode.GetChildValue("texcoords", "").Split(",")
+			Local boneIndicesStr$[] = surfaceNode.GetChildValue("bone_indices", "").Split(",")
+			Local boneWeightsStr$[] = surfaceNode.GetChildValue("bone_weights", "").Split(",")
 
 			'Create surface
 			Local surf:Surface = Surface.Create(brushMap.Get(brushStr))
@@ -110,6 +117,8 @@ Public
 				Local nx# = 1, ny# = 1, nz# = 1
 				Local r# = 1, g# = 1, b# = 1, a# = 1
 				Local u# = 0, v# = 0
+				Local b0% = -1, b1% = -1, b2% = -1, b3% = -1
+				Local w0# = 0, w1# = 0, w2# = 0, w3# = 0
 
 				'Read coords
 				x = Float(coordsStr[j*3])
@@ -136,8 +145,32 @@ Public
 					u = Float(texcoordsStr[j*2])
 					v = Float(texcoordsStr[j*2+1])
 				End
+				
+				'Read bone indices
+				If boneIndicesStr.Length() > 1
+					b0 = Int(boneIndicesStr[j*4])
+					b1 = Int(boneIndicesStr[j*4+1])
+					b2 = Int(boneIndicesStr[j*4+2])
+					b3 = Int(boneIndicesStr[j*4+3])
+				End
+				
+				'Read bone weights
+				If boneWeightsStr.Length() > 1
+					w0 = Float(boneWeightsStr[j*4])
+					w1 = Float(boneWeightsStr[j*4+1])
+					w2 = Float(boneWeightsStr[j*4+2])
+					w3 = Float(boneWeightsStr[j*4+3])
+				End
 
-				surf.AddVertex(x, y, z, nx, ny, nz, r, g, b, a, u, v)
+				'Add vertex
+				Local vertex:Int = surf.AddVertex(x, y, z, nx, ny, nz, r, g, b, a, u, v)
+				
+				
+				'Set vertex bones and weights
+				surf.SetVertexBone(vertex, 0, b0, w0)
+				surf.SetVertexBone(vertex, 1, b1, w1)
+				surf.SetVertexBone(vertex, 2, b2, w2)
+				surf.SetVertexBone(vertex, 3, b3, w3)
 			Next
 
 			mesh.AddSurface(surf)

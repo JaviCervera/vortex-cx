@@ -21,7 +21,9 @@ using namespace irr;
 
 // Forward declaration of functions
 void SaveLightmaps(scene::IMesh* mesh);
-scene::ISkinnedMesh::SJoint* FindParent(scene::ISkinnedMesh* mesh, const scene::ISkinnedMesh::SJoint* joint);
+scene::ISkinnedMesh::SJoint* FindParent(scene::ISkinnedMesh* mesh, const scene::ISkinnedMesh::SJoint* joint);;
+std::vector<int> BoneIndicesForSurface(scene::ISkinnedMesh* mesh, u32 surface);
+std::vector<float> BoneWeightsForSurface(scene::ISkinnedMesh* mesh, u32 surface);
 
 irr::scene::IAnimatedMesh* LoadMesh(irr::IrrlichtDevice* device, const std::string& filename) {
 	scene::IAnimatedMesh* mesh = NULL;
@@ -152,6 +154,24 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 		if (exportNormals) buffer += normals;
 		//if (exportTangents) buffer += tangents;
 		if (meshBuffer->getMaterial().getTexture(0)) buffer += texcoords;
+		std::vector<int> indices = BoneIndicesForSurface(dynamic_cast<scene::ISkinnedMesh*>(animMesh), mb);
+		std::vector<float> weights = BoneWeightsForSurface(dynamic_cast<scene::ISkinnedMesh*>(animMesh), mb);
+		if ( indices.size() > 0 && weights.size() > 0 ) {
+			std::string indicesStr = "\t\t\t<bone_indices>";
+			for ( size_t i = 0; i < indices.size(); ++i ) {
+				if ( i > 0 ) indicesStr += ",";
+				indicesStr += StringFromNumber(indices[i]);
+			}
+			indicesStr += "</bone_indices>\n";
+			std::string weightsStr = "\t\t\t<bone_weights>";
+			for ( size_t w = 0; w < weights.size(); ++w ) {
+				if ( w > 0 ) weightsStr += ",";
+				weightsStr += StringFromNumber(weights[w]);
+			}
+			weightsStr += "</bone_weights>\n";
+			buffer += indicesStr;
+			buffer += weightsStr;
+		}
 
 		buffer += "\t\t</surface>\n";
 	}
@@ -173,8 +193,7 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 					if (i > 0) buffer += ",";
 					if (VORTEX_HANDEDNESS == VORTEX_LH) {
 						buffer += StringFromNumber(meshBuffer->getIndices()[i]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 1]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 2]);
-					}
-					else {
+					} else {
 						buffer += StringFromNumber(meshBuffer->getIndices()[i]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 2]) + "," + StringFromNumber(meshBuffer->getIndices()[i + 1]);
 					}
 				}
@@ -374,4 +393,47 @@ scene::ISkinnedMesh::SJoint* FindParent(scene::ISkinnedMesh* mesh, const scene::
 		}
 	}
 	return NULL;
+}
+
+std::vector<int> BoneIndicesForSurface(scene::ISkinnedMesh* mesh, u32 surface) {
+	bool indicesFound = false;
+	std::vector<int> indices(mesh->getMeshBuffer(surface)->getVertexCount() * 4, -1);
+	for (u32 i = 0; i < mesh->getJointCount(); ++i) {
+		for (u32 j = 0; j < mesh->getAllJoints()[i]->Weights.size(); ++j) {
+			if (mesh->getAllJoints()[i]->Weights[j].buffer_id == surface) {
+				indicesFound = true;
+				u32 vertexId = mesh->getAllJoints()[i]->Weights[j].vertex_id;
+				if ( indices[vertexId*4] == -1 ) indices[vertexId*4] = i;
+				else if ( indices[vertexId*4 + 1] == -1 ) indices[vertexId*4 + 1] = i;
+				else if ( indices[vertexId*4 + 2] == -1 ) indices[vertexId*4 + 2] = i;
+				else if ( indices[vertexId*4 + 3] == -1 ) indices[vertexId*4 + 3] = i;
+			}
+		}
+	}
+	if ( indicesFound ) return indices;
+	else return std::vector<int>();
+}
+
+std::vector<float> BoneWeightsForSurface(scene::ISkinnedMesh* mesh, u32 surface) {
+	bool weightsFound = false;
+	std::vector<float> weights(mesh->getMeshBuffer(surface)->getVertexCount() * 4, -1);
+	for (u32 i = 0; i < mesh->getJointCount(); ++i) {
+		for (u32 j = 0; j < mesh->getAllJoints()[i]->Weights.size(); ++j) {
+			if (mesh->getAllJoints()[i]->Weights[j].buffer_id == surface) {
+				weightsFound = true;
+				u32 vertexId = mesh->getAllJoints()[i]->Weights[j].vertex_id;
+				if ( weights[vertexId*4] == -1 ) weights[vertexId*4] = mesh->getAllJoints()[i]->Weights[j].strength;
+				else if ( weights[vertexId*4 + 1] == -1 ) weights[vertexId*4 + 1] = mesh->getAllJoints()[i]->Weights[j].strength;
+				else if ( weights[vertexId*4 + 2] == -1 ) weights[vertexId*4 + 2] = mesh->getAllJoints()[i]->Weights[j].strength;
+				else if ( weights[vertexId*4 + 3] == -1 ) weights[vertexId*4 + 3] = mesh->getAllJoints()[i]->Weights[j].strength;
+			}
+		}
+	}
+
+	for ( size_t i = 0; i < weights.size(); ++i ) {
+		if ( weights[i] == -1.0f ) weights[i] = 0.0f;
+	}
+
+	if ( weightsFound ) return weights;
+	else return std::vector<float>();
 }

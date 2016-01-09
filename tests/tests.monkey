@@ -66,7 +66,7 @@ Public
 		viewer = Viewer_Create(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Make triangle
-		Local mesh:Object = Mesh_Create()
+		Local mesh:Object = Mesh_Create(False)
 		Local surf:Object = Mesh_AddSurface(mesh)
 		Brush_SetCulling(Surface_GetBrush(surf), False)
 		Surface_AddTriangle(surf, 0, 1, 2)
@@ -113,9 +113,9 @@ Public
 		lightsEulerY[1] = 120
 		lightsEulerY[2] = 240
 		
-		'Load swat
-		swatMesh = Mesh_Cache("swat.msh.xml")
-		swat = Drawable_CreateWithMesh(swatMesh)
+		'Load anim model
+		animMesh = Mesh_Cache("dwarf.msh.xml")
+		animModel = Drawable_CreateWithMesh(animMesh)
 		
 		'Load level
 		Local levelMesh:Object = Mesh_Cache("simple-dm5.msh.xml")
@@ -171,11 +171,11 @@ Public
 				Lighting_SetLightPosition(i, 48 * Cos(lightsEulerY[i]), 0, 48 * Sin(lightsEulerY[i]))
 			Next
 		Case TEST_ANIMATION
-			Viewer_SetPosition(viewer, 0, 2, -4)
+			Viewer_SetPosition(viewer, 0, 64, -128)
 			Viewer_SetEuler(viewer, 15, 0, 0)
 			currentFrame += 16 * GetDeltaTime()
-			If currentFrame > Mesh_GetLastFrame(swatMesh)+1 Then currentFrame = currentFrame - Int(currentFrame)
-			Drawable_Animate(swat, currentFrame)
+			If currentFrame > Mesh_GetLastFrame(animMesh)+1 Then currentFrame = currentFrame - Int(currentFrame)
+			Drawable_Animate(animModel, currentFrame)
 		Case TEST_LEVEL
 			Viewer_SetFog(viewer, True, 100, 2000, 0, 0, 0)
 			Viewer_SetPosition(viewer, 0, 100, 0)
@@ -239,7 +239,7 @@ Public
 				Drawable_Draw(sphere)
 			Next
 		Case TEST_ANIMATION
-			Drawable_Draw(swat, True)
+			Drawable_Draw(animModel, True)
 		Case TEST_LEVEL
 			Drawable_Draw(level)
 		End
@@ -305,8 +305,8 @@ Private
 	Field billboards:Object[]
 	Field spheres:Object[]
 	Field lightsEulerY#[3]
-	Field swatMesh:Object
-	Field swat:Object
+	Field animMesh:Object
+	Field animModel:Object
 	Field currentFrame#
 	Field level:Object
 End

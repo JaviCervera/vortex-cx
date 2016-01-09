@@ -144,6 +144,9 @@ Public
 				mTempMatrix.Scale(GetScaleX(), GetScaleY(), GetScaleZ())
 		End
 		Renderer.SetModelMatrix(mTempMatrix)
+		
+		'Disable skinning (it will be reenabled by the mesh if it is skinned)
+		Renderer.SetSkinned(False)
 
 		'Draw
 		If mMesh <> Null

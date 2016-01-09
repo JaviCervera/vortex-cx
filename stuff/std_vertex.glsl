@@ -18,20 +18,34 @@ uniform vec3 ambient;
 uniform int shininess;
 uniform bool fogEnabled;
 uniform vec2 fogDist;
+uniform bool skinned;
+uniform mat4 bones[MAX_BONES];
 attribute vec3 vpos;
 attribute vec3 vnormal;
 attribute vec4 vcolor;
 attribute vec2 vtex;
+attribute vec4 vboneIndices;
+attribute vec4 vboneWeights;
 varying vec4 fcolor;
 varying vec2 ftex;
 varying vec3 combinedSpecular;
 varying float fogFactor;
 
 void main() {
+	vec4 vpos4 = vec4(vpos, 1);
+	
+	// Skinning of vertex
+	if ( skinned ) {
+		vec4 blendVertex = vec4(0,0,0,0);
+		for ( int i = 0; i < 4; ++i )
+			if ( int(vboneIndices[i]) > -1 ) blendVertex = ((bones[int(vboneIndices[i])] * vpos4) * vboneWeights[i]) + blendVertex;
+		vpos4 = blendVertex;
+	};
+	
 	// Vertex position (projection and view spaces)
-	gl_Position = mvp * vec4(vpos, 1.0);
+	gl_Position = mvp * vpos4;
 	vec3 V;
-	if ( lightingEnabled || fogEnabled ) V = vec3(modelView * vec4(vpos, 1.0));
+	if ( lightingEnabled || fogEnabled ) V = vec3(modelView * vpos4);
 
 	// Fragment color
 	fcolor = baseColor * vcolor;

@@ -25,6 +25,7 @@ Public
 	Const MAX_LIGHTS% = 8
 	Const TEXTURE_DISABLED% = 0
 	Const TEXTURE_2D% = 1
+	Const MAX_BONES% = 128
 
 	'---------------------------------------------------------------------------
 	'Setup
@@ -44,9 +45,9 @@ Public
 
 		'Prepare default program
 #If VORTEX_HANDEDNESS=VORTEX_LH
-		mDefaultProgram = CreateProgram(STD_VERTEX_SHADER, "#define UV_TOPLEFT~n" + STD_FRAGMENT_SHADER)
+		mDefaultProgram = CreateProgram("#define MAX_BONES " + MAX_BONES + "~n" + STD_VERTEX_SHADER, "#define UV_TOPLEFT~n" + STD_FRAGMENT_SHADER)
 #Else
-		mDefaultProgram = CreateProgram(STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
+		mDefaultProgram = CreateProgram("#define MAX_BONES " + MAX_BONES + "~n" + STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
 #End
 		If mDefaultProgram = 0 Then Return False
 #If VORTEX_SCREENCOORDS=VORTEX_YDOWN
@@ -173,6 +174,19 @@ Public
 
 	Function GetModelMatrix:Mat4()
 		Return mModelMatrix
+	End
+	
+	Function SetBoneMatrices:Void(matrices:Mat4[])
+		If mBonesLoc[0] > -1
+			Local lastIndex:Int = Min(MAX_BONES, matrices.Length())
+			For Local i:Int = 0 Until lastIndex
+				glUniformMatrix4fv(mBonesLoc[i], 1, False, matrices[i].m)
+			Next
+		End
+	End
+	
+	Function SetSkinned:Void(enable:Bool)
+		If mSkinnedLoc <> -1 Then glUniform1i(mSkinnedLoc, enable)
 	End
 
 	Function SetBlendMode:Void(mode%)
@@ -401,18 +415,22 @@ Public
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
 	End
 
-	Function DrawBuffers:Void(vertexBuffer%, indexBuffer%, numIndices%, coordsOffset%, normalsOffset%, colorsOffset%, texCoordsOffset%, stride%)
+	Function DrawBuffers:Void(vertexBuffer%, indexBuffer%, numIndices%, coordsOffset%, normalsOffset%, colorsOffset%, texCoordsOffset%, boneIndicesOffset%, boneWeightsOffset%, stride%)
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer)
 		If coordsOffset >= 0 And mVPosLoc > -1 Then glEnableVertexAttribArray(mVPosLoc); glVertexAttribPointer(mVPosLoc, 3, GL_FLOAT, False, stride, coordsOffset)
 		If normalsOffset >= 0 And mVNormalLoc > -1 Then glEnableVertexAttribArray(mVNormalLoc); glVertexAttribPointer(mVNormalLoc, 3, GL_FLOAT, False, stride, normalsOffset)
 		If colorsOffset >= 0 And mVColorLoc > -1 Then glEnableVertexAttribArray(mVColorLoc); glVertexAttribPointer(mVColorLoc, 4, GL_FLOAT, False, stride, colorsOffset)
 		If texCoordsOffset >= 0 And mVTexLoc > -1 Then glEnableVertexAttribArray(mVTexLoc); glVertexAttribPointer(mVTexLoc, 2, GL_FLOAT, False, stride, texCoordsOffset)
+		If boneIndicesOffset >= 0 And mVBoneIndicesLoc > -1 Then glEnableVertexAttribArray(mVBoneIndicesLoc); glVertexAttribPointer(mVBoneIndicesLoc, 4, GL_FLOAT, False, stride, boneIndicesOffset)
+		If boneWeightsOffset >= 0 And mVBoneWeightsLoc > -1 Then glEnableVertexAttribArray(mVBoneWeightsLoc); glVertexAttribPointer(mVBoneWeightsLoc, 4, GL_FLOAT, False, stride, boneWeightsOffset)
 		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0)
 		If mVPosLoc > -1 Then glDisableVertexAttribArray(mVPosLoc)
 		If mVNormalLoc > -1 Then glDisableVertexAttribArray(mVNormalLoc)
 		If mVColorLoc > -1 Then glDisableVertexAttribArray(mVColorLoc)
 		If mVTexLoc > -1 Then glDisableVertexAttribArray(mVTexLoc)
+		If mVBoneIndicesLoc > -1 Then glDisableVertexAttribArray(mVBoneIndicesLoc)
+		If mVBoneWeightsLoc > -1 Then glDisableVertexAttribArray(mVBoneWeightsLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
 	End
@@ -487,10 +505,16 @@ Public
 		mFogEnabledLoc = glGetUniformLocation(program, "fogEnabled")
 		mFogDistLoc = glGetUniformLocation(program, "fogDist")
 		mFogColorLoc = glGetUniformLocation(program, "fogColor")
+		mSkinnedLoc = glGetUniformLocation(program, "skinned")
+		For Local i% = 0 Until MAX_BONES
+			mBonesLoc[i] = glGetUniformLocation(program, "bones[" + i + "]")
+		Next
 		mVPosLoc = glGetAttribLocation(program, "vpos")
 		mVNormalLoc = glGetAttribLocation(program, "vnormal")
 		mVColorLoc = glGetAttribLocation(program, "vcolor")
 		mVTexLoc = glGetAttribLocation(program, "vtex")
+		mVBoneIndicesLoc = glGetAttribLocation(program, "vboneIndices")
+		mVBoneWeightsLoc = glGetAttribLocation(program, "vboneWeights")
 
 		Local baseTexSamplerLoc% = glGetUniformLocation(program, "baseTexSampler")
 		If baseTexSamplerLoc <> -1 Then glUniform1i(baseTexSamplerLoc, 0)
@@ -565,10 +589,14 @@ Private
 	Global mFogEnabledLoc%
 	Global mFogDistLoc%
 	Global mFogColorLoc%
+	Global mSkinnedLoc%
+	Global mBonesLoc%[MAX_BONES]
 	Global mVPosLoc%
 	Global mVNormalLoc%
 	Global mVColorLoc%
 	Global mVTexLoc%
+	Global mVBoneIndicesLoc%
+	Global mVBoneWeightsLoc%
 
 	Global mDataBuffer:DataBuffer
 	Global mVertexBuffer2D%

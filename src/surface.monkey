@@ -116,6 +116,12 @@ Public
 	Method SetVertexTexCoords:Void(index:Int, u:Float, v:Float)
 		mVertices.PokeFloats(index * VERTEX_SIZE + TEX_OFFSET, [u, v], 0, 2)
 	End
+	
+	Method SetVertexBone:Void(vertex:Int, index:Int, bone:Int, weight:Float)
+		'WebGL does not support int attributes, so storing it as a float is a very dirty trick I am using
+		mVertices.PokeFloat(vertex * VERTEX_SIZE + BONEINDICES_OFFSET + index * 4, bone)
+		mVertices.PokeFloat(vertex * VERTEX_SIZE + BONEWEIGHTS_OFFSET + index * 4, weight)
+	End
 
 	Method GetVertexX:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + POS_OFFSET)
@@ -164,6 +170,14 @@ Public
 	Method GetVertexV:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET + 4)
 	End
+	
+	Method GetVertexBoneIndex:Int(vertex:Int, index:Int)
+		Return mVertices.PeekFloat(vertex * VERTEX_SIZE + BONEINDICES_OFFSET + index * 4)
+	End
+	
+	Method GetVertexBoneWeight:Float(vertex:Int, index:Int)
+		Return mVertices.PeekFloat(vertex * VERTEX_SIZE + BONEWEIGHTS_OFFSET + index * 4)
+	End
 
 	Method Rebuild:Void()
 		Renderer.SetIndexBufferData(mIndexBuffer, mIndices, mNumIndices * 2)
@@ -172,7 +186,7 @@ Public
 
 	Method Draw:Void()
 		mBrush.Prepare()
-		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, COLOR_OFFSET, TEX_OFFSET, VERTEX_SIZE)
+		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, COLOR_OFFSET, TEX_OFFSET, BONEINDICES_OFFSET, BONEWEIGHTS_OFFSET, VERTEX_SIZE)
 	End
 Private
 	Method New()
@@ -182,7 +196,9 @@ Private
 	Const NORMAL_OFFSET:Int = 12
 	Const COLOR_OFFSET:Int = 24
 	Const TEX_OFFSET:Int = 40
-	Const VERTEX_SIZE:Int = 48
+	Const BONEINDICES_OFFSET:Int = 48
+	Const BONEWEIGHTS_OFFSET:Int = 64
+	Const VERTEX_SIZE:Int = 80
 	Const INC:Int = 128
 
 	Field mBrush		: Brush

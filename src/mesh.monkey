@@ -9,11 +9,12 @@ Import vortex.src.surface
 Public
 Class Mesh Final
 Public
-	Function Create:Mesh()
+	Function Create:Mesh(skinned:Bool = False)
 		Local mesh:Mesh = New Mesh
 		mesh.mSurfaces = New Surface[0]
 		mesh.mLastFrame = 0
 		mesh.mBones = New Bone[0]
+		mesh.mIsSkinned = skinned
 		Return mesh
 	End
 
@@ -75,8 +76,12 @@ Public
 	End
 	
 	Method Animate:Void(animMatrices:Mat4[], frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
+		'We can only animate if the mesh has bones
 		If mBones.Length() > 0
+			'If we have not specified the ending frame of the sequence, take the last frame in the entire animation
 			If lastFrame = 0 Then lastFrame = mLastFrame
+			
+			'Calculate animation matrix for all bones
 			For Local i:Int = 0 Until GetNumBones()
 				Local parentIndex:Int = GetBoneIndex(GetBone(i).GetParent())
 				If parentIndex > -1
@@ -85,15 +90,30 @@ Public
 					GetBone(i).Animate(animMatrices[i], Null, frame, firstFrame, lastFrame)
 				End
 			Next
+			
+			'If the mesh is skinned, multiply every animation matrix by the inverse of the pose matrix
+			If mIsSkinned
+				For Local i:Int = 0 Until GetNumBones()
+					animMatrices[i].Mul(GetBone(i).GetInversePoseMatrix())
+				Next
+			End
 		End
 	End
 
 	Method Draw:Void(animated:Bool, animMatrices:Mat4[])
-		If mBones.Length() > 0
+		'Simple hierarchical animation
+		If mBones.Length() > 0 And Not mIsSkinned
 			For Local i:Int = 0 Until GetNumBones()
 				If animated Then GetBone(i).Draw(True, animMatrices[i]) Else GetBone(i).Draw(False, Null)
 			Next
 		Else
+			'Skinned animation
+			If mIsSkinned And animated
+				Renderer.SetSkinned(True)
+				Renderer.SetBoneMatrices(animMatrices)
+			End
+			
+			'Static mesh
 			For Local i:Int = 0 Until GetNumSurfaces()
 				GetSurface(i).Draw()
 			Next
@@ -114,4 +134,5 @@ Private
 	Field mSurfaces		: Surface[]
 	Field mLastFrame	: Int
 	Field mBones		: Bone[]
+	Field mIsSkinned	: Bool
 End

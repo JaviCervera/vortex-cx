@@ -13,6 +13,7 @@ Public
 		bone.mName = name
 		bone.mParent = Null
 		bone.mPoseMatrix = Mat4.Create()
+		bone.mInvPoseMatrix = Mat4.Create()
 		bone.mSurfaces = New Surface[0]
 		bone.mPositionKeys = New Int[0]
 		bone.mRotationKeys = New Int[0]
@@ -46,14 +47,22 @@ Public
 		
 		If mParent = Null
 			mPoseMatrix.Set(mTempMatrix)
+			mInvPoseMatrix.Set(mPoseMatrix)
+			mInvPoseMatrix.Invert()
 		Else
 			mPoseMatrix.Set(mParent.mPoseMatrix)
 			mPoseMatrix.Mul(mTempMatrix)
+			mInvPoseMatrix.Set(mPoseMatrix)
+			mInvPoseMatrix.Invert()
 		End
 	End
 	
 	Method GetPoseMatrix:Float[]()
 		Return mPoseMatrix.m
+	End
+	
+	Method GetInversePoseMatrix:Float[]()
+		Return mInvPoseMatrix.m
 	End
 
 	Method AddSurface:Void(surf:Surface)
@@ -159,30 +168,35 @@ Public
 	End
 
 	Method Draw:Void(animated:Bool, animMatrix:Mat4)
-		'Store model matrix
-		mTempMatrix.Set(Renderer.GetModelMatrix())
+		If mSurfaces.Length() > 0
+			'Store model matrix
+			mTempMatrix.Set(Renderer.GetModelMatrix())
 
-		'Set new model matrix
-		If animated
-			Renderer.GetModelMatrix().Mul(animMatrix)
-		Else
-			Renderer.GetModelMatrix().Mul(GetPoseMatrix())
+			'Set new model matrix
+			If animated
+				Renderer.GetModelMatrix().Mul(animMatrix)
+			Else
+				Renderer.GetModelMatrix().Mul(GetPoseMatrix())
+			End
+			Renderer.SetModelMatrix(Renderer.GetModelMatrix())	'Load the updated model matrix into the shader
+
+			'Draw surfaces
+			For Local surf:Surface = Eachin mSurfaces
+				surf.Draw()
+			Next
+
+			'Restore previous model matrix
+			Renderer.SetModelMatrix(mTempMatrix)
 		End
-		Renderer.SetModelMatrix(Renderer.GetModelMatrix())	'Load the updated model matrix into the shader
-
-		'Draw surfaces
-		For Local surf:Surface = Eachin mSurfaces
-			surf.Draw()
-		Next
-
-		'Restore previous model matrix
-		Renderer.SetModelMatrix(mTempMatrix)
 	End
 Private
 	Method New()
 	End
 	
 	Method CalcAnimMatrix:Void(animMatrix:Mat4, parentAnimMatrix:Mat4, frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
+		'NOTE: On a skinned mesh, after calculating this matrix for all bones,
+		'you need to multiply whatever all of them by the inverse pose matrix!
+	
 		'Check if there is a keyframe within range
 		Local keyInRange:Bool = False
 		For Local i% = Eachin mPositionKeys
@@ -316,6 +330,7 @@ Private
 	Field mName				: String
 	Field mParent			: Bone
 	Field mPoseMatrix		: Mat4
+	Field mInvPoseMatrix	: Mat4
 	Field mSurfaces			: Surface[]
 	Field mPositionKeys		: Int[]
 	Field mRotationKeys		: Int[]

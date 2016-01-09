@@ -137,6 +137,11 @@ Returns a 16 float array that contains the global pose transform matrix.
 You don't normally need to call this function.
 It is used internally when rendering the geometry attached to the bone.
 
+# Function Bone_GetInversePoseMatrix:Float[](bone:Object)
+Returns a 16 float array that contains the inverse of the global pose transform matrix.
+You don't normally need to call this function.
+It is used internally when rendering the geometry attached to the bone.
+
 # Function Bone_AddSurface:Void(bone:Object, surf:Object)
 Adds a new surface to the bone. Surfaces attached to a bone contain geometry that is rendered with the transformation defined by the bone.
 You don't need to use this function, unless you are generating meshes by hand. When loading a mesh from disk, this function will be called automatically by the loader.
@@ -456,7 +461,9 @@ Returns the mesh with the specified filename, or Null if it could not be found.
 If the mesh has been loaded previously by any cache object, that same object will be returned. Otherwise, the last pushed cache object will load and return a new mesh.
 
 # Function Mesh_Create:Object()
-Creates a new empty mesh, indicating a filename for it. It will not load any mesh from the filename, this value is only given as reference to the mesh (for example, if we are writing our own mesh loader, we can indicate the filename that we are going to create the mesh from). This function is used if we are writing a custom mesh loader or if we want to generate meshes procedurally. Normally, we will load our meshes using the function Cache.GetMesh from the vortex.ext module.
+Creates a new empty mesh. This function is used if we want to generate meshes procedurally.
+You must indicate whether the mesh is skinned (it has bone weights information for animation) or not.
+If you want to load meshes from disk, the the `Mesh_Cache` function instead.
 
 # Function Mesh_Free:Void(mesh:Object)
 When we don't need to use this mesh anymore (for example, if there are no more drawables that use it and we do not plan to create new ones), we can use this function to deallocate its resources.
@@ -464,6 +471,9 @@ If the mesh has been created with `Mesh_Cache()`, we must not call this method.
 
 # Function Mesh_GetFilename:String(mesh:Object)
 Returns the filename assigned to this mesh when it cas created.
+
+# Function Mesh_SetFilename:Void(mesh:Object, filename:String)
+Sets the filename of the mesh. This is useful if you are implementing a custom mesh loader and you want to identify the filename that the mesh was created from.
 
 # Function Mesh_AddSurface:Object(mesh:Object)
 Creates a new surface on the mesh and returns its handle.
@@ -590,6 +600,11 @@ Sets the color of the specified vertex.
 # Function Surface_SetVertexTexCoords:Void(surface:Object, index:Int, u:Float, v:Float)
 Sets the texture coordinates of the specified vertex.
 
+# Function Surface_SetVertexBone:Void(surface:Object, vertex:Int, index:Int, bone:Int, weight:Float)
+Sets one of the bones that the vertex is attached to, and the weight that the bone has on the vertex (between 0 and 1).
+A vertex can be attached to a maximum of four bones, specified in the `index` parameter with a value between 0 and 3.
+Bone is the index within the mesh of the specified bone.
+
 # Function Surface_GetVertexX:Float(surface:Object, index:Int)
 Returns the X position of the specified vertex.
 
@@ -621,10 +636,16 @@ Returns the blue component of the color of the specified vertex.
 Returns the opacity of the specified vertex.
 
 # Function Surface_GetVertexU:Float(surface:Object, index:Int)
-Return the U texture coordinate of the specified vertex.
+Returns the U texture coordinate of the specified vertex.
 
 # Function Surface_GetVertexV:Float(surface:Object, index:Int)
-Return the V texture coordinate of the specified vertex.
+Returns the V texture coordinate of the specified vertex.
+
+# Function Surface_GetVertexBoneIndex:Int(surface:Object, vertex:Int, index:Int)
+Returns the specified vertex bone index.
+
+# Function Surface_GetVertexBoneWeight:Float(surface:Object, vertex:Int, index:Int)
+Return the specified vertex bone weight.
 
 # Function Surface_Rebuild:Void(surface:Object)
 Rebuilds the internal representation of the geometry in the surface.
@@ -632,6 +653,9 @@ To increase rendering performance, Vortex holds a copy of the data of all surfac
 
 # Function Surface_Draw:Void(surface:Object)
 Draws the surface. You don't normally need to call this function, because you will draw surfaces through drawables.
+
+
+
 
 # Function Texture_Cache:Object(filename:String, filter:Int = FILTER_TRILINEAR)
 Returns the texture with the specified filename, or Null if the texture was not found.
