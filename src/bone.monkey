@@ -195,7 +195,7 @@ Private
 	
 	Method CalcAnimMatrix:Void(animMatrix:Mat4, parentAnimMatrix:Mat4, frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
 		'NOTE: On a skinned mesh, after calculating this matrix for all bones,
-		'you need to multiply whatever all of them by the inverse pose matrix!
+		'you need to multiply all of them by the inverse pose matrix!
 	
 		'Check if there is a keyframe within range
 		Local keyInRange:Bool = False
@@ -210,7 +210,7 @@ Private
 		If keyInRange
 			Local px#, py#, pz#, sx#, sy#, sz#
 
-			'Calculate inteprolated position
+			'Calculate interpolated position
 			CalcPosition(frame, firstSeqFrame, lastSeqFrame)
 			px = mTempVec.x
 			py = mTempVec.y

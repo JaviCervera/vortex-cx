@@ -44,17 +44,9 @@ Public
 #End
 
 		'Prepare default program
-#If VORTEX_HANDEDNESS=VORTEX_LH
-		mDefaultProgram = CreateProgram("#define MAX_BONES " + MAX_BONES + "~n" + STD_VERTEX_SHADER, "#define UV_TOPLEFT~n" + STD_FRAGMENT_SHADER)
-#Else
-		mDefaultProgram = CreateProgram("#define MAX_BONES " + MAX_BONES + "~n" + STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
-#End
+		mDefaultProgram = CreateProgram(STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
 		If mDefaultProgram = 0 Then Return False
-#If VORTEX_SCREENCOORDS=VORTEX_YDOWN
-		m2DProgram = CreateProgram(_2D_VERTEX_SHADER, "#define UV_TOPLEFT~n" + _2D_FRAGMENT_SHADER)
-#Else
 		m2DProgram = CreateProgram(_2D_VERTEX_SHADER, _2D_FRAGMENT_SHADER)
-#End
 		If m2DProgram = 0 Then Return False
 		UseProgram(mDefaultProgram)
 
@@ -440,15 +432,22 @@ Public
 	'---------------------------------------------------------------------------
 
 	Function CreateProgram%(vertex$, fragment$)
+		vertex = "#version 100~n#define MAX_BONES " + MAX_BONES + "~n" + vertex
+#If VORTEX_HANDEDNESS=VORTEX_LH Or VORTEX_SCREENCOORDS=VORTEX_YDOWN
+		fragment = "#version 100~n#define UV_TOPLEFT~n" + fragment
+#Else
+		fragment = "#version 100~n" + fragment
+#End
+
 		Local retCode%[1]
 
 		'Create vertex shader
 		Local vshader% = glCreateShader(GL_VERTEX_SHADER)
 		glShaderSource(vshader, vertex)
 		glCompileShader(vshader)
+		mProgramError = glGetShaderInfoLog(vshader)
 		glGetShaderiv(vshader, GL_COMPILE_STATUS, retCode)
 		If retCode[0] = GL_FALSE
-			mProgramError = glGetShaderInfoLog(vshader)
 			glDeleteShader(vshader)
 			Return 0
 		End
@@ -457,9 +456,9 @@ Public
 		Local fshader% = glCreateShader(GL_FRAGMENT_SHADER)
 		glShaderSource(fshader, fragment)
 		glCompileShader(fshader)
+		mProgramError += "~n" + glGetShaderInfoLog(fshader)
 		glGetShaderiv(fshader, GL_COMPILE_STATUS, retCode)
 		If retCode[0] = GL_FALSE
-			mProgramError = glGetShaderInfoLog(fshader)
 			glDeleteShader(vshader)
 			glDeleteShader(fshader)
 			Return 0
