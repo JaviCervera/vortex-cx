@@ -3,8 +3,6 @@ precision highp int;
 precision mediump float;
 #endif
 
-#define MAX_LIGHTS 8
-
 uniform mat4 mvp;
 uniform mat4 modelView;
 uniform mat4 normalMatrix;

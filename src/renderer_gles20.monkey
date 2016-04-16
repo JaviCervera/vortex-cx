@@ -177,10 +177,10 @@ Public
 	End
 	
 	Function SetBoneMatrices:Void(matrices:Mat4[])
-		If mBonesLoc[0] > -1
+		If mBonesLoc[0] <> -1
 			Local lastIndex:Int = Min(MAX_BONES, matrices.Length())
 			For Local i:Int = 0 Until lastIndex
-				glUniformMatrix4fv(mBonesLoc[i], 1, False, matrices[i].m)
+				If mBonesLoc[i] <> -1 Then glUniformMatrix4fv(mBonesLoc[i], 1, False, matrices[i].m)
 			Next
 		End
 	End
@@ -440,11 +440,11 @@ Public
 	'---------------------------------------------------------------------------
 
 	Function CreateProgram%(vertex$, fragment$)
-		vertex = GLSL_VERSION + "#define MAX_BONES " + MAX_BONES + "~n" + vertex
+		vertex = GLSL_VERSION + "#define MAX_LIGHTS " + MAX_LIGHTS + "~n#define MAX_BONES " + MAX_BONES + "~n" + vertex
 #If VORTEX_HANDEDNESS=VORTEX_LH Or VORTEX_SCREENCOORDS=VORTEX_YDOWN
-		fragment = GLSL_VERSION + "#define UV_TOPLEFT~n" + fragment
+		fragment = GLSL_VERSION + "#define MAX_LIGHTS " + MAX_LIGHTS +  "~n#define UV_TOPLEFT~n" + fragment
 #Else
-		fragment = GLSL_VERSION + fragment
+		fragment = GLSL_VERSION + "#define MAX_LIGHTS " + MAX_LIGHTS + "~n" + fragment
 #End
 
 		Local retCode%[1]
