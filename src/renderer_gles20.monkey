@@ -3,6 +3,7 @@
 Strict
 
 Private
+
 Import brl.databuffer
 Import mojo.app
 Import mojo.graphics
@@ -10,7 +11,14 @@ Import opengl.gles20
 Import vortex.src.math3d
 Import vortex.src.renderer_gles20_shaders
 
+#If TARGET="html5"
+Const GLSL_VERSION$ = ""
+#Else
+Const GLSL_VERSION$ = "#version 120~n"
+#EndIf
+
 Public
+
 Class Renderer Final
 Public
 	Const BASETEX_UNIT% = 0
@@ -432,11 +440,11 @@ Public
 	'---------------------------------------------------------------------------
 
 	Function CreateProgram%(vertex$, fragment$)
-		vertex = "#version 100~n#define MAX_BONES " + MAX_BONES + "~n" + vertex
+		vertex = GLSL_VERSION + "#define MAX_BONES " + MAX_BONES + "~n" + vertex
 #If VORTEX_HANDEDNESS=VORTEX_LH Or VORTEX_SCREENCOORDS=VORTEX_YDOWN
-		fragment = "#version 100~n#define UV_TOPLEFT~n" + fragment
+		fragment = GLSL_VERSION + "#define UV_TOPLEFT~n" + fragment
 #Else
-		fragment = "#version 100~n" + fragment
+		fragment = GLSL_VERSION + fragment
 #End
 
 		Local retCode%[1]
