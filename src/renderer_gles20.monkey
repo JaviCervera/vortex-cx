@@ -11,11 +11,11 @@ Import opengl.gles20
 Import vortex.src.math3d
 Import vortex.src.renderer_gles20_shaders
 
-#If TARGET="html5"
+'#If TARGET="html5"
 Const GLSL_VERSION$ = ""
-#Else
-Const GLSL_VERSION$ = "#version 120~n"
-#EndIf
+'#Else
+'Const GLSL_VERSION$ = "#version 120~n"
+'#EndIf
 
 Public
 
