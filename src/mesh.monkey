@@ -18,9 +18,9 @@ Public
 		Return mesh
 	End
 
-	Method Discard:Void()
+	Method Free:Void()
 		For Local surf:Surface = Eachin mSurfaces
-			surf.Discard()
+			surf.Free()
 		Next
 	End
 

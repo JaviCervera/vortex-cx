@@ -106,7 +106,7 @@ Public
 		Return d
 	End
 
-	Method Discard:Void()
+	Method Free:Void()
 		If mSurface Then mSurface.Discard()
 		mSurface = Null
 	End

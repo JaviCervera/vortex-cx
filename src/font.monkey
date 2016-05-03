@@ -26,8 +26,8 @@ Public
 		Return f
 	End
 
-	Method Discard:Void()
-		mTexture.Discard()
+	Method Free:Void()
+		mTexture.Free()
 	End
 
 	Method GetFilename:String()
@@ -66,16 +66,6 @@ Public
 		Return mMaxHeight
 	End
 
-	Method SetGlyphData:Void(index:Int, x:Float, y:Float, w:Float, h:Float, yoffset:Float)
-		mGlyphs[index].mX = x
-		mGlyphs[index].mY = y
-		mGlyphs[index].mWidth = w
-		mGlyphs[index].mHeight = h
-		mGlyphs[index].mYOffset = yoffset
-		If index = 33 And mGlyphs[0].mWidth = 0 Then mGlyphs[0].mWidth = w
-		If h > mMaxHeight Then mMaxHeight = h
-	End
-
 	Method Draw:Void(x:Float, y:Float, text:String)
 		Local textHeight# = mMaxHeight
 		For Local i% = 0 Until text.Length()
@@ -89,6 +79,16 @@ Public
 			End
 			x += glyph.mWidth
 		Next
+	End
+	
+	Method SetGlyphData:Void(index:Int, x:Float, y:Float, w:Float, h:Float, yoffset:Float)
+		mGlyphs[index].mX = x
+		mGlyphs[index].mY = y
+		mGlyphs[index].mWidth = w
+		mGlyphs[index].mHeight = h
+		mGlyphs[index].mYOffset = yoffset
+		If index = 33 And mGlyphs[0].mWidth = 0 Then mGlyphs[0].mWidth = w
+		If h > mMaxHeight Then mMaxHeight = h
 	End
 Private
 	Method New()

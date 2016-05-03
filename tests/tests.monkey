@@ -27,10 +27,11 @@ Public
 		lastMillisecs = Millisecs()
 	
 		'Init vortex
-		Vortex_Init()
-		Print "API version: " + Vortex_GetAPIVersion()
-		Print "Shading version: " + Vortex_GetShadingVersion()
-		Print "Shader compilation: " + Vortex_GetShaderError()
+		Vortex.Init()
+		Cache.Push()
+		Print "API version: " + Vortex.GetAPIVersion()
+		Print "Shading version: " + Vortex.GetShadingVersion()
+		Print "Shader compilation: " + Vortex.GetShaderError()
 		
 		mTests = New Test[7]
 		mTests[0] = New PrimitivesTest
@@ -43,7 +44,7 @@ Public
 		mCurrentTest = 0
 		
 		'Load font
-		mFont = Font_Cache("system_16.fnt.xml")
+		mFont = Cache.GetFont("system_16.fnt.xml")
 			
 		Return False
 	End
@@ -83,21 +84,21 @@ Public
 		mTests[mCurrentTest].Draw()
 		
 		'Setup painter for 2D graphics
-		Painter_Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Painter.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Paint black margin on top of screen
-		Painter_SetColor(0, 0, 0)
-		Painter_PaintRect(0, 0, DeviceWidth(), 24)
+		Painter.SetColor(0, 0, 0)
+		Painter.PaintRect(0, 0, DeviceWidth(), 24)
 		
 		'Draw FPS
-		Painter_SetColor(1, 0, 0)
+		Painter.SetColor(1, 0, 0)
 		Local text$ = currentFPS + " FPS"
-		Font_Draw(mFont, 2, 6, text)
+		mFont.Draw(2, 6, text)
 		
 		'Draw info
-		Painter_SetColor(1, 1, 0)
+		Painter.SetColor(1, 1, 0)
 		text = "<Press space key or touch screen to change test>"
-		Font_Draw(mFont, (DeviceWidth() - Font_GetTextWidth(mFont, text))/2, 6, text)
+		mFont.Draw((DeviceWidth() - mFont.GetTextWidth(text))/2, 6, text)
 	
 		Return False
 	End
@@ -111,7 +112,7 @@ Private
 	Field mTests		: Test[]
 	Field mCurrentTest	: Int
 	
-	Field mFont			: Object
+	Field mFont			: Font
 End
 
 Function Main:Int()

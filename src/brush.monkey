@@ -7,9 +7,9 @@ Import vortex.src.texture
 Public
 Class Brush Final
 Public
-	Const BLEND_ALPHA% = Renderer.BLEND_ALPHA
-	Const BLEND_ADD% = Renderer.BLEND_ADD
-	Const BLEND_MUL% = Renderer.BLEND_MUL
+	Const BLEND_ALPHA	: Int = Renderer.BLEND_ALPHA
+	Const BLEND_ADD		: Int = Renderer.BLEND_ADD
+	Const BLEND_MUL		: Int = Renderer.BLEND_MUL
 
 	Function Create:Brush(baseTex:Texture = Null)
 		Local brush:Brush = New Brush

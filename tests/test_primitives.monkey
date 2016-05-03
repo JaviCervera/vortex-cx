@@ -43,23 +43,23 @@ Class PrimitivesTest Extends Test Final
 	End
 	
 	Method Draw:Void()
-		Painter_Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Painter_Cls()
+		Painter.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Painter.Cls()
 		For Local i:Int = 0 Until mNumPrimitives
 			Local prim:Prim = mPrimitives[i]
-			Painter_SetColor(prim.r, prim.g, prim.b)
+			Painter.SetColor(prim.r, prim.g, prim.b)
 			Select prim.type
 				Case PRIM_POINT
-					Painter_PaintPoint(prim.x, prim.y)
+					Painter.PaintPoint(prim.x, prim.y)
 				Case PRIM_LINE
-					Painter_PaintLine(prim.x, prim.y, prim.z, prim.w)
+					Painter.PaintLine(prim.x, prim.y, prim.z, prim.w)
 				Case PRIM_RECT
-					Painter_PaintRect(prim.x, prim.y, prim.z, prim.w)
+					Painter.PaintRect(prim.x, prim.y, prim.z, prim.w)
 				Case PRIM_ELLIPSE
-					Painter_PaintEllipse(prim.x, prim.y, prim.z, prim.w)
+					Painter.PaintEllipse(prim.x, prim.y, prim.z, prim.w)
 			End
 		Next
-		Painter_SetColor(Rnd(), Rnd(), Rnd())
+		Painter.SetColor(Rnd(), Rnd(), Rnd())
 	End
 Private
 	Field mNumPrimitives	: Int

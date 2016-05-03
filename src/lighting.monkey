@@ -31,9 +31,9 @@ End
 Public
 Class Lighting Final
 Public
-	Const NUM_LIGHTS%	= Renderer.MAX_LIGHTS
-	Const DIRECTIONAL%	= 0
-	Const POINT%		= 1
+	Const NUM_LIGHTS	: Int = Renderer.MAX_LIGHTS
+	Const DIRECTIONAL	: Int = 0
+	Const POINT			: Int = 1
 
 	Function SetLightEnabled:Void(index:Int, enabled:Bool)
 		InitLights()

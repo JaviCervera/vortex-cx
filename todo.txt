@@ -4,16 +4,16 @@ V1.2
 - Add skinned animation
 
 V1.3
-- Add stencil & shader based shadows
+- Add render batching
 
 V1.4
 - Add multitexturing with cube, normal, specular, light & detail maps (maybe more)
 
 V1.5
-- Add vertex animation
+- Add stencil based shadows
 
 V1.6
 - Add OpenGL ES 1 renderer, for better compatibility with older machines
 
-V2.0
-- Add render batching
+V1.7
+- Add vertex animation

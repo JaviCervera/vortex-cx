@@ -9,39 +9,39 @@ Public
 Class BillboardsTest Extends Test Final
 	Method New()
 		'Create viewer
-		mViewer = Viewer_Create(0, 0, DeviceWidth(), DeviceHeight())
-		Viewer_SetClearColor(mViewer, 1, 1, 1)
+		mViewer = Viewer.Create(0, 0, DeviceWidth(), DeviceHeight())
+		mViewer.SetClearColor(1, 1, 1)
 		
 		'Load texture
-		mTexture = Texture_Cache("smile.png")
+		mTexture = Cache.GetTexture("smile.png")
 		
 		'Create billboards
-		mBillboards = New Object[64]
+		mBillboards = New Drawable[64]
 		Local x:Int = -8, z:Int = -8
 		For Local i:Int = 0 Until mBillboards.Length()
-			mBillboards[i] = Drawable_CreateBillboard(mTexture, 1, 1, BILLBOARD_SPHERICAL)
-			Brush_SetBaseColor(Surface_GetBrush(Drawable_GetSurface(mBillboards[i])), Rnd(0, 1), Rnd(0, 1), Rnd(0, 1))
-			Drawable_SetPosition(mBillboards[i], x, 0, z)
+			mBillboards[i] = Drawable.Create(Brush.Create(mTexture), 1, 1, Drawable.BILLBOARD_SPHERICAL)
+			mBillboards[i].GetSurface().GetBrush().SetBaseColor(Rnd(0, 1), Rnd(0, 1), Rnd(0, 1))
+			mBillboards[i].SetPosition(x, 0, z)
 			x += 2; If x >= 8 Then x = -8; z += 2
 		Next
 	End
 	
 	Method Update:Void(deltaTime:Float)
-		Viewer_SetPerspective(mViewer, 45, Float(DeviceWidth()) / DeviceHeight(), 1, 100)
-		Viewer_SetViewport(mViewer, 0, 0, DeviceWidth(), DeviceHeight())
-		Viewer_SetEuler(mViewer, 45, Viewer_GetEulerY(mViewer) + 32 * deltaTime, 0)
-		Viewer_SetPosition(mViewer, 0, 0, 0)
-		Viewer_Move(mViewer, 0, 0, -8)
+		mViewer.SetPerspective(45, Float(DeviceWidth()) / DeviceHeight(), 1, 100)
+		mViewer.SetViewport(0, 0, DeviceWidth(), DeviceHeight())
+		mViewer.SetEuler(45, mViewer.GetEulerY() + 32 * deltaTime, 0)
+		mViewer.SetPosition(0, 0, 0)
+		mViewer.Move(0, 0, -8)
 	End
 	
 	Method Draw:Void()
-		Viewer_Prepare(mViewer)
-		For Local bb:Object = Eachin mBillboards
-			Drawable_Draw(bb)
+		mViewer.Prepare()
+		For Local bb:Drawable = Eachin mBillboards
+			bb.Draw()
 		Next
 	End
 Private
-	Field mViewer		: Object
-	Field mTexture		: Object
-	Field mBillboards	: Object[]
+	Field mViewer		: Viewer
+	Field mTexture		: Texture
+	Field mBillboards	: Drawable[]
 End

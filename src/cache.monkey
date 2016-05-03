@@ -20,7 +20,7 @@ Public
 		mStack = mStack.Resize(mStack.Length() - 1)
 	End
 
-	Function GetFont:Font(filename$)
+	Function GetFont:Font(filename:String)
 		'Search for the font in all allocated caches
 		For Local i% = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mFonts.Contains(filename)
@@ -34,7 +34,7 @@ Public
 		Return font
 	End
 
-	Function GetMesh:Mesh(filename$, texFilter% = Texture.FILTER_TRILINEAR)
+	Function GetMesh:Mesh(filename:String, texFilter:Int = Texture.FILTER_TRILINEAR)
 		'Search for the mesh in all allocated caches
 		For Local i% = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mMeshes.Contains(filename)
@@ -48,7 +48,7 @@ Public
 		Return mesh
 	End
 
-	Function GetTexture:Texture(filename$, filter% = Texture.FILTER_TRILINEAR)
+	Function GetTexture:Texture(filename:String, filter:Int = Texture.FILTER_TRILINEAR)
 		'Search for the texture in all allocated caches
 		For Local i% = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mTextures.Contains(filename)
@@ -70,13 +70,13 @@ Private
 
 	Method Clear:Void()
 		For Local font:Font = Eachin mFonts.Values()
-			font.Discard()
+			font.Free()
 		Next
 		For Local mesh:Mesh = Eachin mMeshes.Values()
-			mesh.Discard()
+			mesh.Free()
 		Next
 		For Local tex:Texture = Eachin mTextures.Values()
-			tex.Discard()
+			tex.Free()
 		Next
 	End
 

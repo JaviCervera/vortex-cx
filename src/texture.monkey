@@ -34,7 +34,7 @@ Public
 		Return tex
 	End
 
-	Method Discard:Void()
+	Method Free:Void()
 		Renderer.FreeTexture(mHandle)
 	End
 

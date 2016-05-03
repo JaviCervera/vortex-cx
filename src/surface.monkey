@@ -21,7 +21,7 @@ Public
 		Return surf
 	End
 
-	Method Discard:Void()
+	Method Free:Void()
 		mIndices.Discard()
 		mVertices.Discard()
 		Renderer.FreeBuffer(mIndexBuffer)

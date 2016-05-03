@@ -9,17 +9,17 @@ Public
 Class AnimationTest Extends Test Final
 	Method New()
 		'Create viewer
-		mViewer = Viewer_Create(0, 0, DeviceWidth(), DeviceHeight())
-		Viewer_SetClearColor(mViewer, 1, 1, 1)
-		Viewer_SetPosition(mViewer, 0, 64, -128)
-		Viewer_SetEuler(mViewer, 15, 0, 0)
+		mViewer = Viewer.Create(0, 0, DeviceWidth(), DeviceHeight())
+		mViewer.SetClearColor(1, 1, 1)
+		mViewer.SetPosition(0, 64, -128)
+		mViewer.SetEuler(15, 0, 0)
 		
 		'Load font
-		mFont = Font_Cache("system_16.fnt.xml")
+		mFont = Cache.GetFont("system_16.fnt.xml")
 		
 		'Load anim model
-		mAnimMesh = Mesh_Cache("dwarf.msh.xml")
-		mAnimModel = Drawable_CreateWithMesh(mAnimMesh)
+		mAnimMesh = Cache.GetMesh("dwarf.msh.xml")
+		mAnimModel = Drawable.Create(mAnimMesh)
 	End
 	
 	Method Init:Void()
@@ -27,26 +27,26 @@ Class AnimationTest Extends Test Final
 	End
 	
 	Method Update:Void(deltaTime:Float)
-		Viewer_SetPerspective(mViewer, 45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
-		Viewer_SetViewport(mViewer, 0, 0, DeviceWidth(), DeviceHeight())
+		mViewer.SetPerspective(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
+		mViewer.SetViewport(0, 0, DeviceWidth(), DeviceHeight())
 		
 		mCurrentFrame += 16 * deltaTime
-		If mCurrentFrame > Mesh_GetLastFrame(mAnimMesh)+1 Then mCurrentFrame = mCurrentFrame - Int(mCurrentFrame)
-		Drawable_Animate(mAnimModel, mCurrentFrame)
+		If mCurrentFrame > mAnimMesh.GetLastFrame()+1 Then mCurrentFrame = mCurrentFrame - Int(mCurrentFrame)
+		mAnimModel.Animate(mCurrentFrame)
 	End
 	
 	Method Draw:Void()
-		Viewer_Prepare(mViewer)
-		Drawable_Draw(mAnimModel, True)
+		mViewer.Prepare()
+		mAnimModel.Draw(True)
 		
-		Painter_Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Painter_SetColor(0, 0, 0)
-		Font_Draw(mFont, 4, DeviceHeight() - 20, "Frame: " + Int(mCurrentFrame))
+		Painter.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Painter.SetColor(0, 0, 0)
+		mFont.Draw(4, DeviceHeight() - 20, "Frame: " + Int(mCurrentFrame))
 	End
 Private
-	Field mViewer		: Object
-	Field mFont			: Object
-	Field mAnimMesh		: Object
-	Field mAnimModel	: Object
+	Field mViewer		: Viewer
+	Field mFont			: Font
+	Field mAnimMesh		: Mesh
+	Field mAnimModel	: Drawable
 	Field mCurrentFrame	: Float
 End
