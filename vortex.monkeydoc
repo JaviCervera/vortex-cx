@@ -529,9 +529,9 @@ Renders the mesh. You normally do this through a drawable, so there is no need t
 
 
 
-# Class Painter
+# Class Renderer
 
-The Painter is used to draw 2D graphics on the screen. If you want to draw your 2D graphics above the 3D scene, after drawing all your 3D geometry, you must call `Painter.Setup2D` to setup the context for 2D drawing, and then perform your drawing operations.
+The Renderer is the class used to draw graphics on the screen in immediate mode, and the direct link with the underlying rendering API (OpenGL). For most stuff, you do not need to deal with this class directly, but for example if you want to draw your 2D graphics above the 3D scene, after drawing all your 3D geometry, you must call `Painter.Setup2D` to setup the context for 2D drawing, and then perform your drawing operations.
 
 # Function Setup2D:Void(x:Int, y:Int, width:Int, height:Int)
 Setup the context for 2D painting. The parameters define the rectangle within the screen where drawing will take place. You must call this function before doing any 2D drawing.
@@ -541,29 +541,26 @@ Setup the context for 3D painting. The parameters define the rectangle within th
 You must call this function if you want to draw 3D geometry using `Mesh_Draw` and `Surface_Draw`.
 If you are going to render geometry using viewers and drawables (the usual thing), then you don't need to call this function.
 
-# Function SetProjectionMatrix:Void(m:Float[])
-Setup the projection matrix. The parameter must be a float array with 16 values, sorted in column major order.
-You must call this function if you want to draw 3D geometry using `Mesh_Draw` and `Surface_Draw`.
+# Function SetProjectionMatrix:Void(m:Mat4)
+Setup the projection matrix. You must call this function if you want to draw 3D geometry using `Mesh.Draw` and `Surface.Draw`.
 If you are going to render geometry using viewers and drawables (the usual thing), then you don't need to call this function.
 
-# Function GetProjectionMatrix:Void(m:Float[])
-Fills the specified 16 elements float array with the currently active projection matrix.
+# Function GetProjectionMatrix:Mat4()
+Returns the currently active projection matrix.
 
-# Function SetViewMatrix:Void(m:Float[])
-Setup the view matrix. The parameter must be a float array with 16 values, sorted in column major order.
-You must call this function if you want to draw 3D geometry using `Mesh_Draw` and `Surface_Draw`.
+# Function SetViewMatrix:Void(m:Mat4)
+Setup the view matrix. You must call this function if you want to draw 3D geometry using `Mesh.Draw` and `Surface.Draw`.
 If you are going to render geometry using viewers and drawables (the usual thing), then you don't need to call this function.
 
-# Function GetViewMatrix:Void(m:Float[])
-Fills the specified 16 elements float array with the currently active view matrix.
+# Function GetViewMatrix:Mat4()
+Returns the currently active view matrix.
 
-# Function SetModelMatrix:Void(m:Float[])
-Setup the model matrix. The parameter must be a float array with 16 values, sorted in column major order.
-You must call this function if you want to draw 3D geometry using `Mesh_Draw` and `Surface_Draw`.
+# Function SetModelMatrix:Void(m:Mat4)
+Setup the model matrix. You must call this function if you want to draw 3D geometry using `Mesh.Draw` and `Surface.Draw`.
 If you are going to render geometry using viewers and drawables (the usual thing), then you don't need to call this function.
 
-# Function GetModelMatrix:Void(m:Float[])
-Fills the specified 16 elements float array with the currently active model matrix.
+# Function GetModelMatrix:Mat4()
+Returns the currently active model matrix.
 
 # Function SetBlendMode:Void(mode:Int)
 Sets the blend mode to use when painting. Possible values are:
@@ -573,23 +570,23 @@ Sets the blend mode to use when painting. Possible values are:
 | Renderer.BLEND_ADD   | The computed color is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
 | Renderer.BLEND_MUL   | The computed color is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
 
-# Function SetColor:Void(r:Float, g:Float, b:Float, opacity:Float = 1)
+# Function SetColor:Void(r:Float, g:Float, b:Float, a:Float = 1)
 Sets the drawing color.
 
-# Function Cls:Void(r:Float = 0, g:Float = 0, b:Float = 0)
-Clears the background (actually, the boundaries defined when the call to `Painter_Setup2D` or `Painter_Setup3D` was made) with the specified color.
+# Function ClearColorBuffer:Void(r:Float = 0, g:Float = 0, b:Float = 0)
+Clears the background (actually, the boundaries defined when the call to `Renderer.Setup2D` or `Renderer.Setup3D` was made) with the specified color.
 
-# Function PaintPoint:Void(x:Float, y:Float)
-Draws a point at the specified coordinates.
+# Function DrawPoint:Void(x:Float, y:Float, z:Float)
+Draws a point at the specified coordinates. For 2D graphics, `z` should be 0.
 
-# Function PaintLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)
-Draws a line that goes from x1, y1 to x2, y2.
+# Function DrawLine:Void(x1:Float, y1:Float, z1:Float, x2:Float, y2:Float, z2:Float)
+Draws a line that goes from x1, y1 to x2, y2. For 2D graphics, both `z1` and `z2` should be 0.
 
-# Function PaintRect:Void(x:Float, y:Float, width:Float, height:Float)
-Draws a filled rectangle at the specified coordinates, with the given width and height.
+# Function DrawRect:Void(x:Float, y:Float, z:Float, width:Float, height:Float)
+Draws a filled rectangle at the specified coordinates, with the given width and height. For 2D graphics, `z` should be 0.
 
-# Function PaintEllipse:Void(x:Float, y:Float, width:Float, height:Float)
-Draw a filled ellipse at the specified coordinates, with the given width and height.
+# Function DrawEllipse:Void(x:Float, y:Float, z:Float, width:Float, height:Float)
+Draw a filled ellipse at the specified coordinates, with the given width and height. For 2D graphics, `z` should be 0.
 
 
 

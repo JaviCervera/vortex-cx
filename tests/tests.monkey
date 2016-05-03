@@ -84,19 +84,19 @@ Public
 		mTests[mCurrentTest].Draw()
 		
 		'Setup painter for 2D graphics
-		Painter.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Paint black margin on top of screen
-		Painter.SetColor(0, 0, 0)
-		Painter.PaintRect(0, 0, DeviceWidth(), 24)
+		Renderer.SetColor(0, 0, 0)
+		Renderer.DrawRect(0, 0, 0, DeviceWidth(), 24)
 		
 		'Draw FPS
-		Painter.SetColor(1, 0, 0)
+		Renderer.SetColor(1, 0, 0)
 		Local text$ = currentFPS + " FPS"
 		mFont.Draw(2, 6, text)
 		
 		'Draw info
-		Painter.SetColor(1, 1, 0)
+		Renderer.SetColor(1, 1, 0)
 		text = "<Press space key or touch screen to change test>"
 		mFont.Draw((DeviceWidth() - mFont.GetTextWidth(text))/2, 6, text)
 	

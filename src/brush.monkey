@@ -106,7 +106,7 @@ Public
 	Method Prepare:Void()
 		Local shininess% = 0
 		If mShininess > 0 Then shininess = Int((1.0 - mShininess) * 128)
-		Renderer.SetBaseColor(mRed, mGreen, mBlue, mOpacity)
+		Renderer.SetColor(mRed, mGreen, mBlue, mOpacity)
 		Renderer.SetShininess(shininess)
 		Renderer.SetBlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)

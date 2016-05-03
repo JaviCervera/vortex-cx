@@ -39,8 +39,8 @@ Class AnimationTest Extends Test Final
 		mViewer.Prepare()
 		mAnimModel.Draw(True)
 		
-		Painter.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Painter.SetColor(0, 0, 0)
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Renderer.SetColor(0, 0, 0)
 		mFont.Draw(4, DeviceHeight() - 20, "Frame: " + Int(mCurrentFrame))
 	End
 Private

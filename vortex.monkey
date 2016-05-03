@@ -1,11 +1,5 @@
 Strict
 
-Private
-
-Import src.renderer
-
-Public
-
 Import src.config
 Import src.bone
 Import src.brush
@@ -14,7 +8,7 @@ Import src.drawable
 Import src.font
 Import src.lighting
 Import src.mesh
-Import src.painter
+Import src.renderer
 Import src.surface
 Import src.texture
 Import src.viewer

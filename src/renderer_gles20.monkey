@@ -79,7 +79,7 @@ Public
 		glEnable(GL_SCISSOR_TEST)
 		glFrontFace(GL_CCW)
 		SetBlendMode(BLEND_ALPHA)
-		SetBaseColor(1,1,1,1)
+		SetColor(1,1,1,1)
 
 		'Setup viewport
 		glViewport(x, y, w, h)
@@ -127,7 +127,7 @@ Public
 #End
 		SetDepthWrite(True)
 		SetBlendMode(BLEND_ALPHA)
-		SetBaseColor(1,1,1,1)
+		SetColor(1,1,1,1)
 
 		'Setup viewport
 		glViewport(x, y, w, h)
@@ -200,7 +200,7 @@ Public
 		End
 	End
 
-	Function SetBaseColor:Void(r#, g#, b#, a#)
+	Function SetColor:Void(r#, g#, b#, a# = 1)
 		If mBaseColorLoc <> -1 Then glUniform4f(mBaseColorLoc, r, g, b, a)
 	End
 
@@ -245,7 +245,7 @@ Public
 	' Drawing
 	'---------------------------------------------------------------------------
 
-	Function ClearColorBuffer:Void(r#, g#, b#)
+	Function ClearColorBuffer:Void(r# = 0, g# = 0, b# = 0)
 		glClearColor(r, g, b, 1)
 		glClear(GL_COLOR_BUFFER_BIT)
 	End
