@@ -4,14 +4,13 @@ Import src.config
 Import src.bone
 Import src.brush
 Import src.cache
-Import src.drawable
 Import src.font
 Import src.lighting
+Import src.math3d
 Import src.mesh
 Import src.renderer
 Import src.surface
 Import src.texture
-Import src.viewer
 
 Class Vortex Final
 Public

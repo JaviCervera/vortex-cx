@@ -8,27 +8,35 @@ Import vortex
 Public
 Class LevelTest Extends Test Final
 	Method New()
-		'Create viewer
-		mViewer = Viewer.Create(0, 0, DeviceWidth(), DeviceHeight())
-		mViewer.SetClearColor(0, 0, 0)
-		mViewer.SetPosition(0, 100, 0)
+		'Create matrices
+		mProj = Mat4.Create()
+		mView = Mat4.Create()
+		mModel = Mat4.Create()
 		
 		'Load level
-		Local levelMesh:Mesh = Cache.GetMesh("simple-dm5.msh.xml")
-		mLevel = Drawable.Create(levelMesh)
+		mLevel = Cache.GetMesh("simple-dm5.msh.xml")
 	End
 	
 	Method Update:Void(deltaTime:Float)
-		mViewer.SetPerspective(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
-		mViewer.SetViewport(0, 0, DeviceWidth(), DeviceHeight())
-		mViewer.SetEuler(0, mViewer.GetEulerY() - 32 * deltaTime, 0)
+		mEulerY = -32 * deltaTime
 	End
 	
 	Method Draw:Void()
-		mViewer.Prepare()
+		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
+		mView.LookAtLH(0, 100, 0, 0, 100, 100, 0, 1, 0)
+		mModel.SetTransform(0, 0, 0, 0, mEulerY, 0, 1, 1, 1)
+		
+		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
+		Renderer.SetProjectionMatrix(mProj)
+		Renderer.SetViewMatrix(mView)
+		Renderer.SetModelMatrix(mModel)
+		Renderer.ClearColorBuffer(0, 0, 0)
 		mLevel.Draw()
 	End
 Private
-	Field mViewer	: Viewer
-	Field mLevel	: Drawable
+	Field mProj			: Mat4
+	Field mView			: Mat4
+	Field mModel		: Mat4
+	Field mLevel		: Mesh
+	Field mEulerY		: Float
 End

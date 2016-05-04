@@ -8,36 +8,41 @@ Import vortex
 Public
 Class TriangleTest Extends Test Final
 	Method New()
-		'Create viewer
-		mViewer = Viewer.Create(0, 0, DeviceWidth(), DeviceHeight())
-		mViewer.SetClearColor(1, 1, 1)
-		mViewer.SetPosition(0, 0, -4)
-		mViewer.SetEuler(0, 0, 0)
+		'Create matrices
+		mProj = Mat4.Create()
+		mView = Mat4.Create()
+		mModel = Mat4.Create()
 		
 		'Make triangle
-		Local mesh:Mesh = Mesh.Create(False)
-		Local surf:Surface = Surface.Create()
-		surf.GetBrush().SetCulling(False)
-		surf.AddTriangle(0, 1, 2)
-		surf.AddVertex(0,0.5,0,     0,0,-1, 1,0,0,1, 0,0)
-		surf.AddVertex(0.5,-0.5,0,  0,0,-1, 0,1,0,1, 0,0)
-		surf.AddVertex(-0.5,-0.5,0, 0,0,-1, 0,0,1,1, 0,0)
-		mesh.AddSurface(surf)
-		mTri = Drawable.Create(mesh)
+		mTri = Surface.Create()
+		mTri.GetBrush().SetCulling(False)
+		mTri.AddTriangle(0, 1, 2)
+		mTri.AddVertex(0,0.5,0,     0,0,-1, 1,0,0,1, 0,0)
+		mTri.AddVertex(0.5,-0.5,0,  0,0,-1, 0,1,0,1, 0,0)
+		mTri.AddVertex(-0.5,-0.5,0, 0,0,-1, 0,0,1,1, 0,0)
+		mTri.Rebuild()
 	End
 	
 	Method Update:Void(deltaTime:Float)
-		mViewer.SetPerspective(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10)
-		mViewer.SetViewport(0, 0, DeviceWidth(), DeviceHeight())
-		
-		mTri.SetEuler(0, mTri.GetEulerY() + 64 * deltaTime, 0)
+		mEulerY += 64 * deltaTime
 	End
 	
 	Method Draw:Void()
-		mViewer.Prepare()
+		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10)
+		mView.LookAtLH(0, 0, -4, 0, 0, 0, 0, 1, 0)
+		mModel.SetTransform(0, 0, 0, 0, mEulerY, 0, 1, 1, 1)
+		
+		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
+		Renderer.SetProjectionMatrix(mProj)
+		Renderer.SetViewMatrix(mView)
+		Renderer.SetModelMatrix(mModel)
+		Renderer.ClearColorBuffer(1, 1, 1)
 		mTri.Draw()
 	End
 Private
-	Field mViewer	: Viewer
-	Field mTri		: Drawable
+	Field mProj		: Mat4
+	Field mView		: Mat4
+	Field mModel	: Mat4
+	Field mTri		: Surface
+	Field mEulerY	: Float
 End

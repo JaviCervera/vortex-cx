@@ -8,19 +8,19 @@ Import vortex
 Public
 Class LightingTest Extends Test Final
 	Method New()
-		'Create viewer
-		mViewer = Viewer.Create(0, 0, DeviceWidth(), DeviceHeight())
-		mViewer.SetClearColor(0, 0, 0)
-		mViewer.SetPosition(0, 32, -90)
-		mViewer.SetEuler(20, 0, 0)
+		'Create matrices
+		mProj = Mat4.Create()
+		mView = Mat4.Create()
+		mModel = Mat4.Create()
 		
 		'Load sphere mesh
-		Local sphere:Mesh = Cache.GetMesh("sphere.msh.xml")
-		mSpheres = New Drawable[81]
+		mMesh = Cache.GetMesh("sphere.msh.xml")
+		
+		'Create sphere positions
+		mPositions = New Vec3[81]
 		Local x:Int = -32, z:Int = -32
-		For Local i:Int = 0 Until mSpheres.Length()
-			mSpheres[i] = Drawable.Create(sphere)
-			mSpheres[i].SetPosition(x, 0, z)
+		For Local i:Int = 0 Until mPositions.Length()
+			mPositions[i] = Vec3.Create(x, 0, z)
 			x += 8; If x > 32 Then x = -32; z += 8
 		Next
 		
@@ -43,9 +43,6 @@ Class LightingTest Extends Test Final
 	End
 	
 	Method Update:Void(deltaTime:Float)
-		mViewer.SetPerspective(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
-		mViewer.SetViewport(0, 0, DeviceWidth(), DeviceHeight())
-		
 		For Local i:Int = 0 Until mLightsEulerY.Length()
 			mLightsEulerY[i] += 32 * deltaTime
 			Lighting.SetLightPosition(i, 48 * Cos(mLightsEulerY[i]), 0, 48 * Sin(mLightsEulerY[i]))
@@ -53,14 +50,26 @@ Class LightingTest Extends Test Final
 	End
 	
 	Method Draw:Void()
-		mViewer.Prepare()
+		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
+		mView.LookAtLH(0, 32, -90, 0, 0, 0, 0, 1, 0)
+		
+		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
+		Renderer.SetProjectionMatrix(mProj)
+		Renderer.SetViewMatrix(mView)
 		Lighting.Prepare(0, 0, 0)
-		For Local sphere:Drawable = Eachin mSpheres
-			sphere.Draw()
+		Renderer.ClearColorBuffer(0, 0, 0)
+	
+		For Local i:Int = 0 Until mPositions.Length()
+			mModel.SetTransform(mPositions[i].x, mPositions[i].y, mPositions[i].z, 0, 0, 0, 1, 1, 1)
+			Renderer.SetModelMatrix(mModel)
+			mMesh.Draw()
 		Next
 	End
 Private
-	Field mViewer			: Viewer
-	Field mSpheres			: Drawable[]
-	Field mLightsEulerY		: Float[3]
+	Field mProj			: Mat4
+	Field mView			: Mat4
+	Field mModel		: Mat4
+	Field mPositions	: Vec3[]
+	Field mMesh			: Mesh
+	Field mLightsEulerY	: Float[3]
 End

@@ -523,7 +523,7 @@ If a bone with the specified name is found on the mesh, returns it. If not, it r
 # Method Animate:Void(animMatrices:Mat4[], frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
 Calculates animation data for the specified frame in the mesh and updates the matrices in `animMatrices` using this data.
 
-# Method Draw:Void(animated:Bool, animMatrices:Mat4[])
+# Method Draw:Void(animated:Bool = False, animMatrices:Mat4[] = [])
 Renders the mesh. You normally do this through a drawable, so there is no need to call this function.
 
 

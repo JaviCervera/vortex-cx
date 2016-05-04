@@ -99,25 +99,13 @@ Public
 			End
 		End
 	End
-
-	Method Draw:Void(animated:Bool, animMatrices:Mat4[])
-		'Simple hierarchical animation
-		If mBones.Length() > 0 And Not mIsSkinned
-			For Local i:Int = 0 Until GetNumBones()
-				If animated Then GetBone(i).Draw(True, animMatrices[i]) Else GetBone(i).Draw(False, Null)
-			Next
-		Else
-			'Skinned animation
-			If mIsSkinned And animated
-				Renderer.SetSkinned(True)
-				Renderer.SetBoneMatrices(animMatrices)
-			End
-			
-			'Static mesh
-			For Local i:Int = 0 Until GetNumSurfaces()
-				GetSurface(i).Draw()
-			Next
-		End
+	
+	Method Draw:Void()
+		Draw(False, mTempArray)
+	End
+	
+	Method Draw:Void(animMatrices:Mat4[])
+		Draw(True, animMatrices)
 	End
 Private
 	Method New()
@@ -129,10 +117,36 @@ Private
 		Next
 		Return -1
 	End
+	
+	Method Draw:Void(animated:Bool, animMatrices:Mat4[])
+		'Simple hierarchical animation
+		If mBones.Length() > 0 And Not mIsSkinned
+			Renderer.SetSkinned(False)
+			For Local i:Int = 0 Until GetNumBones()
+				If animated Then GetBone(i).Draw(True, animMatrices[i]) Else GetBone(i).Draw(False, Null)
+			Next
+		Else
+			'Skinned animation
+			If mIsSkinned And animated
+				Renderer.SetSkinned(True)
+				Renderer.SetBoneMatrices(animMatrices)
+			Else
+				Renderer.SetSkinned(False)
+			End
+			
+			'Static mesh
+			For Local i:Int = 0 Until GetNumSurfaces()
+				GetSurface(i).Draw()
+			Next
+		End
+	End
 
 	Field mFilename		: String
 	Field mSurfaces		: Surface[]
 	Field mLastFrame	: Int
 	Field mBones		: Bone[]
 	Field mIsSkinned	: Bool
+	
+	'Empty animation matrix array used in static drawing
+	Global mTempArray	: Mat4[]
 End

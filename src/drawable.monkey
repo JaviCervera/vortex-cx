@@ -1,3 +1,4 @@
+#rem
 Strict
 
 Private
@@ -303,3 +304,4 @@ Private
 	Global mTempMatrix		: Mat4 = Mat4.Create()
 	Global mTempArray		: Float[16]
 End
+#end

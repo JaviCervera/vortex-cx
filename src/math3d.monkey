@@ -1,5 +1,9 @@
 Strict
 
+Private
+Import vortex.src.config
+
+Public
 Class Vec3 Final
 Public
 	Field x#, y#, z#
@@ -567,6 +571,85 @@ Public
 		Translate(-eyex, -eyey, -eyez)
 	End
 	
+	Method SetTransform:Void(position:Vec3, rotation:Quat, scale:Vec3)
+		SetTransform(position.x, position.y, position.z, rotation.w, rotation.x, rotation.y, rotation.z, scale.x, scale.y, scale.z)
+	End
+	
+	Method SetTransform:Void(position:Vec3, rotation:Vec3, scale:Vec3)
+		SetTransform(position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, scale.x, scale.y, scale.z)
+	End
+	
+	Method SetTransform:Void(x#, y#, z#, rw#, rx#, ry#, rz#, sx#, sy#, sz#)
+		q1.Set(rw, rx, ry, rz)
+		q1.CalcAxis()
+		SetIdentity()
+		Translate(x, y, z)
+		Rotate(q1.Angle(), q1.ResultVector().x, q1.ResultVector().y, q1.ResultVector().z)
+		Scale(sx, sy, sz)
+	End
+	
+	Method SetTransform:Void(x#, y#, z#, rx#, ry#, rz#, sx#, sy#, sz#)
+		q1.SetEuler(rx, ry, rz)
+		q1.CalcAxis()
+		SetIdentity()
+		Translate(x, y, z)
+		Rotate(q1.Angle(), q1.ResultVector().x, q1.ResultVector().y, q1.ResultVector().z)
+		Scale(sx, sy, sz)
+	End
+	
+	Method SetBillboardTransform:Void(view:Mat4, pos:Vec3, spin:Float, width:Float, height:Float, cylindrical:Bool = False)
+		SetBillboardTransform(view, pos.x, pos.y, pos.z, spin, width, height, cylindrical)
+	End
+	
+	Method SetBillboardTransform:Void(view:Mat4, x#, y#, z#, spin:Float, width:Float, height:Float, cylindrical:Bool = False)
+		m[0] = view.m[0]
+		m[1] = view.m[4]
+		m[2] = view.m[8]
+		m[3] = 0
+#If VORTEX_HANDEDNESS=VORTEX_LH Or VORTEX_HANDEDNESS=VORTEX_RH_Y
+		If cylindrical
+			m[4] = 0
+			m[5] = 1
+			m[6] = 0
+		Else
+			m[4] = view.m[1]
+			m[5] = view.m[5]
+			m[6] = view.m[9]
+		End
+		m[7] = 0
+		m[8] = view.m[2]
+		m[9] = view.m[6]
+		m[10] = view.m[10]
+#Else
+		m[4] = view.m[2]
+		m[5] = view.m[6]
+		m[6] = view.m[10]
+		m[7] = 0
+		If cylindrical
+			m[8] = 0
+			m[9] = 0
+			m[10] = 1
+		Else
+			m[8] = view.m[1]
+			m[9] = view.m[5]
+			m[10] = view.m[9]
+		End
+#End
+		m[11] = 0
+		m[12] = x
+		m[13] = y
+		m[14] = z
+		m[15] = 1
+
+#If VORTEX_HANDEDNESS=VORTEX_LH Or VORTEX_HANDEDNESS=VORTEX_RH_Y
+		Rotate(spin, 0, 0, 1)
+		Scale(width, height, 1)
+#Else
+		Rotate(spin, 0, 1, 0)
+		Scale(width, 1, height)
+#End
+	End
+	
 	Function ResultVector:Vec3()
 		Return tv1
 	End
@@ -607,9 +690,12 @@ Private
 		m[10] = z
 	End
 	
-	'Temp matrix used in some operations (to avoid allocations)
+	'Temp matrices used in some operations (to avoid allocations)
 	Global t1:Mat4 = Mat4.Create()
 	Global t2:Mat4 = Mat4.Create()
+	
+	'Temp quaternion used in some operations (to avoid allocations)
+	Global q1:Quat = Quat.Create()
 	
 	'Temp vectors used in some operations (to avoid allocations)
 	Global tv1:Vec3 = Vec3.Create()

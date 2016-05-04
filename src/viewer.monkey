@@ -1,3 +1,4 @@
+#rem
 Strict
 
 Private
@@ -216,3 +217,4 @@ Private
 	Field mQuat			: Quat
 	Global mTempVec		: Vec3 = Vec3.Create()
 End
+#end

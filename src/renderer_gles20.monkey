@@ -128,6 +128,7 @@ Public
 		SetDepthWrite(True)
 		SetBlendMode(BLEND_ALPHA)
 		SetColor(1,1,1,1)
+		SetSkinned(False)
 
 		'Setup viewport
 		glViewport(x, y, w, h)
