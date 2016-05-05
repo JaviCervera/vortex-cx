@@ -43,6 +43,7 @@ Class AnimationTest Extends Test Final
 		Renderer.SetViewMatrix(mView)
 		Renderer.SetModelMatrix(mModel)
 		Renderer.ClearColorBuffer(1, 1, 1)
+		Renderer.ClearDepthBuffer()
 		mAnimMesh.Draw(mAnimMatrices)
 		
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())

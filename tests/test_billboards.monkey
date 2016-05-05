@@ -52,6 +52,7 @@ Class BillboardsTest Extends Test Final
 		Renderer.SetProjectionMatrix(mProj)
 		Renderer.SetViewMatrix(mView)
 		Renderer.ClearColorBuffer(1, 1, 1)
+		Renderer.ClearDepthBuffer()
 	
 		For Local i:Int = 0 Until mPositions.Length()
 			mModel.SetBillboardTransform(mView, mPositions[i].x, mPositions[i].y, mPositions[i].z, 0, 1, 1)

@@ -18,7 +18,7 @@ Class LevelTest Extends Test Final
 	End
 	
 	Method Update:Void(deltaTime:Float)
-		mEulerY = -32 * deltaTime
+		mEulerY -= 32 * deltaTime
 	End
 	
 	Method Draw:Void()
@@ -31,6 +31,8 @@ Class LevelTest Extends Test Final
 		Renderer.SetViewMatrix(mView)
 		Renderer.SetModelMatrix(mModel)
 		Renderer.ClearColorBuffer(0, 0, 0)
+		Renderer.ClearDepthBuffer()
+		Renderer.SetFog(True, 600, 1000, 0, 0, 0)
 		mLevel.Draw()
 	End
 Private

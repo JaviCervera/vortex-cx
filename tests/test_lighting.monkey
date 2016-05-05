@@ -58,6 +58,7 @@ Class LightingTest Extends Test Final
 		Renderer.SetViewMatrix(mView)
 		Lighting.Prepare(0, 0, 0)
 		Renderer.ClearColorBuffer(0, 0, 0)
+		Renderer.ClearDepthBuffer()
 	
 		For Local i:Int = 0 Until mPositions.Length()
 			mModel.SetTransform(mPositions[i].x, mPositions[i].y, mPositions[i].z, 0, 0, 0, 1, 1, 1)
