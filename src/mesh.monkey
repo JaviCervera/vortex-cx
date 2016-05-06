@@ -103,14 +103,6 @@ Public
 			End
 		End
 	End
-	
-	Method Draw:Void()
-		Draw(False, mTempArray)
-	End
-	
-	Method Draw:Void(animMatrices:Mat4[])
-		Draw(True, animMatrices)
-	End
 Private
 	Method New()
 	End
@@ -127,7 +119,4 @@ Private
 	Field mLastFrame	: Int
 	Field mBones		: Bone[]
 	Field mIsSkinned	: Bool
-	
-	'Empty animation matrix array used in static drawing
-	Global mTempArray	: Mat4[]
 End

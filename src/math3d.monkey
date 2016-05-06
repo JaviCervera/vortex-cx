@@ -465,7 +465,7 @@ Public
 		Next
 	End
 	
-	Method SetOrthoLH:Void(left#, right#, bottom#, top#, near#, far#)
+	Method SetOrtho:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
 		Local a# = 2 / (right-left)
 		Local b# = 2 / (top-bottom)
 		Local c# = 2 / (far-near)
@@ -487,7 +487,7 @@ Public
 		Set(m)
 	End
 
-	Method SetFrustumLH:Void(left#, right#, bottom#, top#, near#, far#)
+	Method SetFrustum:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
 		m[0]  = 2 * near / (right - left)
 		m[5]  = 2 * near / (top - bottom)
 		m[8]  = (left + right) / (left - right)
@@ -509,10 +509,10 @@ Public
 		m[15] = 0
 	End
 	
-	Method SetPerspectiveLH:Void(fovy#, aspect#, near#, far#)
+	Method SetPerspective:Void(fovy:Float, aspect:Float, near:Float, far:Float)
 		Local height# = near * Tan(fovy*0.5)
 		Local width# = height * aspect
-		SetFrustumLH(-width, width, -height, height, near, far)
+		SetFrustum(-width, width, -height, height, near, far)
 	End
 
 	Method SetPerspectiveRH:Void(fovy#, aspect#, near#, far#)
@@ -521,7 +521,7 @@ Public
 		SetFrustumRH(-width, width, -height, height, near, far)
 	End
 	
-	Method LookAtLH:Void(eyex#, eyey#, eyez#, centerx#, centery#, centerz#, upx#, upy#, upz#)
+	Method LookAt:Void(eyex:Float, eyey:Float, eyez:Float, centerx:Float, centery:Float, centerz:Float, upx:Float, upy:Float, upz:Float)
 		'Calculate z
 		tv3.Set(centerx, centery, centerz)
 		tv3.Sub(eyex, eyey, eyez)
@@ -567,15 +567,7 @@ Public
 		Translate(-eyex, -eyey, -eyez)
 	End
 	
-	Method SetTransform:Void(position:Vec3, rotation:Quat, scale:Vec3)
-		SetTransform(position.x, position.y, position.z, rotation.w, rotation.x, rotation.y, rotation.z, scale.x, scale.y, scale.z)
-	End
-	
-	Method SetTransform:Void(position:Vec3, rotation:Vec3, scale:Vec3)
-		SetTransform(position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, scale.x, scale.y, scale.z)
-	End
-	
-	Method SetTransform:Void(x#, y#, z#, rw#, rx#, ry#, rz#, sx#, sy#, sz#)
+	Method SetTransform:Void(x:Float, y:Float, z:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
 		q1.Set(rw, rx, ry, rz)
 		q1.CalcAxis()
 		SetIdentity()
@@ -584,7 +576,7 @@ Public
 		Scale(sx, sy, sz)
 	End
 	
-	Method SetTransform:Void(x#, y#, z#, rx#, ry#, rz#, sx#, sy#, sz#)
+	Method SetTransform:Void(x:Float, y:Float, z:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
 		q1.SetEuler(rx, ry, rz)
 		q1.CalcAxis()
 		SetIdentity()
@@ -593,11 +585,7 @@ Public
 		Scale(sx, sy, sz)
 	End
 	
-	Method SetBillboardTransform:Void(view:Mat4, pos:Vec3, spin:Float, width:Float, height:Float, cylindrical:Bool = False)
-		SetBillboardTransform(view, pos.x, pos.y, pos.z, spin, width, height, cylindrical)
-	End
-	
-	Method SetBillboardTransform:Void(view:Mat4, x#, y#, z#, spin:Float, width:Float, height:Float, cylindrical:Bool = False)
+	Method SetBillboardTransform:Void(view:Mat4, x:Float, y:Float, z:Float, spin:Float, width:Float, height:Float, cylindrical:Bool = False)
 		m[0] = view.m[0]
 		m[1] = view.m[4]
 		m[2] = view.m[8]

@@ -20,9 +20,18 @@ Public
 		mat.mDepthWrite = True
 		Return mat
 	End
+	
+	Method IsEqual:Bool(other:Material)
+		If Self = other Then Return True
+		If mDiffuseRed = other.mDiffuseRed And mDiffuseGreen = other.mDiffuseGreen And mDiffuseBlue = other.mDiffuseBlue And mAlpha = other.mAlpha And mShininess = other.mShininess And mDiffuseTex = other.mDiffuseTex And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite
+			Return True
+		Else
+			Return False
+		End
+	End
 
 	Method Set:Void(other:Material)
-		If Self = other Then Return
+		If Self.IsEqual(other) Then Return
 		mDiffuseRed = other.mDiffuseRed
 		mDiffuseGreen = other.mDiffuseGreen
 		mDiffuseBlue = other.mDiffuseBlue

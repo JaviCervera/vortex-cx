@@ -56,9 +56,14 @@ Public
 		Return New RenderBatch
 	End
 
-	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null, skinned:Bool = False, animMatrices:Mat4[] = [])
+	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
 		If overrideMaterial = Null Then overrideMaterial = surface.GetMaterial()
-		RenderOpForSurface(surface, overrideMaterial, skinned, animMatrices).AddTransform(transform)
+		RenderOpForSurface(surface, overrideMaterial, False, mTempArray).AddTransform(transform)
+	End
+	
+	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null, animMatrices:Mat4[])
+		If overrideMaterial = Null Then overrideMaterial = surface.GetMaterial()
+		RenderOpForSurface(surface, overrideMaterial, True, animMatrices).AddTransform(transform)
 	End
 	
 	Method RemoveSurface:Void(surface:Surface, transform:Mat4)
@@ -71,13 +76,13 @@ Public
 	
 	Method AddMesh:Void(mesh:Mesh, transform:Mat4)
 		For Local i:Int = 0 Until mesh.GetNumSurfaces()
-			AddSurface(mesh.GetSurface(i), transform, Null, mesh.IsSkinned())
+			AddSurface(mesh.GetSurface(i), transform)
 		Next
 	End
 	
 	Method AddMesh:Void(mesh:Mesh, transform:Mat4, animMatrices:Mat4[])
 		For Local i:Int = 0 Until mesh.GetNumSurfaces()
-			AddSurface(mesh.GetSurface(i), transform, Null, mesh.IsSkinned(), animMatrices)
+			AddSurface(mesh.GetSurface(i), transform, Null, animMatrices)
 		Next
 	End
 	
@@ -96,11 +101,12 @@ Public
 	End
 Private
 	Method New()
+		mOps = New List<RenderOp>
 	End
 	
 	Method RenderOpForSurface:RenderOp(surface:Surface, material:Material, skinned:Bool, animMatrices:Mat4[])
 		For Local op:RenderOp = Eachin mOps
-			If op.mSurface = surface And op.mMaterial = material Then Return op
+			If op.mSurface = surface And op.mMaterial.IsEqual(material) Then Return op
 		Next
 		mOps.AddLast(New RenderOp(surface, material, skinned, animMatrices))
 		Return mOps.Last()
@@ -117,5 +123,6 @@ Private
 		Return ops
 	End
 
-	Field mOps:List<RenderOp> = New List<RenderOp>
+	Field mOps			: List<RenderOp>
+	Global mTempArray	: Mat4[0]
 End

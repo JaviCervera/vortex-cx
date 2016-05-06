@@ -32,14 +32,14 @@ Public
 		Print "Shading version: " + Vortex.GetShadingVersion()
 		Print "Shader compilation: " + Vortex.GetShaderError()
 		
-		mTests = New Test[7]
+		mTests = New Test[6]
 		mTests[0] = New PrimitivesTest
 		mTests[1] = New ImageTest
 		mTests[2] = New TriangleTest
 		mTests[3] = New BillboardsTest
 		mTests[4] = New LightingTest
 		mTests[5] = New AnimationTest
-		mTests[6] = New LevelTest
+		'mTests[6] = New LevelTest
 		mCurrentTest = 0
 		
 		'Load font

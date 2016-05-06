@@ -132,7 +132,7 @@ Then, when you are loading a new level, you push a new cache object and load all
 When you exit the level, you pop the cache object from the stack, deallocating all level resources, but the menu resources remain intact.
 When you exit the game, you pop the last cache object, and all the resources allocated are cleared.
 
-Upon initialization, Vortex always creates one cache object automatically.
+When calling `Vortex.Init`, a cache object is created automatically.
 
 # Function Push:Void()
 Pushes a new cache object onto the stack. All resources loaded afterwards are handled by this cache object. When you pop this stack object with the `Cache.Pop` function, all the resources are deallocated.
@@ -269,6 +269,35 @@ no lighting information will be computed, despite of which lights were enabled.
 
 
 
+# Class Mat4
+
+Represents a 4x4 homogeneus coordinate matrix. Transformations in 3D space are defined with these kind of matrices, as well as the projection of 3D graphics to the screen.
+
+To define how graphics are projected to the screen, you can setup a projection matrix with the methods `SetOrtho` (if you want an orthographic projection), `SetPerspective`, or `SetFrustum` (if you want a perspective projection), and set that matrix as the projection matrix with `Renderer.SetProjectionMatrix` before rendering.
+
+To define the viewer's position and orientation, you can use the mdthod 'LookAt', and set that matrix as the view matrix with `Renderer.SetViewMatrix`before rendering.
+
+To define the position, rotation and scale of an object in the 3D world, you can create a transformation matrix with the methods `SetTransform` or `SetBillboardTransform` (if you want to render an object that always faces the viewer, like a billboard), and set that matrix as the model matrix with `Renderer.SetModelMatrix` before rendering.
+
+Not all matrix methods are represented here, only the ones above, which are the relevant ones for most situations:
+
+# Method SetOrtho:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
+
+# Method SetFrustum:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
+
+# Method SetPerspective:Void(fovy:Float, aspect:Float, near:Float, far:Float)
+
+# Method LookAt:Void(eyex:Float, eyey:Float, eyez:Float, centerx:Float, centery:Float, centerz:Float, upx:Float, upy:Float, upz:Float)
+
+# Method SetTransform:Void(x:Float, y:Float, z:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
+
+# Method SetTransform:Void(x:Float, y:Float, z:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
+
+# Method SetBillboardTransform:Void(view:Mat4, x:Float, y:Float, z:Float, spin:Float, width:Float, height:Float, cylindrical:Bool = False)
+
+
+
+
 # Class Material
 
 A material represents the visual information such as diffuse texture, color, or alpha (opacity).
@@ -345,7 +374,7 @@ Prepares this material for drawing. All subsequent geometry drawn will use the v
 
 A mesh is the description of a set of geometry (triangles), materials and optional animations that belong to one object.
 For every material that we need, there will be a surface in the mesh containing the geometry to be drawn with that material.
-The standard way to draw a mesh on the 3D space is by creating a Drawable from this mesh, and giving it a position, rotation and scale. Several drawables can be created from the same mesh.
+The standard way to draw a mesh on the 3D space is by adding it to a RenderBatch, together with a transformation matrix that defines its position, rotation and scale. A mesh can be added mutiple times to the same RenderBatch, using different transformation matrices.
 
 # Function Create:Mesh(skinned:Bool = False)
 Creates a new empty mesh. This function is used if we want to generate meshes procedurally.
@@ -353,7 +382,7 @@ You must indicate whether the mesh is skinned (it has bone weights information f
 If you want to load meshes from disk, the the `Cache.GetMesh` function instead.
 
 # Method Free:Void()
-When we don't need to use this mesh anymore (for example, if there are no more drawables that use it and we do not plan to create new ones), we can use this function to deallocate its resources.
+When we don't need to use this mesh anymore (for example, if we have removed it from all render batches and will no add it ever again), we can use this function to deallocate its resources.
 If the mesh has been created with the function `Cache.GetMesh`, we must not call this method.
 
 # Method GetFilename:String()
@@ -393,8 +422,39 @@ If a bone with the specified name is found on the mesh, returns it. If not, it r
 # Method Animate:Void(animMatrices:Mat4[], frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
 Calculates animation data for the specified frame in the mesh and updates the matrices in `animMatrices` using this data.
 
-# Method Draw:Void(animated:Bool = False, animMatrices:Mat4[] = [])
-Renders the mesh. You normally do this through a drawable, so there is no need to call this function.
+# Method IsSkinned:Bool()
+Tells whether the mesh is skinned or not.
+
+
+
+
+# Class RenderBatch
+
+The RenderBatch provides an efficient way of rendering geometry, since it groups the geometry to reduce the number of render calls needed. 3D geometry is rendered in Vortex through a `RenderBatch`. You can add meshes and single surfaces to the batch, together with a transformation matrix that indicates where to draw. The same object can be added multiple times to a batch, in case you want that object to appear at several locations in your scene.
+
+# Function Create:RenderBatch()
+Creates and returns a new `RenderBatch`.
+
+# Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
+Adds a surface to the batch, providing a transformation and an optional material that will be used for rendering instead of the one defined in the surface.
+
+# Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null, animMatrices:Mat4[])
+Adds an animated surface to the batch, providing a transformation, an optional material that will be used for rendering instead of the one defined in the surface, and a set of matrices with the bone transformations. You won't normally need to use this function.
+
+# Method RemoveSurface:Void(surface:Surface, transform:Mat4)
+Removes from the batch the instance of the surface that was being rendered with the specified transformation matrix.
+
+# Method AddMesh:Void(mesh:Mesh, transform:Mat4)
+Adds a static mesh to the batch, providing a transformation.
+
+# Method AddMesh:Void(mesh:Mesh, transform:Mat4, animMatrices:Mat4[])
+Adds an animated mesh to the batch, providing a transformation and a set of matrices with the bone transformations.
+
+# Method RemoveMesh:Void(mesh:Mesh, transform:Mat4)
+Removes from the batch the instance of the mesh that was being rendered with the specified transformation matrix.
+
+# Method Render:Int()
+Renders all the geometry added to this batch, with all the specified transformations.
 
 
 
@@ -408,26 +468,23 @@ Setup the context for 2D painting. The parameters define the rectangle within th
 
 # Function Setup3D:Void(x:Int, y:Int, width:Int, height:Int)
 Setup the context for 3D painting. The parameters define the rectangle within the screen where drawing will take place.
-You must call this function if you want to draw 3D geometry using `Mesh_Draw` and `Surface_Draw`.
-If you are going to render geometry using viewers and drawables (the usual thing), then you don't need to call this function.
+You must call this function before rendering a `RenderBatch' that contains geometry to render in 3D space.
 
 # Function SetProjectionMatrix:Void(m:Mat4)
-Setup the projection matrix. You must call this function if you want to draw 3D geometry using `Mesh.Draw` and `Surface.Draw`.
-If you are going to render geometry using viewers and drawables (the usual thing), then you don't need to call this function.
+Setup the projection matrix. You must call this function before rendering any 2D graphics.
 
 # Function GetProjectionMatrix:Mat4()
 Returns the currently active projection matrix.
 
 # Function SetViewMatrix:Void(m:Mat4)
-Setup the view matrix. You must call this function if you want to draw 3D geometry using `Mesh.Draw` and `Surface.Draw`.
-If you are going to render geometry using viewers and drawables (the usual thing), then you don't need to call this function.
+Setup the view matrix.
+You must call this function before rendering a `RenderBatch' that contains geometry to render in 3D space.
 
 # Function GetViewMatrix:Mat4()
 Returns the currently active view matrix.
 
 # Function SetModelMatrix:Void(m:Mat4)
-Setup the model matrix. You must call this function if you want to draw 3D geometry using `Mesh.Draw` and `Surface.Draw`.
-If you are going to render geometry using viewers and drawables (the usual thing), then you don't need to call this function.
+Setup the model matrix. You don't normally need to call this function, because a `RenderBatch`sets the correct model matriz before rendering each batch of geometry.
 
 # Function GetModelMatrix:Mat4()
 Returns the currently active model matrix.
@@ -469,7 +526,10 @@ The surface class contains a set of geometry (vertices and indices that form tri
 Creates a new surface. If a material is passed, it will be copied. If not, a new material will be created for the surface.
 
 # Method Free:Void()
-Deallocates all the resources used by this surface. You don't normally need to call this method directly, since meshes call this method on all their surfaces when the mesh itself is discarded, and drawables that contain a single surface also discard the surface when the drawable is discarded.
+Deallocates all the resources used by this surface. You don't normally need to call this method directly, since meshes call this method on all their surfaces when the mesh itself is freed.
+
+# Method Set:Void(other:Surface)
+Sets this surface's material and geometry data to copy those of the mesh passed as parameter. The surface is automatically rebuilt.
 
 # Method GetMaterial:Material()
 Returns the material that this surface uses.
@@ -542,8 +602,8 @@ Returns the green component of the color of the specified vertex.
 # Method GetVertexBlue:Float(index:Int)
 Returns the blue component of the color of the specified vertex.
 
-# Method GetVertexOpacity:Float(index:Int)
-Returns the opacity of the specified vertex.
+# Method GetVertexAlpha:Float(index:Int)
+Returns the alpha (opacity) of the specified vertex.
 
 # Method GetVertexU:Float(index:Int)
 Returns the U texture coordinate of the specified vertex.
@@ -562,7 +622,7 @@ Rebuilds the internal representation of the geometry in the surface.
 To increase rendering performance, Vortex holds a copy of the data of all surfaces in video memory, so whenever you make a change to the geometry of a surface, you must call this function so the video memory is updated.
 
 # Method Draw:Void()
-Draws the surface. You don't normally need to call this function, because you will draw surfaces through drawables.
+Draws the surface. You don't normally need to call this function, because you will draw surfaces through a `RenderBatch`.
 
 
 

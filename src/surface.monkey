@@ -177,7 +177,7 @@ Public
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 8)
 	End
 
-	Method GetVertexOpacity:Float(index:Int)
+	Method GetVertexAlpha:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 12)
 	End
 
