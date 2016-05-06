@@ -103,16 +103,16 @@ Public
 		Return False
 	End
 Private
-	Global lastMillisecs%
-	Global deltaTime#
-	Global currentFPS%
-	Global fpsCounter%
-	Global fpsAccum#
+	Global lastMillisecs	: Int
+	Global deltaTime		: Float
+	Global currentFPS		: Int
+	Global fpsCounter		: Int
+	Global fpsAccum			: Float
 	
-	Field mTests		: Test[]
-	Field mCurrentTest	: Int
+	Field mTests			: Test[]
+	Field mCurrentTest		: Int
 	
-	Field mFont			: Font
+	Field mFont				: Font
 End
 
 Function Main:Int()

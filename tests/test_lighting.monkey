@@ -37,6 +37,9 @@ Class LightingTest Extends Test Final
 		Lighting.SetLightColor(0, 1, 0, 0)
 		Lighting.SetLightColor(1, 0, 1, 0)
 		Lighting.SetLightColor(2, 0, 0, 1)
+	End
+	
+	Method Init:Void()
 		mLightsEulerY[0] = 0
 		mLightsEulerY[1] = 120
 		mLightsEulerY[2] = 240

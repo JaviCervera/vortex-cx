@@ -23,6 +23,10 @@ Class TriangleTest Extends Test Final
 		mTri.Rebuild()
 	End
 	
+	Method Init:Void()
+		mEulerY = 0
+	End
+	
 	Method Update:Void(deltaTime:Float)
 		mEulerY += 64 * deltaTime
 	End

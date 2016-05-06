@@ -17,6 +17,10 @@ Class LevelTest Extends Test Final
 		mLevel = Cache.GetMesh("simple-dm5.msh.xml")
 	End
 	
+	Method Init:Void()
+		mEulerY = 0
+	End
+	
 	Method Update:Void(deltaTime:Float)
 		mEulerY -= 32 * deltaTime
 	End

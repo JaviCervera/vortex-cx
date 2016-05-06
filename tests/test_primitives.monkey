@@ -59,7 +59,6 @@ Class PrimitivesTest Extends Test Final
 					Renderer.DrawEllipse(prim.x, prim.y, 0, prim.z, prim.w)
 			End
 		Next
-		Renderer.SetColor(Rnd(), Rnd(), Rnd())
 	End
 Private
 	Field mNumPrimitives	: Int

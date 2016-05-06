@@ -40,6 +40,10 @@ Class BillboardsTest Extends Test Final
 		Next
 	End
 	
+	Method Init:Void()
+		mEulerY = 0
+	End
+	
 	Method Update:Void(deltaTime:Float)
 		mEulerY += 32 * deltaTime
 	End
