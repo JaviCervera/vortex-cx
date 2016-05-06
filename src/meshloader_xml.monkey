@@ -79,14 +79,9 @@ Public
 				materialsMap.Set(nameStr, material)
 			Next
 		End
-		
-		'Check if mesh is weighted
-		Local weighted:Bool = False
-		Local surfaceNode:XMLNode = surfacesNode.GetChild("surface")
-		If surfaceNode <> Null And surfaceNode.GetChild("bone_indices") <> Null Then weighted = True
 
 		'Create mesh object
-		Local mesh:Mesh = Mesh.Create(weighted)
+		Local mesh:Mesh = Mesh.Create()
 		mesh.SetFilename(filename)
 
 		'Parse surfaces
@@ -190,7 +185,7 @@ Public
 					Continue
 				End
 
-				'Get node data
+				'Get bone data
 				Local nameStr$ = boneNode.GetChildValue("name", "")
 				Local parentStr$ = boneNode.GetChildValue("parent", "")
 				Local defPositionStr$[] = boneNode.GetChildValue("def_position", "0,0,0").Split(",")
@@ -215,11 +210,18 @@ Public
 				
 				'Add to mesh
 				mesh.AddBone(bone)
-
-				'Add surfaces
+				
+				'Update mesh surfaces weights if needed
 				If surfacesStr[0] <> ""
-					For Local j% = 0 Until surfacesStr.Length()
-						bone.AddSurface(mesh.GetSurface(Int(surfacesStr[j])))
+					For Local j:Int = 0 Until surfacesStr.Length()
+						Local index:Int = Int(surfacesStr[j])
+						Local surf:Surface = mesh.GetSurface(index)
+						For Local v:Int = 0 Until surf.GetNumVertices()
+							bone.GetGlobalPoseMatrix().Mul(surf.GetVertexX(v), surf.GetVertexY(v), surf.GetVertexZ(v), 1)
+							surf.SetVertexPosition(v, bone.GetGlobalPoseMatrix().ResultVector().x, bone.GetGlobalPoseMatrix().ResultVector().y, bone.GetGlobalPoseMatrix().ResultVector().z)
+							surf.SetVertexBone(v, 0, i, 1)
+						Next
+						surf.Rebuild()
 					Next
 				End
 

@@ -9,12 +9,11 @@ Import vortex.src.surface
 Public
 Class Mesh Final
 Public
-	Function Create:Mesh(skinned:Bool = False)
+	Function Create:Mesh()
 		Local mesh:Mesh = New Mesh
 		mesh.mSurfaces = New Surface[0]
 		mesh.mLastFrame = 0
 		mesh.mBones = New Bone[0]
-		mesh.mIsSkinned = skinned
 		Return mesh
 	End
 
@@ -75,10 +74,6 @@ Public
 		Return Null
 	End
 	
-	Method IsSkinned:Bool()
-		Return mIsSkinned
-	End
-	
 	Method Animate:Void(animMatrices:Mat4[], frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
 		'We can only animate if the mesh has bones
 		If mBones.Length() > 0
@@ -95,12 +90,10 @@ Public
 				End
 			Next
 			
-			'If the mesh is skinned, multiply every animation matrix by the inverse of the pose matrix
-			If mIsSkinned
-				For Local i:Int = 0 Until GetNumBones()
-					animMatrices[i].Mul(GetBone(i).GetInverseGlobalPoseMatrix())
-				Next
-			End
+			'Multiply every animation matrix by the inverse of the pose matrix
+			For Local i:Int = 0 Until GetNumBones()
+				animMatrices[i].Mul(GetBone(i).GetInverseGlobalPoseMatrix())
+			Next
 		End
 	End
 Private
@@ -118,5 +111,4 @@ Private
 	Field mSurfaces		: Surface[]
 	Field mLastFrame	: Int
 	Field mBones		: Bone[]
-	Field mIsSkinned	: Bool
 End

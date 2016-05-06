@@ -51,16 +51,6 @@ Returns a 16 float array that contains the inverse of the global pose transform 
 You don't normally need to call this function.
 It is used internally when rendering the geometry attached to the bone.
 
-# Method AddSurface:Void(surf:Surface)
-Adds a new surface to the bone. Surfaces attached to a bone contain geometry that is rendered with the transformation defined by the bone.
-You don't need to use this function, unless you are generating meshes by hand. When loading a mesh from disk, this function will be called automatically by the loader.
-
-# Method GetNumSurfaces:Int()
-Returns the number of surfaces attached to the bone.
-
-# Method GetSurface:Surface(index:Int)
-Returns the specified surface attached to the bone. The value of `index` goes in the range `0 .. Bone_GetNumSurfaces(bone) - 1`.
-
 # Method AddPositionKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
 Adds a new position transformation to the bone at the specified keyframe.
 
@@ -376,9 +366,8 @@ A mesh is the description of a set of geometry (triangles), materials and option
 For every material that we need, there will be a surface in the mesh containing the geometry to be drawn with that material.
 The standard way to draw a mesh on the 3D space is by adding it to a RenderBatch, together with a transformation matrix that defines its position, rotation and scale. A mesh can be added mutiple times to the same RenderBatch, using different transformation matrices.
 
-# Function Create:Mesh(skinned:Bool = False)
+# Function Create:Mesh()
 Creates a new empty mesh. This function is used if we want to generate meshes procedurally.
-You must indicate whether the mesh is skinned (it has bone weights information for animation) or not.
 If you want to load meshes from disk, the the `Cache.GetMesh` function instead.
 
 # Method Free:Void()
@@ -421,9 +410,6 @@ If a bone with the specified name is found on the mesh, returns it. If not, it r
 
 # Method Animate:Void(animMatrices:Mat4[], frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
 Calculates animation data for the specified frame in the mesh and updates the matrices in `animMatrices` using this data.
-
-# Method IsSkinned:Bool()
-Tells whether the mesh is skinned or not.
 
 
 

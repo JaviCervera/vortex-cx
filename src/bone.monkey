@@ -14,7 +14,6 @@ Public
 		bone.mParent = Null
 		bone.mPoseMatrix = Mat4.Create()
 		bone.mInvPoseMatrix = Mat4.Create()
-		bone.mSurfaces = New Surface[0]
 		bone.mPositionKeys = New Int[0]
 		bone.mRotationKeys = New Int[0]
 		bone.mScaleKeys = New Int[0]
@@ -40,14 +39,12 @@ Public
 	Method SetLocalPoseMatrix:Void(matrix:Mat4)
 		If mParent = Null
 			mPoseMatrix.Set(matrix)
-			mInvPoseMatrix.Set(mPoseMatrix)
-			mInvPoseMatrix.Invert()
 		Else
 			mPoseMatrix.Set(mParent.mPoseMatrix)
 			mPoseMatrix.Mul(matrix)
-			mInvPoseMatrix.Set(mPoseMatrix)
-			mInvPoseMatrix.Invert()
 		End
+		mInvPoseMatrix.Set(mPoseMatrix)
+		mInvPoseMatrix.Invert()
 	End
 	
 	Method GetGlobalPoseMatrix:Mat4()
@@ -56,19 +53,6 @@ Public
 	
 	Method GetInverseGlobalPoseMatrix:Mat4()
 		Return mInvPoseMatrix
-	End
-
-	Method AddSurface:Void(surf:Surface)
-		mSurfaces = mSurfaces.Resize(mSurfaces.Length() + 1)
-		mSurfaces[mSurfaces.Length() - 1] = surf
-	End
-
-	Method GetNumSurfaces:Int()
-		Return mSurfaces.Length()
-	End
-
-	Method GetSurface:Surface(index:Int)
-		Return mSurfaces[index]
 	End
 
 	Method AddPositionKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
@@ -159,37 +143,11 @@ Public
 	Method Animate:Void(animMatrix:Mat4, parentAnimMatrix:Mat4, frame:Float, firstFrame:Int, lastFrame:Int)
 		CalcAnimMatrix(animMatrix, parentAnimMatrix, frame, firstFrame, lastFrame)
 	End
-
-	Method Draw:Void(animated:Bool, animMatrix:Mat4)
-		If mSurfaces.Length() > 0
-			'Store model matrix
-			mTempMatrix.Set(Renderer.GetModelMatrix())
-
-			'Set new model matrix
-			If animated
-				Renderer.GetModelMatrix().Mul(animMatrix)
-			Else
-				Renderer.GetModelMatrix().Mul(GetGlobalPoseMatrix())
-			End
-			Renderer.SetModelMatrix(Renderer.GetModelMatrix())	'Load the updated model matrix into the shader
-
-			'Draw surfaces
-			For Local surf:Surface = Eachin mSurfaces
-				surf.Draw()
-			Next
-
-			'Restore previous model matrix
-			Renderer.SetModelMatrix(mTempMatrix)
-		End
-	End
 Private
 	Method New()
 	End
 	
 	Method CalcAnimMatrix:Void(animMatrix:Mat4, parentAnimMatrix:Mat4, frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
-		'NOTE: On a skinned mesh, after calculating this matrix for all bones,
-		'you need to multiply all of them by the inverse pose matrix!
-	
 		'Check if there is a keyframe within range
 		Local keyInRange:Bool = False
 		For Local i% = Eachin mPositionKeys
@@ -324,7 +282,6 @@ Private
 	Field mParent			: Bone
 	Field mPoseMatrix		: Mat4
 	Field mInvPoseMatrix	: Mat4
-	Field mSurfaces			: Surface[]
 	Field mPositionKeys		: Int[]
 	Field mRotationKeys		: Int[]
 	Field mScaleKeys		: Int[]
