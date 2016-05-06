@@ -4,9 +4,11 @@ Private
 Import brl.filepath
 Import mojo.app
 Import vortex.src.bone
-Import vortex.src.brush
 Import vortex.src.cache
+Import vortex.src.material
+Import vortex.src.math3d
 Import vortex.src.mesh
+Import vortex.src.renderer
 Import vortex.src.surface
 Import vortex.src.texture
 Import vortex.src.xml
@@ -29,8 +31,8 @@ Public
 		Local bonesNode:XMLNode = parser.GetRootNode().GetChild("bones")
 		If Not surfacesNode Then Return Null
 
-		'Parse brushes
-		Local brushMap:StringMap<Brush> = New StringMap<Brush>
+		'Parse materials
+		Local materialsMap:StringMap<Material> = New StringMap<Material>
 		If brushesNode <> Null
 			For Local i% = 0 Until brushesNode.GetNumChildren()
 				Local brushNode:XMLNode = brushesNode.GetChild(i)
@@ -58,23 +60,23 @@ Public
 				If baseColorStr.Length() > 2 Then baseColor[2] = Float(baseColorStr[2])
 
 				'Load texture
-				Local baseTex:Texture = Null
+				Local diffuseTex:Texture = Null
 				If baseTexStr <> ""
 					If ExtractDir(filename) <> "" Then baseTexStr = ExtractDir(filename) + "/" + baseTexStr
-					baseTex = Cache.GetTexture(baseTexStr, texFilter)
+					diffuseTex = Cache.GetTexture(baseTexStr, texFilter)
 				End
 
-				'Create brush
-				Local brush:Brush = Brush.Create(baseTex)
-				If blendStr.ToLower() = "alpha" Then brush.SetBlendMode(Brush.BLEND_ALPHA)
-				If blendStr.ToLower() = "add" Then brush.SetBlendMode(Brush.BLEND_ADD)
-				If blendStr.ToLower() = "mul" Then brush.SetBlendMode(Brush.BLEND_MUL)
-				brush.SetBaseColor(baseColor[0], baseColor[1], baseColor[2])
-				brush.SetOpacity(opacity)
-				brush.SetShininess(shininess)
-				brush.SetCulling(culling)
-				brush.SetDepthWrite(depthWrite)
-				brushMap.Set(nameStr, brush)
+				'Create material
+				Local material:Material = Material.Create(diffuseTex)
+				If blendStr.ToLower() = "alpha" Then material.SetBlendMode(Renderer.BLEND_ALPHA)
+				If blendStr.ToLower() = "add" Then material.SetBlendMode(Renderer.BLEND_ADD)
+				If blendStr.ToLower() = "mul" Then material.SetBlendMode(Renderer.BLEND_MUL)
+				material.SetDiffuseColor(baseColor[0], baseColor[1], baseColor[2])
+				material.SetAlpha(opacity)
+				material.SetShininess(shininess)
+				material.SetCulling(culling)
+				material.SetDepthWrite(depthWrite)
+				materialsMap.Set(nameStr, material)
 			Next
 		End
 		
@@ -106,7 +108,7 @@ Public
 			Local boneWeightsStr$[] = surfaceNode.GetChildValue("bone_weights", "").Split(",")
 
 			'Create surface
-			Local surf:Surface = Surface.Create(brushMap.Get(brushStr))
+			Local surf:Surface = Surface.Create(materialsMap.Get(brushStr))
 			Local indicesLen% = indicesStr.Length()
 			For Local j% = 0 Until indicesLen Step 3
 				surf.AddTriangle(Int(indicesStr[j]), Int(indicesStr[j+1]), Int(indicesStr[j+2]))
@@ -208,7 +210,8 @@ Public
 				End
 				
 				'Set pose matrix
-				bone.CalcPoseMatrix(Float(defPositionStr[0]), Float(defPositionStr[1]), Float(defPositionStr[2]), Float(defRotationStr[0]), Float(defRotationStr[1]), Float(defRotationStr[2]), Float(defRotationStr[3]), Float(defScaleStr[0]), Float(defScaleStr[1]), Float(defScaleStr[2]))
+				mTempMatrix.SetTransform(Float(defPositionStr[0]), Float(defPositionStr[1]), Float(defPositionStr[2]), Float(defRotationStr[0]), Float(defRotationStr[1]), Float(defRotationStr[2]), Float(defRotationStr[3]), Float(defScaleStr[0]), Float(defScaleStr[1]), Float(defScaleStr[2]))
+				bone.SetLocalPoseMatrix(mTempMatrix)
 				
 				'Add to mesh
 				mesh.AddBone(bone)
@@ -260,4 +263,7 @@ Public
 Private
 	Method New()
 	End
+	
+	'Used to calculate pose matrix
+	Global mTempMatrix:Mat4 = Mat4.Create()
 End

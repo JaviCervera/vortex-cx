@@ -13,9 +13,5 @@ void main() {
 	gl_FragColor = baseColor;
 
 	// Base texture
-#ifdef UV_TOPLEFT
 	if ( baseTexMode == 1 ) gl_FragColor *= texture2D(baseTexSampler, vec2(ftex.x, ftex.y));
-#else
-	if ( baseTexMode == 1 ) gl_FragColor *= texture2D(baseTexSampler, vec2(ftex.x, -ftex.y));
-#endif
 }

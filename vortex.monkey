@@ -1,13 +1,13 @@
 Strict
 
-Import src.config
 Import src.bone
-Import src.brush
 Import src.cache
 Import src.font
 Import src.lighting
+Import src.material
 Import src.math3d
 Import src.mesh
+Import src.renderbatch
 Import src.renderer
 Import src.surface
 Import src.texture
@@ -15,7 +15,12 @@ Import src.texture
 Class Vortex Final
 Public
 	Function Init:Bool()
-		Return Renderer.Init()
+		If Renderer.Init()
+			Cache.Push()
+			Return True
+		Else
+			Return False
+		End
 	End
 
 	Function GetShaderError:String()

@@ -2,16 +2,16 @@ Strict
 
 Private
 Import brl.databuffer
-Import vortex.src.brush
+Import vortex.src.material
 Import vortex.src.renderer
 
 Public
 Class Surface Final
 Public
-	Function Create:Surface(brush:Brush = Null)
+	Function Create:Surface(mat:Material = Null)
 		Local surf:Surface = New Surface
-		surf.mBrush = Brush.Create()
-		If brush Then surf.mBrush.Set(brush)
+		surf.mMaterial = Material.Create()
+		If mat Then surf.mMaterial.Set(mat)
 		surf.mIndices = New DataBuffer(INC * 2)
 		surf.mVertices = New DataBuffer(INC * VERTEX_SIZE)
 		surf.mNumIndices = 0
@@ -27,9 +27,27 @@ Public
 		Renderer.FreeBuffer(mIndexBuffer)
 		Renderer.FreeBuffer(mVertexBuffer)
 	End
+	
+	Method Set:Void(other:Surface)
+		If Self = other Then Return
+		mMaterial.Set(other.mMaterial)
+		If mIndices.Length() <> other.mIndices.Length()
+			mIndices.Discard()
+			mIndices = New DataBuffer(other.mIndices.Length())
+		End
+		other.mIndices.CopyBytes(0, mIndices, 0, mIndices.Length())
+		If mVertices.Length() <> other.mVertices.Length()
+			mVertices.Discard()
+			mVertices = New DataBuffer(other.mVertices.Length())
+		End
+		other.mVertices.CopyBytes(0, mVertices, 0, mVertices.Length())
+		mNumIndices = other.mNumIndices
+		mNumVertices = other.mNumVertices
+		Rebuild()
+	End
 
-	Method GetBrush:Brush()
-		Return mBrush
+	Method GetMaterial:Material()
+		Return mMaterial
 	End
 
 	Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
@@ -183,9 +201,8 @@ Public
 		Renderer.SetIndexBufferData(mIndexBuffer, mIndices, mNumIndices * 2)
 		Renderer.SetVertexBufferData(mVertexBuffer, mVertices, mNumVertices * VERTEX_SIZE)
 	End
-
+	
 	Method Draw:Void()
-		mBrush.Prepare()
 		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, COLOR_OFFSET, TEX_OFFSET, BONEINDICES_OFFSET, BONEWEIGHTS_OFFSET, VERTEX_SIZE)
 	End
 Private
@@ -201,7 +218,7 @@ Private
 	Const VERTEX_SIZE:Int = 80
 	Const INC:Int = 128
 
-	Field mBrush		: Brush
+	Field mMaterial		: Material
 	Field mIndices		: DataBuffer
 	Field mVertices		: DataBuffer
 	Field mNumIndices	: Int

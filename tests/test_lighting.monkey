@@ -8,20 +8,24 @@ Import vortex
 Public
 Class LightingTest Extends Test Final
 	Method New()
-		'Create matrices
+		'Create projection and view matrices
 		mProj = Mat4.Create()
 		mView = Mat4.Create()
-		mModel = Mat4.Create()
+		
+		'Create RenderBatch
+		mBatch = RenderBatch.Create()
 		
 		'Load sphere mesh
 		mMesh = Cache.GetMesh("sphere.msh.xml")
 		
-		'Create sphere positions
-		mPositions = New Vec3[81]
+		'Create sphere model matrices and add to RenderBatch
+		mModels = New Mat4[81]
 		Local x:Int = -32, z:Int = -32
-		For Local i:Int = 0 Until mPositions.Length()
-			mPositions[i] = Vec3.Create(x, 0, z)
+		For Local i:Int = 0 Until mModels.Length()
+			mModels[i] = Mat4.Create()
+			mModels[i].SetTransform(x, 0, z, 0, 0, 0, 1, 1, 1)
 			x += 8; If x > 32 Then x = -32; z += 8
+			mBatch.AddMesh(mMesh, mModels[i])
 		Next
 		
 		'Prepare lights
@@ -63,17 +67,18 @@ Class LightingTest Extends Test Final
 		Renderer.ClearColorBuffer(0, 0, 0)
 		Renderer.ClearDepthBuffer()
 	
-		For Local i:Int = 0 Until mPositions.Length()
-			mModel.SetTransform(mPositions[i].x, mPositions[i].y, mPositions[i].z, 0, 0, 0, 1, 1, 1)
-			Renderer.SetModelMatrix(mModel)
-			mMesh.Draw()
-		Next
+		mNumRenderCalls = mBatch.Render()
+	End
+	
+	Method GetNumRenderCalls:Int()
+		Return mNumRenderCalls
 	End
 Private
-	Field mProj			: Mat4
-	Field mView			: Mat4
-	Field mModel		: Mat4
-	Field mPositions	: Vec3[]
-	Field mMesh			: Mesh
-	Field mLightsEulerY	: Float[3]
+	Field mProj				: Mat4
+	Field mView				: Mat4
+	Field mModels			: Mat4[]
+	Field mMesh				: Mesh
+	Field mBatch			: RenderBatch
+	Field mLightsEulerY		: Float[3]
+	Field mNumRenderCalls	: Int
 End

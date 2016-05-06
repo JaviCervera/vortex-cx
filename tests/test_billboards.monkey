@@ -8,34 +8,41 @@ Import vortex
 Public
 Class BillboardsTest Extends Test Final
 	Method New()
-		'Create matrices
+		'Create projection and view matrices
 		mProj = Mat4.Create()
 		mView = Mat4.Create()
-		mModel = Mat4.Create()
+		
+		'Create RenderBatch
+		mBatch = RenderBatch.Create()
 		
 		'Create billboard surface
-		mSurface = Surface.Create(Brush.Create(Cache.GetTexture("smile.png")))
+		mBillboard = Surface.Create(Material.Create(Cache.GetTexture("smile.png")))
 
 		'Add vertices and indices
 		Local x0# = -0.5
 		Local x1# =  0.5
 		Local z0# = -0.5
 		Local z1# =  0.5
-		mSurface.AddTriangle(0, 1, 2)
-		mSurface.AddTriangle(2, 1, 3)
-		mSurface.AddVertex(x0, z1, 0, 0, 0, -1, 1, 1, 1, 1, 0, 0)
-		mSurface.AddVertex(x1, z1, 0, 0, 0, -1, 1, 1, 1, 1, 1, 0)
-		mSurface.AddVertex(x0, z0, 0, 0, 0, -1, 1, 1, 1, 1, 0, 1)
-		mSurface.AddVertex(x1, z0, 0, 0, 0, -1, 1, 1, 1, 1, 1, 1)
-		mSurface.Rebuild()
+		mBillboard.AddTriangle(0, 1, 2)
+		mBillboard.AddTriangle(2, 1, 3)
+		mBillboard.AddVertex(x0, z1, 0, 0, 0, -1, 1, 1, 1, 1, 0, 0)
+		mBillboard.AddVertex(x1, z1, 0, 0, 0, -1, 1, 1, 1, 1, 1, 0)
+		mBillboard.AddVertex(x0, z0, 0, 0, 0, -1, 1, 1, 1, 1, 0, 1)
+		mBillboard.AddVertex(x1, z0, 0, 0, 0, -1, 1, 1, 1, 1, 1, 1)
+		mBillboard.Rebuild()
 		
-		'Create billboard colors and positions
-		mPositions = New Vec3[64]
-		mColors = New Vec3[64]
-		Local x:Int = -8, z:Int = -8
-		For Local i:Int = 0 Until mPositions.Length()
-			mPositions[i] = Vec3.Create(x, 0, z)
-			mColors[i] = Vec3.Create(Rnd(0, 1), Rnd(0, 1), Rnd(0, 1))
+		'Create billboard matrices, positions and surfaces
+		mModels = New Mat4[64]
+		mPositions = New Float[64][]
+		mMaterials = New Material[64]
+		Local x:Float = -8, z:Float = -8
+		For Local i:Int = 0 Until mModels.Length()
+			mModels[i] = Mat4.Create()
+			mPositions[i] = [x, z]
+			mMaterials[i] = Material.Create(Cache.GetTexture("smile.png"))
+			mMaterials[i].SetDiffuseColor(Rnd(0, 1), Rnd(0, 1), Rnd(0, 1))
+			mBatch.AddSurface(mBillboard, mModels[i], mMaterials[i])
+			
 			x += 2; If x >= 8 Then x = -8; z += 2
 		Next
 	End
@@ -59,18 +66,23 @@ Class BillboardsTest Extends Test Final
 		Renderer.ClearDepthBuffer()
 	
 		For Local i:Int = 0 Until mPositions.Length()
-			mModel.SetBillboardTransform(mView, mPositions[i].x, mPositions[i].y, mPositions[i].z, 0, 1, 1)
-			Renderer.SetModelMatrix(mModel)
-			mSurface.GetBrush().SetBaseColor(mColors[i].x, mColors[i].y, mColors[i].z)
-			mSurface.Draw()
+			mModels[i].SetBillboardTransform(mView, mPositions[i][0], 0, mPositions[i][1], 0, 1, 1)
 		Next
+		
+		mNumRenderCalls = mBatch.Render()
+	End
+	
+	Method GetNumRenderCalls:Int()
+		Return mNumRenderCalls
 	End
 Private
-	Field mProj			: Mat4
-	Field mView			: Mat4
-	Field mModel		: Mat4
-	Field mPositions	: Vec3[]
-	Field mColors		: Vec3[]
-	Field mSurface		: Surface
-	Field mEulerY		: Float
+	Field mProj				: Mat4
+	Field mView				: Mat4
+	Field mModels			: Mat4[]
+	Field mPositions		: Float[][]
+	Field mMaterials		: Material[]
+	Field mBillboard		: Surface
+	Field mBatch			: RenderBatch
+	Field mEulerY			: Float
+	Field mNumRenderCalls	: Int
 End

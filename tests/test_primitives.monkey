@@ -60,6 +60,10 @@ Class PrimitivesTest Extends Test Final
 			End
 		Next
 	End
+	
+	Method GetNumRenderCalls:Int()
+		Return mNumPrimitives
+	End
 Private
 	Field mNumPrimitives	: Int
 	Field mPrimitives		: Prim[1000]

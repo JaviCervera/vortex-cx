@@ -1,43 +1,21 @@
 # Module vortex
 
 The Vortex module adds a very simple 3D rendering engine based on OpenGL ES 2.
-More than a full 3D engine, it provides a lower-level API, similar to what the official Mojo offers for 2D.
+More than a full 3D engine, it provides a lower-level API, similar to what the official Mojo module offers for 2D.
 
->>> Coordinate systems and rotations
-The handedness of the coordinate system can be selected when using Vortex.
-To do that, you can write this at the beginning of your program:
-
-`Import vortex.src.config`~n
-`#VORTEX_HANDEDNESS=Mode`
-
-Where `Mode` can be one of:
-| Mode        | Description
-| VORTEX_LH   | Left handed coordinate system where X points right, Y points up, and Z points away from the viewer. This is the convention in Direct3D, and the default mode in Vortex.
-| VORTEX_RH_Y | Right handed coordinate system where X points right, Y points up, and Z points towards the viewer. This is the convention in OpenGL.
-| VORTEX_RH_Z | Right handed coordinate system, where X points right, Y points away from the viewer, and Z points up. This was the default mode in previous versions of Vortex.
+>>> Coordinate system and rotations
+Vortex uses a left handed coordinate system where X points right, Y points up, and Z points away from the viewer.
 
 Rotations can be expressed both using quaternions and euler angles (expressed in degrees).
 
 >>> Screen coordinates
-The vertical direction of the screen can be selected when using Vortex.
-To do that, you can write this at the beginning of your program:
-
-`Import vortex.src.config`~n
-`#VORTEX_SCREENCOORDS=Mode`
-
-Where 'Mode' can be one of:
-| Mode          | Description
-| VORTEX_YDOWN  | Coordinates 0,0 represent the top left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the bottom right. This is common in several graphics libraries (like Mojo), and the default in Vortex.
-| VORTEX_YUP    | Coordinates 0,0 represent the bottom left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the top right. This is a standard in math to define the Euclidean plane.
+In Vortex, coordinates 0,0 represent the top left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the bottom right. This is a convention common in several graphics libraries (like Monkey's Mojo).
 
 >>> Texture coordinates
-On left handed coordinate systems, texture coordinates are mapped from the top left (coordinates 0,0) to the bottom right (coordinates 1,1).~n
-On right handed coordinate systems, texture coordinates are mapped from the bottom left (coordinates 0,0) to the top right (coordinates 1,1).
+Texture coordinates are mapped from the top left (coordinates 0,0) to the bottom right (coordinates 1,1).~n
 
 >>> Triangle order
-On left handed coordinate systems, front facing triangles are those that are mapped to the screen in clockwise order.~n
-On right handed coordinate systems, front facing triangles are those that are mapped to the screen in counter clockwise order.~n
-Back facing triangles are by default occluded by Vortex.
+Front facing triangles are those that are mapped to the screen in clockwise order.~n
 
 
 
@@ -58,17 +36,17 @@ Sets the parent of the bone.
 # Method GetParent:Bone()
 Returns the parent of the bone, which will be another bone, or Null if it is the root bone in the mesh.
 
-# Method CalcPoseMatrix:Void(px:Float, py:Float, pz:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
-Sets the position, rotation (as a quaternion) and scale, relative to its parent, to be applied to the bone when it is not being rendered animated.
-Although the parameters you pass here are relative to its parent, the generated matrix contains the globals transformation, so the parent's pose matrix must have been previously defined.
+# Method SetLocalPoseMatrix:Void(matrix:Mat4)
+Sets the pose matrix for this bone, which defines the position, rotation and scale, relative to its parent, to be applied to the bone when it is not being rendered animated.
+Although this matrix must contain a transformation in local space, the global transformation is calculated and stored, so the parent's pose matrix must have been previously defined.
 You don't need to use this function, unless you are generating meshes by hand. When loading a mesh from disk, this function will be called automatically by the loader.
 
-# Method GetPoseMatrix:Float[]()
-Returns a 16 float array that contains the global pose transform matrix.
+# Method GetGlobalPoseMatrix:Mat4()
+Returns the global pose transform matrix.
 You don't normally need to call this function.
 It is used internally when rendering the geometry attached to the bone.
 
-# Method GetInversePoseMatrix:Float[]()
+# Method GetInverseGlobalPoseMatrix:Float[]()
 Returns a 16 float array that contains the inverse of the global pose transform matrix.
 You don't normally need to call this function.
 It is used internally when rendering the geometry attached to the bone.
@@ -143,82 +121,6 @@ Returns the Z coordinate of the specified scale keyframe. The value of `index` g
 
 
 
-# Class Brush
-
-A brush represents material with visual information such as base texture, color, or opacity.
-It is used to render objects with a specific appearance.
-
-# Const BLEND_ALPHA:Int
-# Const BLEND_ADD:Int
-# Const BLEND_MUL:Int
-
-# Function Create:Brush(baseTex:Texture = Null)
-Create a new brush with the specified base texture.
-
-# Method Set:Void(other:Brush)
-Set the properties of the brush to be those of the one passed as parameter.
-
-# Method SetBaseColor:Void(r:Float, g:Float, b:Float)
-Sets the base color. Geometry is tinted using the base color, and it is also used as the diffuse component of the geometry using this brush in lighting calculations. The default value is white (1,1,1).
-
-# Method GetRed:Float()
-Returns the red component of the base color, in the range 0 .. 1.
-
-# Method GetGreen:Float()
-Returns the green component of the base color, in the range 0 .. 1.
-
-# Method GetBlue:Float()
-Returns the blue component of the base color, in the range 0 .. 1.
-
-# Method SetOpacity:Void(opacity:Float)
-Sets the opacity of the brush, with 0 being completely transparent and 1 being completely opaque. The default value is 1.
-
-# Method GetOpacity:Float()
-Returns the opacity of the brush, in the range 0 (transparent) .. 1 (opaque).
-
-# Method SetShininess:Void(shininess:Float)
-Sets the specular shininess of the brush. A value of 0 will disable specular reflections entirely, whereas a value in the range (0,1] will indicate the strength of the specular reflection.
-
-# Method GetShininess:Float()
-Returns the specular shininess of the brush.
-
-# Method SetBaseTexture:Void(tex:Texture)
-Sets the base texture of the brush.
-
-# Method GetBaseTexture:Texture()
-Returns the base texture of the brush, or Null if there is no base texture.
-
-# Method SetBlendMode:Void(mode:Int)
-Sets the blend mode of the brush. This defines how the final look of the geometry using this brush blends with the background, after computing texture, color and lighting information.
-
-It takes one of the following values:
-
-| Value             | Meaning
-| BLEND_ALPHA | The computed alpha value of the brush (taking into account both brush opacity and texture alpha values) is used to blend with the background. This is the default value.
-| BLEND_ADD   | The computed color of the brush is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
-| BLEND_MUL   | The computed color of the brush is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
-
-# Method GetBlendMode:Int()
-Returns the blend mode of the brush.
-
-# Method SetCulling:Void(enable:Bool)
-Enables or disables backface culling. When it is enabled, internal faces of the geometry using this brush will not be rendered. It is enabled by default.
-
-# Method GetCulling:Bool()
-Returns whether backface culling is enabled or not.
-
-# Method SetDepthWrite:Void(enable:Bool)
-Enabled or disables depth buffer writing. When it is disabled, other geometry further away from the viewer may occlude the geometry that uses this brush. It is enabled by default.
-
-# Method GetDepthWrite:Bool()
-Returns whether depth buffer writing is enabled or not.
-
-# Method Prepare:Void()
-Prepares this brush for drawing. All subsequent geometry drawn will use the visual properties of this brush. You normally do not need to use this method directly, it is used internally by `Drawable_Draw()`.
-
-
-
-
 # Class Cache
 
 The cache is used to avoid loading resources from disk more that once.
@@ -251,110 +153,6 @@ If the mesh has been loaded previously by any cache object, that same object wil
 Returns the texture with the specified filename, or Null if the texture was not found.
 If the texture has been loaded previously by any cache object, that same object will be returned.
 Otherwise, the last pushed cache object will load and return a new texture.
-
-
-
-
-# Class Drawable
-
-A drawable represents a visible object that can be rendered in a position of 3D space, with an specific rotation and scale.
-Examples of drawables are the following:
-* A 3D object (called a mesh), which can be static or animated, and can contain one or more surfaces (a surface is a set of geometry that uses the same brush texture, color...).
-* A single surface.
-* A plain billboard that always faces the camera.
-
-# Function Create:Drawable(mesh:Mesh)
-Creates a new drawable that renders a mesh.
-
-# Function Create:Drawable(surface:Surface)
-Creates a new drawable with an empty surface.
-You can add indices and vertices to this surface and call `Surface.Rebuild()` to regenerate internal buffers.
-After you call `Drawable.Free()` on this drawable, the surface will be automatically freed.
-
-# Function Create:Drawable(brush:Brush, width:Float = 0, height:Float = 0, mode:Int = BILLBOARD_SPHERICAL)
-Creates a new drawable that renders a billboard.
-We must specify a texture that will define how the billboard looks.
-We can specify a custom with and height or leave these values at 0 to use the texture size.
-
-The `mode` parameter indicates how the billboard is oriented to face the viewer, and can take one of the following values:
-
-| Value                  | Meaning
-| Drawable.BILLBOARD_SPHERICAL    | The billboard's X and Y (or Z when using a right-handed coordinate system) axes are oriented to face the viewer.
-| Drawable.BILLBOARD_CYLINDRICAL  | The billboard's Y (or Z when using a right-handed coordinate system) axis is oriented to face the viewer.
-
-# Method Free:Void()
-When a drawable is no longer going to be used, we must use this method to deallocate the resources that it uses.
-
-# Method Animate:Void(frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
-Updates the internal animation matrices so hold the animation data for the specified `frame`. We can indicate the first and last frames in the animation sequence if the mesh contains frames for several animations (for example: walk, jump, shoot, etc).
-
-# Method Draw:Void(animated:Bool = False)
-Renders a drawable with its current transformation in the 3D space (position, rotation and scale).
-If the drawable contains an animated mesh, we can indicate whether we want to draw the mesh static or animated.
-
-# Method GetBillboardMode:Int()
-Returns the billboarding mode that this drawable has, or BILLBOARD_NONE if the drawable is not a billboard.
-
-# Method GetMesh:Mesh()
-Returns the mesh attached to this billboard, or Null if there is none.
-
-# Method GetSurface:Surface()
-Returns the surface attached to this billboard, or Null if there is none.
-
-# Method SetPosition:Void(x:Float, y:Float, z:Float)
-Set the position of the drawable in 3D space.
-
-# Method GetX:Float()
-Returns the X position of the drawable in 3D space.
-
-# Method GetY:Float()
-Returns the Y position of the drawable in 3D space.
-
-# Method GetZ:Float()
-Returns the Z position of the drawable in 3D space.
-
-# Method SetEuler:Void(x:Float, y:Float, z:Float)
-Sets the rotation of the drawable, specified as an euler rotation around its XYZ axes.
-
-# Method GetEulerX:Float()
-Returns the euler rotation of the drawable around its X axis.
-
-# Method GetEulerY:Float()
-Returns the euler rotation of the drawable around its Y axis.
-
-# Method GetEulerZ:Float()
-Returns the euler rotation of the drawable around its Z axis.
-
-# Method SetQuat:Void(w:Float, x:Float, y:Float, z:Float)
-Sets the rotation of the drawable, specified as a quaternion.
-
-# Method GetQuatW:Float()
-Returns the W component of the quaternion rotation of the drawable.
-
-# Method GetQuatX:Float()
-Returns the X component of the quaternion rotation of the drawable.
-
-# Method GetQuatY:Float()
-Returns the Y component of the quaternion rotation of the drawable.
-
-# Method GetQuatZ:Float()
-Returns the Z component of the quaternion rotation of the drawable.
-
-# Method SetScale:Void(x:Float, y:Float, z:Float)
-Sets the scale factor of the drawable, with 1,1,1 being its original size, 2,2,2 being twice its original size, etc.
-
-# Method GetScaleX:Float()
-Returns the X scale factor of the drawable.
-
-# Method GetScaleY:Float()
-Returns the Y scale factor of the drawable.
-
-# Method GetScaleZ:Float()
-Returns the X scale factor of the drawable.
-
-# Method Move:Void(x:Float, y:Float, z:Float)
-Translates the drawable from its current position the amount of points specified by the parameters, taking into account the current rotation of the drawable.
-For example, `drawable.Move(0, 0, 1)` will move the drawable 1 point in the direction that it is facing (or upwards when using a right handed coordinate system).
 
 
 
@@ -471,10 +269,82 @@ no lighting information will be computed, despite of which lights were enabled.
 
 
 
+# Class Material
+
+A material represents the visual information such as diffuse texture, color, or alpha (opacity).
+It is used to render objects with a specific appearance.
+
+# Function Create:Material(diffuseTex:Texture = Null)
+Create a new material with the specified diffuse texture.
+
+# Method Set:Void(other:Material)
+Set the properties of the material to be those of the one passed as parameter.
+
+# Method SetDiffuseColor:Void(r:Float, g:Float, b:Float)
+Sets the diffuse color. Geometry is tinted using the diffuse color, and it is also used in lighting calculations. The default value is white (1,1,1).
+
+# Method GetDiffuseRed:Float()
+Returns the red component of the diffuse color, in the range 0 .. 1.
+
+# Method GetDiffuseGreen:Float()
+Returns the green component of the diffuse color, in the range 0 .. 1.
+
+# Method GetDiffuseBlue:Float()
+Returns the blue component of the diffuse color, in the range 0 .. 1.
+
+# Method SetAlpha:Void(alpha:Float)
+Sets the alpha (opacity) of the material, with 0 being completely transparent and 1 being completely opaque. The default value is 1.
+
+# Method GetAlpha:Float()
+Returns the alpha (opacity) of the material, in the range 0 (transparent) .. 1 (opaque).
+
+# Method SetShininess:Void(shininess:Float)
+Sets the specular shininess of the material. A value of 0 will disable specular reflections entirely, whereas a value in the range (0,1] will indicate the strength of the specular reflection.
+
+# Method GetShininess:Float()
+Returns the specular shininess of the material.
+
+# Method SetDiffuseTexture:Void(tex:Texture)
+Sets the diffuse texture of the material.
+
+# Method GetDiffuseTexture:Texture()
+Returns the diffuse texture of the material, or `Null` if there is no diffuse texture.
+
+# Method SetBlendMode:Void(mode:Int)
+Sets the blend mode of the material. This defines how the final look of the geometry using this material blends with the background, after computing texture, color and lighting information.
+
+It takes one of the following values:
+
+| Value             | Meaning
+| Renderer.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background. This is the default value.
+| Renderer.BLEND_ADD   | The computed color of the material is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
+| Renderer.BLEND_MUL   | The computed color of the material is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
+
+# Method GetBlendMode:Int()
+Returns the blend mode of the material.
+
+# Method SetCulling:Void(enable:Bool)
+Enables or disables backface culling. When it is enabled, internal faces of the geometry using this material will not be rendered. It is enabled by default.
+
+# Method GetCulling:Bool()
+Returns whether backface culling is enabled or not.
+
+# Method SetDepthWrite:Void(enable:Bool)
+Enabled or disables depth buffer writing. When it is disabled, other geometry further away from the viewer may occlude the geometry that uses this material. It is enabled by default.
+
+# Method GetDepthWrite:Bool()
+Returns whether depth buffer writing is enabled or not.
+
+# Method Prepare:Void()
+Prepares this material for drawing. All subsequent geometry drawn will use the visual properties of this material. You normally do not need to use this method directly.
+
+
+
+
 # Class Mesh
 
-A mesh is the description of a set of geometry (triangles), brushes and optional animations that belong to one object.
-For every brush that we need, there will be a surface in the mesh containing the geometry to be drawn with that brush.
+A mesh is the description of a set of geometry (triangles), materials and optional animations that belong to one object.
+For every material that we need, there will be a surface in the mesh containing the geometry to be drawn with that material.
 The standard way to draw a mesh on the 3D space is by creating a Drawable from this mesh, and giving it a position, rotation and scale. Several drawables can be created from the same mesh.
 
 # Function Create:Mesh(skinned:Bool = False)
@@ -494,7 +364,7 @@ Sets the filename of the mesh. This is useful if you are implementing a custom m
 
 # Method AddSurface:Void(surf:Surface)
 Creates a new surface on the mesh and returns its handle.
-A surface is a set of geometry that use the same brush and it's attached to a same bone (if the mesh is animated).
+A surface is a set of geometry that use the same material and it's attached to a same bone (if the mesh is animated).
 
 # Method GetNumSurfaces:Int()
 Returns the number of surfaces that this mesh contains.
@@ -593,16 +463,16 @@ Draw a filled ellipse at the specified coordinates, with the given width and hei
 
 # Class Surface
 
-The surface class contains a set of geometry (vertices and indices that form triangles) and a brush to draw that geometry.
+The surface class contains a set of geometry (vertices and indices that form triangles) and a material to draw that geometry.
 
-# Function Create:Surface(brush:Brush = Null)
-Creates a new surface. If a brush is passed, it will be copied. If not, a new brush will be created for the surface.
+# Function Create:Surface(material:Material = Null)
+Creates a new surface. If a material is passed, it will be copied. If not, a new material will be created for the surface.
 
 # Method Free:Void()
 Deallocates all the resources used by this surface. You don't normally need to call this method directly, since meshes call this method on all their surfaces when the mesh itself is discarded, and drawables that contain a single surface also discard the surface when the drawable is discarded.
 
-# Method GetBrush:Brush()
-Returns the brush that this surface uses.
+# Method GetMaterial:Material()
+Returns the material that this surface uses.
 
 # Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
 Adds a new triangle to the surface. A triangle contains three indices, that reference the vertices in the surface. Returns the index of the triangle within the surface.
@@ -700,7 +570,7 @@ Draws the surface. You don't normally need to call this function, because you wi
 # Class Texture
 
 A texture represents a buffer in video memory that contains pixel data.
-Textures can be contained in brushes and applied to objects together with other information like color and opacity, or drawn to the screen directly (for example to render 2D sprites).
+Textures can be contained in materials and applied to objects together with other information like color and opacity, or drawn to the screen directly (for example to render 2D sprites).
 
 # Const FILTER_NONE:Int
 # Const FILTER_LINEAR:Int
@@ -749,116 +619,6 @@ Returns the height, in pixels, of the texture.
 # Method Draw:Void(x:Float, y:Float, width:Float = 0, height:Float = 0, rectx:Float = 0, recty:Float = 0, rectwidth:Float = 0, rectheight:Float = 0)
 Draws the texture to the specified screen coordinates.
 You can also specifY a width and a height different than its original size, and a rectangle within the texture to draw instead of the whole thing.
-
-
-
-
-# Class Viewer
-
-A viewer is an observer of the 3D world.
-It has a position and rotation in 3D space, a rectangle in the screen to draw to, as well as other parameters.
-In a single player game, you should have at least one viewer representing what the player sees on the entire screen.
-In a split screen multiplayer game, you will have one viewer per player, each drawing to a different rectangle of the screen.
-
-The default way to render 3D objects in Vortex is by placing objects using drawables, and drawing to the screen with the data specified by one or more viewers.
-
-# Function Create:Viewer(vx:Int, vy:Int, vw:Int, vh:Int)
-Creates a new viewer that draws in the specified screen viewport (rectangle).
-
-# Method SetPerspective:Void(fovy:Float, ratio:Float, near:Float, far:Float)
-Sets the perspective setup for this viewer.
-The value of `fovy` represents the vertical focal angle that the screen captures.
-Values normally go in the range [45,70].
-The `ratio` is the proportion between the width and the height of the viewport that the viewer draws to (for example, 4/3, 16/9, 16/10... you normally get this value with the float division of the viewport width and height).
-The values of `near` and `far` indicate the distance range from the viewer at which geometry is visible.
-Nothing closer than `near` of further than `far` is drawn.
-
-# Method SetFrustum:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
-Sets the perspective frustum for this viewer.
-The function `Viewer_SetPerspective` is easier to use and can achieve the same effect.
-
-# Method SetOrtho:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
-Sets the viewer to use an orthographic projection.
-This can be used for isometric games, or in general any game where we don't want to use perspective (this is, we don't want objects to get smaller with distance).
-
-# Method SetClearColor:Void(r:Float, g:Float, b:Float)
-Sets the color with which the viewer viewport will be cleared before drawing thnrought this viewer's point of view.
-
-# Method GetClearRed:Float()
-Returns the red component of the viewer's clearing color.
-
-# Method GetClearGreen:Float()
-Returns the green component of the viewer's clearing color.
-
-# Method GetClearBlue:Float()
-Returns the blue component of the viewer's clearing color.
-
-# Method SetFog:Void(enable:Bool, minDist:Float = 0, maxDist:Float = 0, r:Float = 0, g:Float = 0, b:Float = 0)
-Enables or disables fog rendering for the viewer.
-The value of `minDist` indicates the distance at which fog will begin to be visible, while `maxDist` indicates the distance to the viewer where the fog is completely opaque.
-You can also specify the color of the fog.
-
-# Method SetViewport:Void(x:Int, y:Int, w:Int, h:Int)
-Sets the viewport that this viewer draws to.
-
-# Method GetViewportX:Float()
-Returns the X coordinate of the viewport (the rectangular area of the screen) that the viewer draws to.
-
-# Method GetViewportY:Float()
-Returns the Y coordinate of the viewport (the rectangular area of the screen) that the viewer draws to.
-
-# Method GetViewportWidth:Float()
-Returns the width of the viewport (the rectangular area of the screen) that the viewer draws to.
-
-# Method GetViewportHeight:Float()
-Returns the height of the viewport (the rectangular area of the screen) that the viewer draws to.
-
-# Method SetPosition:Void(x:Float, y:Float, z:Float)
-Sets the position of the viewer in the 3D space.
-
-# Method GetX:Float()
-Returns the X position of the viewer in the 3D space.
-
-# Method GetY:Float()
-Returns the Y position of the viewer in the 3D space.
-
-# Method GetZ:Float()
-Returns the Z position of the viewer in the 3D space.
-
-# Method SetEuler:Void(x:Float, y:Float, z:Float)
-Sets the rotation of the viewer, specified as an euler rotation around its XYZ axes.
-
-# Method GetEulerX:Float()
-Returns the euler rotation of the viewer around its X axis.
-
-# Method GetEulerY:Float()
-Returns the euler rotation of the viewer around its y axis.
-
-# Method GetEulerZ:Float()
-Returns the euler rotation of the viewer around its Z axis.
-
-# Method SetQuat:Void(w:Float, x:Float, y:Float, z:Float)
-Sets the rotation of the viewer, specified as a quaternion.
-
-# Method GetQuatW:Float()
-Returns the W component of the quaternion rotation of the viewer.
-
-# Method GetQuatX:Float()
-Returns the X component of the quaternion rotation of the viewer.
-
-# Method GetQuatY:Float()
-Returns the Y component of the quaternion rotation of the viewer.
-
-# Method GetQuatZ:Float()
-Returns the Z component of the quaternion rotation of the viewer.
-
-# Method Move:Void(x:Float, y:Float, z:Float)
-Translates the viewer from its current position the amount of points specified by the parameters, taking into account the current rotation of the drawable.
-For example, `Viewer_Move(viewer, 0, 0, 1)` will move the viewer 1 point in the direction that it is facing (or upwards if you are using a right handed coordinate system with Z pointing upwards).
-
-# Method Prepare:Void()
-You must call this method before drawing any drawables.
-It will prepare the viewport, clear it, define projection and view matrices, and averything else that needs to be done to be able to draw geometry in 3D space.
 
 
 

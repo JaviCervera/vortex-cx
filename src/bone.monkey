@@ -37,32 +37,25 @@ Public
 		Return mParent
 	End
 	
-	Method CalcPoseMatrix:Void(px:Float, py:Float, pz:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
-		mTempQuat.Set(rw, rx, ry, rz)
-		mTempQuat.CalcAxis()
-		mTempMatrix.SetIdentity()
-		mTempMatrix.Translate(px, py, pz)
-		mTempMatrix.Rotate(mTempQuat.Angle(), mTempQuat.ResultVector().x, mTempQuat.ResultVector().y, mTempQuat.ResultVector().z)
-		mTempMatrix.Scale(sx, sy, sz)
-		
+	Method SetLocalPoseMatrix:Void(matrix:Mat4)
 		If mParent = Null
-			mPoseMatrix.Set(mTempMatrix)
+			mPoseMatrix.Set(matrix)
 			mInvPoseMatrix.Set(mPoseMatrix)
 			mInvPoseMatrix.Invert()
 		Else
 			mPoseMatrix.Set(mParent.mPoseMatrix)
-			mPoseMatrix.Mul(mTempMatrix)
+			mPoseMatrix.Mul(matrix)
 			mInvPoseMatrix.Set(mPoseMatrix)
 			mInvPoseMatrix.Invert()
 		End
 	End
 	
-	Method GetPoseMatrix:Float[]()
-		Return mPoseMatrix.m
+	Method GetGlobalPoseMatrix:Mat4()
+		Return mPoseMatrix
 	End
 	
-	Method GetInversePoseMatrix:Float[]()
-		Return mInvPoseMatrix.m
+	Method GetInverseGlobalPoseMatrix:Mat4()
+		Return mInvPoseMatrix
 	End
 
 	Method AddSurface:Void(surf:Surface)
@@ -176,7 +169,7 @@ Public
 			If animated
 				Renderer.GetModelMatrix().Mul(animMatrix)
 			Else
-				Renderer.GetModelMatrix().Mul(GetPoseMatrix())
+				Renderer.GetModelMatrix().Mul(GetGlobalPoseMatrix())
 			End
 			Renderer.SetModelMatrix(Renderer.GetModelMatrix())	'Load the updated model matrix into the shader
 

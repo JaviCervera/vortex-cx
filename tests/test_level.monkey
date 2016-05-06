@@ -13,8 +13,12 @@ Class LevelTest Extends Test Final
 		mView = Mat4.Create()
 		mModel = Mat4.Create()
 		
+		'Create RenderBatch
+		mBatch = RenderBatch.Create()
+		
 		'Load level
 		mLevel = Cache.GetMesh("simple-dm5.msh.xml")
+		mBatch.AddMesh(mLevel, mModel)
 	End
 	
 	Method Init:Void()
@@ -37,12 +41,18 @@ Class LevelTest Extends Test Final
 		Renderer.ClearColorBuffer(0, 0, 0)
 		Renderer.ClearDepthBuffer()
 		Renderer.SetFog(True, 600, 1000, 0, 0, 0)
-		mLevel.Draw()
+		mNumRenderCalls = mBatch.Render()
+	End
+	
+	Method GetNumRenderCalls:Int()
+		Return mNumRenderCalls
 	End
 Private
-	Field mProj			: Mat4
-	Field mView			: Mat4
-	Field mModel		: Mat4
-	Field mLevel		: Mesh
-	Field mEulerY		: Float
+	Field mProj				: Mat4
+	Field mView				: Mat4
+	Field mModel			: Mat4
+	Field mLevel			: Mesh
+	Field mBatch			: RenderBatch
+	Field mEulerY			: Float
+	Field mNumRenderCalls	: Int
 End

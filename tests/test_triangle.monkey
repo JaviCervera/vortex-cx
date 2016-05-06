@@ -13,14 +13,20 @@ Class TriangleTest Extends Test Final
 		mView = Mat4.Create()
 		mModel = Mat4.Create()
 		
-		'Make triangle
+		'Create RenderBatch
+		mBatch = RenderBatch.Create()
+		
+		'Create triangle
 		mTri = Surface.Create()
-		mTri.GetBrush().SetCulling(False)
+		mTri.GetMaterial().SetCulling(False)
 		mTri.AddTriangle(0, 1, 2)
 		mTri.AddVertex(0,0.5,0,     0,0,-1, 1,0,0,1, 0,0)
 		mTri.AddVertex(0.5,-0.5,0,  0,0,-1, 0,1,0,1, 0,0)
 		mTri.AddVertex(-0.5,-0.5,0, 0,0,-1, 0,0,1,1, 0,0)
 		mTri.Rebuild()
+		
+		'Add triangle to RenderBatch
+		mBatch.AddSurface(mTri, mModel)
 	End
 	
 	Method Init:Void()
@@ -39,15 +45,20 @@ Class TriangleTest Extends Test Final
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetProjectionMatrix(mProj)
 		Renderer.SetViewMatrix(mView)
-		Renderer.SetModelMatrix(mModel)
 		Renderer.ClearColorBuffer(1, 1, 1)
 		Renderer.ClearDepthBuffer()
-		mTri.Draw()
+		mNumRenderCalls = mBatch.Render()
+	End
+	
+	Method GetNumRenderCalls:Int()
+		Return mNumRenderCalls
 	End
 Private
-	Field mProj		: Mat4
-	Field mView		: Mat4
-	Field mModel	: Mat4
-	Field mTri		: Surface
-	Field mEulerY	: Float
+	Field mProj				: Mat4
+	Field mView				: Mat4
+	Field mModel			: Mat4
+	Field mTri				: Surface
+	Field mBatch			: RenderBatch
+	Field mEulerY			: Float
+	Field mNumRenderCalls	: Int
 End

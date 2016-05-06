@@ -86,19 +86,10 @@ Public
 		glScissor(x, y, w, h)
 
 		'Setup matrices
-#If VORTEX_SCREENCOORDS=VORTEX_YDOWN
 		Local bottom# = y+h
 		Local top# = 0
-#Else
-		Local bottom# = 0
-		Local top# = y+h
-#Endif
 		mTempMatrix.SetIdentity()
-#If VORTEX_HANDEDNESS=VORTEX_LH
 		mTempMatrix.SetOrthoLH(0, x+w, bottom, top, 0, 100)
-#Else
-		mTempMatrix.SetOrthoRH(0, x+w, bottom, top, 0, 100)
-#End
 		Renderer.SetProjectionMatrix(mTempMatrix)
 		mTempMatrix.SetIdentity()
 		Renderer.SetViewMatrix(mTempMatrix)
@@ -120,11 +111,7 @@ Public
 
 		SetLighting(False)
 		SetCulling(True)
-#If VORTEX_HANDEDNESS=VORTEX_LH
 		glFrontFace(GL_CW)
-#Else
-		glFrontFace(GL_CCW)
-#End
 		SetDepthWrite(True)
 		SetBlendMode(BLEND_ALPHA)
 		SetColor(1,1,1,1)
@@ -442,11 +429,7 @@ Public
 
 	Function CreateProgram%(vertex$, fragment$)
 		vertex = GLSL_VERSION + "#define MAX_LIGHTS " + MAX_LIGHTS + "~n#define MAX_BONES " + MAX_BONES + "~n" + vertex
-#If VORTEX_HANDEDNESS=VORTEX_LH Or VORTEX_SCREENCOORDS=VORTEX_YDOWN
-		fragment = GLSL_VERSION + "#define MAX_LIGHTS " + MAX_LIGHTS +  "~n#define UV_TOPLEFT~n" + fragment
-#Else
 		fragment = GLSL_VERSION + "#define MAX_LIGHTS " + MAX_LIGHTS + "~n" + fragment
-#End
 
 		Local retCode%[1]
 

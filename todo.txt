@@ -1,6 +1,7 @@
 Possible roadmap (not guaranteed to be implemented in this order or at all):
 
 V1.2
+- Rename <brushes> and <brush> in XML meshes, and its properties
 - Add skinned animation
 
 V1.3

@@ -16,6 +16,10 @@ Class ImageTest Extends Test Final
 		Renderer.ClearColorBuffer()
 		mImage.Draw((DeviceWidth() - mImage.GetWidth())/2, (DeviceHeight() - mImage.GetHeight())/2)
 	End
+	
+	Method GetNumRenderCalls:Int()
+		Return 1
+	End
 Private
 	Field mImage	: Texture
 End

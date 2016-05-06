@@ -1,9 +1,5 @@
 Strict
 
-Private
-Import vortex.src.config
-
-Public
 Class Vec3 Final
 Public
 	Field x#, y#, z#
@@ -606,7 +602,6 @@ Public
 		m[1] = view.m[4]
 		m[2] = view.m[8]
 		m[3] = 0
-#If VORTEX_HANDEDNESS=VORTEX_LH Or VORTEX_HANDEDNESS=VORTEX_RH_Y
 		If cylindrical
 			m[4] = 0
 			m[5] = 1
@@ -620,34 +615,14 @@ Public
 		m[8] = view.m[2]
 		m[9] = view.m[6]
 		m[10] = view.m[10]
-#Else
-		m[4] = view.m[2]
-		m[5] = view.m[6]
-		m[6] = view.m[10]
-		m[7] = 0
-		If cylindrical
-			m[8] = 0
-			m[9] = 0
-			m[10] = 1
-		Else
-			m[8] = view.m[1]
-			m[9] = view.m[5]
-			m[10] = view.m[9]
-		End
-#End
 		m[11] = 0
 		m[12] = x
 		m[13] = y
 		m[14] = z
 		m[15] = 1
 
-#If VORTEX_HANDEDNESS=VORTEX_LH Or VORTEX_HANDEDNESS=VORTEX_RH_Y
 		Rotate(spin, 0, 0, 1)
 		Scale(width, height, 1)
-#Else
-		Rotate(spin, 0, 1, 0)
-		Scale(width, 1, height)
-#End
 	End
 	
 	Function ResultVector:Vec3()

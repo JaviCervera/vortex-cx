@@ -1,4 +1,4 @@
-'NOTE: Should be built using the stdcpp target
+'NOTE: Should be built using the stdcpp target (c++ Tool)
 
 Strict
 

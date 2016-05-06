@@ -28,7 +28,6 @@ Public
 	
 		'Init vortex
 		Vortex.Init()
-		Cache.Push()
 		Print "API version: " + Vortex.GetAPIVersion()
 		Print "Shading version: " + Vortex.GetShadingVersion()
 		Print "Shader compilation: " + Vortex.GetShaderError()
@@ -94,6 +93,11 @@ Public
 		Renderer.SetColor(1, 0, 0)
 		Local text$ = currentFPS + " FPS"
 		mFont.Draw(2, 6, text)
+		
+		'Draw RenderCalls
+		Renderer.SetColor(1, 0, 1)
+		text = "Render calls: " + mTests[mCurrentTest].GetNumRenderCalls()
+		mFont.Draw(2, 22, text)
 		
 		'Draw info
 		Renderer.SetColor(1, 1, 0)

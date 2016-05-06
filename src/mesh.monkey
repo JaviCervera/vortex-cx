@@ -75,6 +75,10 @@ Public
 		Return Null
 	End
 	
+	Method IsSkinned:Bool()
+		Return mIsSkinned
+	End
+	
 	Method Animate:Void(animMatrices:Mat4[], frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
 		'We can only animate if the mesh has bones
 		If mBones.Length() > 0
@@ -94,7 +98,7 @@ Public
 			'If the mesh is skinned, multiply every animation matrix by the inverse of the pose matrix
 			If mIsSkinned
 				For Local i:Int = 0 Until GetNumBones()
-					animMatrices[i].Mul(GetBone(i).GetInversePoseMatrix())
+					animMatrices[i].Mul(GetBone(i).GetInverseGlobalPoseMatrix())
 				Next
 			End
 		End
@@ -116,29 +120,6 @@ Private
 			If mBones[i] = bone Then Return i
 		Next
 		Return -1
-	End
-	
-	Method Draw:Void(animated:Bool, animMatrices:Mat4[])
-		'Simple hierarchical animation
-		If mBones.Length() > 0 And Not mIsSkinned
-			Renderer.SetSkinned(False)
-			For Local i:Int = 0 Until GetNumBones()
-				If animated Then GetBone(i).Draw(True, animMatrices[i]) Else GetBone(i).Draw(False, Null)
-			Next
-		Else
-			'Skinned animation
-			If mIsSkinned And animated
-				Renderer.SetSkinned(True)
-				Renderer.SetBoneMatrices(animMatrices)
-			Else
-				Renderer.SetSkinned(False)
-			End
-			
-			'Static mesh
-			For Local i:Int = 0 Until GetNumSurfaces()
-				GetSurface(i).Draw()
-			Next
-		End
 	End
 
 	Field mFilename		: String
