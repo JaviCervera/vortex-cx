@@ -18,12 +18,10 @@ Class MaterialTest Extends Test Final
 		
 		'Load cubic texture
 		mTexture = Cache.GetTexture("sky_left.png", "sky_right.png", "sky_front.png", "sky_back.png", "sky_top.png", "sky_bottom.png")
-		If mTexture = Null Then Print "Null tex"
 		
 		'Load sphere mesh
-		mMesh = Cache.GetMesh("sphere.msh.xml")
+		mMesh = Cache.GetMesh("cube.msh.xml")
 		mMat = mMesh.GetSurface(0).GetMaterial()
-		mMat.SetDiffuseColor(1, 0.6, 0.8)
 		'mMat.SetDiffuseTexture(mTexture)
 		mMat.SetReflectionTexture(mTexture)
 		'mMat.SetRefractionTexture(mTexture)

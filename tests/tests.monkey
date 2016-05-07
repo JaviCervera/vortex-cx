@@ -27,6 +27,7 @@ Class TestApp Extends App Final
 Public
 	Method OnCreate:Int()
 		SetUpdateRate(0)
+		SetSwapInterval(0)
 		Seed = Millisecs()
 		lastMillisecs = Millisecs()
 	

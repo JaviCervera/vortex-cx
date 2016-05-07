@@ -8,6 +8,9 @@ uniform mat4 modelView;
 uniform mat4 model;
 uniform mat4 normalMatrix;
 uniform vec3 eyePos;
+uniform int baseTexMode;
+uniform bool useReflectTex;
+uniform bool useRefractTex;
 uniform bool usePixelLighting;
 uniform bool lightingEnabled;
 uniform bool lightEnabled[MAX_LIGHTS];
@@ -38,22 +41,6 @@ varying float fogFactor;
 varying vec3 fcubeCoords;
 varying vec3 freflectCoords;
 varying vec3 frefractCoords;
-
-vec3 CubeCoords() {
-	return normalize(vec3(model * vec4(vpos, 0)));
-}
-
-vec3 ReflectCoords() {
-	vec3 eye = normalize(vec3(model * vec4(vpos, 1)) - eyePos);
-	vec3 normal = vec3(model * vec4(vnormal, 0));
-	return normalize(reflect(eye, normal));
-}
-
-vec3 RefractCoords() {
-	vec3 eye = normalize(vec3(model * vec4(vpos, 1)) - eyePos);
-	vec3 normal = vec3(model * vec4(vnormal, 0));
-	return normalize(refract(eye, normal, refractCoef));
-}
 
 void CalcLighting(vec3 V, vec3 NV, vec3 N) {
 	// Color that combines diffuse component of all lights
@@ -136,7 +123,11 @@ void main() {
 	if ( fogEnabled ) fogFactor = clamp((fogDist[1] - abs(V.z)) / (fogDist[1] - fogDist[0]), 0.0, 1.0);
 	
 	// Cube mapping coordinates
-	fcubeCoords = CubeCoords();
-	freflectCoords = ReflectCoords();
-	frefractCoords = RefractCoords();
+	if ( baseTexMode == 2 || useReflectTex || useRefractTex ) {
+		vec3 eye = normalize(vec3(model * vec4(vpos, 1)) - eyePos);
+		vec3 normal = vec3(model * vec4(vnormal, 0));
+		if ( baseTexMode == 2 ) fcubeCoords = normalize(V);
+		if ( useReflectTex ) freflectCoords = normalize(reflect(eye, normal));
+		if ( useRefractTex ) frefractCoords = normalize(refract(eye, normal, refractCoef));
+	}
 }
