@@ -4,6 +4,7 @@ Private
 Import brl.filepath
 Import mojo.app
 Import vortex.src.font
+Import vortex.src.renderer
 Import vortex.src.texture
 Import vortex.src.xml
 
@@ -26,7 +27,7 @@ Public
 
 		'Load texture map
 		If ExtractDir(filename) <> "" Then image = ExtractDir(filename) + "/" + image
-		Local tex:Texture = Texture.Create(image, Texture.FILTER_NONE)
+		Local tex:Texture = Texture.Create(image, Renderer.FILTER_NONE)
 		If Not tex Then Return Null
 
 		'Create font

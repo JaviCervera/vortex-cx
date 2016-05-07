@@ -109,6 +109,7 @@ Public
 		glEnable(GL_SCISSOR_TEST)
 		glDepthFunc(GL_LEQUAL)
 
+		SetPixelLighting(False)
 		SetLighting(False)
 		SetCulling(True)
 		glFrontFace(GL_CW)
@@ -140,6 +141,10 @@ Public
 
 	Function SetModelMatrix:Void(m:Mat4)
 		If m <> mModelMatrix Then mModelMatrix.Set(m)
+		
+		'Calculate Model
+		mTempMatrix.Set(mModelMatrix)
+		If mModelLoc <> -1 Then glUniformMatrix4fv(mModelLoc, 1, False, mTempMatrix.m)
 
 		'Calculate ModelView
 		mTempMatrix.Set(mViewMatrix)
@@ -214,6 +219,18 @@ Public
 
 	Function SetDepthWrite:Void(enable:Bool)
 		glDepthMask(enable)
+	End
+	
+	Function SetRefractCoef:Void(coef:Float)
+		If mRefractCoefLoc <> -1 Then glUniform1f(mRefractCoefLoc, coef)
+	End
+	
+	Function SetEyePos:Void(x:Float, y:Float, z:Float)
+		If mEyePosLoc <> -1 Then glUniform3f(mEyePosLoc, x, y, z)
+	End
+	
+	Function SetPixelLighting:Void(enable:Bool)
+		If mUsePixelLightingLoc <> -1 Then glUniform1i(mUsePixelLightingLoc, enable)
 	End
 
 	Function SetLighting:Void(enable:Bool)
@@ -333,6 +350,19 @@ Public
 	'---------------------------------------------------------------------------
 	' Texture
 	'---------------------------------------------------------------------------
+	
+	Function GenTexture%(buffer:DataBuffer, width%, height%, filter%)
+		Local texture% = glCreateTexture()
+		glBindTexture(GL_TEXTURE_2D, texture)
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer)
+#If TARGET<>"html5"
+		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
+#EndIf
+		'glBindTexture(GL_TEXTURE_2D, 0)
+		Return texture
+	End
 
 	Function LoadTexture%(filename$, size%[], filter%)
 		Local texture% = glCreateTexture()
@@ -340,7 +370,9 @@ Public
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + filename)
+#If TARGET<>"html5"
 		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
+#EndIf
 		'glBindTexture(GL_TEXTURE_2D, 0)
 
 		'Trick to get texture size
@@ -358,15 +390,38 @@ Public
 
 		Return texture
 	End
-
-	Function GenTexture%(buffer:DataBuffer, width%, height%, filter%)
+	
+	Function LoadCubicTexture:Int(left:String, right:String, front:String, back:String, top:String, bottom:String, size:Int[], filter:Int)
 		Local texture% = glCreateTexture()
-		glBindTexture(GL_TEXTURE_2D, texture)
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer)
-		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
+		glBindTexture(GL_TEXTURE_CUBE_MAP, texture)
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + left)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + right)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + front)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + back)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + top)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + bottom)
+#If TARGET<>"html5"
+		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_CUBE_MAP)
+#Endif
 		'glBindTexture(GL_TEXTURE_2D, 0)
+
+		'Trick to get texture size
+		If size.Length() >= 2
+			Local img:Image = LoadImage(left)
+			If img <> Null
+				size[0] = img.Width()
+				size[1] = img.Height()
+				img.Discard()
+			Else
+				size[0] = 0
+				size[1] = 0
+			End
+		End
+
 		Return texture
 	End
 
@@ -374,9 +429,38 @@ Public
 		glDeleteTexture(texture)
 	End
 
-	Function SetTexture:Void(texture%)
-		If texture <> 0 Then glBindTexture(GL_TEXTURE_2D, texture)
-		If mBaseTexModeLoc <> -1 Then glUniform1i(mBaseTexModeLoc, texture <> 0)
+	Function SetTextures:Void(diffuseTex:Int, reflectionTex:Int, refractionTex:Int, isDiffuseCubic:Bool)
+		If diffuseTex <> 0
+			If Not isDiffuseCubic
+				glActiveTexture(GL_TEXTURE0)
+				glBindTexture(GL_TEXTURE_2D, diffuseTex)
+			Else
+				glActiveTexture(GL_TEXTURE1)
+				glBindTexture(GL_TEXTURE_CUBE_MAP, diffuseTex)
+			End
+		End
+		If reflectionTex <> 0
+			glActiveTexture(GL_TEXTURE2)
+			glBindTexture(GL_TEXTURE_CUBE_MAP, reflectionTex)
+		End
+		If refractionTex <> 0
+			glActiveTexture(GL_TEXTURE3)
+			glBindTexture(GL_TEXTURE_CUBE_MAP, refractionTex)
+		End
+		
+		If mBaseTexModeLoc <> -1
+			If diffuseTex = 0
+				glUniform1i(mBaseTexModeLoc, 0)
+			Elseif Not isDiffuseCubic
+				glUniform1i(mBaseTexModeLoc, 1)
+			Else
+				glUniform1i(mBaseTexModeLoc, 2)
+			End
+		End
+		If mUseReflectTexLoc <> -1 Then glUniform1i(mUseReflectTexLoc, reflectionTex <> 0)
+		If mUseRefractTexLoc <> -1 Then glUniform1i(mUseRefractTexLoc, refractionTex <> 0)
+		
+		glActiveTexture(GL_TEXTURE0)
 	End
 
 	'---------------------------------------------------------------------------
@@ -481,8 +565,13 @@ Public
 		glUseProgram(program)
 		mMVPLoc = glGetUniformLocation(program, "mvp")
 		mModelViewLoc = glGetUniformLocation(program, "modelView")
+		mModelLoc = glGetUniformLocation(program, "model")
 		mNormalMatrixLoc = glGetUniformLocation(program, "normalMatrix")
+		mEyePosLoc = glGetUniformLocation(program, "eyePos")
 		mBaseTexModeLoc = glGetUniformLocation(program, "baseTexMode")
+		mUseReflectTexLoc = glGetUniformLocation(program, "useReflectTex")
+		mUseRefractTexLoc = glGetUniformLocation(program, "useRefractTex")
+		mUsePixelLightingLoc = glGetUniformLocation(program, "usePixelLighting")
 		mLightingEnabledLoc = glGetUniformLocation(program, "lightingEnabled")
 		For Local i% = 0 Until MAX_LIGHTS
 			mLightEnabledLoc[i] = glGetUniformLocation(program, "lightEnabled[" + i + "]")
@@ -493,6 +582,7 @@ Public
 		mBaseColorLoc = glGetUniformLocation(program, "baseColor")
 		mAmbientLoc = glGetUniformLocation(program, "ambient")
 		mShininessLoc = glGetUniformLocation(program, "shininess")
+		mRefractCoefLoc = glGetUniformLocation(program, "refractCoef")
 		mFogEnabledLoc = glGetUniformLocation(program, "fogEnabled")
 		mFogDistLoc = glGetUniformLocation(program, "fogDist")
 		mFogColorLoc = glGetUniformLocation(program, "fogColor")
@@ -508,7 +598,13 @@ Public
 		mVBoneWeightsLoc = glGetAttribLocation(program, "vboneWeights")
 
 		Local baseTexSamplerLoc% = glGetUniformLocation(program, "baseTexSampler")
+		Local baseCubeSamplerLoc% = glGetUniformLocation(program, "baseCubeSampler")
+		Local reflectCubeSamplerLoc% = glGetUniformLocation(program, "reflectCubeSampler")
+		Local refractCubeSamplerLoc% = glGetUniformLocation(program, "refractCubeSampler")
 		If baseTexSamplerLoc <> -1 Then glUniform1i(baseTexSamplerLoc, 0)
+		If baseCubeSamplerLoc <> -1 Then glUniform1i(baseCubeSamplerLoc, 1)
+		If reflectCubeSamplerLoc <> -1 Then glUniform1i(reflectCubeSamplerLoc, 2)
+		If refractCubeSamplerLoc <> -1 Then glUniform1i(refractCubeSamplerLoc, 3)
 	End
 
 	Function GetDefaultProgram%()
@@ -546,15 +642,18 @@ Private
 	End
 
 	Function GetMinFilter%(filtering%)
+		Return GL_LINEAR
 		Select filtering
 		Case FILTER_NONE
 			Return GL_NEAREST
 		Case FILTER_LINEAR
 			Return GL_LINEAR
+#If TARGET<>"html5"
 		Case FILTER_BILINEAR
 			Return GL_LINEAR_MIPMAP_NEAREST
 		Case FILTER_TRILINEAR
 			Return GL_LINEAR_MIPMAP_LINEAR
+#EndIf
 		Default
 			Return GL_LINEAR
 		End
@@ -567,8 +666,13 @@ Private
 	'Localization of vars in shaders
 	Global mMVPLoc%
 	Global mModelViewLoc%
+	Global mModelLoc%
 	Global mNormalMatrixLoc%
+	Global mEyePosLoc%
 	Global mBaseTexModeLoc%
+	Global mUseReflectTexLoc%
+	Global mUseRefractTexLoc%
+	Global mUsePixelLightingLoc%
 	Global mLightingEnabledLoc%
 	Global mLightEnabledLoc%[MAX_LIGHTS]
 	Global mLightPosLoc%[MAX_LIGHTS]
@@ -577,6 +681,7 @@ Private
 	Global mBaseColorLoc%
 	Global mAmbientLoc%
 	Global mShininessLoc%
+	Global mRefractCoefLoc%
 	Global mFogEnabledLoc%
 	Global mFogDistLoc%
 	Global mFogColorLoc%

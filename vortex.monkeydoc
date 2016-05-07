@@ -618,19 +618,14 @@ Draws the surface. You don't normally need to call this function, because you wi
 A texture represents a buffer in video memory that contains pixel data.
 Textures can be contained in materials and applied to objects together with other information like color and opacity, or drawn to the screen directly (for example to render 2D sprites).
 
-# Const FILTER_NONE:Int
-# Const FILTER_LINEAR:Int
-# Const FILTER_BILINEAR:Int
-# Const FILTER_TRILINEAR:Int
-
 # Function Create:Texture(filename:String, filter:Int)
 Loads a texture from disk.
 We must also specify one of the following filtering modes:
 
-* Texture.FILTER_NONE
-* Texture.FILTER_LINEAR
-* Texture.FILTER_BILINEAR
-* Texture.FILTER_TRILINEAR
+* Renderer.FILTER_NONE
+* Renderer.FILTER_LINEAR
+* Renderer.FILTER_BILINEAR
+* Renderer.FILTER_TRILINEAR
 
 You won't normally use this function directly, because textures can be obtained from image files using the `Cache.GetTexture` function.
 
@@ -638,10 +633,10 @@ You won't normally use this function directly, because textures can be obtained 
 Creates a new texture. Its pixel data will be generated from the passed memory `buffer`, with the specified `width` and `height`.
 We must also specify one of the following filtering modes:
 
-* Texture.FILTER_NONE
-* Texture.FILTER_LINEAR
-* Texture.FILTER_BILINEAR
-* Texture.FILTER_TRILINEAR
+* Renderer.FILTER_NONE
+* Renderer.FILTER_LINEAR
+* Renderer.FILTER_BILINEAR
+* Renderer.FILTER_TRILINEAR
 
 You won't normally use this function directly, because textures can be obtained from image files using the `Cache.GetTexture` function.
 

@@ -8,17 +8,10 @@ Import vortex.src.mesh
 Import vortex.src.renderer
 Import vortex.src.surface
 
-Class RenderOp Final
-	Field mSurface:Surface
-	Field mMaterial:Material
-	Field mSkinned:Bool
-	Field mAnimMatrices:Mat4[]
-	Field mTransforms:List<Mat4>
-	
-	Method New(surface:Surface, material:Material, skinned:Bool, animMatrices:Mat4[])
+Class RenderGeom Final
+Public
+	Method New(surface:Surface, animMatrices:Mat4[])
 		mSurface = surface
-		mMaterial = material
-		mSkinned = skinned
 		mAnimMatrices = animMatrices
 		mTransforms = New List<Mat4>
 	End
@@ -37,9 +30,8 @@ Class RenderOp Final
 	
 	Method Render:Int()
 		Local numRenderCalls:Int = 0
-		mMaterial.Prepare()
-		Renderer.SetSkinned(mSkinned)
-		If mSkinned Then Renderer.SetBoneMatrices(mAnimMatrices)
+		Renderer.SetSkinned(mAnimMatrices.Length() > 0)
+		If mAnimMatrices.Length() > 0 Then Renderer.SetBoneMatrices(mAnimMatrices)
 		For Local transform:Mat4 = Eachin mTransforms
 			Renderer.SetModelMatrix(transform)
 			mSurface.Draw()
@@ -47,6 +39,34 @@ Class RenderOp Final
 		Next
 		Return numRenderCalls
 	End
+Private
+	Method New()
+	End
+	
+	Field mSurface:Surface
+	Field mAnimMatrices:Mat4[]
+	Field mTransforms:List<Mat4>
+End
+
+Class RenderOp Final
+Public
+	Method New(material:Material, geom:RenderGeom)
+		mMaterial = material
+		mGeoms = New List<RenderGeom>
+		mGeoms.AddLast(geom)
+	End
+	
+	Method Render:Int()
+		Local numRenderCalls:Int = 0
+		mMaterial.Prepare()
+		For Local geom:RenderGeom = Eachin mGeoms
+			numRenderCalls += geom.Render()
+		Next
+		Return numRenderCalls
+	End
+Private
+	Field mMaterial	: Material
+	Field mGeoms	: List<RenderGeom>
 End
 
 Public
@@ -58,19 +78,19 @@ Public
 
 	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
 		If overrideMaterial = Null Then overrideMaterial = surface.GetMaterial()
-		RenderOpForSurface(surface, overrideMaterial, False, mTempArray).AddTransform(transform)
+		RenderGeomForSurface(surface, overrideMaterial, mTempArray).AddTransform(transform)
 	End
 	
 	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null, animMatrices:Mat4[])
 		If overrideMaterial = Null Then overrideMaterial = surface.GetMaterial()
-		RenderOpForSurface(surface, overrideMaterial, True, animMatrices).AddTransform(transform)
+		RenderGeomForSurface(surface, overrideMaterial, animMatrices).AddTransform(transform)
 	End
 	
 	Method RemoveSurface:Void(surface:Surface, transform:Mat4)
-		Local ops:RenderOp[] = RenderOpsForSurface(surface)
-		For Local op:RenderOp = Eachin ops
-			op.RemoveTransform(transform)
-			If Not op.HasTransforms() Then mOps.RemoveFirst(op)
+		Local geoms:RenderGeom[] = RenderGeomsForSurface(surface)
+		For Local geom:RenderGeom = Eachin geoms
+			geom.RemoveTransform(transform)
+			'If Not geom.HasTransforms() Then mOps.RemoveFirst(op)
 		End
 	End
 	
@@ -104,23 +124,30 @@ Private
 		mOps = New List<RenderOp>
 	End
 	
-	Method RenderOpForSurface:RenderOp(surface:Surface, material:Material, skinned:Bool, animMatrices:Mat4[])
+	Method RenderGeomForSurface:RenderGeom(surface:Surface, material:Material, animMatrices:Mat4[])
 		For Local op:RenderOp = Eachin mOps
-			If op.mSurface = surface And op.mMaterial.IsEqual(material) Then Return op
-		Next
-		mOps.AddLast(New RenderOp(surface, material, skinned, animMatrices))
-		Return mOps.Last()
-	End
-	
-	Method RenderOpsForSurface:RenderOp[](surface:Surface)
-		Local ops:RenderOp[0]
-		For Local op:RenderOp = Eachin mOps
-			If op.mSurface = surface
-				ops = ops.Resize(ops.Length() + 1)
-				ops[ops.Length()-1] = op
+			If op.mMaterial.IsEqual(material)
+				For Local geom:RenderGeom = Eachin op.mGeoms
+					If geom.mSurface = surface Then Return geom
+				Next
 			End
 		Next
-		Return ops
+		Local geom:RenderGeom = New RenderGeom(surface, animMatrices)
+		mOps.AddLast(New RenderOp(material, geom))
+		Return geom
+	End
+	
+	Method RenderGeomsForSurface:RenderGeom[](surface:Surface)
+		Local geoms:RenderGeom[0]
+		For Local op:RenderOp = Eachin mOps
+			For Local geom:RenderGeom = Eachin op.mGeoms
+				If geom.mSurface = surface
+					geoms = geoms.Resize(geoms.Length() + 1)
+					geoms[geoms.Length()-1] = geom
+				End
+			Next
+		Next
+		Return geoms
 	End
 
 	Field mOps			: List<RenderOp>

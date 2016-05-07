@@ -27,7 +27,9 @@ Class LightingTest Extends Test Final
 			x += 8; If x > 32 Then x = -32; z += 8
 			mBatch.AddMesh(mMesh, mModels[i])
 		Next
-		
+	End
+	
+	Method Init:Void()
 		'Prepare lights
 		Lighting.SetLightEnabled(0, True)
 		Lighting.SetLightEnabled(1, True)
@@ -41,9 +43,6 @@ Class LightingTest Extends Test Final
 		Lighting.SetLightColor(0, 1, 0, 0)
 		Lighting.SetLightColor(1, 0, 1, 0)
 		Lighting.SetLightColor(2, 0, 0, 1)
-	End
-	
-	Method Init:Void()
 		mLightsEulerY[0] = 0
 		mLightsEulerY[1] = 120
 		mLightsEulerY[2] = 240
@@ -68,6 +67,12 @@ Class LightingTest Extends Test Final
 		Renderer.ClearDepthBuffer()
 	
 		mNumRenderCalls = mBatch.Render()
+	End
+	
+	Method Finish:Void()
+		Lighting.SetLightEnabled(0, False)
+		Lighting.SetLightEnabled(1, False)
+		Lighting.SetLightEnabled(2, False)
 	End
 	
 	Method GetNumRenderCalls:Int()

@@ -10,6 +10,9 @@ Class Test
 	Method Draw:Void()
 	End
 	
+	Method Finish:Void()
+	End
+	
 	Method GetNumRenderCalls:Int()
 		Return 0
 	End

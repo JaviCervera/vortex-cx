@@ -3,6 +3,7 @@ Strict
 Private
 Import vortex.src.renderer
 Import vortex.src.texture
+Import vortex
 
 Public
 Class Material Final
@@ -12,9 +13,10 @@ Public
 		mat.mDiffuseRed = 1
 		mat.mDiffuseGreen = 1
 		mat.mDiffuseBlue = 1
+		mat.mDiffuseTex = diffuseTex
 		mat.mAlpha = 1
 		mat.mShininess = 0
-		mat.mDiffuseTex = diffuseTex
+		mat.mRefractCoef = 1
 		mat.mBlendMode = Renderer.BLEND_ALPHA
 		mat.mCulling = True
 		mat.mDepthWrite = True
@@ -23,7 +25,7 @@ Public
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mDiffuseRed = other.mDiffuseRed And mDiffuseGreen = other.mDiffuseGreen And mDiffuseBlue = other.mDiffuseBlue And mAlpha = other.mAlpha And mShininess = other.mShininess And mDiffuseTex = other.mDiffuseTex And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite
+		If mDiffuseRed = other.mDiffuseRed And mDiffuseGreen = other.mDiffuseGreen And mDiffuseBlue = other.mDiffuseBlue And mDiffuseTex = other.mDiffuseTex And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mAlpha = other.mAlpha And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite
 			Return True
 		Else
 			Return False
@@ -35,10 +37,13 @@ Public
 		mDiffuseRed = other.mDiffuseRed
 		mDiffuseGreen = other.mDiffuseGreen
 		mDiffuseBlue = other.mDiffuseBlue
-		mAlpha = other.mAlpha
 		mDiffuseTex = other.mDiffuseTex
-		mBlendMode = other.mBlendMode
+		mReflectTex = other.mReflectTex
+		mRefractTex = other.mRefractTex
+		mAlpha = other.mAlpha
 		mShininess = other.mShininess
+		mRefractCoef = other.mRefractCoef
+		mBlendMode = other.mBlendMode
 		mCulling = other.mCulling
 		mDepthWrite = other.mDepthWrite
 	End
@@ -60,6 +65,30 @@ Public
 	Method GetDiffuseBlue:Float()
 		Return mDiffuseBlue
 	End
+	
+	Method SetDiffuseTexture:Void(tex:Texture)
+		mDiffuseTex = tex
+	End
+
+	Method GetDiffuseTexture:Texture()
+		Return mDiffuseTex
+	End
+	
+	Method SetReflectionTexture:Void(tex:Texture)
+		mReflectTex = tex
+	End
+	
+	Method GetReflectionTexture:Texture()
+		Return mReflectTex
+	End
+	
+	Method SetRefractionTexture:Void(tex:Texture)
+		mRefractTex = tex
+	End
+	
+	Method GetRefractionTexture:Texture()
+		Return mRefractTex
+	End
 
 	Method SetAlpha:Void(alpha:Float)
 		mAlpha = alpha
@@ -76,13 +105,13 @@ Public
 	Method GetShininess:Float()
 		Return mShininess
 	End
-
-	Method SetDiffuseTexture:Void(tex:Texture)
-		mDiffuseTex = tex
+	
+	Method SetRefractionCoef:Void(coef:Float)
+		mRefractCoef = coef
 	End
-
-	Method GetDiffuseTexture:Texture()
-		Return mDiffuseTex
+	
+	Method GetRefractionCoef:Float()
+		Return mRefractCoef
 	End
 
 	Method SetBlendMode:Void(mode:Int)
@@ -110,14 +139,22 @@ Public
 	End
 
 	Method Prepare:Void()
-		Local shininess% = 0
-		If mShininess > 0 Then shininess = Int((1.0 - mShininess) * 128)
+		Local diffuseHandle:Int = 0
+		Local reflectHandle:Int = 0
+		Local refractHandle:Int = 0
+		Local shininess:Int = 0
+		If mShininess > 0 Then shininess = Int(mShininess * 128)
 		Renderer.SetColor(mDiffuseRed, mDiffuseGreen, mDiffuseBlue, mAlpha)
 		Renderer.SetShininess(shininess)
+		Renderer.SetRefractCoef(mRefractCoef)
 		Renderer.SetBlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)
 		Renderer.SetDepthWrite(mDepthWrite)
-		If mDiffuseTex <> Null Then Renderer.SetTexture(mDiffuseTex.GetHandle()) Else Renderer.SetTexture(0)
+		If mDiffuseTex <> Null Then diffuseHandle = mDiffuseTex.GetHandle()
+		If mReflectTex <> Null Then reflectHandle = mReflectTex.GetHandle()
+		If mRefractTex <> Null Then refractHandle = mRefractTex.GetHandle()
+		Renderer.SetTextures(diffuseHandle, reflectHandle, refractHandle, mDiffuseTex And mDiffuseTex.IsCubic())
+		Renderer.SetPixelLighting(Vortex.GetGlobalPixelLighting())
 	End
 Private
 	Method New()
@@ -126,9 +163,12 @@ Private
 	Field mDiffuseRed	: Float
 	Field mDiffuseGreen	: Float
 	Field mDiffuseBlue	: Float
+	Field mDiffuseTex	: Texture
+	Field mReflectTex	: Texture
+	Field mRefractTex	: Texture
 	Field mAlpha		: Float
 	Field mShininess	: Float
-	Field mDiffuseTex	: Texture
+	Field mRefractCoef	: Float
 	Field mBlendMode	: Int
 	Field mCulling		: Bool
 	Field mDepthWrite	: Bool

@@ -5,7 +5,10 @@ precision mediump float;
 
 uniform mat4 mvp;
 uniform mat4 modelView;
+uniform mat4 model;
 uniform mat4 normalMatrix;
+uniform vec3 eyePos;
+uniform bool usePixelLighting;
 uniform bool lightingEnabled;
 uniform bool lightEnabled[MAX_LIGHTS];
 uniform vec4 lightPos[MAX_LIGHTS];	// In viewer space !!!
@@ -14,6 +17,7 @@ uniform float lightAttenuation[MAX_LIGHTS];
 uniform vec4 baseColor;
 uniform vec3 ambient;
 uniform int shininess;
+uniform float refractCoef;
 uniform bool fogEnabled;
 uniform vec2 fogDist;
 uniform bool skinned;
@@ -24,10 +28,66 @@ attribute vec4 vcolor;
 attribute vec2 vtex;
 attribute vec4 vboneIndices;
 attribute vec4 vboneWeights;
+varying vec3 fpos;
+varying vec3 fposNorm;
+varying vec3 fnormal;
 varying vec4 fcolor;
 varying vec2 ftex;
-varying vec3 combinedSpecular;
+varying vec3 fcombinedSpecular;
 varying float fogFactor;
+varying vec3 fcubeCoords;
+varying vec3 freflectCoords;
+varying vec3 frefractCoords;
+
+vec3 CubeCoords() {
+	return normalize(vec3(model * vec4(vpos, 0)));
+}
+
+vec3 ReflectCoords() {
+	vec3 eye = normalize(vec3(model * vec4(vpos, 1)) - eyePos);
+	vec3 normal = vec3(model * vec4(vnormal, 0));
+	return normalize(reflect(eye, normal));
+}
+
+vec3 RefractCoords() {
+	vec3 eye = normalize(vec3(model * vec4(vpos, 1)) - eyePos);
+	vec3 normal = vec3(model * vec4(vnormal, 0));
+	return normalize(refract(eye, normal, refractCoef));
+}
+
+void CalcLighting(vec3 V, vec3 NV, vec3 N) {
+	// Color that combines diffuse component of all lights
+	vec4 combinedColor = vec4(ambient, 1.0);
+
+	// Compute all lights
+	for ( int i = 0; i < MAX_LIGHTS; i++ ) {
+		if ( lightEnabled[i] ) {
+			vec3 L = vec3(lightPos[i]);
+			float att = 1.0;
+
+			// Point light
+			if ( lightPos[i].w == 1.0 ) {
+				L -= V;
+				att = 1.0 / (1.0 + lightAttenuation[i]*length(L));
+			}
+
+			L = normalize(L);
+			float NdotL = max(dot(N, L), 0.0);
+
+			// Diffuse
+			combinedColor += NdotL * vec4(lightColor[i], 1.0) * att;
+
+			// Specular
+			if ( shininess > 0 && NdotL > 0.0 ) {
+				vec3 H = normalize(L - NV);
+				float NdotH = max(dot(N, H), 0.0);
+				fcombinedSpecular += pow(NdotH, float(shininess)) * att;
+			}
+		}
+	}
+
+	fcolor *= combinedColor;
+}
 
 void main() {
 	vec4 vpos4 = vec4(vpos, 1);
@@ -40,7 +100,7 @@ void main() {
 		vpos4 = blendVertex;
 	};
 	
-	// Vertex position (projection and view spaces)
+	// Vertex position in projection and view spaces
 	gl_Position = mvp * vpos4;
 	vec3 V;
 	if ( lightingEnabled || fogEnabled ) V = vec3(modelView * vpos4);
@@ -50,49 +110,33 @@ void main() {
 
 	// Fragment texture coords
 	ftex = vtex;
-
+	
 	// Lighting
-	combinedSpecular = vec3(0.0, 0.0, 0.0);
 	if ( lightingEnabled ) {
-		// Color that combines diffuse component of all lights
-		vec4 combinedColor = vec4(ambient, 1.0);
-
-		// Calculate vertex normal
+		// Calculate normalized vertex coordinates
 		vec3 NV = normalize(V);
 
 		// Calculate normal in viewer space
 		vec3 N = normalize(vec3(normalMatrix * vec4(vnormal, 0.0)));
 
-		// Compute all lights
-		for ( int i = 0; i < MAX_LIGHTS; i++ ) {
-			if ( lightEnabled[i] ) {
-				vec3 L = vec3(lightPos[i]);
-				float att = 1.0;
-
-				// Point light
-				if ( lightPos[i].w == 1.0 ) {
-					L -= V;
-					att = 1.0 / (1.0 + lightAttenuation[i]*length(L));
-				}
-
-				L = normalize(L);
-				float NdotL = max(dot(N, L), 0.0);
-
-				// Diffuse
-				combinedColor += NdotL * vec4(lightColor[i], 1.0) * att;
-
-				// Specular
-				if ( shininess > 0 && NdotL > 0.0 ) {
-					vec3 H = normalize(L - NV);
-					float NdotH = max(dot(N, H), 0.0);
-					combinedSpecular += pow(NdotH, float(shininess)) * att;
-				}
-			}
+		if ( !usePixelLighting ) {
+			// Color that combines specular component of all lights
+			fcombinedSpecular = vec3(0.0, 0.0, 0.0);
+		
+			// Calculate lighting
+			CalcLighting(V, NV, N);
+		} else {
+			fpos = V;
+			fposNorm = NV;
+			fnormal = N;
 		}
-
-		fcolor *= combinedColor;
 	}
 	
 	// Fog
 	if ( fogEnabled ) fogFactor = clamp((fogDist[1] - abs(V.z)) / (fogDist[1] - fogDist[0]), 0.0, 1.0);
+	
+	// Cube mapping coordinates
+	fcubeCoords = CubeCoords();
+	freflectCoords = ReflectCoords();
+	frefractCoords = RefractCoords();
 }

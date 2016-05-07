@@ -7,6 +7,9 @@ Strict
 #GLFW_WINDOW_SAMPLES=2
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 
+#If TARGET="glfw"
+Import brl.requesters
+#EndIf
 Import mojo.app
 Import mojo.input
 Import test
@@ -17,6 +20,7 @@ Import test_billboards
 Import test_lighting
 Import test_animation
 Import test_level
+Import test_material
 Import vortex
 
 Class TestApp Extends App Final
@@ -27,12 +31,20 @@ Public
 		lastMillisecs = Millisecs()
 	
 		'Init vortex
-		Vortex.Init()
+		If Not Vortex.Init()
+#If TARGET="glfw"
+			Notify "Error", Vortex.GetShaderError(), True
+#Else
+			Print "Error: " + Vortex.GetShaderError()
+#Endif
+			EndApp()
+		End
+		
 		Print "API version: " + Vortex.GetAPIVersion()
 		Print "Shading version: " + Vortex.GetShadingVersion()
 		Print "Shader compilation: " + Vortex.GetShaderError()
 		
-		mTests = New Test[6]
+		mTests = New Test[7]
 		mTests[0] = New PrimitivesTest
 		mTests[1] = New ImageTest
 		mTests[2] = New TriangleTest
@@ -40,7 +52,9 @@ Public
 		mTests[4] = New LightingTest
 		mTests[5] = New AnimationTest
 		'mTests[6] = New LevelTest
-		mCurrentTest = 0
+		mTests[6] = New MaterialTest
+		mCurrentTest = 6
+		mTests[mCurrentTest].Init()
 		
 		'Load font
 		mFont = Cache.GetFont("system_16.fnt.xml")
@@ -60,6 +74,7 @@ Public
 		
 		'Change test with space key
 		If KeyHit(KEY_SPACE) Or TouchHit(0)
+			mTests[mCurrentTest].Finish()
 			mCurrentTest += 1
 			If mCurrentTest >= mTests.Length() Then mCurrentTest = 0
 			mTests[mCurrentTest].Init()

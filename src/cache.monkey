@@ -3,6 +3,7 @@ Strict
 Private
 Import vortex.src.font
 Import vortex.src.mesh
+Import vortex.src.renderer
 Import vortex.src.texture
 Import vortex.src.fontloader_xml
 Import vortex.src.meshloader_xml
@@ -34,7 +35,7 @@ Public
 		Return font
 	End
 
-	Function GetMesh:Mesh(filename:String, texFilter:Int = Texture.FILTER_TRILINEAR)
+	Function GetMesh:Mesh(filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
 		'Search for the mesh in all allocated caches
 		For Local i% = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mMeshes.Contains(filename)
@@ -48,7 +49,7 @@ Public
 		Return mesh
 	End
 
-	Function GetTexture:Texture(filename:String, filter:Int = Texture.FILTER_TRILINEAR)
+	Function GetTexture:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
 		'Search for the texture in all allocated caches
 		For Local i% = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mTextures.Contains(filename)
@@ -58,6 +59,22 @@ Public
 
 		'If it was not found, load it
 		Local tex:Texture = Texture.Create(filename, filter)
+		If tex <> Null Then mStack[mStack.Length() - 1].mTextures.Set(filename, tex)
+		Return tex
+	End
+	
+	Function GetTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
+		Local filename:String = left + "," + right + "," + front + "," + back + "," + top + "," + bottom
+		
+		'Search for the texture in all allocated caches
+		For Local i% = mStack.Length()-1 To 0 Step -1
+			If mStack[i].mTextures.Contains(filename)
+				Return mStack[i].mTextures.Get(filename)
+			End
+		Next
+
+		'If it was not found, load it
+		Local tex:Texture = Texture.Create(left, right, front, back, top, bottom, filter)
 		If tex <> Null Then mStack[mStack.Length() - 1].mTextures.Set(filename, tex)
 		Return tex
 	End

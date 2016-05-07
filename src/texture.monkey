@@ -7,11 +7,15 @@ Import vortex.src.renderer
 Public
 Class Texture Final
 Public
-	Const FILTER_NONE:Int = Renderer.FILTER_NONE
-	Const FILTER_LINEAR:Int = Renderer.FILTER_LINEAR
-	Const FILTER_BILINEAR:Int = Renderer.FILTER_BILINEAR
-	Const FILTER_TRILINEAR:Int = Renderer.FILTER_TRILINEAR
-
+	Function Create:Texture(buffer:DataBuffer, width:Int, height:Int, filter:Int)
+		Local tex:Texture = New Texture
+		tex.mHandle = Renderer.GenTexture(buffer, width, height, filter)
+		tex.mWidth = width
+		tex.mHeight = height
+		tex.mIsCubic = False
+		Return tex
+	End
+	
 	Function Create:Texture(filename:String, filter:Int)
 		Local handle:Int = Renderer.LoadTexture(filename, mSizeArr, filter)
 		If mSizeArr[0] > 0
@@ -20,18 +24,26 @@ Public
 			tex.mHandle = handle
 			tex.mWidth = mSizeArr[0]
 			tex.mHeight = mSizeArr[1]
+			tex.mIsCubic = False
 			Return tex
 		Else
 			Return Null
 		End
 	End
-
-	Function Create:Texture(buffer:DataBuffer, width:Int, height:Int, filter:Int)
-		Local tex:Texture = New Texture
-		tex.mHandle = Renderer.GenTexture(buffer, width, height, filter)
-		tex.mWidth = width
-		tex.mHeight = height
-		Return tex
+	
+	Function Create:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int)
+		Local handle:Int = Renderer.LoadCubicTexture(left, right, front, back, top, bottom, mSizeArr, filter)
+		If mSizeArr[0] > 0
+			Local tex:Texture = New Texture
+			tex.mFilename = left + "," + right + "," + front + "," + back + "," + top + "," + bottom
+			tex.mHandle = handle
+			tex.mWidth = mSizeArr[0]
+			tex.mHeight = mSizeArr[1]
+			tex.mIsCubic = True
+			Return tex
+		Else
+			Return Null
+		End
 	End
 
 	Method Free:Void()
@@ -52,6 +64,10 @@ Public
 
 	Method GetHeight:Int()
 		Return mHeight
+	End
+	
+	Method IsCubic:Bool()
+		Return mIsCubic
 	End
 
 	Method Draw:Void(x:Float, y:Float, width:Float = 0, height:Float = 0, rectx:Float = 0, recty:Float = 0, rectwidth:Float = 0, rectheight:Float = 0)
@@ -89,9 +105,9 @@ Public
 		mBuffer.PokeFloat(76, v1)
 
 		'Render
-		Renderer.SetTexture(mHandle)
+		Renderer.SetTextures(mHandle, 0, 0, False)
 		Renderer.DrawTexRect(mBuffer)
-		Renderer.SetTexture(0)
+		Renderer.SetTextures(0, 0, 0, False)
 	End
 Private
 	Method New()
@@ -101,6 +117,7 @@ Private
 	Field mHandle	: Int
 	Field mWidth	: Int
 	Field mHeight	: Int
+	Field mIsCubic	: Bool
 	Global mSizeArr	: Int[2]
 	Global mBuffer	: DataBuffer = New DataBuffer(80)
 End
