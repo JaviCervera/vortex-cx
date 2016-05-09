@@ -20,6 +20,12 @@ Public
 		surf.mIndexBuffer = Renderer.CreateBuffer()
 		Return surf
 	End
+	
+	Function Create:Surface(other:Surface)
+		Local surf:Surface = Surface.Create(other.mMaterial)
+		surf.Set(other)
+		Return surf
+	End
 
 	Method Free:Void()
 		mIndices.Discard()
@@ -92,7 +98,7 @@ Public
 		Return mIndices.PeekShort(index*6 + 4)
 	End
 
-	Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, r:Float, g:Float, b:Float, a:Float, u:Float, v:Float)
+	Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, r:Float, g:Float, b:Float, a:Float, u0:Float, v0:Float)
 		'Create new buffer if current is too short
 		If mVertices.Length() < (GetNumVertices() + 1) * VERTEX_SIZE
 			'Read data in an array
@@ -109,7 +115,7 @@ Public
 		End
 
 		'Copy new vertex data
-		mVertices.PokeFloats(mNumVertices * VERTEX_SIZE, [x, y, z, nx, ny, nz, r, g, b, a, u, v], 0, 12)
+		mVertices.PokeFloats(mNumVertices * VERTEX_SIZE, [x, y, z, nx, ny, nz, 0.0, 0.0, 0.0, r, g, b, a, u0, v0, u0, v0], 0, 17)
 		mNumVertices += 1
 
 		Return GetNumVertices()-1
@@ -126,13 +132,21 @@ Public
 	Method SetVertexNormal:Void(index:Int, nx:Float, ny:Float, nz:Float)
 		mVertices.PokeFloats(index * VERTEX_SIZE + NORMAL_OFFSET, [nx, ny, nz], 0, 3)
 	End
+	
+	Method SetVertexTangent:Void(index:Int, tx:Float, ty:Float, tz:Float)
+		mVertices.PokeFloats(index * VERTEX_SIZE + TANGENT_OFFSET, [tx, ty, tz], 0, 3)
+	End
 
 	Method SetVertexColor:Void(index:Int, r:Float, g:Float, b:Float, a:Float)
 		mVertices.PokeFloats(index * VERTEX_SIZE + COLOR_OFFSET, [r, g, b, a], 0, 4)
 	End
 
-	Method SetVertexTexCoords:Void(index:Int, u:Float, v:Float)
-		mVertices.PokeFloats(index * VERTEX_SIZE + TEX_OFFSET, [u, v], 0, 2)
+	Method SetVertexTexCoords:Void(index:Int, u:Float, v:Float, set:Int = 0)
+		If set = 0
+			mVertices.PokeFloats(index * VERTEX_SIZE + TEX0_OFFSET, [u, v], 0, 2)
+		Else
+			mVertices.PokeFloats(index * VERTEX_SIZE + TEX1_OFFSET, [u, v], 0, 2)
+		End
 	End
 	
 	Method SetVertexBone:Void(vertex:Int, index:Int, bone:Int, weight:Float)
@@ -164,6 +178,18 @@ Public
 	Method GetVertexNZ:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + NORMAL_OFFSET + 8)
 	End
+	
+	Method GetVertexTX:Float(index:Int)
+		Return mVertices.PeekFloat(index*VERTEX_SIZE + TANGENT_OFFSET)
+	End
+	
+	Method GetVertexTY:Float(index:Int)
+		Return mVertices.PeekFloat(index*VERTEX_SIZE + TANGENT_OFFSET + 4)
+	End
+	
+	Method GetVertexTZ:Float(index:Int)
+		Return mVertices.PeekFloat(index*VERTEX_SIZE + TANGENT_OFFSET + 8)
+	End
 
 	Method GetVertexRed:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET)
@@ -181,12 +207,20 @@ Public
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 12)
 	End
 
-	Method GetVertexU:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET)
+	Method GetVertexU:Float(index:Int, set:Int = 0)
+		If set = 0
+			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX0_OFFSET)
+		Else
+			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX1_OFFSET)
+		End
 	End
 
-	Method GetVertexV:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET + 4)
+	Method GetVertexV:Float(index:Int, set:Int = 0)
+		If set = 0
+			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX0_OFFSET + 4)
+		Else
+			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX1_OFFSET + 4)
+		End
 	End
 	
 	Method GetVertexBoneIndex:Int(vertex:Int, index:Int)
@@ -203,19 +237,21 @@ Public
 	End
 	
 	Method Draw:Void()
-		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, COLOR_OFFSET, TEX_OFFSET, BONEINDICES_OFFSET, BONEWEIGHTS_OFFSET, VERTEX_SIZE)
+		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, COLOR_OFFSET, TEX0_OFFSET, BONEINDICES_OFFSET, BONEWEIGHTS_OFFSET, VERTEX_SIZE)
 	End
 Private
 	Method New()
 	End
 
-	Const POS_OFFSET:Int = 0
-	Const NORMAL_OFFSET:Int = 12
-	Const COLOR_OFFSET:Int = 24
-	Const TEX_OFFSET:Int = 40
-	Const BONEINDICES_OFFSET:Int = 48
-	Const BONEWEIGHTS_OFFSET:Int = 64
-	Const VERTEX_SIZE:Int = 80
+	Const POS_OFFSET:Int = 0			'12 bytes
+	Const NORMAL_OFFSET:Int = 12		'12 bytes
+	Const TANGENT_OFFSET:Int = 24		'12 bytes
+	Const COLOR_OFFSET:Int = 36			'16 bytes
+	Const TEX0_OFFSET:Int = 52			'8 bytes
+	Const TEX1_OFFSET:Int = 60			'8 bytes
+	Const BONEINDICES_OFFSET:Int = 68	'16 bytes
+	Const BONEWEIGHTS_OFFSET:Int = 84	'16 bytes
+	Const VERTEX_SIZE:Int = 100
 	Const INC:Int = 128
 
 	Field mMaterial		: Material

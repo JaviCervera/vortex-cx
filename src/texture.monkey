@@ -105,9 +105,9 @@ Public
 		mBuffer.PokeFloat(76, v1)
 
 		'Render
-		Renderer.SetTextures(mHandle, 0, 0, False)
+		Renderer.SetTextures(mHandle, 0, 0, 0, False)
 		Renderer.DrawTexRect(mBuffer)
-		Renderer.SetTextures(0, 0, 0, False)
+		Renderer.SetTextures(0, 0, 0, 0, False)
 	End
 Private
 	Method New()

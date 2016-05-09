@@ -25,7 +25,7 @@ Public
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mDiffuseRed = other.mDiffuseRed And mDiffuseGreen = other.mDiffuseGreen And mDiffuseBlue = other.mDiffuseBlue And mDiffuseTex = other.mDiffuseTex And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mAlpha = other.mAlpha And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite
+		If mDiffuseRed = other.mDiffuseRed And mDiffuseGreen = other.mDiffuseGreen And mDiffuseBlue = other.mDiffuseBlue And mDiffuseTex = other.mDiffuseTex And mNormalTex = other.mNormalTex And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mAlpha = other.mAlpha And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite
 			Return True
 		Else
 			Return False
@@ -38,6 +38,7 @@ Public
 		mDiffuseGreen = other.mDiffuseGreen
 		mDiffuseBlue = other.mDiffuseBlue
 		mDiffuseTex = other.mDiffuseTex
+		mNormalTex = other.mNormalTex
 		mReflectTex = other.mReflectTex
 		mRefractTex = other.mRefractTex
 		mAlpha = other.mAlpha
@@ -72,6 +73,14 @@ Public
 
 	Method GetDiffuseTexture:Texture()
 		Return mDiffuseTex
+	End
+	
+	Method SetNormalTexture:Void(tex:Texture)
+		mNormalTex = tex
+	End
+	
+	Method GetNormalTexture:Texture()
+		Return mNormalTex
 	End
 	
 	Method SetReflectionTexture:Void(tex:Texture)
@@ -140,6 +149,7 @@ Public
 
 	Method Prepare:Void()
 		Local diffuseHandle:Int = 0
+		Local normalHandle:Int = 0
 		Local reflectHandle:Int = 0
 		Local refractHandle:Int = 0
 		Local shininess:Int = 0
@@ -151,9 +161,10 @@ Public
 		Renderer.SetCulling(mCulling)
 		Renderer.SetDepthWrite(mDepthWrite)
 		If mDiffuseTex <> Null Then diffuseHandle = mDiffuseTex.GetHandle()
+		If mNormalTex <> Null Then normalHandle = mNormalTex.GetHandle()
 		If mReflectTex <> Null Then reflectHandle = mReflectTex.GetHandle()
 		If mRefractTex <> Null Then refractHandle = mRefractTex.GetHandle()
-		Renderer.SetTextures(diffuseHandle, reflectHandle, refractHandle, mDiffuseTex And mDiffuseTex.IsCubic())
+		Renderer.SetTextures(diffuseHandle, normalHandle, reflectHandle, refractHandle, mDiffuseTex And mDiffuseTex.IsCubic())
 		Renderer.SetPixelLighting(Vortex.GetGlobalPixelLighting())
 	End
 Private
@@ -164,6 +175,7 @@ Private
 	Field mDiffuseGreen	: Float
 	Field mDiffuseBlue	: Float
 	Field mDiffuseTex	: Texture
+	Field mNormalTex	: Texture
 	Field mReflectTex	: Texture
 	Field mRefractTex	: Texture
 	Field mAlpha		: Float

@@ -16,6 +16,21 @@ Public
 		mesh.mBones = New Bone[0]
 		Return mesh
 	End
+	
+	Function Create:Mesh(other:Mesh)
+		Local mesh:Mesh = Mesh.Create()
+		mesh.mFilename = other.mFilename
+		mesh.mSurfaces = New Surface[other.mSurfaces.Length()]
+		For Local i:Int = 0 Until other.mSurfaces.Length()
+			mesh.mSurfaces[i] = Surface.Create(other.mSurfaces[i])
+		Next
+		mesh.mLastFrame = other.mLastFrame
+		mesh.mBones	= New Bone[other.mBones.Length()]
+		For Local i:Int = 0 Until other.mBones.Length()
+			mesh.mBones[i] = Bone.Create(other.mBones[i])
+		Next
+		Return mesh
+	End
 
 	Method Free:Void()
 		For Local surf:Surface = Eachin mSurfaces

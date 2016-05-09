@@ -97,6 +97,7 @@ Public
 			Local indicesStr$[] = surfaceNode.GetChildValue("indices", "").Split(",")
 			Local coordsStr$[] = surfaceNode.GetChildValue("coords", "").Split(",")
 			Local normalsStr$[] = surfaceNode.GetChildValue("normals", "").Split(",")
+			Local tangentsStr$[] = surfaceNode.GetChildValue("tangents", "").Split(",")
 			Local colorsStr$[] = surfaceNode.GetChildValue("colors", "").Split(",")
 			Local texcoordsStr$[] = surfaceNode.GetChildValue("texcoords", "").Split(",")
 			Local boneIndicesStr$[] = surfaceNode.GetChildValue("bone_indices", "").Split(",")
@@ -111,7 +112,8 @@ Public
 			Local coordsLenDiv3% = coordsStr.Length()/3
 			For Local j% = 0 Until coordsLenDiv3
 				Local x#, y#, z#
-				Local nx# = 1, ny# = 1, nz# = 1
+				Local nx# = 0, ny# = 0, nz# = 0
+				Local tx# = 0, ty# = 0, tz# = 0
 				Local r# = 1, g# = 1, b# = 1, a# = 1
 				Local u# = 0, v# = 0
 				Local b0% = -1, b1% = -1, b2% = -1, b3% = -1
@@ -127,6 +129,13 @@ Public
 					nx = Float(normalsStr[j*3])
 					ny = Float(normalsStr[j*3+1])
 					nz = Float(normalsStr[j*3+2])
+				End
+				
+				'Read tangents
+				If tangentsStr.Length() > 1
+					tx = Float(tangentsStr[j*3])
+					ty = Float(tangentsStr[j*3+1])
+					tz = Float(tangentsStr[j*3+2])
 				End
 
 				'Read colors
@@ -161,6 +170,7 @@ Public
 
 				'Add vertex
 				Local vertex:Int = surf.AddVertex(x, y, z, nx, ny, nz, r, g, b, a, u, v)
+				surf.SetVertexTangent(vertex, tx, ty, tz)
 				
 				
 				'Set vertex bones and weights

@@ -52,8 +52,8 @@ Public
 		mTests[3] = New BillboardsTest
 		mTests[4] = New LightingTest
 		mTests[5] = New AnimationTest
-		'mTests[6] = New LevelTest
 		mTests[6] = New MaterialTest
+		'mTests[7] = New LevelTest
 		mCurrentTest = 6
 		mTests[mCurrentTest].Init()
 		

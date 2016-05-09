@@ -21,7 +21,6 @@ Public
 
 Class Renderer Final
 Public
-	Const BASETEX_UNIT% = 0
 	Const BLEND_ALPHA% = 0
 	Const BLEND_ADD% = 1
 	Const BLEND_MUL% = 2
@@ -34,6 +33,11 @@ Public
 	Const TEXTURE_DISABLED% = 0
 	Const TEXTURE_2D% = 1
 	Const MAX_BONES% = 128
+	Const BASETEX_UNIT% = 0
+	Const BASECUBE_UNIT% = 1
+	Const NORMALTEX_UNIT% = 2
+	Const REFLECTTEX_UNIT% = 3
+	Const REFRACTTEX_UNIT% = 4
 
 	'---------------------------------------------------------------------------
 	'Setup
@@ -133,6 +137,8 @@ Public
 
 	Function SetViewMatrix:Void(m:Mat4)
 		mViewMatrix.Set(m)
+		mInvViewMatrix.Set(m)
+		mInvViewMatrix.Invert()
 	End
 
 	Function GetViewMatrix:Mat4()
@@ -141,12 +147,6 @@ Public
 
 	Function SetModelMatrix:Void(m:Mat4)
 		If m <> mModelMatrix Then mModelMatrix.Set(m)
-		
-		'Calculate Model
-		If mActiveProgram.mModelLoc <> -1
-			mTempMatrix.Set(mModelMatrix)
-			glUniformMatrix4fv(mActiveProgram.mModelLoc, 1, False, mTempMatrix.m)
-		End
 
 		'Calculate ModelView
 		If mActiveProgram.mModelViewLoc <> -1 Or mActiveProgram.mNormalMatrixLoc <> -1
@@ -161,6 +161,9 @@ Public
 			mTempMatrix.Transpose()
 			glUniformMatrix4fv(mActiveProgram.mNormalMatrixLoc, 1, False, mTempMatrix.m)
 		End
+		
+		'Set inverse view
+		If mActiveProgram.mInvViewLoc <> -1 Then glUniformMatrix4fv(mActiveProgram.mInvViewLoc, 1, False, mInvViewMatrix.m)
 
 		'Calculate MVP
 		If mActiveProgram.mMVPLoc <> -1
@@ -212,10 +215,10 @@ Public
 	End
 	
 	Function SetFog:Void(enable:Bool, minDist:Float, maxDist:Float, r:Float, g:Float, b:Float)
-		glUniform1i(mFogEnabledLoc, enable)
+		glUniform1i(mActiveProgram.mFogEnabledLoc, enable)
 		If enable
-			glUniform2f(mFogDistLoc, minDist, maxDist)
-			glUniform3f(mFogColorLoc, r, g, b)
+			glUniform2f(mActiveProgram.mFogDistLoc, minDist, maxDist)
+			glUniform3f(mActiveProgram.mFogColorLoc, r, g, b)
 		End
 	End
 
@@ -229,10 +232,6 @@ Public
 	
 	Function SetRefractCoef:Void(coef:Float)
 		If mActiveProgram.mRefractCoefLoc <> -1 Then glUniform1f(mActiveProgram.mRefractCoefLoc, coef)
-	End
-	
-	Function SetEyePos:Void(x:Float, y:Float, z:Float)
-		If mActiveProgram.mEyePosLoc <> -1 Then glUniform3f(mActiveProgram.mEyePosLoc, x, y, z)
 	End
 	
 	Function SetPixelLighting:Void(enable:Bool)
@@ -406,8 +405,8 @@ Public
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + left)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + right)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + front)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + back)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + front)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + back)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + top)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + bottom)
 #If TARGET<>"html5"
@@ -435,22 +434,26 @@ Public
 		glDeleteTexture(texture)
 	End
 
-	Function SetTextures:Void(diffuseTex:Int, reflectionTex:Int, refractionTex:Int, isDiffuseCubic:Bool)
+	Function SetTextures:Void(diffuseTex:Int, normalTex:Int, reflectionTex:Int, refractionTex:Int, isDiffuseCubic:Bool)
 		If diffuseTex <> 0
 			If Not isDiffuseCubic
-				glActiveTexture(GL_TEXTURE0)
+				glActiveTexture(GL_TEXTURE0 + BASETEX_UNIT)
 				glBindTexture(GL_TEXTURE_2D, diffuseTex)
 			Else
-				glActiveTexture(GL_TEXTURE1)
+				glActiveTexture(GL_TEXTURE0 + BASECUBE_UNIT)
 				glBindTexture(GL_TEXTURE_CUBE_MAP, diffuseTex)
 			End
 		End
+		If normalTex <> 0
+			glActiveTexture(GL_TEXTURE0 + NORMALTEX_UNIT)
+			glBindTexture(GL_TEXTURE_2D, normalTex)
+		End
 		If reflectionTex <> 0
-			glActiveTexture(GL_TEXTURE2)
+			glActiveTexture(GL_TEXTURE0 + REFLECTTEX_UNIT)
 			glBindTexture(GL_TEXTURE_CUBE_MAP, reflectionTex)
 		End
 		If refractionTex <> 0
-			glActiveTexture(GL_TEXTURE3)
+			glActiveTexture(GL_TEXTURE0 + REFRACTTEX_UNIT)
 			glBindTexture(GL_TEXTURE_CUBE_MAP, refractionTex)
 		End
 		
@@ -463,6 +466,7 @@ Public
 				glUniform1i(mActiveProgram.mBaseTexModeLoc, 2)
 			End
 		End
+		If mActiveProgram.mUseNormalTexLoc <> -1 Then glUniform1i(mActiveProgram.mUseNormalTexLoc, normalTex <> 0)
 		If mActiveProgram.mUseReflectTexLoc <> -1 Then glUniform1i(mActiveProgram.mUseReflectTexLoc, reflectionTex <> 0)
 		If mActiveProgram.mUseRefractTexLoc <> -1 Then glUniform1i(mActiveProgram.mUseRefractTexLoc, refractionTex <> 0)
 		
@@ -634,6 +638,7 @@ Private
 	Global mModelMatrix:Mat4 = Mat4.Create()
 	Global mViewMatrix:Mat4 = Mat4.Create()
 	Global mProjectionMatrix:Mat4 = Mat4.Create()
+	Global mInvViewMatrix:Mat4 = Mat4.Create()
 	Global mTempMatrix:Mat4 = Mat4.Create()
 	Global mDefaultProgram:GpuProgram			'Default program id
 	Global m2DProgram:GpuProgram				'Default 2D program id
@@ -647,14 +652,15 @@ Class GpuProgram
 	Field mProgramId%
 	Field mMVPLoc%
 	Field mModelViewLoc%
-	Field mModelLoc%
 	Field mNormalMatrixLoc%
-	Field mEyePosLoc%
+	Field mInvViewLoc%
 	Field mBaseTexModeLoc%
+	Field mUseNormalTexLoc%
 	Field mUseReflectTexLoc%
 	Field mUseRefractTexLoc%
 	Field mBaseTexSamplerLoc%
 	Field mBaseCubeSamplerLoc%
+	Field mNormalTexSamplerLoc%
 	Field mReflectCubeSamplerLoc%
 	Field mRefractCubeSamplerLoc%
 	Field mUsePixelLightingLoc%
@@ -674,6 +680,7 @@ Class GpuProgram
 	Field mBonesLoc%[Renderer.MAX_BONES]
 	Field mVPosLoc%
 	Field mVNormalLoc%
+	Field mVTangentLoc%
 	Field mVColorLoc%
 	Field mVTexLoc%
 	Field mVBoneIndicesLoc%
@@ -684,10 +691,10 @@ Class GpuProgram
 		glUseProgram(program)
 		mMVPLoc = glGetUniformLocation(program, "mvp")
 		mModelViewLoc = glGetUniformLocation(program, "modelView")
-		mModelLoc = glGetUniformLocation(program, "model")
 		mNormalMatrixLoc = glGetUniformLocation(program, "normalMatrix")
-		mEyePosLoc = glGetUniformLocation(program, "eyePos")
+		mInvViewLoc = glGetUniformLocation(program, "invView")
 		mBaseTexModeLoc = glGetUniformLocation(program, "baseTexMode")
+		mUseNormalTexLoc = glGetUniformLocation(program, "useNormalTex")
 		mUseReflectTexLoc = glGetUniformLocation(program, "useReflectTex")
 		mUseRefractTexLoc = glGetUniformLocation(program, "useRefractTex")
 		mUsePixelLightingLoc = glGetUniformLocation(program, "usePixelLighting")
@@ -711,6 +718,7 @@ Class GpuProgram
 		Next
 		mVPosLoc = glGetAttribLocation(program, "vpos")
 		mVNormalLoc = glGetAttribLocation(program, "vnormal")
+		mVTangentLoc = glGetAttribLocation(program, "vtangent")
 		mVColorLoc = glGetAttribLocation(program, "vcolor")
 		mVTexLoc = glGetAttribLocation(program, "vtex")
 		mVBoneIndicesLoc = glGetAttribLocation(program, "vboneIndices")
@@ -718,6 +726,7 @@ Class GpuProgram
 
 		mBaseTexSamplerLoc = glGetUniformLocation(program, "baseTexSampler")
 		mBaseCubeSamplerLoc = glGetUniformLocation(program, "baseCubeSampler")
+		mNormalTexSamplerLoc = glGetUniformLocation(program, "normalTexSampler")
 		mReflectCubeSamplerLoc = glGetUniformLocation(program, "reflectCubeSampler")
 		mRefractCubeSamplerLoc = glGetUniformLocation(program, "refractCubeSampler")
 	End
@@ -728,9 +737,10 @@ Class GpuProgram
 	
 	Method Use:Void()
 		glUseProgram(mProgramId)		
-		If mBaseTexSamplerLoc <> -1 Then glUniform1i(mBaseTexSamplerLoc, 0)
-		If mBaseCubeSamplerLoc <> -1 Then glUniform1i(mBaseCubeSamplerLoc, 1)
-		If mReflectCubeSamplerLoc <> -1 Then glUniform1i(mReflectCubeSamplerLoc, 2)
-		If mRefractCubeSamplerLoc <> -1 Then glUniform1i(mRefractCubeSamplerLoc, 3)
+		If mBaseTexSamplerLoc <> -1 Then glUniform1i(mBaseTexSamplerLoc, Renderer.BASETEX_UNIT)
+		If mBaseCubeSamplerLoc <> -1 Then glUniform1i(mBaseCubeSamplerLoc, Renderer.BASECUBE_UNIT)
+		If mNormalTexSamplerLoc <> -1 Then glUniform1i(mNormalTexSamplerLoc, Renderer.NORMALTEX_UNIT)
+		If mReflectCubeSamplerLoc <> -1 Then glUniform1i(mReflectCubeSamplerLoc, Renderer.REFLECTTEX_UNIT)
+		If mRefractCubeSamplerLoc <> -1 Then glUniform1i(mRefractCubeSamplerLoc, Renderer.REFRACTTEX_UNIT)
 	End
 End

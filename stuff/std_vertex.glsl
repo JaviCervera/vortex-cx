@@ -5,10 +5,10 @@ precision mediump float;
 
 uniform mat4 mvp;
 uniform mat4 modelView;
-uniform mat4 model;
 uniform mat4 normalMatrix;
-uniform vec3 eyePos;
+uniform mat4 invView;
 uniform int baseTexMode;
+uniform bool useNormalTex;
 uniform bool useReflectTex;
 uniform bool useRefractTex;
 uniform bool usePixelLighting;
@@ -27,6 +27,7 @@ uniform bool skinned;
 uniform mat4 bones[MAX_BONES];
 attribute vec3 vpos;
 attribute vec3 vnormal;
+attribute vec3 vtangent;
 attribute vec4 vcolor;
 attribute vec2 vtex;
 attribute vec4 vboneIndices;
@@ -41,6 +42,7 @@ varying float fogFactor;
 varying vec3 fcubeCoords;
 varying vec3 freflectCoords;
 varying vec3 frefractCoords;
+varying mat3 tbnMatrix;
 
 void CalcLighting(vec3 V, vec3 NV, vec3 N) {
 	// Color that combines diffuse component of all lights
@@ -87,26 +89,35 @@ void main() {
 		vpos4 = blendVertex;
 	};
 	
-	// Vertex position in projection and view spaces
+	// Vertex position in projection space
 	gl_Position = mvp * vpos4;
-	vec3 V;
-	if ( lightingEnabled || fogEnabled ) V = vec3(modelView * vpos4);
-
+	
 	// Fragment color
 	fcolor = baseColor * vcolor;
 
 	// Fragment texture coords
 	ftex = vtex;
 	
+	// Calculate vectors used in lighting and env mapping
+	vec3 V;
+	vec3 NV;
+	vec3 N;
+	if ( lightingEnabled || baseTexMode == 2 || useNormalTex || useReflectTex || useRefractTex || fogEnabled ) {
+		// Calculate vertex in viewer space
+		V = vec3(modelView * vpos4);
+
+		if ( lightingEnabled || baseTexMode == 2 || useNormalTex || useReflectTex || useRefractTex ) {
+			// Calculate normalized vertex coordinates
+			NV = normalize(V);
+
+			// Calculate normal in viewer space
+			N = normalize(vec3(normalMatrix * vec4(vnormal, 0.0)));
+		}
+	}
+	
 	// Lighting
 	if ( lightingEnabled ) {
-		// Calculate normalized vertex coordinates
-		vec3 NV = normalize(V);
-
-		// Calculate normal in viewer space
-		vec3 N = normalize(vec3(normalMatrix * vec4(vnormal, 0.0)));
-
-		if ( !usePixelLighting ) {
+		if ( !usePixelLighting && !useNormalTex ) {
 			// Color that combines specular component of all lights
 			fcombinedSpecular = vec3(0.0, 0.0, 0.0);
 		
@@ -124,10 +135,15 @@ void main() {
 	
 	// Cube mapping coordinates
 	if ( baseTexMode == 2 || useReflectTex || useRefractTex ) {
-		vec3 eye = normalize(vec3(model * vec4(vpos, 1)) - eyePos);
-		vec3 normal = vec3(model * vec4(vnormal, 0));
-		if ( baseTexMode == 2 ) fcubeCoords = normalize(V);
-		if ( useReflectTex ) freflectCoords = normalize(reflect(eye, normal));
-		if ( useRefractTex ) frefractCoords = normalize(refract(eye, normal, refractCoef));
+		if ( baseTexMode == 2 ) fcubeCoords = vec3(invView * vec4(V, 1));
+		if ( useReflectTex ) freflectCoords = normalize(vec3(invView * vec4(reflect(NV, N), 0)));
+		if ( useRefractTex ) frefractCoords = normalize(vec3(invView * vec4(refract(NV, N, refractCoef), 0)));
+	}
+	
+	// Calculate TBN matrix
+	if ( lightingEnabled && useNormalTex ) {
+		vec3 eyeTangent = normalize(vec3(normalMatrix * vec4(vtangent, 0)));
+		vec3 eyeBitangent = cross(eyeTangent, NV);
+		tbnMatrix = mat3(eyeTangent, eyeBitangent, NV);
 	}
 }

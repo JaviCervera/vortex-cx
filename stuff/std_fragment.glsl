@@ -4,10 +4,12 @@ precision mediump float;
 #endif
 
 uniform int baseTexMode;
+uniform bool useNormalTex;
 uniform bool useReflectTex;
 uniform bool useRefractTex;
 uniform sampler2D baseTexSampler;
 uniform samplerCube baseCubeSampler;
+uniform sampler2D normalTexSampler;
 uniform samplerCube reflectCubeSampler;
 uniform samplerCube refractCubeSampler;
 uniform bool usePixelLighting;
@@ -30,6 +32,7 @@ varying float fogFactor;
 varying vec3 fcubeCoords;
 varying vec3 freflectCoords;
 varying vec3 frefractCoords;
+varying mat3 tbnMatrix;
 
 vec4 combinedColor = vec4(1, 1, 1, 1);
 vec3 combinedSpecular = vec3(0, 0, 0);
@@ -37,6 +40,13 @@ vec3 combinedSpecular = vec3(0, 0, 0);
 void CalcLighting(vec3 V, vec3 NV, vec3 N) {
 	// Color that combines diffuse component of all lights
 	combinedColor *= vec4(ambient, 1.0);
+	
+	// Get vertex normal or compute from normal map
+	vec3 normal = N;
+	if ( useNormalTex ) {
+		vec3 normalTexColor = vec3(texture2D(normalTexSampler, ftex));
+		normal = tbnMatrix * (normalTexColor*2.0 - 1.0);
+	}
 
 	// Compute all lights
 	for ( int i = 0; i < MAX_LIGHTS; i++ ) {
@@ -51,7 +61,7 @@ void CalcLighting(vec3 V, vec3 NV, vec3 N) {
 			}
 
 			L = normalize(L);
-			float NdotL = max(dot(N, L), 0.0);
+			float NdotL = max(dot(normal, L), 0.0);
 
 			// Diffuse
 			combinedColor += NdotL * vec4(lightColor[i], 1.0) * att;
@@ -59,7 +69,7 @@ void CalcLighting(vec3 V, vec3 NV, vec3 N) {
 			// Specular
 			if ( shininess > 0 && NdotL > 0.0 ) {
 				vec3 H = normalize(L - NV);
-				float NdotH = max(dot(N, H), 0.0);
+				float NdotH = max(dot(normal, H), 0.0);
 				combinedSpecular += pow(NdotH, float(shininess)) * att;
 			}
 		}
@@ -67,7 +77,8 @@ void CalcLighting(vec3 V, vec3 NV, vec3 N) {
 }
 
 void main() {
-	if ( usePixelLighting ) {
+	// Lighting
+	if ( lightingEnabled && (usePixelLighting || useNormalTex) ) {
 		CalcLighting(fpos, fposNorm, fnormal);
 		combinedColor *= fcolor;
 	} else {

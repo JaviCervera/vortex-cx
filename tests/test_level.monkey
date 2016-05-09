@@ -30,8 +30,8 @@ Class LevelTest Extends Test Final
 	End
 	
 	Method Draw:Void()
-		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
-		mView.LookAtLH(0, 100, 0, 0, 100, 100, 0, 1, 0)
+		mProj.SetPerspective(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
+		mView.LookAt(0, 100, 0, 0, 100, 100, 0, 1, 0)
 		mModel.SetTransform(0, 0, 0, 0, mEulerY, 0, 1, 1, 1)
 		
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())

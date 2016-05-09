@@ -20,7 +20,29 @@ Public
 		bone.mPositions = New Vec3[0]
 		bone.mRotations = New Quat[0]
 		bone.mScales = New Vec3[0]
-		bone.mTempMatrix = Mat4.Create()
+		Return bone
+	End
+	
+	Function Create:Bone(other:Bone)
+		Local bone:Bone = Bone.Create(other.mName)
+		bone.mParent = other.mParent
+		bone.mPoseMatrix = Mat4.Create(other.mPoseMatrix)
+		bone.mInvPoseMatrix = Mat4.Create(other.mInvPoseMatrix)
+		bone.mPositionKeys = other.mPositionKeys[..]
+		bone.mRotationKeys = other.mRotationKeys[..]
+		bone.mScaleKeys = other.mScaleKeys[..]
+		bone.mPositions = New Vec3[other.mPositions.Length()]
+		For Local i:Int = 0 Until other.mPositions.Length()
+			bone.mPositions[i] = Vec3.Create(other.mPositions[i])
+		Next
+		bone.mRotations = New Quat[other.mRotations.Length()]
+		For Local i:Int = 0 Until other.mRotations.Length()
+			bone.mRotations[i] = Quat.Create(other.mRotations[i])
+		Next
+		bone.mScales = New Vec3[other.mScales.Length()]
+		For Local i:Int = 0 Until other.mScales.Length()
+			bone.mScales[i] = Vec3.Create(other.mScales[i])
+		Next
 		Return bone
 	End
 
@@ -288,7 +310,6 @@ Private
 	Field mPositions		: Vec3[]
 	Field mRotations		: Quat[]
 	Field mScales			: Vec3[]
-	Field mTempMatrix		: Mat4	'Used to store previous model matrix when rendering, so it can be restored later
 	Global mTempVec			: Vec3 = Vec3.Create()	'Used for temp operations
 	Global mTempQuat		: Quat = Quat.Create()	'Used for temp operations
 End
