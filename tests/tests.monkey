@@ -7,7 +7,7 @@ Strict
 #GLFW_WINDOW_SAMPLES=2
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 
-#If TARGET="glfw"
+#If TARGET="glfw" And HOST<>"linux"
 Import brl.requesters
 #EndIf
 Import mojo.app
@@ -33,7 +33,7 @@ Public
 	
 		'Init vortex
 		If Not Vortex.Init()
-#If TARGET="glfw"
+#If TARGET="glfw" And HOST<>"linux"
 			Notify "Error", Vortex.GetShaderError(), True
 #Else
 			Print "Error: " + Vortex.GetShaderError()
@@ -41,8 +41,10 @@ Public
 			EndApp()
 		End
 		
-		Print "API version: " + Vortex.GetAPIVersion()
-		Print "Shading version: " + Vortex.GetShadingVersion()
+		Print "Vendor name: " + Vortex.GetVendorName()
+		Print "Renderer name: " + Vortex.GetRendererName()
+		Print "API version name: " + Vortex.GetAPIVersionName()
+		Print "Shading version name: " + Vortex.GetShadingVersionName()
 		Print "Shader compilation: " + Vortex.GetShaderError()
 		
 		mTests = New Test[7]

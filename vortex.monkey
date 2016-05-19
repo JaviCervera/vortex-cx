@@ -26,6 +26,22 @@ Public
 	Function GetShaderError:String()
 		Return Renderer.GetProgramError()
 	End
+	
+	Function GetVendorName:String()
+		Return Renderer.GetVendorName()
+	End
+	
+	Function GetRendererName:String()
+		Return Renderer.GetRendererName()
+	End
+	
+	Function GetAPIVersionName:String()
+		Return Renderer.GetAPIVersionName()
+	End
+	
+	Function GetShadingVersionName:String()
+		Return Renderer.GetShadingVersionName()
+	End
 
 	Function GetAPIVersion:Float()
 		Return Renderer.GetAPIVersion()

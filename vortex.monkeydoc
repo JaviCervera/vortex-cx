@@ -674,6 +674,18 @@ Initializes the Vortex library. This should be called before any other function 
 # Function GetShaderError:String()
 Reports any errors that took place while compiling the shaders on initialization.
 
+# Function GetVendorName:String()
+Returns the name of the vendor of the renderer implementation.
+	
+# Function GetRendererName:String()
+Returns the name of the renderer implementation.
+	
+# Function GetAPIVersionName:String()
+Returns the API version name as provided by the driver.
+	
+# Function GetShadingVersionName:String()
+Returns the shading language version name as provided by the driver.
+
 # Function GetAPIVersion:Float()
 Get the version of the API supported by this machine (currently, the version of OpenGL supported by the implementation).
 

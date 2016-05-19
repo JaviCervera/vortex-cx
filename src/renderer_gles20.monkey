@@ -45,14 +45,18 @@ Public
 
 	Function Init:Bool()
 		'Get GL and GLSL versions
+		mVendor = glGetString(GL_VENDOR)
+		mRenderer = glGetString(GL_RENDERER)
+		mVersionStr = glGetString(GL_VERSION)
+		mShadingVersionStr = glGetString(GL_SHADING_LANGUAGE_VERSION)
 #If LANG = "js"
-		Local glVersionStr$[] = glGetString(GL_VERSION).Split(" ")
-		Local glslVersionStr$[] = glGetString(GL_SHADING_LANGUAGE_VERSION).Split(" ")
+		Local glVersionStr$[] = mVersionStr.Split(" ")
+		Local glslVersionStr$[] = mShadingVersionStr.Split(" ")
 		mVersion = Float(glVersionStr[glVersionStr.Length() - 1])
 		mShadingVersion = Float(glslVersionStr[glslVersionStr.Length() - 1])
 #Else
-		mVersion = Float(glGetString(GL_VERSION).Split(" ")[0])
-		mShadingVersion = Float(glGetString(GL_SHADING_LANGUAGE_VERSION).Split(" ")[0])
+		mVersion = Float(mVersionStr.Split(" ")[0])
+		mShadingVersion = Float(mShadingVersionStr.Split(" ")[0])
 #End
 
 		'Prepare default program
@@ -584,6 +588,22 @@ Public
 	Function GetProgramError$()
 		Return mProgramError
 	End
+	
+	Function GetVendorName:String()
+		Return mVendor
+	End
+	
+	Function GetRendererName:String()
+		Return mRenderer
+	End
+	
+	Function GetAPIVersionName:String()
+		Return mVersionStr
+	End
+	
+	Function GetShadingVersionName:String()
+		Return mShadingVersionStr
+	End
 
 	Function GetAPIVersion:Float()
 		Return mVersion
@@ -630,6 +650,10 @@ Private
 	End
 
 	'GL and GLSL version
+	Global mVendor:String
+	Global mRenderer:String
+	Global mVersionStr:String
+	Global mShadingVersionStr:String
 	Global mVersion#
 	Global mShadingVersion#
 
