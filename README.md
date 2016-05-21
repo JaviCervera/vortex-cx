@@ -16,5 +16,6 @@ It has been released under the terms of the [**zlib license**](https://en.wikipe
 * **Materials** (brushes) support base color, base texture, opacity, and specular reflections. They also support different blending modes: alpha, additive, multiplicative.
 * **Dynamic lighting** with directional and point lights (maximum of 8 light sources).
 * Simple **hierarchical animation** for meshes.
+* **Linear fog** for ambient effects.
 
 ![meshtool](./stuff/meshtool.jpg)
