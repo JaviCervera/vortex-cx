@@ -18,4 +18,7 @@ It has been released under the terms of the [**zlib license**](https://en.wikipe
 * Simple **hierarchical animation** for meshes.
 * **Linear fog** for ambient effects.
 
+##Installation
+You should clone the repository onto **<MonkeyFolder>/modules_ext/vortex**, or download as a zip file and put the vortex folder on that same **<MonkeyFolder>/modules_ext** location. You should select **Help -> Rebuild Help** on the MonkeyX IDE (Ted) afterwards, and the documentation will be available in your modules help.
+
 ![meshtool](./stuff/meshtool.jpg)
