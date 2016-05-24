@@ -250,11 +250,13 @@ Sets the attenuation factor of the specified light. This value is ignored for di
 # Function GetLightAttenuation:Float(index:Int)
 Returns the attenuation factor of the specified light.
 
-# Function Prepare:Void(ambientRed:Float = 0.3, ambientGreen:Float = 0.3, ambientBlue:Float = 0.3)
+# Function Prepare:Void(ambientRed:Float = 0.3, ambientGreen:Float = 0.3, ambientBlue:Float = 0.3, globalPixelLighting:Bool = False)
 Prepares the engine to render with lighting in the next frame, using the color color components specified
 as parameters as the ambient color (this is, the lighting that will be received by all geometry independent from the light sources).
 Required lights must have been previously enabled and configured. If you do not call this before drawing your scene,
 no lighting information will be computed, despite of which lights were enabled.
+
+The parameter `globalPixelLighting` can be used to enable per-pixel lighting for the entire scene (by default, only normal mapped surfaces use per-pixel lighting).
 
 
 
@@ -265,7 +267,7 @@ Represents a 4x4 homogeneus coordinate matrix. Transformations in 3D space are d
 
 To define how graphics are projected to the screen, you can setup a projection matrix with the methods `SetOrtho` (if you want an orthographic projection), `SetPerspective`, or `SetFrustum` (if you want a perspective projection), and set that matrix as the projection matrix with `Renderer.SetProjectionMatrix` before rendering.
 
-To define the viewer's position and orientation, you can use the mdthod 'LookAt', and set that matrix as the view matrix with `Renderer.SetViewMatrix`before rendering.
+To define the viewer's position and orientation, you can use the method `LookAt`, and set that matrix as the view matrix with `Renderer.SetViewMatrix`before rendering.
 
 To define the position, rotation and scale of an object in the 3D world, you can create a transformation matrix with the methods `SetTransform` or `SetBillboardTransform` (if you want to render an object that always faces the viewer, like a billboard), and set that matrix as the model matrix with `Renderer.SetModelMatrix` before rendering.
 

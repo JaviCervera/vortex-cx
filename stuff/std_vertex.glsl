@@ -46,7 +46,7 @@ varying mat3 tbnMatrix;
 
 void CalcLighting(vec3 V, vec3 NV, vec3 N) {
 	// Color that combines diffuse component of all lights
-	vec4 combinedColor = vec4(ambient, 1.0);
+	vec3 combinedColor = ambient;
 
 	// Compute all lights
 	for ( int i = 0; i < MAX_LIGHTS; i++ ) {
@@ -64,7 +64,7 @@ void CalcLighting(vec3 V, vec3 NV, vec3 N) {
 			float NdotL = max(dot(N, L), 0.0);
 
 			// Diffuse
-			combinedColor += NdotL * vec4(lightColor[i], 1.0) * att;
+			combinedColor += NdotL * lightColor[i] * att;
 
 			// Specular
 			if ( shininess > 0 && NdotL > 0.0 ) {
@@ -75,7 +75,7 @@ void CalcLighting(vec3 V, vec3 NV, vec3 N) {
 		}
 	}
 
-	fcolor *= combinedColor;
+	fcolor *= vec4(clamp(combinedColor, 0.0, 1.0), 1.0);
 }
 
 void main() {
@@ -143,7 +143,7 @@ void main() {
 	// Calculate TBN matrix
 	if ( lightingEnabled && useNormalTex ) {
 		vec3 eyeTangent = normalize(vec3(normalMatrix * vec4(vtangent, 0)));
-		vec3 eyeBitangent = cross(eyeTangent, NV);
-		tbnMatrix = mat3(eyeTangent, eyeBitangent, NV);
+		vec3 eyeBitangent = cross(eyeTangent, N);
+		tbnMatrix = mat3(eyeTangent, eyeBitangent, N);
 	}
 }

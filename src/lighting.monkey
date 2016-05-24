@@ -109,7 +109,7 @@ Public
 		Return mLights[index].mAttenuation
 	End
 
-	Function Prepare:Void(ambientRed:Float = 0.3, ambientGreen:Float = 0.3, ambientBlue:Float = 0.3)
+	Function Prepare:Void(ambientRed:Float = 0.3, ambientGreen:Float = 0.3, ambientBlue:Float = 0.3, globalPixelLighting:Bool = False)
 		InitLights()
 		Renderer.SetLighting(True)
 		Renderer.SetAmbient(ambientRed, ambientGreen, ambientBlue)
@@ -118,6 +118,11 @@ Public
 			Renderer.GetViewMatrix().Mul(light.mX, light.mY, light.mZ, light.mW)
 			Renderer.SetLight(i, light.mEnabled, Mat4.ResultVector().x, Mat4.ResultVector().y, Mat4.ResultVector().z, light.mW, light.mRed, light.mGreen, light.mBlue, light.mAttenuation)
 		Next
+		mGlobalPixelLighting = globalPixelLighting
+	End
+	
+	Function GetGlobalPixelLighting:Bool()
+		Return mGlobalPixelLighting
 	End
 Private
 	Method New()
@@ -125,11 +130,12 @@ Private
 
 	Function InitLights:Void()
 		If mLights[0] = Null
-			For Local i% = 0 Until NUM_LIGHTS
+			For Local i:Int = 0 Until NUM_LIGHTS
 				mLights[i] = New LightData
 			Next
 		End
 	End
 
-	Global mLights		: LightData[NUM_LIGHTS]
+	Global mLights				: LightData[NUM_LIGHTS]
+	Global mGlobalPixelLighting	: Bool = False
 End

@@ -501,11 +501,12 @@ Public
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
 	End
 
-	Function DrawBuffers:Void(vertexBuffer%, indexBuffer%, numIndices%, coordsOffset%, normalsOffset%, colorsOffset%, texCoordsOffset%, boneIndicesOffset%, boneWeightsOffset%, stride%)
+	Function DrawBuffers:Void(vertexBuffer%, indexBuffer%, numIndices%, coordsOffset%, normalsOffset%, tangentsOffset%, colorsOffset%, texCoordsOffset%, boneIndicesOffset%, boneWeightsOffset%, stride%)
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer)
 		If coordsOffset >= 0 And mActiveProgram.mVPosLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVPosLoc); glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, stride, coordsOffset)
 		If normalsOffset >= 0 And mActiveProgram.mVNormalLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVNormalLoc); glVertexAttribPointer(mActiveProgram.mVNormalLoc, 3, GL_FLOAT, False, stride, normalsOffset)
+		If tangentsOffset >= 0 And mActiveProgram.mVTangentLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVTangentLoc); glVertexAttribPointer(mActiveProgram.mVTangentLoc, 3, GL_FLOAT, False, stride, tangentsOffset)
 		If colorsOffset >= 0 And mActiveProgram.mVColorLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVColorLoc); glVertexAttribPointer(mActiveProgram.mVColorLoc, 4, GL_FLOAT, False, stride, colorsOffset)
 		If texCoordsOffset >= 0 And mActiveProgram.mVTexLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVTexLoc); glVertexAttribPointer(mActiveProgram.mVTexLoc, 2, GL_FLOAT, False, stride, texCoordsOffset)
 		If boneIndicesOffset >= 0 And mActiveProgram.mVBoneIndicesLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVBoneIndicesLoc); glVertexAttribPointer(mActiveProgram.mVBoneIndicesLoc, 4, GL_FLOAT, False, stride, boneIndicesOffset)
@@ -513,6 +514,7 @@ Public
 		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0)
 		If mActiveProgram.mVPosLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVPosLoc)
 		If mActiveProgram.mVNormalLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVNormalLoc)
+		If mActiveProgram.mVTangentLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVTangentLoc)
 		If mActiveProgram.mVColorLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVColorLoc)
 		If mActiveProgram.mVTexLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVTexLoc)
 		If mActiveProgram.mVBoneIndicesLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVBoneIndicesLoc)

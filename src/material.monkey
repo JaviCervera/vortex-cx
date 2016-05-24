@@ -1,9 +1,9 @@
 Strict
 
 Private
+Import vortex.src.lighting
 Import vortex.src.renderer
 Import vortex.src.texture
-Import vortex
 
 Public
 Class Material Final
@@ -165,7 +165,7 @@ Public
 		If mReflectTex <> Null Then reflectHandle = mReflectTex.GetHandle()
 		If mRefractTex <> Null Then refractHandle = mRefractTex.GetHandle()
 		Renderer.SetTextures(diffuseHandle, normalHandle, reflectHandle, refractHandle, mDiffuseTex And mDiffuseTex.IsCubic())
-		Renderer.SetPixelLighting(Vortex.GetGlobalPixelLighting())
+		Renderer.SetPixelLighting(Lighting.GetGlobalPixelLighting())
 	End
 Private
 	Method New()

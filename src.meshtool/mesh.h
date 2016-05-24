@@ -10,6 +10,8 @@ namespace irr {
   }
 }
 
+irr::scene::IAnimatedMesh* CreateCube(irr::IrrlichtDevice* device);
+irr::scene::IAnimatedMesh* CreateSphere(irr::IrrlichtDevice* device);
 irr::scene::IAnimatedMesh* LoadMesh(irr::IrrlichtDevice* device, const std::string& filename);
 void SaveMesh(irr::IrrlichtDevice* device, irr::scene::IAnimatedMesh* animMesh, const std::string& filename, bool exportMaterials, bool exportNormals, bool exportTangents, bool exportAnimations, bool exportLightmaps);
 

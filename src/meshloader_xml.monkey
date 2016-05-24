@@ -172,7 +172,6 @@ Public
 				Local vertex:Int = surf.AddVertex(x, y, z, nx, ny, nz, r, g, b, a, u, v)
 				surf.SetVertexTangent(vertex, tx, ty, tz)
 				
-				
 				'Set vertex bones and weights
 				surf.SetVertexBone(vertex, 0, b0, w0)
 				surf.SetVertexBone(vertex, 1, b1, w1)

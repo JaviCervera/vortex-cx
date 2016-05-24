@@ -50,17 +50,7 @@ Public
 	Function GetShadingVersion:Float()
 		Return Renderer.GetShadingVersion()
 	End Function
-	
-	Function SetGlobalPixelLighting:Void(enable:Bool)
-		mPixelLighting = enable
-	End
-	
-	Function GetGlobalPixelLighting:Bool()
-		Return mPixelLighting
-	End
 Private
 	Method New()
 	End
-	
-	Global mPixelLighting:Bool = False
 End

@@ -13,7 +13,8 @@ Class MaterialTest Extends Test Final
 		mView = Mat4.Create()
 		mModel = Mat4.Create()
 		mSkyModel = Mat4.Create()
-		mSkyModel.SetTransform(0, 0, 0, 0, 0, 0, 10, 10, 10)
+		mModel.SetTransform(0, 0, 0, 0, 0, 0, 1, 1, 1)
+		mSkyModel.SetTransform(0, 0, 0, 0, 0, 0, -4, -4, -4)
 		
 		'Create RenderBatch
 		mBatch = RenderBatch.Create()
@@ -26,20 +27,18 @@ Class MaterialTest Extends Test Final
 		
 		'Load box mesh
 		mMesh = Cache.GetMesh("cube.msh.xml")
+		Local mat:Material = mMesh.GetSurface(0).GetMaterial()
+		'mat.SetDiffuseTexture(Null)
+		mat.SetNormalTexture(mNormalTex)
+		'mat.SetReflectionTexture(mTexture)
+		'mat.SetRefractionTexture(mTexture)
+		'mat.SetRefractionCoef(0.98)
 		
 		'Create skybox
 		mSkybox = Mesh.Create(mMesh)
-		mSkybox.GetSurface(0).GetMaterial().SetCulling(False)
-		mSkybox.GetSurface(0).GetMaterial().SetDepthWrite(False)
-		mSkybox.GetSurface(0).GetMaterial().SetDiffuseTexture(mTexture)
-		mSkybox.GetSurface(0).GetMaterial().SetShininess(0)
-		
-		mMat = mMesh.GetSurface(0).GetMaterial()
-		'mMat.SetDiffuseTexture(mTexture)
-		mMat.SetNormalTexture(mNormalTex)
-		mMat.SetReflectionTexture(mTexture)
-		'mMat.SetRefractionTexture(mTexture)
-		mMat.SetRefractionCoef(0.98)
+		mat = mSkybox.GetSurface(0).GetMaterial()
+		mat.Set(Material.Create(mTexture))
+		mat.SetDepthWrite(False)
 		
 		'Add meshes to RenderBatch
 		mBatch.AddMesh(mSkybox, mSkyModel)
@@ -49,9 +48,9 @@ Class MaterialTest Extends Test Final
 	Method Init:Void()
 		'Prepare light
 		Lighting.SetLightEnabled(0, True)
-		Lighting.SetLightType(0, Lighting.DIRECTIONAL)
-		Lighting.SetLightPosition(0, 1, 1, -1)
-		Lighting.SetLightColor(0, 1, 0, 0)
+		Lighting.SetLightType(0, Lighting.POINT)
+		Lighting.SetLightAttenuation(0, 0.05)
+		Lighting.SetLightColor(0, 1, 1, 1)
 		
 		mEulerY = 0
 	End
@@ -64,13 +63,13 @@ Class MaterialTest Extends Test Final
 		Local posX:Float = Cos(mEulerY) * 2
 		Local posZ:Float = -Sin(mEulerY) * 2
 	
-		mProj.SetPerspective(60, Float(DeviceWidth()) / DeviceHeight(), 1, 10)
+		mProj.SetPerspective(75, Float(DeviceWidth()) / DeviceHeight(), 1, 10)
 		mView.LookAt(posX, 0, posZ, 0, 0, 0, 0, 1, 0)
-		mModel.SetTransform(0, 0, 0, 0, 0, 0, 1, 1, 1)
 		
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetProjectionMatrix(mProj)
 		Renderer.SetViewMatrix(mView)
+		Lighting.SetLightPosition(0, posX, 0, posZ)
 		Lighting.Prepare(1, 1, 1)
 		Renderer.ClearColorBuffer(0, 0, 0)
 		Renderer.ClearDepthBuffer()
@@ -91,7 +90,6 @@ Private
 	Field mSkyModel			: Mat4
 	Field mMesh				: Mesh
 	Field mSkybox			: Mesh
-	Field mMat				: Material
 	Field mTexture			: Texture
 	Field mNormalTex		: Texture
 	Field mBatch			: RenderBatch

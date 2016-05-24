@@ -14,6 +14,8 @@ using namespace irr;
 
 // Menu ids
 enum {
+	BUTTON_CUBE,
+	BUTTON_SPHERE,
 	BUTTON_OPEN,
 	BUTTON_SAVEXML,
 	BUTTON_SAVEJSON,
@@ -24,6 +26,9 @@ enum {
 };
 
 std::string W2S(const wchar_t* wstr);
+
+
+
 
 // Event receiver
 class MyEventReceiver : public IEventReceiver
@@ -46,6 +51,12 @@ public:
 			switch (event.GUIEvent.EventType) {
 			case gui::EGET_BUTTON_CLICKED:
 				switch (event.GUIEvent.Caller->getID()) {
+				case BUTTON_CUBE:
+					UpdateMesh(CreateCube(mDevice), "cube");
+					break;
+				case BUTTON_SPHERE:
+					UpdateMesh(CreateSphere(mDevice), "sphere");
+					break;
 				case BUTTON_OPEN:
 					mDevice->getGUIEnvironment()->addFileOpenDialog(L"Select Mesh File To Open:");
 					break;
@@ -60,35 +71,8 @@ public:
 				break;
 			case gui::EGET_FILE_SELECTED:
 			{
-				// get selected filename
 				std::string filename = W2S(dynamic_cast<gui::IGUIFileOpenDialog*>(event.GUIEvent.Caller)->getFileName());
-
-				// remove previous scene node
-				if (mNode) {
-					mNode->removeAll();
-					mNode->remove();
-					mNode = NULL;
-				}
-
-				// load new mesh
-				mMesh = LoadMesh(mDevice, filename);
-
-				// create scene node
-				if (mMesh) mNode = mDevice->getSceneManager()->addAnimatedMeshSceneNode(mMesh);
-
-				// save filename
-				if (mMesh) {
-					mLastFilename = filename;
-					core::vector3df extents = mMesh->getBoundingBox().getExtent();
-					float dimension = std::max(std::max(std::max(extents.X, extents.Y), extents.Z), 1.0f);
-					mCam->setPosition(mMesh->getBoundingBox().getCenter() + core::vector3df(0, dimension * 0.5f, -dimension));
-					mCam->updateAbsolutePosition();
-					mCam->setTarget(mMesh->getBoundingBox().getCenter());
-				}
-				else {
-					mLastFilename = "";
-				}
-
+				UpdateMesh(LoadMesh(mDevice, filename), filename);
 				break;
 			}
 			case gui::EGET_CHECKBOX_CHANGED:
@@ -132,6 +116,34 @@ public:
 	scene::ICameraSceneNode* GetCamera() {
 		return mCam;
 	}
+
+	void UpdateMesh(scene::IAnimatedMesh* mesh, const std::string& filename) {
+		// remove previous scene node
+		if (mNode) {
+			mNode->removeAll();
+			mNode->remove();
+			mNode = NULL;
+		}
+
+		// Set new mesh
+		mMesh = mesh;
+		if ( mesh ) {
+			// create scene node
+			mNode = mDevice->getSceneManager()->addAnimatedMeshSceneNode(mMesh);
+
+			// save filename
+			mLastFilename = filename;
+
+			// Relocate camera
+			core::vector3df extents = mMesh->getBoundingBox().getExtent();
+			float dimension = std::max(std::max(std::max(extents.X, extents.Y), extents.Z), 1.0f);
+			mCam->setPosition(mMesh->getBoundingBox().getCenter() + core::vector3df(0, dimension, -dimension*2));
+			mCam->updateAbsolutePosition();
+			mCam->setTarget(mMesh->getBoundingBox().getCenter());
+		} else {
+			mLastFilename = "";
+		}
+	}
 private:
 	IrrlichtDevice* mDevice;
 	scene::IAnimatedMesh* mMesh;
@@ -143,6 +155,9 @@ private:
 	bool mExportTangents;
 	bool mExportAnimations;
 };
+
+
+
 
 int main(int, char* argv[]) {
 	// Create event receiver
@@ -166,13 +181,15 @@ int main(int, char* argv[]) {
 	gui::IGUIEnvironment* gui = device->getGUIEnvironment();;
 	gui->getSkin()->setFont(gui->getFont("data/fontlucida.png"));
 	gui::IGUIToolBar* toolbar = gui->addToolBar();
+	toolbar->addButton(BUTTON_CUBE, NULL, L"New Cube", device->getVideoDriver()->getTexture("data/cube.png"), NULL, false, true);
+	toolbar->addButton(BUTTON_SPHERE, NULL, L"New Sphere", device->getVideoDriver()->getTexture("data/sphere.png"), NULL, false, true);
 	toolbar->addButton(BUTTON_OPEN, NULL, L"Open Mesh", device->getVideoDriver()->getTexture("data/folder.png"), NULL, false, true);
 	toolbar->addButton(BUTTON_SAVEXML, NULL, L"Save XML Mesh", device->getVideoDriver()->getTexture("data/xhtml.png"), NULL, false, true);
 	//toolbar->addButton(MENU_SAVEJSON, NULL, L"Save JSON Mesh", gDriver->getTexture("data/json.png"), NULL, false, true);
-	gui->addCheckBox(true, core::rect<s32>(100, 4, 200, 23), NULL, BUTTON_EXPORTMATERIALS, L"Brushes");
-	gui->addCheckBox(true, core::rect<s32>(200, 4, 300, 23), NULL, BUTTON_EXPORTNORMALS, L"Normals");
-	//gui->addCheckBox(true, core::rect<s32>(300, 4, 400, 23), NULL, BUTTON_EXPORTTANGENTS, L"Tangents");
-	gui->addCheckBox(true, core::rect<s32>(300, 4, 400, 23), NULL, BUTTON_EXPORTANIMATIONS, L"Animations");
+	gui->addCheckBox(true, core::rect<s32>(150, 4, 250, 23), NULL, BUTTON_EXPORTMATERIALS, L"Brushes");
+	gui->addCheckBox(true, core::rect<s32>(250, 4, 350, 23), NULL, BUTTON_EXPORTNORMALS, L"Normals");
+	gui->addCheckBox(true, core::rect<s32>(350, 4, 450, 23), NULL, BUTTON_EXPORTTANGENTS, L"Tangents");
+	gui->addCheckBox(true, core::rect<s32>(450, 4, 550, 23), NULL, BUTTON_EXPORTANIMATIONS, L"Animations");
 
 	// setup camera;
 	eventReceiver.GetCamera()->bindTargetAndRotation(true);

@@ -25,6 +25,44 @@ scene::ISkinnedMesh::SJoint* FindParent(scene::ISkinnedMesh* mesh, const scene::
 std::vector<int> BoneIndicesForSurface(scene::ISkinnedMesh* mesh, u32 surface);
 std::vector<float> BoneWeightsForSurface(scene::ISkinnedMesh* mesh, u32 surface);
 
+
+
+
+irr::scene::IAnimatedMesh* CreateCube(irr::IrrlichtDevice* device) {
+	scene::IAnimatedMesh* mesh = NULL;
+
+	// create cube
+	irr::scene::IMeshSceneNode* node = device->getSceneManager()->addCubeSceneNode(1);
+	mesh = device->getSceneManager()->getMeshManipulator()->createAnimatedMesh(node->getMesh());
+	node->removeAll();
+	node->remove();
+
+	// disable lighting on mesh
+	if (mesh) {
+		mesh->setMaterialFlag(video::EMF_LIGHTING, false);
+	}
+	return mesh;
+}
+
+
+
+
+irr::scene::IAnimatedMesh* CreateSphere(irr::IrrlichtDevice* device) {
+	scene::IAnimatedMesh* mesh = NULL;
+
+	// create sphere
+	mesh = device->getSceneManager()->addSphereMesh("", 0.5, 64, 64);
+
+	// disable lighting on mesh
+	if (mesh) {
+		mesh->setMaterialFlag(video::EMF_LIGHTING, false);
+	}
+	return mesh;
+}
+
+
+
+
 irr::scene::IAnimatedMesh* LoadMesh(irr::IrrlichtDevice* device, const std::string& filename) {
 	scene::IAnimatedMesh* mesh = NULL;
 
@@ -45,6 +83,9 @@ irr::scene::IAnimatedMesh* LoadMesh(irr::IrrlichtDevice* device, const std::stri
 
 	return mesh;
 }
+
+
+
 
 void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const std::string& filename, bool exportMaterials, bool exportNormals, bool exportTangents, bool exportAnimations, bool exportLightmaps) {
 	scene::IMesh* tangentMesh = NULL;
@@ -121,7 +162,7 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 		std::string normals = "\t\t\t<normals>";
 		std::string tangents = "\t\t\t<tangents>";
 		std::string texcoords = "\t\t\t<texcoords>";
-		//video::S3DVertexTangents* verticesTangents = static_cast<video::S3DVertexTangents*>(tangentMesh->getMeshBuffer(mb)->getVertices());
+		video::S3DVertexTangents* verticesTangents = static_cast<video::S3DVertexTangents*>(tangentMesh->getMeshBuffer(mb)->getVertices());
 		for (u32 v = 0; v < meshBuffer->getVertexCount(); ++v) {
 			if (v > 0) {
 				coords += ",";
@@ -132,17 +173,17 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 			if (VORTEX_HANDEDNESS == VORTEX_LH) {
 				coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Y) + "," + StringFromNumber(meshBuffer->getPosition(v).Z);
 				if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Y) + "," + StringFromNumber(meshBuffer->getNormal(v).Z);
-				//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Y) + "," + StringFromNumber(verticesTangents[v].Tangent.Z);
+				if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Y) + "," + StringFromNumber(verticesTangents[v].Tangent.Z);
 				texcoords += StringFromNumber(meshBuffer->getTCoords(v).X) + "," + StringFromNumber(meshBuffer->getTCoords(v).Y);
 			} else if (VORTEX_HANDEDNESS == VORTEX_RH_Y) {
 				coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Y) + "," + StringFromNumber(-meshBuffer->getPosition(v).Z);
 				if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Y) + "," + StringFromNumber(-meshBuffer->getNormal(v).Z);
-				//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Y) + "," + StringFromNumber(-verticesTangents[v].Tangent.Z);
+				if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Y) + "," + StringFromNumber(-verticesTangents[v].Tangent.Z);
 				texcoords += StringFromNumber(meshBuffer->getTCoords(v).X) + "," + StringFromNumber(-meshBuffer->getTCoords(v).Y);
 			} else {
 				coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Z) + "," + StringFromNumber(meshBuffer->getPosition(v).Y);
 				if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Z) + "," + StringFromNumber(meshBuffer->getNormal(v).Y);
-				//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Z) + "," + StringFromNumber(verticesTangents[v].Tangent.Y);
+				if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Z) + "," + StringFromNumber(verticesTangents[v].Tangent.Y);
 				texcoords += StringFromNumber(meshBuffer->getTCoords(v).X) + "," + StringFromNumber(-meshBuffer->getTCoords(v).Y);
 			}
 		}
@@ -152,8 +193,8 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 		texcoords += "</texcoords>\n";
 		buffer += coords;
 		if (exportNormals) buffer += normals;
-		//if (exportTangents) buffer += tangents;
-		if (meshBuffer->getMaterial().getTexture(0)) buffer += texcoords;
+		if (exportTangents) buffer += tangents;
+		/*if (meshBuffer->getMaterial().getTexture(0))*/ buffer += texcoords;
 		std::vector<int> indices = BoneIndicesForSurface(dynamic_cast<scene::ISkinnedMesh*>(animMesh), mb);
 		std::vector<float> weights = BoneWeightsForSurface(dynamic_cast<scene::ISkinnedMesh*>(animMesh), mb);
 		if ( indices.size() > 0 && weights.size() > 0 ) {
@@ -202,41 +243,33 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 				// Vertices
 				std::string coords = "\t\t\t<coords>";
 				std::string normals = "\t\t\t<normals>";
-				std::string tangents = "\t\t\t<tangents>";
 				std::string texcoords = "\t\t\t<texcoords>";
 				video::S3DVertex2TCoords* vertices2t = static_cast<video::S3DVertex2TCoords*>(meshBuffer->getVertices());
-				//video::S3DVertexTangents* verticesTangents = static_cast<video::S3DVertexTangents*>(tangentMesh->getMeshBuffer(mb)->getVertices());
 				for (u32 v = 0; v < meshBuffer->getVertexCount(); ++v) {
 					if (v > 0) {
 						coords += ",";
 						if (exportNormals) normals += ",";
-						if (exportTangents) tangents += ",";
 						texcoords += ",";
 					}
 					if (VORTEX_HANDEDNESS == VORTEX_LH) {
 						coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Y) + "," + StringFromNumber(meshBuffer->getPosition(v).Z);
 						if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Y) + "," + StringFromNumber(meshBuffer->getNormal(v).Z);
-						//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Y) + "," + StringFromNumber(verticesTangents[v].Tangent.Z);
 						texcoords += StringFromNumber(vertices2t[v].TCoords2.X) + "," + StringFromNumber(vertices2t[v].TCoords2.Y);
 					} else if (VORTEX_HANDEDNESS == VORTEX_RH_Y) {
 						coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Y) + "," + StringFromNumber(-meshBuffer->getPosition(v).Z);
 						if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Y) + "," + StringFromNumber(-meshBuffer->getNormal(v).Z);
-						//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Y) + "," + StringFromNumber(-verticesTangents[v].Tangent.Z);
 						texcoords += StringFromNumber(vertices2t[v].TCoords2.X) + "," + StringFromNumber(-vertices2t[v].TCoords2.Y);
 					} else {
 						coords += StringFromNumber(meshBuffer->getPosition(v).X) + "," + StringFromNumber(meshBuffer->getPosition(v).Z) + "," + StringFromNumber(-meshBuffer->getPosition(v).Y);
 						if (exportNormals) normals += StringFromNumber(meshBuffer->getNormal(v).X) + "," + StringFromNumber(meshBuffer->getNormal(v).Z) + "," + StringFromNumber(meshBuffer->getNormal(v).Y);
-						//if (exportTangents) tangents += StringFromNumber(verticesTangents[v].Tangent.X) + "," + StringFromNumber(verticesTangents[v].Tangent.Z) + "," + StringFromNumber(verticesTangents[v].Tangent.Y);
 						texcoords += StringFromNumber(vertices2t[v].TCoords2.X) + "," + StringFromNumber(-vertices2t[v].TCoords2.Y);
 					}
 				}
 				coords += "</coords>\n";
 				normals += "</normals>\n";
-				tangents += "</tangents>\n";
 				texcoords += "</texcoords>\n";
 				buffer += coords;
 				if (exportNormals) buffer += normals;
-				//if (exportTangents) buffer += tangents;
 				buffer += texcoords;
 
 				buffer += "\t\t</surface>\n";
@@ -396,6 +429,7 @@ scene::ISkinnedMesh::SJoint* FindParent(scene::ISkinnedMesh* mesh, const scene::
 }
 
 std::vector<int> BoneIndicesForSurface(scene::ISkinnedMesh* mesh, u32 surface) {
+	if ( !mesh ) return std::vector<int>();
 	bool indicesFound = false;
 	std::vector<int> indices(mesh->getMeshBuffer(surface)->getVertexCount() * 4, -1);
 	for (u32 i = 0; i < mesh->getJointCount(); ++i) {
@@ -415,6 +449,7 @@ std::vector<int> BoneIndicesForSurface(scene::ISkinnedMesh* mesh, u32 surface) {
 }
 
 std::vector<float> BoneWeightsForSurface(scene::ISkinnedMesh* mesh, u32 surface) {
+	if ( !mesh ) return std::vector<float>();
 	bool weightsFound = false;
 	std::vector<float> weights(mesh->getMeshBuffer(surface)->getVertexCount() * 4, -1);
 	for (u32 i = 0; i < mesh->getJointCount(); ++i) {

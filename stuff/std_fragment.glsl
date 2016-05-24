@@ -34,12 +34,12 @@ varying vec3 freflectCoords;
 varying vec3 frefractCoords;
 varying mat3 tbnMatrix;
 
-vec4 combinedColor = vec4(1, 1, 1, 1);
-vec3 combinedSpecular = vec3(0, 0, 0);
+vec4 combinedColor;
+vec3 combinedSpecular;
 
 void CalcLighting(vec3 V, vec3 NV, vec3 N) {
 	// Color that combines diffuse component of all lights
-	combinedColor *= vec4(ambient, 1.0);
+	combinedColor = vec4(ambient, 1.0);
 	
 	// Get vertex normal or compute from normal map
 	vec3 normal = N;
@@ -74,6 +74,8 @@ void CalcLighting(vec3 V, vec3 NV, vec3 N) {
 			}
 		}
 	}
+	
+	combinedColor = clamp(combinedColor, 0.0, 1.0);
 }
 
 void main() {
@@ -104,8 +106,9 @@ void main() {
 
 	// Add specular
 	if ( lightingEnabled ) {
-		if ( usePixelLighting ) combinedColor += vec4(combinedSpecular, 0.0);
+		if ( usePixelLighting || useNormalTex ) combinedColor += vec4(combinedSpecular, 0.0);
 		else combinedColor += vec4(fcombinedSpecular, 0.0);
+		combinedColor = clamp(combinedColor, 0.0, 1.0);
 	}
 	
 	// Add fog
