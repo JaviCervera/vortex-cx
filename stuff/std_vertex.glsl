@@ -43,7 +43,7 @@ void main() {
 	combinedSpecular = vec3(0.0, 0.0, 0.0);
 	if ( lightingEnabled ) {
 		// Color that combines diffuse component of all lights
-		vec4 combinedColor = vec4(ambient, 1.0);
+		vec3 combinedColor = ambient;
 
 		// Calculate vertex normal
 		vec3 NV = normalize(V);
@@ -67,7 +67,7 @@ void main() {
 				float NdotL = max(dot(N, L), 0.0);
 
 				// Diffuse
-				combinedColor += NdotL * vec4(lightColor[i], 1.0) * att;
+				combinedColor += NdotL * lightColor[i] * att;
 
 				// Specular
 				if ( shininess > 0 && NdotL > 0.0 ) {
@@ -78,7 +78,7 @@ void main() {
 			}
 		}
 
-		fcolor *= combinedColor;
+		fcolor *= vec4(clamp(combinedColor, 0.0, 1.0), 1.0);
 	}
 	
 	// Fog

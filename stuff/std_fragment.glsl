@@ -27,7 +27,7 @@ void main() {
 	if ( gl_FragColor.a <= 0.004 ) discard;
 
 	// Add specular
-	gl_FragColor += vec4(combinedSpecular, 0.0);
+	gl_FragColor = clamp(gl_FragColor + vec4(combinedSpecular, 1.0), 0.0, 1.0);
 	
 	// Add fog
 	if ( fogEnabled ) gl_FragColor = vec4(mix(fogColor, vec3(gl_FragColor), fogFactor), gl_FragColor.a);
