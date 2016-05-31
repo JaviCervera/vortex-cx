@@ -6,7 +6,7 @@ Import mojo.app
 Import vortex.src.font
 Import vortex.src.renderer
 Import vortex.src.texture
-Import vortex.src.xml
+Import vortex.src.xml_old
 
 Public
 Class FontLoader_XML Final

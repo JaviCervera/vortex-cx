@@ -8,6 +8,7 @@ Function Main:Int()
 	'Move out of the build dir
 	ChangeDir("../..")
 	If FileType("std_vertex.glsl") = FILETYPE_NONE Then ChangeDir("../..")
+	If FileType("std_vertex.glsl") = FILETYPE_NONE Then ChangeDir("../../../..")
 	Print CurrentDir()
 	
 	Local std_vertex:String = LoadString("std_vertex.glsl").Replace("~t", " ").Replace("~r~n", "~n").Replace("~r", "~n").Replace("~n", "~~n")

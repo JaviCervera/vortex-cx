@@ -35,7 +35,7 @@ varying vec3 frefractCoords;
 varying mat3 tbnMatrix;
 
 vec4 combinedColor;
-vec3 combinedSpecular;
+vec3 combinedSpecular = vec3(0, 0, 0);
 
 void CalcLighting(vec3 V, vec3 NV, vec3 N) {
 	// Color that combines diffuse component of all lights

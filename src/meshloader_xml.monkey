@@ -11,7 +11,7 @@ Import vortex.src.mesh
 Import vortex.src.renderer
 Import vortex.src.surface
 Import vortex.src.texture
-Import vortex.src.xml
+Import vortex.src.xml_old
 
 Public
 Class MeshLoader_XML Final
