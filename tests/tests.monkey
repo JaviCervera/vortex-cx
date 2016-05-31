@@ -48,12 +48,12 @@ Public
 		Print "Shader compilation: " + Vortex.GetShaderError()
 		
 		mTests = New Test[7]
-		mTests[0] = New PrimitivesTest
-		mTests[1] = New ImageTest
-		mTests[2] = New TriangleTest
-		mTests[3] = New BillboardsTest
-		mTests[4] = New LightingTest
-		mTests[5] = New AnimationTest
+		'mTests[0] = New PrimitivesTest
+		'mTests[1] = New ImageTest
+		'mTests[2] = New TriangleTest
+		'mTests[3] = New BillboardsTest
+		'mTests[4] = New LightingTest
+		'mTests[5] = New AnimationTest
 		mTests[6] = New MaterialTest
 		'mTests[7] = New LevelTest
 		mCurrentTest = 6
@@ -120,7 +120,7 @@ Public
 		'Draw info
 		Renderer.SetColor(1, 1, 0)
 		text = "<Press space key or touch screen to change test>"
-		mFont.Draw((DeviceWidth() - mFont.GetTextWidth(text))/2, 6, text)
+		'mFont.Draw((DeviceWidth() - mFont.GetTextWidth(text))/2, 6, text)
 	
 		Return False
 	End
