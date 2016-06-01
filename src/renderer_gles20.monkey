@@ -30,9 +30,9 @@ Public
 	Const FILTER_BILINEAR% = 2
 	Const FILTER_TRILINEAR% = 3
 	Const MAX_LIGHTS% = 8
+	Const MAX_BONES% = 75
 	Const TEXTURE_DISABLED% = 0
 	Const TEXTURE_2D% = 1
-	Const MAX_BONES% = 128
 	Const BASETEX_UNIT% = 0
 	Const BASECUBE_UNIT% = 1
 	Const NORMALTEX_UNIT% = 2

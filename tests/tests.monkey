@@ -20,7 +20,7 @@ Import test_billboards
 Import test_lighting
 Import test_animation
 Import test_level
-Import test_material
+'Import test_material
 Import vortex
 
 Class TestApp Extends App Final
@@ -48,14 +48,14 @@ Public
 		Print "Shader compilation: " + Vortex.GetShaderError()
 		
 		mTests = New Test[7]
-		'mTests[0] = New PrimitivesTest
-		'mTests[1] = New ImageTest
-		'mTests[2] = New TriangleTest
-		'mTests[3] = New BillboardsTest
-		'mTests[4] = New LightingTest
-		'mTests[5] = New AnimationTest
-		mTests[6] = New MaterialTest
-		'mTests[7] = New LevelTest
+		mTests[0] = New PrimitivesTest
+		mTests[1] = New ImageTest
+		mTests[2] = New TriangleTest
+		mTests[3] = New BillboardsTest
+		mTests[4] = New LightingTest
+		mTests[5] = New AnimationTest
+		'mTests[6] = New MaterialTest
+		mTests[6] = New LevelTest
 		mCurrentTest = 6
 		mTests[mCurrentTest].Init()
 		

@@ -6,7 +6,7 @@ Import mojo.app
 Import vortex.src.font
 Import vortex.src.renderer
 Import vortex.src.texture
-Import vortex.src.xml_old
+Import vortex.src.xml
 
 Public
 Class FontLoader_XML Final
@@ -15,15 +15,15 @@ Public
 		'Parse XML font
 		Local xmlString$ = LoadString(filename)
 		If xmlString = "" Then Return Null
-		Local parser:XMLParser = New XMLParser(xmlString)
-		If Not parser.Parse() Then DebugLog parser.GetError(); Return Null
-		If parser.GetRootNode().GetName() <> "font" Then Return Null
+		Local err:XMLError = New XMLError
+		Local doc:XMLDoc = ParseXML(xmlString, err)
+		If (doc = Null And err.error) Or doc.name <> "font" Then Return Null
 
 		'Get data
-		Local image$ = parser.GetRootNode().GetChildValue("image", "")
-		Local height% = Int(parser.GetRootNode().GetChildValue("height", "0"))
-		Local glyphsNode:XMLNode = parser.GetRootNode().GetChild("glyphs")
-		If height = 0 Or Not glyphsNode Then Return Null
+		Local image:String = doc.GetChild("image").value
+		Local height:Int = Int(doc.GetChild("height").value)
+		Local glyphNodes:List<XMLNode> = doc.GetChild("glyphs").GetChildren("glyph")
+		If height = 0 Or glyphNodes.IsEmpty() Then Return Null
 
 		'Load texture map
 		If ExtractDir(filename) <> "" Then image = ExtractDir(filename) + "/" + image
@@ -34,22 +34,18 @@ Public
 		Local font:Font = Font.Create(filename, height, tex)
 
 		'Parse glyphs
-		For Local i% = 0 Until glyphsNode.GetNumChildren()
-			Local glyphNode:XMLNode = glyphsNode.GetChild(i)
-			If glyphNode.GetName() <> "glyph"
-				DebugLog "Unexpected node '" + glyphNode.GetName() + "' found in glyphs section. Ignoring..."
-				Continue
-			End
-
+		Local index:Int = 0
+		For Local glyphNode:XMLNode = Eachin glyphNodes
 			'Get glyph data
-			Local x# = Float(glyphNode.GetAttribute("x", "0"))
-			Local y# = Float(glyphNode.GetAttribute("y", "0"))
-			Local w# = Float(glyphNode.GetAttribute("width", "0"))
-			Local h# = Float(glyphNode.GetAttribute("height", "0"))
-			Local yoffset# = Float(glyphNode.GetAttribute("yoffset", "0"))
+			Local x:Float = glyphNode.GetAttribute("x", 0.0)
+			Local y:Float = glyphNode.GetAttribute("y", 0.0)
+			Local w:Float = glyphNode.GetAttribute("width", 0.0)
+			Local h:Float = glyphNode.GetAttribute("height", 0.0)
+			Local yoffset:Float = glyphNode.GetAttribute("yoffset", 0.0)
 
 			'Add glyph
-			font.SetGlyphData(i, x, y, w, h, yoffset)
+			font.SetGlyphData(index, x, y, w, h, yoffset)
+			index += 1
 		Next
 
 		Return font

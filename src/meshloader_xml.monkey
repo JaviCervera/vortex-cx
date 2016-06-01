@@ -11,7 +11,7 @@ Import vortex.src.mesh
 Import vortex.src.renderer
 Import vortex.src.surface
 Import vortex.src.texture
-Import vortex.src.xml_old
+Import vortex.src.xml
 
 Public
 Class MeshLoader_XML Final
@@ -20,97 +20,87 @@ Public
 		'Parse XML mesh
 		Local xmlString$ = LoadString(filename)
 		If xmlString = "" Then Return Null
-		Local parser:XMLParser = New XMLParser(xmlString)
-		If Not parser.Parse() Then DebugLog parser.GetError(); Return Null
-		If parser.GetRootNode().GetName() <> "mesh" Then Return Null
+		Local err:XMLError = New XMLError
+		Local doc:XMLDoc = ParseXML(xmlString, err)
+		If (doc = Null And err.error) Or doc.name <> "mesh" Then Return Null
 
 		'Get arrays
-		Local brushesNode:XMLNode = parser.GetRootNode().GetChild("brushes")
-		Local surfacesNode:XMLNode = parser.GetRootNode().GetChild("surfaces")
-		Local lastFrameNode:XMLNode = parser.GetRootNode().GetChild("last_frame")
-		Local bonesNode:XMLNode = parser.GetRootNode().GetChild("bones")
-		If Not surfacesNode Then Return Null
+		Local materialNodes:List<XMLNode> = doc.GetChild("brushes").GetChildren("brush")
+		Local surfaceNodes:List<XMLNode> = doc.GetChild("surfaces").GetChildren("surface")
+		Local lastFrameNode:XMLNode = doc.GetChild("last_frame")
+		Local boneNodes:List<XMLNode> = doc.GetChild("bones").GetChildren("bone")
+		If surfaceNodes.IsEmpty() Then Return Null
 
 		'Parse materials
 		Local materialsMap:StringMap<Material> = New StringMap<Material>
-		If brushesNode <> Null
-			For Local i% = 0 Until brushesNode.GetNumChildren()
-				Local brushNode:XMLNode = brushesNode.GetChild(i)
-				If brushNode.GetName() <> "brush"
-					DebugLog "Unexpected node '" + brushNode.GetName() + "' found in brushes section. Ignoring..."
-					Continue
-				End
-
-				'Get brush data
-				Local nameStr$ = brushNode.GetChildValue("name", "")
-				Local blendStr$ = brushNode.GetChildValue("blend", "alpha")
-				Local baseColorStr$[] = brushNode.GetChildValue("base_color", "1,1,1").Split(",")
-				Local opacity# = Float(brushNode.GetChildValue("opacity", "1"))
-				Local shininess# = Float(brushNode.GetChildValue("shininess", "0"))
-				Local cullingStr$ = brushNode.GetChildValue("culling", "true")
-				Local depthWriteStr$ = brushNode.GetChildValue("depth_write", "true")
-				Local baseTexStr$ = brushNode.GetChildValue("base_tex", "")
-				Local culling:Bool = True
-				Local depthWrite:Bool = True
-				Local baseColor#[3]
-				If cullingStr = "0" Or cullingStr.ToLower() = "false" Then culling = False
-				If depthWriteStr = "0" Or depthWriteStr.ToLower() = "false" Then depthWrite = False
+		For Local materialNode:XMLNode = Eachin materialNodes
+			'Get material data
+			Local nameStr:String = materialNode.GetChild("name").value
+			Local blendStr:String = materialNode.GetChild("blend").value
+			Local baseColorStr:String[] = materialNode.GetChild("base_color").value.Split(",")
+			Local opacityStr:String = materialNode.GetChild("opacity").value
+			Local shininess:Float = Float(materialNode.GetChild("shininess").value)
+			Local cullingStr:String = materialNode.GetChild("culling").value
+			Local depthWriteStr:String = materialNode.GetChild("depth_write").value
+			Local baseTexStr:String = materialNode.GetChild("base_tex").value
+			Local opacity:Float = 1
+			Local culling:Bool = True
+			Local depthWrite:Bool = True
+			Local baseColor:Float[] = [1.0, 1.0, 1.0]
+			If opacityStr <> "" Then opacity = Float(opacityStr)
+			If cullingStr = "0" Or cullingStr.ToLower() = "false" Then culling = False
+			If depthWriteStr = "0" Or depthWriteStr.ToLower() = "false" Then depthWrite = False
+			If baseColorStr.Length() > 2
 				baseColor[0] = Float(baseColorStr[0])
-				If baseColorStr.Length() > 1 Then baseColor[1] = Float(baseColorStr[1])
-				If baseColorStr.Length() > 2 Then baseColor[2] = Float(baseColorStr[2])
+				baseColor[1] = Float(baseColorStr[1])
+				baseColor[2] = Float(baseColorStr[2])
+			End
 
-				'Load texture
-				Local diffuseTex:Texture = Null
-				If baseTexStr <> ""
-					If ExtractDir(filename) <> "" Then baseTexStr = ExtractDir(filename) + "/" + baseTexStr
-					diffuseTex = Cache.GetTexture(baseTexStr, texFilter)
-				End
+			'Load texture
+			Local diffuseTex:Texture = Null
+			If baseTexStr <> ""
+				If ExtractDir(filename) <> "" Then baseTexStr = ExtractDir(filename) + "/" + baseTexStr
+				diffuseTex = Cache.GetTexture(baseTexStr, texFilter)
+			End
 
-				'Create material
-				Local material:Material = Material.Create(diffuseTex)
-				If blendStr.ToLower() = "alpha" Then material.SetBlendMode(Renderer.BLEND_ALPHA)
-				If blendStr.ToLower() = "add" Then material.SetBlendMode(Renderer.BLEND_ADD)
-				If blendStr.ToLower() = "mul" Then material.SetBlendMode(Renderer.BLEND_MUL)
-				material.SetDiffuseColor(baseColor[0], baseColor[1], baseColor[2])
-				material.SetAlpha(opacity)
-				material.SetShininess(shininess)
-				material.SetCulling(culling)
-				material.SetDepthWrite(depthWrite)
-				materialsMap.Set(nameStr, material)
-			Next
-		End
+			'Create material
+			Local material:Material = Material.Create(diffuseTex)
+			If blendStr.ToLower() = "alpha" Then material.SetBlendMode(Renderer.BLEND_ALPHA)
+			If blendStr.ToLower() = "add" Then material.SetBlendMode(Renderer.BLEND_ADD)
+			If blendStr.ToLower() = "mul" Then material.SetBlendMode(Renderer.BLEND_MUL)
+			material.SetDiffuseColor(baseColor[0], baseColor[1], baseColor[2])
+			material.SetAlpha(opacity)
+			material.SetShininess(shininess)
+			material.SetCulling(culling)
+			material.SetDepthWrite(depthWrite)
+			materialsMap.Set(nameStr, material)
+		Next
 
 		'Create mesh object
 		Local mesh:Mesh = Mesh.Create()
 		mesh.SetFilename(filename)
 
 		'Parse surfaces
-		For Local i% = 0 Until surfacesNode.GetNumChildren()
-			Local surfaceNode:XMLNode = surfacesNode.GetChild(i)
-			If surfaceNode.GetName() <> "surface"
-				DebugLog "Unexpected node '" + surfaceNode.GetName() + "' found in surfaces section. Ignoring..."
-				Continue
-			end
-
+		For Local surfaceNode:XMLNode = Eachin surfaceNodes
 			'Get surface data
-			Local brushStr$ = surfaceNode.GetChildValue("brush", "")
-			Local indicesStr$[] = surfaceNode.GetChildValue("indices", "").Split(",")
-			Local coordsStr$[] = surfaceNode.GetChildValue("coords", "").Split(",")
-			Local normalsStr$[] = surfaceNode.GetChildValue("normals", "").Split(",")
-			Local tangentsStr$[] = surfaceNode.GetChildValue("tangents", "").Split(",")
-			Local colorsStr$[] = surfaceNode.GetChildValue("colors", "").Split(",")
-			Local texcoordsStr$[] = surfaceNode.GetChildValue("texcoords", "").Split(",")
-			Local boneIndicesStr$[] = surfaceNode.GetChildValue("bone_indices", "").Split(",")
-			Local boneWeightsStr$[] = surfaceNode.GetChildValue("bone_weights", "").Split(",")
+			Local materialStr:String = surfaceNode.GetChild("brush").value
+			Local indicesStr:String[] = surfaceNode.GetChild("indices", "").value.Split(",")
+			Local coordsStr:String[] = surfaceNode.GetChild("coords", "").value.Split(",")
+			Local normalsStr:String[] = surfaceNode.GetChild("normals", "").value.Split(",")
+			Local tangentsStr:String[] = surfaceNode.GetChild("tangents", "").value.Split(",")
+			Local colorsStr:String[] = surfaceNode.GetChild("colors", "").value.Split(",")
+			Local texcoordsStr:String[] = surfaceNode.GetChild("texcoords", "").value.Split(",")
+			Local boneIndicesStr:String[] = surfaceNode.GetChild("bone_indices", "").value.Split(",")
+			Local boneWeightsStr:String[] = surfaceNode.GetChild("bone_weights", "").value.Split(",")
 
 			'Create surface
-			Local surf:Surface = Surface.Create(materialsMap.Get(brushStr))
-			Local indicesLen% = indicesStr.Length()
-			For Local j% = 0 Until indicesLen Step 3
+			Local surf:Surface = Surface.Create(materialsMap.Get(materialStr))
+			Local indicesLen:Int = indicesStr.Length()
+			For Local j:Int = 0 Until indicesLen Step 3
 				surf.AddTriangle(Int(indicesStr[j]), Int(indicesStr[j+1]), Int(indicesStr[j+2]))
 			Next
-			Local coordsLenDiv3% = coordsStr.Length()/3
-			For Local j% = 0 Until coordsLenDiv3
+			Local coordsLenDiv3:Int = coordsStr.Length()/3
+			For Local j:Int = 0 Until coordsLenDiv3
 				Local x#, y#, z#
 				Local nx# = 0, ny# = 0, nz# = 0
 				Local tx# = 0, ty# = 0, tz# = 0
@@ -183,91 +173,86 @@ Public
 		Next
 
 		'Parse last frame
-		If lastFrameNode Then mesh.SetLastFrame(Int(lastFrameNode.GetValue()))
+		mesh.SetLastFrame(Int(lastFrameNode.value))
 
 		'Parse bones
-		If bonesNode
-			For Local i% = 0 Until bonesNode.GetNumChildren()
-				Local boneNode:XMLNode = bonesNode.GetChild(i)
-				If boneNode.GetName() <> "bone"
-					DebugLog "Unexpected node '" + boneNode.GetName() + "' found in bones section. Ignoring..."
-					Continue
-				End
+		Local i:Int = 0
+		For Local boneNode:XMLNode = Eachin boneNodes
+			'Get bone data
+			Local nameStr:String = boneNode.GetChild("name").value
+			Local parentStr:String = boneNode.GetChild("parent").value
+			Local defPositionStr:String[] = boneNode.GetChild("def_position").value.Split(",")
+			Local defRotationStr:String[] = boneNode.GetChild("def_rotation").value.Split(",")
+			Local defScaleStr:String[] = boneNode.GetChild("def_scale").value.Split(",")
+			Local surfacesStr:String[] = boneNode.GetChild("surfaces").value.Split(",")
+			If defPositionStr.Length() <> 3 Or defRotationStr.Length() <> 4 Or defScaleStr.Length() <> 3 Then Return Null
 
-				'Get bone data
-				Local nameStr$ = boneNode.GetChildValue("name", "")
-				Local parentStr$ = boneNode.GetChildValue("parent", "")
-				Local defPositionStr$[] = boneNode.GetChildValue("def_position", "0,0,0").Split(",")
-				Local defRotationStr$[] = boneNode.GetChildValue("def_rotation", "1,0,0,0").Split(",")
-				Local defScaleStr$[] = boneNode.GetChildValue("def_scale", "1,1,1").Split(",")
-				Local surfacesStr$[] = boneNode.GetChildValue("surfaces", "").Split(",")
-				If defPositionStr.Length() <> 3 Or defRotationStr.Length() <> 4 Or defScaleStr.Length() <> 3 Then Return Null
+			'Create bone
+			Local bone:Bone = Bone.Create(nameStr)
+				
+			'Set parent
+			If parentStr <> ""
+				Local parent:Bone = mesh.FindBone(parentStr)
+				If parent = Null Then Return Null	'Parent bone must exist
+				bone.SetParent(parent)
+			End
+				
+			'Set pose matrix
+			mTempMatrix.SetTransform(Float(defPositionStr[0]), Float(defPositionStr[1]), Float(defPositionStr[2]), Float(defRotationStr[0]), Float(defRotationStr[1]), Float(defRotationStr[2]), Float(defRotationStr[3]), Float(defScaleStr[0]), Float(defScaleStr[1]), Float(defScaleStr[2]))
+			bone.SetLocalPoseMatrix(mTempMatrix)
+				
+			'Add to mesh
+			mesh.AddBone(bone)
+				
+			'Update mesh surfaces weights if needed
+			If surfacesStr[0] <> ""
+				For Local j:Int = 0 Until surfacesStr.Length()
+					Local index:Int = Int(surfacesStr[j])
+					Local surf:Surface = mesh.GetSurface(index)
+					For Local v:Int = 0 Until surf.GetNumVertices()
+						bone.GetGlobalPoseMatrix().Mul(surf.GetVertexX(v), surf.GetVertexY(v), surf.GetVertexZ(v), 1)
+						surf.SetVertexPosition(v, bone.GetGlobalPoseMatrix().ResultVector().x, bone.GetGlobalPoseMatrix().ResultVector().y, bone.GetGlobalPoseMatrix().ResultVector().z)
+						surf.SetVertexBone(v, 0, i, 1)
+					Next
+					surf.Rebuild()
+				Next
+			End
 
-				'Create bone
-				Local bone:Bone = Bone.Create(nameStr)
-				
-				'Set parent
-				If parentStr <> ""
-					Local parent:Bone = mesh.FindBone(parentStr)
-					If parent = Null Then Return Null	'Parent bone must exist
-					bone.SetParent(parent)
-				End
-				
-				'Set pose matrix
-				mTempMatrix.SetTransform(Float(defPositionStr[0]), Float(defPositionStr[1]), Float(defPositionStr[2]), Float(defRotationStr[0]), Float(defRotationStr[1]), Float(defRotationStr[2]), Float(defRotationStr[3]), Float(defScaleStr[0]), Float(defScaleStr[1]), Float(defScaleStr[2]))
-				bone.SetLocalPoseMatrix(mTempMatrix)
-				
-				'Add to mesh
-				mesh.AddBone(bone)
-				
-				'Update mesh surfaces weights if needed
-				If surfacesStr[0] <> ""
-					For Local j:Int = 0 Until surfacesStr.Length()
-						Local index:Int = Int(surfacesStr[j])
-						Local surf:Surface = mesh.GetSurface(index)
-						For Local v:Int = 0 Until surf.GetNumVertices()
-							bone.GetGlobalPoseMatrix().Mul(surf.GetVertexX(v), surf.GetVertexY(v), surf.GetVertexZ(v), 1)
-							surf.SetVertexPosition(v, bone.GetGlobalPoseMatrix().ResultVector().x, bone.GetGlobalPoseMatrix().ResultVector().y, bone.GetGlobalPoseMatrix().ResultVector().z)
-							surf.SetVertexBone(v, 0, i, 1)
-						Next
-						surf.Rebuild()
-					Next
-				End
-
-				'Add position frames
-				Local positionsStr$[] = boneNode.GetChildValue("positions", "").Split(",")
-				If positionsStr.Length() >= 4
-					For Local k% = 0 Until positionsStr.Length() Step 4
-						Local frame% = Int(positionsStr[k])
-						Local x# = Float(positionsStr[k+1])
-						Local y# = Float(positionsStr[k+2])
-						Local z# = Float(positionsStr[k+3])
-						bone.AddPositionKey(frame, x, y, z)
-					Next
-				End
-				Local rotationsStr$[] = boneNode.GetChildValue("rotations", "").Split(",")
-				If rotationsStr.Length() >= 5
-					For Local k% = 0 Until rotationsStr.Length() Step 5
-						Local frame% = Int(rotationsStr[k])
-						Local w# = Float(rotationsStr[k+1])
-						Local x# = Float(rotationsStr[k+2])
-						Local y# = Float(rotationsStr[k+3])
-						Local z# = Float(rotationsStr[k+4])
-						bone.AddRotationKey(frame, w, x, y, z)
-					Next
-				End
-				Local scalesStr$[] = boneNode.GetChildValue("scales", "").Split(",")
-				If scalesStr.Length() >= 4
-					For Local k% = 0 Until scalesStr.Length() Step 4
-						Local frame% = Int(scalesStr[k])
-						Local x# = Float(scalesStr[k+1])
-						Local y# = Float(scalesStr[k+2])
-						Local z# = Float(scalesStr[k+3])
-						bone.AddScaleKey(frame, x, y, z)
-					Next
-				End
-			Next
-		End
+			'Add position frames
+			Local positionsStr$[] = boneNode.GetChild("positions").value.Split(",")
+			If positionsStr.Length() >= 4
+				For Local k% = 0 Until positionsStr.Length() Step 4
+					Local frame% = Int(positionsStr[k])
+					Local x# = Float(positionsStr[k+1])
+					Local y# = Float(positionsStr[k+2])
+					Local z# = Float(positionsStr[k+3])
+					bone.AddPositionKey(frame, x, y, z)
+				Next
+			End
+			Local rotationsStr$[] = boneNode.GetChild("rotations").value.Split(",")
+			If rotationsStr.Length() >= 5
+				For Local k% = 0 Until rotationsStr.Length() Step 5
+					Local frame% = Int(rotationsStr[k])
+					Local w# = Float(rotationsStr[k+1])
+					Local x# = Float(rotationsStr[k+2])
+					Local y# = Float(rotationsStr[k+3])
+					Local z# = Float(rotationsStr[k+4])
+					bone.AddRotationKey(frame, w, x, y, z)
+				Next
+			End
+			Local scalesStr$[] = boneNode.GetChild("scales").value.Split(",")
+			If scalesStr.Length() >= 4
+				For Local k% = 0 Until scalesStr.Length() Step 4
+					Local frame% = Int(scalesStr[k])
+					Local x# = Float(scalesStr[k+1])
+					Local y# = Float(scalesStr[k+2])
+					Local z# = Float(scalesStr[k+3])
+					bone.AddScaleKey(frame, x, y, z)
+				Next
+			End
+			
+			i += 1
+		Next
 
 		Return mesh
 	End
