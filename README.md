@@ -3,7 +3,7 @@
 ## Introduction
 Vortex is an open-source, lightweight 3D graphics rendering library which is easy to use and easy to integrate with any application that requires graphics. It can also be used as the base for a higher level graphics or game engine.
 
-It has been released under the terms of the [**zlib license**](https://en.wikipedia.org/wiki/Zlib_License), which allows its use within both open source and closed source software. This license allows to use the library in commercial applications.
+It has been released under the terms of the [**MIT license**](https://en.wikipedia.org/wiki/MIT_License), which allows its use within both open source and closed source software. This license allows to use the library in commercial applications.
 
 ##Features
 * A clean, simple procedural API programmed in the [**Monkey-X**](http://www.monkey-x.com) language.
@@ -20,5 +20,10 @@ It has been released under the terms of the [**zlib license**](https://en.wikipe
 
 ##Installation
 You should clone the repository onto **<MonkeyFolder>/modules_ext/vortex**, or download as a zip file and put the vortex folder on that same **<MonkeyFolder>/modules_ext** location. You should select **Help -> Rebuild Help** on the MonkeyX IDE (Ted) afterwards, and the documentation will be available in your modules help.
+
+##Acknowledgments
+* Jon Pittock (skn3) for his XML library (licensed under the MIT license).
+* The Irrlicht team for the engine used on the mesh tool (Irrlicht is licensed under the Zlib license).
+* Sean T. Barret for his stb_truetype and stb_image_write libraries, used on the font tool (these libraries are public domain).
 
 ![meshtool](./stuff/meshtool.jpg)
