@@ -1,13 +1,46 @@
 Strict
 
-Private
+#GLFW_WINDOW_TITLE="Vortex2 Triangle Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+#OPENGL_DEPTH_BUFFER_ENABLED=True
+
+#If TARGET="glfw" And HOST<>"linux"
+Import brl.requesters
+#Endif
 Import mojo.app
-Import test
+Import mojo.input
 Import vortex
 
+Class TestApp Extends App Final
 Public
-Class TriangleTest Extends Test Final
-	Method New()
+	Method OnCreate:Int()
+		'Setup update rate and swap to maximum FPS, and init random seed
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+		mLastMillisecs = Millisecs()
+	
+		'Init vortex
+		If Not Vortex.Init()
+#If TARGET="glfw" And HOST<>"linux"
+			Notify "Error", Vortex.GetShaderError(), True
+#Else
+			Print "Error: " + Vortex.GetShaderError()
+#Endif
+			EndApp()
+		End
+		Print "Vendor name: " + Vortex.GetVendorName()
+		Print "Renderer name: " + Vortex.GetRendererName()
+		Print "API version name: " + Vortex.GetAPIVersionName()
+		Print "Shading version name: " + Vortex.GetShadingVersionName()
+		Print "Shader compilation: " + Vortex.GetShaderError()
+		
+		'Load font
+		mFont = Cache.GetFont("system_16.fnt.xml")
+		
 		'Create matrices
 		mProj = Mat4.Create()
 		mView = Mat4.Create()
@@ -27,38 +60,81 @@ Class TriangleTest Extends Test Final
 		
 		'Add triangle to RenderBatch
 		mBatch.AddSurface(mTri, mModel)
+		
+		Return False
 	End
 	
-	Method Init:Void()
-		mEulerY = 0
+	Method OnUpdate:Int()
+		'Update delta time
+		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
+		mLastMillisecs = Millisecs()
+	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		mEulerY += 64 * mDeltaTime
+		
+		Return False
 	End
 	
-	Method Update:Void(deltaTime:Float)
-		mEulerY += 64 * deltaTime
-	End
-	
-	Method Draw:Void()
+	Method OnRender:Int()
+		'Update FPS
+		mFpsCounter += 1
+		mFpsAccum += mDeltaTime
+		If mFpsAccum >= 1
+			mCurrentFPS = mFpsCounter
+			mFpsCounter = 0
+			mFpsAccum = 0
+		End
+		
+		'Setup matrices
 		mProj.SetPerspective(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10)
 		mView.LookAt(0, 0, -4, 0, 0, 0, 0, 1, 0)
 		mModel.SetTransform(0, 0, 0, 0, mEulerY, 0, 1, 1, 1)
 		
+		'Draw triangles
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetProjectionMatrix(mProj)
 		Renderer.SetViewMatrix(mView)
 		Renderer.ClearColorBuffer(1, 1, 1)
 		Renderer.ClearDepthBuffer()
 		mNumRenderCalls = mBatch.Render()
-	End
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw FPS
+		Renderer.SetColor(0, 0, 0)
+		Local text$ = mCurrentFPS + " FPS"
+		mFont.Draw(2, 2, text)
+		
+		'Draw RenderCalls
+		text = "Render calls: " + mNumRenderCalls
+		mFont.Draw(2, 18, text)
 	
-	Method GetNumRenderCalls:Int()
-		Return mNumRenderCalls
+		Return False
 	End
 Private
+	Global mLastMillisecs	: Int
+	Global mDeltaTime		: Float
+	Global mCurrentFPS		: Int
+	Global mFpsCounter		: Int
+	Global mFpsAccum		: Float
+	
+	Field mNumRenderCalls	: Int
+	Field mFont				: Font
+	
 	Field mProj				: Mat4
 	Field mView				: Mat4
 	Field mModel			: Mat4
 	Field mTri				: Surface
 	Field mBatch			: RenderBatch
 	Field mEulerY			: Float
-	Field mNumRenderCalls	: Int
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
 End

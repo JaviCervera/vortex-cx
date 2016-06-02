@@ -1,13 +1,46 @@
 Strict
 
-Private
+#GLFW_WINDOW_TITLE="Vortex2 Lighting Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+#OPENGL_DEPTH_BUFFER_ENABLED=True
+
+#If TARGET="glfw" And HOST<>"linux"
+Import brl.requesters
+#Endif
 Import mojo.app
-Import test
+Import mojo.input
 Import vortex
 
+Class TestApp Extends App Final
 Public
-Class LightingTest Extends Test Final
-	Method New()
+	Method OnCreate:Int()
+		'Setup update rate and swap to maximum FPS, and init random seed
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+		mLastMillisecs = Millisecs()
+	
+		'Init vortex
+		If Not Vortex.Init()
+#If TARGET="glfw" And HOST<>"linux"
+			Notify "Error", Vortex.GetShaderError(), True
+#Else
+			Print "Error: " + Vortex.GetShaderError()
+#Endif
+			EndApp()
+		End
+		Print "Vendor name: " + Vortex.GetVendorName()
+		Print "Renderer name: " + Vortex.GetRendererName()
+		Print "API version name: " + Vortex.GetAPIVersionName()
+		Print "Shading version name: " + Vortex.GetShadingVersionName()
+		Print "Shader compilation: " + Vortex.GetShaderError()
+		
+		'Load font
+		mFont = Cache.GetFont("system_16.fnt.xml")
+		
 		'Create projection and view matrices
 		mProj = Mat4.Create()
 		mView = Mat4.Create()
@@ -27,9 +60,7 @@ Class LightingTest Extends Test Final
 			x += 8; If x > 32 Then x = -32; z += 8
 			mBatch.AddMesh(mMesh, mModels[i])
 		Next
-	End
-	
-	Method Init:Void()
+		
 		'Prepare lights
 		Lighting.SetLightEnabled(0, True)
 		Lighting.SetLightEnabled(1, True)
@@ -46,16 +77,38 @@ Class LightingTest Extends Test Final
 		mLightsEulerY[0] = 0
 		mLightsEulerY[1] = 120
 		mLightsEulerY[2] = 240
+		
+		Return False
 	End
 	
-	Method Update:Void(deltaTime:Float)
+	Method OnUpdate:Int()
+		'Update delta time
+		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
+		mLastMillisecs = Millisecs()
+	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
 		For Local i:Int = 0 Until mLightsEulerY.Length()
-			mLightsEulerY[i] += 32 * deltaTime
+			mLightsEulerY[i] += 32 * mDeltaTime
 			Lighting.SetLightPosition(i, 48 * Cos(mLightsEulerY[i]), 0, 48 * Sin(mLightsEulerY[i]))
 		Next
+		
+		Return False
 	End
 	
-	Method Draw:Void()
+	Method OnRender:Int()
+		'Update FPS
+		mFpsCounter += 1
+		mFpsAccum += mDeltaTime
+		If mFpsAccum >= 1
+			mCurrentFPS = mFpsCounter
+			mFpsCounter = 0
+			mFpsAccum = 0
+		End
+		
 		mProj.SetPerspective(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
 		mView.LookAt(0, 32, -90, 0, 0, 0, 0, 1, 0)
 		
@@ -67,23 +120,40 @@ Class LightingTest Extends Test Final
 		Renderer.ClearDepthBuffer()
 	
 		mNumRenderCalls = mBatch.Render()
-	End
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw FPS
+		Renderer.SetColor(1, 1, 1)
+		Local text$ = mCurrentFPS + " FPS"
+		mFont.Draw(2, 2, text)
+		
+		'Draw RenderCalls
+		text = "Render calls: " + mNumRenderCalls
+		mFont.Draw(2, 18, text)
 	
-	Method Finish:Void()
-		Lighting.SetLightEnabled(0, False)
-		Lighting.SetLightEnabled(1, False)
-		Lighting.SetLightEnabled(2, False)
-	End
-	
-	Method GetNumRenderCalls:Int()
-		Return mNumRenderCalls
+		Return False
 	End
 Private
+	Global mLastMillisecs	: Int
+	Global mDeltaTime		: Float
+	Global mCurrentFPS		: Int
+	Global mFpsCounter		: Int
+	Global mFpsAccum		: Float
+	
+	Field mNumRenderCalls	: Int
+	Field mFont				: Font
+	
 	Field mProj				: Mat4
 	Field mView				: Mat4
 	Field mModels			: Mat4[]
 	Field mMesh				: Mesh
 	Field mBatch			: RenderBatch
 	Field mLightsEulerY		: Float[3]
-	Field mNumRenderCalls	: Int
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
 End

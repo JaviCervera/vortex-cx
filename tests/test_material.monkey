@@ -1,6 +1,6 @@
 Strict
 
-#GLFW_WINDOW_TITLE="Vortex Tests"
+#GLFW_WINDOW_TITLE="Vortex2 Material Test"
 #GLFW_WINDOW_WIDTH=800
 #GLFW_WINDOW_HEIGHT=600
 #GLFW_WINDOW_RESIZABLE=True
@@ -9,7 +9,7 @@ Strict
 
 #If TARGET="glfw" And HOST<>"linux"
 Import brl.requesters
-#EndIf
+#Endif
 Import mojo.app
 Import mojo.input
 Import vortex
@@ -17,6 +17,7 @@ Import vortex
 Class TestApp Extends App Final
 Public
 	Method OnCreate:Int()
+		'Setup update rate and swap to maximum FPS, and init random seed
 		SetUpdateRate(0)
 		SetSwapInterval(0)
 		Seed = Millisecs()
@@ -31,7 +32,6 @@ Public
 #Endif
 			EndApp()
 		End
-		
 		Print "Vendor name: " + Vortex.GetVendorName()
 		Print "Renderer name: " + Vortex.GetRendererName()
 		Print "API version name: " + Vortex.GetAPIVersionName()
@@ -149,6 +149,7 @@ Private
 	Global mFpsCounter		: Int
 	Global mFpsAccum		: Float
 	
+	Field mNumRenderCalls	: Int
 	Field mFont				: Font
 	
 	Field mProj				: Mat4
@@ -161,7 +162,6 @@ Private
 	Field mNormalTex		: Texture
 	Field mBatch			: RenderBatch
 	Field mEulerY			: Float
-	Field mNumRenderCalls	: Int
 End
 
 Function Main:Int()
