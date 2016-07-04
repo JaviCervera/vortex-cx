@@ -1,20 +1,10 @@
-Possible roadmap (not guaranteed to be implemented in this order or at all):
+Things to do before releasing Vortex2 officially:
 
-V1.2
+- Add a Light class
 - Rename <brushes> and <brush> in XML meshes, and its properties
-- Add skinned animation
-
-V1.3
-- Add render batching
-
-V1.4
-- Add multitexturing with cube, normal, specular, light & detail maps (maybe more)
-
-V1.5
 - Add stencil based shadows
 
-V1.6
-- Add OpenGL ES 1 renderer, for better compatibility with older machines
+Things to do in further updates:
 
-V1.7
+- Add OpenGL ES 1 renderer, for better compatibility with older machines
 - Add vertex animation

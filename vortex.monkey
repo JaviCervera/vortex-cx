@@ -14,8 +14,8 @@ Import src.texture
 
 Class Vortex Final
 Public
-	Function Init:Bool()
-		If Renderer.Init()
+	Function Init:Bool(numLights:Int = 8, numBones:Int = 75)
+		If Renderer.Init(numLights, numBones)
 			Cache.Push()
 			Return True
 		Else

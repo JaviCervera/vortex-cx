@@ -31,7 +31,6 @@ End
 Public
 Class Lighting Final
 Public
-	Const NUM_LIGHTS	: Int = Renderer.MAX_LIGHTS
 	Const DIRECTIONAL	: Int = 0
 	Const POINT			: Int = 1
 
@@ -129,13 +128,14 @@ Private
 	End
 
 	Function InitLights:Void()
+		If mLights.Length() = 0 Then mLights = New LightData[Renderer.GetMaxLights()]
 		If mLights[0] = Null
-			For Local i:Int = 0 Until NUM_LIGHTS
+			For Local i:Int = 0 Until Renderer.GetMaxLights()
 				mLights[i] = New LightData
 			Next
 		End
 	End
 
-	Global mLights				: LightData[NUM_LIGHTS]
+	Global mLights				: LightData[]
 	Global mGlobalPixelLighting	: Bool = False
 End

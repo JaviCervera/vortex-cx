@@ -29,8 +29,6 @@ Public
 	Const FILTER_LINEAR% = 1
 	Const FILTER_BILINEAR% = 2
 	Const FILTER_TRILINEAR% = 3
-	Const MAX_LIGHTS% = 8
-	Const MAX_BONES% = 75
 	Const TEXTURE_DISABLED% = 0
 	Const TEXTURE_2D% = 1
 	Const BASETEX_UNIT% = 0
@@ -43,7 +41,11 @@ Public
 	'Setup
 	'---------------------------------------------------------------------------
 
-	Function Init:Bool()
+	Function Init:Bool(numLights:Int, numBones:Int)
+		'Set the max number of lights and bones supported
+		mMaxLights = numLights
+		mMaxBones = numBones
+	
 		'Get GL and GLSL versions
 		mVendor = glGetString(GL_VENDOR)
 		mRenderer = glGetString(GL_RENDERER)
@@ -184,7 +186,7 @@ Public
 	
 	Function SetBoneMatrices:Void(matrices:Mat4[])
 		If mActiveProgram.mBonesLoc[0] <> -1
-			Local lastIndex:Int = Min(MAX_BONES, matrices.Length())
+			Local lastIndex:Int = Min(mMaxBones, matrices.Length())
 			For Local i:Int = 0 Until lastIndex
 				If mActiveProgram.mBonesLoc[i] <> -1 Then glUniformMatrix4fv(mActiveProgram.mBonesLoc[i], 1, False, matrices[i].M)
 			Next
@@ -253,6 +255,10 @@ Public
 			If mActiveProgram.mLightColorLoc[index] <> -1 Then glUniform3f(mActiveProgram.mLightColorLoc[index], r, g, b)
 			If mActiveProgram.mLightAttenuationLoc[index] <> -1 Then glUniform1f(mActiveProgram.mLightAttenuationLoc[index], att)
 		End
+	End
+	
+	Function GetMaxLights:Int()
+		Return mMaxLights
 	End
 
 	'---------------------------------------------------------------------------
@@ -528,8 +534,8 @@ Public
 	'---------------------------------------------------------------------------
 
 	Function CreateProgram:GpuProgram(vertex$, fragment$)
-		vertex = GLSL_VERSION + "#define MAX_LIGHTS " + MAX_LIGHTS + "~n#define MAX_BONES " + MAX_BONES + "~n" + vertex
-		fragment = GLSL_VERSION + "#define MAX_LIGHTS " + MAX_LIGHTS + "~n" + fragment
+		vertex = GLSL_VERSION + "#define MAX_LIGHTS " + mMaxLights + "~n#define MAX_BONES " + mMaxBones + "~n" + vertex
+		fragment = GLSL_VERSION + "#define MAX_LIGHTS " + mMaxLights + "~n" + fragment
 
 		Local retCode%[1]
 
@@ -650,6 +656,9 @@ Private
 			Return GL_LINEAR
 		End
 	End
+	
+	Global mMaxLights	: Int
+	Global mMaxBones	: Int
 
 	'GL and GLSL version
 	Global mVendor:String
@@ -691,10 +700,10 @@ Class GpuProgram
 	Field mRefractCubeSamplerLoc%
 	Field mUsePixelLightingLoc%
 	Field mLightingEnabledLoc%
-	Field mLightEnabledLoc%[Renderer.MAX_LIGHTS]
-	Field mLightPosLoc%[Renderer.MAX_LIGHTS]
-	Field mLightColorLoc%[Renderer.MAX_LIGHTS]
-	Field mLightAttenuationLoc%[Renderer.MAX_LIGHTS]
+	Field mLightEnabledLoc%[Renderer.mMaxLights]
+	Field mLightPosLoc%[Renderer.mMaxLights]
+	Field mLightColorLoc%[Renderer.mMaxLights]
+	Field mLightAttenuationLoc%[Renderer.mMaxLights]
 	Field mBaseColorLoc%
 	Field mAmbientLoc%
 	Field mShininessLoc%
@@ -703,7 +712,7 @@ Class GpuProgram
 	Field mFogDistLoc%
 	Field mFogColorLoc%
 	Field mSkinnedLoc%
-	Field mBonesLoc%[Renderer.MAX_BONES]
+	Field mBonesLoc%[Renderer.mMaxBones]
 	Field mVPosLoc%
 	Field mVNormalLoc%
 	Field mVTangentLoc%
@@ -725,7 +734,7 @@ Class GpuProgram
 		mUseRefractTexLoc = glGetUniformLocation(program, "useRefractTex")
 		mUsePixelLightingLoc = glGetUniformLocation(program, "usePixelLighting")
 		mLightingEnabledLoc = glGetUniformLocation(program, "lightingEnabled")
-		For Local i% = 0 Until Renderer.MAX_LIGHTS
+		For Local i% = 0 Until Renderer.mMaxLights
 			mLightEnabledLoc[i] = glGetUniformLocation(program, "lightEnabled[" + i + "]")
 			mLightPosLoc[i] = glGetUniformLocation(program, "lightPos[" + i + "]")
 			mLightColorLoc[i] = glGetUniformLocation(program, "lightColor[" + i + "]")
@@ -739,7 +748,7 @@ Class GpuProgram
 		mFogDistLoc = glGetUniformLocation(program, "fogDist")
 		mFogColorLoc = glGetUniformLocation(program, "fogColor")
 		mSkinnedLoc = glGetUniformLocation(program, "skinned")
-		For Local i% = 0 Until Renderer.MAX_BONES
+		For Local i% = 0 Until Renderer.mMaxBones
 			mBonesLoc[i] = glGetUniformLocation(program, "bones[" + i + "]")
 		Next
 		mVPosLoc = glGetAttribLocation(program, "vpos")

@@ -696,8 +696,8 @@ You can also specifY a width and a height different than its original size, and 
 
 This class contains some global general porpose functions to setup the library and get status information.
 
-# Function Init:Bool()
-Initializes the Vortex library. This should be called before any other function in the library.
+# Function Init:Bool(numLights:Int = 8, numBones:Int = 75)
+Initializes the Vortex library. This should be called before any other function in the library. You can override the default supported number of lights in the scene and the maximum number of bones per mesh.
 
 # Function GetShaderError:String()
 Reports any errors that took place while compiling the shaders on initialization.
