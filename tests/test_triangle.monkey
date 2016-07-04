@@ -51,7 +51,7 @@ Public
 		
 		'Create triangle
 		mTri = Surface.Create()
-		mTri.GetMaterial().SetCulling(False)
+		mTri.Material.Culling = False
 		mTri.AddTriangle(0, 1, 2)
 		mTri.AddVertex(0,0.5,0,     0,0,-1, 1,0,0,1, 0,0)
 		mTri.AddVertex(0.5,-0.5,0,  0,0,-1, 0,1,0,1, 0,0)

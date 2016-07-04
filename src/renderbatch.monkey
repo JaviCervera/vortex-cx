@@ -77,12 +77,12 @@ Public
 	End
 
 	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
-		If overrideMaterial = Null Then overrideMaterial = surface.GetMaterial()
+		If overrideMaterial = Null Then overrideMaterial = surface.Material
 		RenderGeomForSurface(surface, overrideMaterial, mTempArray).AddTransform(transform)
 	End
 	
 	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null, animMatrices:Mat4[])
-		If overrideMaterial = Null Then overrideMaterial = surface.GetMaterial()
+		If overrideMaterial = Null Then overrideMaterial = surface.Material
 		RenderGeomForSurface(surface, overrideMaterial, animMatrices).AddTransform(transform)
 	End
 	
@@ -95,19 +95,19 @@ Public
 	End
 	
 	Method AddMesh:Void(mesh:Mesh, transform:Mat4)
-		For Local i:Int = 0 Until mesh.GetNumSurfaces()
+		For Local i:Int = 0 Until mesh.NumSurfaces
 			AddSurface(mesh.GetSurface(i), transform)
 		Next
 	End
 	
 	Method AddMesh:Void(mesh:Mesh, transform:Mat4, animMatrices:Mat4[])
-		For Local i:Int = 0 Until mesh.GetNumSurfaces()
+		For Local i:Int = 0 Until mesh.NumSurfaces
 			AddSurface(mesh.GetSurface(i), transform, Null, animMatrices)
 		Next
 	End
 	
 	Method RemoveMesh:Void(mesh:Mesh, transform:Mat4)
-		For Local i:Int = 0 Until mesh.GetNumSurfaces()
+		For Local i:Int = 0 Until mesh.NumSurfaces
 			RemoveSurface(mesh.GetSurface(i), transform)
 		Next
 	End

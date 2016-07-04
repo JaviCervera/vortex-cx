@@ -54,96 +54,108 @@ Public
 		mDiffuseGreen = g
 		mDiffuseBlue = b
 	End
+	
+	Method DiffuseRed:Void(red:Float) Property
+		mDiffuseRed = red
+	End
 
-	Method GetDiffuseRed:Float()
+	Method DiffuseRed:Float() Property
 		Return mDiffuseRed
 	End
-
-	Method GetDiffuseGreen:Float()
-		Return mDiffuseGreen
+	
+	Method DiffuseGreen:Void(green:Float) Property
+		mDiffuseGreen = green
 	End
 
-	Method GetDiffuseBlue:Float()
+	Method DiffuseGreen:Float() Property
+		Return mDiffuseGreen
+	End
+	
+	Method DiffuseBlue:Void(blue:Float) Property
+		mDiffuseBlue = blue
+	End
+
+	Method DiffuseBlue:Float() Property
 		Return mDiffuseBlue
 	End
 	
-	Method SetDiffuseTexture:Void(tex:Texture)
+	Method DiffuseTexture:Void(tex:Texture) Property
 		mDiffuseTex = tex
 	End
 
-	Method GetDiffuseTexture:Texture()
+	Method DiffuseTexture:Texture() Property
 		Return mDiffuseTex
 	End
 	
-	Method SetNormalTexture:Void(tex:Texture)
+	Method NormalTexture:Void(tex:Texture) Property
 		mNormalTex = tex
 	End
 	
-	Method GetNormalTexture:Texture()
+	Method NormalTexture:Texture() Property
 		Return mNormalTex
 	End
 	
-	Method SetReflectionTexture:Void(tex:Texture)
+	Method ReflectionTexture:Void(tex:Texture) Property
 		mReflectTex = tex
 	End
 	
-	Method GetReflectionTexture:Texture()
+	Method ReflectionTexture:Texture() Property
 		Return mReflectTex
 	End
 	
-	Method SetRefractionTexture:Void(tex:Texture)
+	Method RefractionTexture:Void(tex:Texture) Property
 		mRefractTex = tex
 	End
 	
-	Method GetRefractionTexture:Texture()
+	Method RefractionTexture:Texture() Property
 		Return mRefractTex
 	End
 
-	Method SetAlpha:Void(alpha:Float)
+	Method Alpha:Void(alpha:Float) Property
 		mAlpha = alpha
 	End
 
-	Method GetAlpha:Float()
+	Method Alpha:Float() Property
 		Return mAlpha
 	End
 
-	Method SetShininess:Void(shininess:Float)
+	Method Shininess:Void(shininess:Float) Property
 		mShininess = shininess
 	End
 
-	Method GetShininess:Float()
+	Method Shininess:Float() Property
 		Return mShininess
 	End
 	
-	Method SetRefractionCoef:Void(coef:Float)
+	Method RefractionCoef:Void(coef:Float) Property
 		mRefractCoef = coef
 	End
 	
-	Method GetRefractionCoef:Float()
+	Method RefractionCoef:Float() Property
 		Return mRefractCoef
 	End
 
-	Method SetBlendMode:Void(mode:Int)
+	Method BlendMode:Void(mode:Int) Property
 		mBlendMode = mode
 	End
 
-	Method GetBlendMode:Int()
+	Method BlendMode:Int() Property
 		Return mBlendMode
 	End
 
-	Method SetCulling:Void(enable:Bool)
+	Method Culling:Void(enable:Bool) Property
 		mCulling = enable
 	End
 
-	Method GetCulling:Bool()
+	Method Culling:Bool() Property
 		Return mCulling
 	End
 
-	Method SetDepthWrite:Void(enable:Bool)
+	Method DepthWrite:Void(enable:Bool) Property
 		mDepthWrite = enable
 	End
 
-	Method GetDepthWrite:Bool()
+	Method DepthWrite:Bool() Property
 		Return mDepthWrite
 	End
 
@@ -160,11 +172,11 @@ Public
 		Renderer.SetBlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)
 		Renderer.SetDepthWrite(mDepthWrite)
-		If mDiffuseTex <> Null Then diffuseHandle = mDiffuseTex.GetHandle()
-		If mNormalTex <> Null Then normalHandle = mNormalTex.GetHandle()
-		If mReflectTex <> Null Then reflectHandle = mReflectTex.GetHandle()
-		If mRefractTex <> Null Then refractHandle = mRefractTex.GetHandle()
-		Renderer.SetTextures(diffuseHandle, normalHandle, reflectHandle, refractHandle, mDiffuseTex And mDiffuseTex.IsCubic())
+		If mDiffuseTex <> Null Then diffuseHandle = mDiffuseTex.Handle
+		If mNormalTex <> Null Then normalHandle = mNormalTex.Handle
+		If mReflectTex <> Null Then reflectHandle = mReflectTex.Handle
+		If mRefractTex <> Null Then refractHandle = mRefractTex.Handle
+		Renderer.SetTextures(diffuseHandle, normalHandle, reflectHandle, refractHandle, mDiffuseTex And mDiffuseTex.Cubic)
 		Renderer.SetPixelLighting(Lighting.GetGlobalPixelLighting())
 	End
 Private

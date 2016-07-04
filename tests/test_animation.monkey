@@ -52,7 +52,7 @@ Public
 		
 		'Load SWAT model, create matrices for animation data, and add mesh to RenderBatch
 		mSwatMesh = Cache.GetMesh("swat.msh.xml")
-		mSwatAnimMatrices = New Mat4[mSwatMesh.GetNumBones()]
+		mSwatAnimMatrices = New Mat4[mSwatMesh.NumBones]
 		For Local i:Int = 0 Until mSwatAnimMatrices.Length()
 			mSwatAnimMatrices[i] = Mat4.Create()
 		Next
@@ -61,7 +61,7 @@ Public
 		
 		'Load dwarf model, create matrices for animation data, and add mesh to RenderBatch
 		mDwarfMesh = Cache.GetMesh("dwarf.msh.xml")
-		mDwarfAnimMatrices = New Mat4[mDwarfMesh.GetNumBones()]
+		mDwarfAnimMatrices = New Mat4[mDwarfMesh.NumBones]
 		For Local i:Int = 0 Until mDwarfAnimMatrices.Length()
 			mDwarfAnimMatrices[i] = Mat4.Create()
 		Next
@@ -82,11 +82,11 @@ Public
 		#End
 		
 		mSwatCurrentFrame += 16 * mDeltaTime
-		If mSwatCurrentFrame > mSwatMesh.GetLastFrame()+1 Then mSwatCurrentFrame = mSwatCurrentFrame - Int(mSwatCurrentFrame)
+		If mSwatCurrentFrame > mSwatMesh.LastFrame+1 Then mSwatCurrentFrame = mSwatCurrentFrame - Int(mSwatCurrentFrame)
 		mSwatMesh.Animate(mSwatAnimMatrices, mSwatCurrentFrame)
 	
 		mDwarfCurrentFrame += 16 * mDeltaTime
-		If mDwarfCurrentFrame > mDwarfMesh.GetLastFrame()+1 Then mDwarfCurrentFrame = mDwarfCurrentFrame - Int(mDwarfCurrentFrame)
+		If mDwarfCurrentFrame > mDwarfMesh.LastFrame+1 Then mDwarfCurrentFrame = mDwarfCurrentFrame - Int(mDwarfCurrentFrame)
 		mDwarfMesh.Animate(mDwarfAnimMatrices, mDwarfCurrentFrame)
 		
 		Return False

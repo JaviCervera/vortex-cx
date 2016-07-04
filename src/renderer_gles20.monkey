@@ -156,25 +156,25 @@ Public
 		If mActiveProgram.mModelViewLoc <> -1 Or mActiveProgram.mNormalMatrixLoc <> -1
 			mTempMatrix.Set(mViewMatrix)
 			mTempMatrix.Mul(mModelMatrix)
-			glUniformMatrix4fv(mActiveProgram.mModelViewLoc, 1, False, mTempMatrix.m)
+			glUniformMatrix4fv(mActiveProgram.mModelViewLoc, 1, False, mTempMatrix.M)
 		End
 
 		'Calculate normal
 		If mActiveProgram.mNormalMatrixLoc <> -1
 			mTempMatrix.Invert()
 			mTempMatrix.Transpose()
-			glUniformMatrix4fv(mActiveProgram.mNormalMatrixLoc, 1, False, mTempMatrix.m)
+			glUniformMatrix4fv(mActiveProgram.mNormalMatrixLoc, 1, False, mTempMatrix.M)
 		End
 		
 		'Set inverse view
-		If mActiveProgram.mInvViewLoc <> -1 Then glUniformMatrix4fv(mActiveProgram.mInvViewLoc, 1, False, mInvViewMatrix.m)
+		If mActiveProgram.mInvViewLoc <> -1 Then glUniformMatrix4fv(mActiveProgram.mInvViewLoc, 1, False, mInvViewMatrix.M)
 
 		'Calculate MVP
 		If mActiveProgram.mMVPLoc <> -1
 			mTempMatrix.Set(mProjectionMatrix)
 			mTempMatrix.Mul(mViewMatrix)
 			mTempMatrix.Mul(mModelMatrix)
-			glUniformMatrix4fv(mActiveProgram.mMVPLoc, 1, False, mTempMatrix.m)
+			glUniformMatrix4fv(mActiveProgram.mMVPLoc, 1, False, mTempMatrix.M)
 		End
 	End
 
@@ -186,7 +186,7 @@ Public
 		If mActiveProgram.mBonesLoc[0] <> -1
 			Local lastIndex:Int = Min(MAX_BONES, matrices.Length())
 			For Local i:Int = 0 Until lastIndex
-				If mActiveProgram.mBonesLoc[i] <> -1 Then glUniformMatrix4fv(mActiveProgram.mBonesLoc[i], 1, False, matrices[i].m)
+				If mActiveProgram.mBonesLoc[i] <> -1 Then glUniformMatrix4fv(mActiveProgram.mBonesLoc[i], 1, False, matrices[i].M)
 			Next
 		End
 	End

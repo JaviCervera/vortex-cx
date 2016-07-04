@@ -16,7 +16,7 @@ Import vortex.src.xml
 Public
 Class MeshLoader_XML Final
 Public
-	Function Load:Mesh(filename$, texFilter%)
+	Function Load:Mesh(filename:String, texFilter:Int)
 		'Parse XML mesh
 		Local xmlString$ = LoadString(filename)
 		If xmlString = "" Then Return Null
@@ -65,20 +65,19 @@ Public
 
 			'Create material
 			Local material:Material = Material.Create(diffuseTex)
-			If blendStr.ToLower() = "alpha" Then material.SetBlendMode(Renderer.BLEND_ALPHA)
-			If blendStr.ToLower() = "add" Then material.SetBlendMode(Renderer.BLEND_ADD)
-			If blendStr.ToLower() = "mul" Then material.SetBlendMode(Renderer.BLEND_MUL)
+			If blendStr.ToLower() = "alpha" Then material.BlendMode = Renderer.BLEND_ALPHA
+			If blendStr.ToLower() = "add" Then material.BlendMode = Renderer.BLEND_ADD
+			If blendStr.ToLower() = "mul" Then material.BlendMode = Renderer.BLEND_MUL
 			material.SetDiffuseColor(baseColor[0], baseColor[1], baseColor[2])
-			material.SetAlpha(opacity)
-			material.SetShininess(shininess)
-			material.SetCulling(culling)
-			material.SetDepthWrite(depthWrite)
+			material.Alpha = opacity
+			material.Shininess = shininess
+			material.Culling = culling
+			material.DepthWrite = depthWrite
 			materialsMap.Set(nameStr, material)
 		Next
 
 		'Create mesh object
-		Local mesh:Mesh = Mesh.Create()
-		mesh.SetFilename(filename)
+		Local mesh:Mesh = Mesh.Create(filename)
 
 		'Parse surfaces
 		For Local surfaceNode:XMLNode = Eachin surfaceNodes
@@ -173,7 +172,7 @@ Public
 		Next
 
 		'Parse last frame
-		mesh.SetLastFrame(Int(lastFrameNode.value))
+		mesh.LastFrame = Int(lastFrameNode.value)
 
 		'Parse bones
 		Local i:Int = 0
@@ -194,7 +193,7 @@ Public
 			If parentStr <> ""
 				Local parent:Bone = mesh.FindBone(parentStr)
 				If parent = Null Then Return Null	'Parent bone must exist
-				bone.SetParent(parent)
+				bone.Parent = parent
 			End
 				
 			'Set pose matrix
@@ -209,9 +208,9 @@ Public
 				For Local j:Int = 0 Until surfacesStr.Length()
 					Local index:Int = Int(surfacesStr[j])
 					Local surf:Surface = mesh.GetSurface(index)
-					For Local v:Int = 0 Until surf.GetNumVertices()
-						bone.GetGlobalPoseMatrix().Mul(surf.GetVertexX(v), surf.GetVertexY(v), surf.GetVertexZ(v), 1)
-						surf.SetVertexPosition(v, bone.GetGlobalPoseMatrix().ResultVector().x, bone.GetGlobalPoseMatrix().ResultVector().y, bone.GetGlobalPoseMatrix().ResultVector().z)
+					For Local v:Int = 0 Until surf.NumVertices
+						bone.GlobalPoseMatrix.Mul(surf.GetVertexX(v), surf.GetVertexY(v), surf.GetVertexZ(v), 1)
+						surf.SetVertexPosition(v, bone.GlobalPoseMatrix.ResultVector().X, bone.GlobalPoseMatrix.ResultVector().Y, bone.GlobalPoseMatrix.ResultVector().Z)
 						surf.SetVertexBone(v, 0, i, 1)
 					Next
 					surf.Rebuild()

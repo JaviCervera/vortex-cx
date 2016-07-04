@@ -11,7 +11,7 @@ Import vortex.src.xml
 Public
 Class FontLoader_XML Final
 Public
-	Function Load:Font(filename$)
+	Function Load:Font(filename:String)
 		'Parse XML font
 		Local xmlString$ = LoadString(filename)
 		If xmlString = "" Then Return Null

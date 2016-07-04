@@ -116,7 +116,7 @@ Public
 		For Local i% = 0 Until mLights.Length()
 			Local light:LightData = mLights[i]
 			Renderer.GetViewMatrix().Mul(light.mX, light.mY, light.mZ, light.mW)
-			Renderer.SetLight(i, light.mEnabled, Mat4.ResultVector().x, Mat4.ResultVector().y, Mat4.ResultVector().z, light.mW, light.mRed, light.mGreen, light.mBlue, light.mAttenuation)
+			Renderer.SetLight(i, light.mEnabled, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, light.mW, light.mRed, light.mGreen, light.mBlue, light.mAttenuation)
 		Next
 		mGlobalPixelLighting = globalPixelLighting
 	End

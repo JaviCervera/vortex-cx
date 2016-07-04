@@ -9,8 +9,9 @@ Import vortex.src.surface
 Public
 Class Mesh Final
 Public
-	Function Create:Mesh()
+	Function Create:Mesh(filename:String = "")
 		Local mesh:Mesh = New Mesh
+		mesh.mFilename = filename
 		mesh.mSurfaces = New Surface[0]
 		mesh.mLastFrame = 0
 		mesh.mBones = New Bone[0]
@@ -18,8 +19,7 @@ Public
 	End
 	
 	Function Create:Mesh(other:Mesh)
-		Local mesh:Mesh = Mesh.Create()
-		mesh.mFilename = other.mFilename
+		Local mesh:Mesh = Mesh.Create(other.mFilename)
 		mesh.mSurfaces = New Surface[other.mSurfaces.Length()]
 		For Local i:Int = 0 Until other.mSurfaces.Length()
 			mesh.mSurfaces[i] = Surface.Create(other.mSurfaces[i])
@@ -38,12 +38,8 @@ Public
 		Next
 	End
 
-	Method GetFilename:String()
+	Method Filename:String() Property
 		Return mFilename
-	End
-
-	Method SetFilename:Void(filename:String)
-		mFilename = filename
 	End
 
 	Method AddSurface:Void(surf:Surface)
@@ -52,7 +48,7 @@ Public
 		surf.Rebuild()
 	End
 
-	Method GetNumSurfaces:Int()
+	Method NumSurfaces:Int() Property
 		Return mSurfaces.Length()
 	End
 
@@ -60,11 +56,11 @@ Public
 		Return mSurfaces[index]
 	End
 
-	Method SetLastFrame:Void(lastFrame:Int)
+	Method LastFrame:Void(lastFrame:Int) Property
 		mLastFrame = lastFrame
 	End
 
-	Method GetLastFrame:Int()
+	Method LastFrame:Int() Property
 		Return mLastFrame
 	End
 	
@@ -73,7 +69,7 @@ Public
 		mBones[mBones.Length() - 1] = bone
 	End
 	
-	Method GetNumBones:Int()
+	Method NumBones:Int() Property
 		Return mBones.Length()
 	End
 	
@@ -84,7 +80,7 @@ Public
 	
 	Method FindBone:Bone(name:String)
 		For Local bone:Bone = Eachin mBones
-			If bone.GetName() = name Then Return bone
+			If bone.Name = name Then Return bone
 		Next
 		Return Null
 	End
@@ -96,8 +92,8 @@ Public
 			If lastFrame = 0 Then lastFrame = mLastFrame
 			
 			'Calculate animation matrix for all bones
-			For Local i:Int = 0 Until GetNumBones()
-				Local parentIndex:Int = GetBoneIndex(GetBone(i).GetParent())
+			For Local i:Int = 0 Until NumBones
+				Local parentIndex:Int = GetBoneIndex(GetBone(i).Parent)
 				If parentIndex > -1
 					GetBone(i).Animate(animMatrices[i], animMatrices[parentIndex], frame, firstFrame, lastFrame)
 				Else
@@ -106,8 +102,8 @@ Public
 			Next
 			
 			'Multiply every animation matrix by the inverse of the pose matrix
-			For Local i:Int = 0 Until GetNumBones()
-				animMatrices[i].Mul(GetBone(i).GetInverseGlobalPoseMatrix())
+			For Local i:Int = 0 Until NumBones
+				animMatrices[i].Mul(GetBone(i).InverseGlobalPoseMatrix)
 			Next
 		End
 	End

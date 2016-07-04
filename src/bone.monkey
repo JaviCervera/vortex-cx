@@ -46,15 +46,15 @@ Public
 		Return bone
 	End
 
-	Method GetName:String()
+	Method Name:String() Property
 		Return mName
 	End
 	
-	Method SetParent:Void(parent:Bone)
+	Method Parent:Void(parent:Bone) Property
 		mParent = parent
 	End
 
-	Method GetParent:Bone()
+	Method Parent:Bone() Property
 		Return mParent
 	End
 	
@@ -69,11 +69,11 @@ Public
 		mInvPoseMatrix.Invert()
 	End
 	
-	Method GetGlobalPoseMatrix:Mat4()
+	Method GlobalPoseMatrix:Mat4() Property
 		Return mPoseMatrix
 	End
 	
-	Method GetInverseGlobalPoseMatrix:Mat4()
+	Method InverseGlobalPoseMatrix:Mat4() Property
 		Return mInvPoseMatrix
 	End
 
@@ -98,7 +98,7 @@ Public
 		mScales[mScales.Length() - 1] = Vec3.Create(x, y, z)
 	End
 
-	Method GetNumPositionKeys:Int()
+	Method NumPositionKeys:Int() Property
 		Return mPositionKeys.Length()
 	End
 
@@ -118,7 +118,7 @@ Public
 		Return mPositions[index].z
 	End
 
-	Method GetNumRotationKeys:Int()
+	Method NumRotationKeys:Int() Property
 		Return mRotationsKeys.Length()
 	End
 
@@ -142,7 +142,7 @@ Public
 		Return mRotations[index].z
 	End
 
-	Method GetNumScaleKeys:Int()
+	Method NumScaleKeys:Int() Property
 		Return mScaleKeys.Length()
 	End
 
@@ -185,9 +185,9 @@ Private
 
 			'Calculate interpolated position
 			CalcPosition(frame, firstSeqFrame, lastSeqFrame)
-			px = mTempVec.x
-			py = mTempVec.y
-			pz = mTempVec.z
+			px = mTempVec.X
+			py = mTempVec.Y
+			pz = mTempVec.Z
 
 			'Calculate interpolated rotation
 			CalcRotation(frame, firstSeqFrame, lastSeqFrame)
@@ -195,14 +195,14 @@ Private
 
 			'Calculate interpolated scale
 			CalcScale(frame, firstSeqFrame, lastSeqFrame)
-			sx = mTempVec.x
-			sy = mTempVec.y
-			sz = mTempVec.z
+			sx = mTempVec.X
+			sy = mTempVec.Y
+			sz = mTempVec.Z
 
 			'Set matrix
 			If parentAnimMatrix Then animMatrix.Set(parentAnimMatrix) Else animMatrix.SetIdentity()
 			animMatrix.Translate(px, py, pz)
-			animMatrix.Rotate(mTempQuat.Angle(), mTempQuat.ResultVector().x, mTempQuat.ResultVector().y, mTempQuat.ResultVector().z)
+			animMatrix.Rotate(mTempQuat.Angle(), mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z)
 			animMatrix.Scale(sx, sy, sz)
 		'If not, define default transform
 		Else

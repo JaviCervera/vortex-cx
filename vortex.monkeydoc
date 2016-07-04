@@ -27,13 +27,13 @@ A bone contains a list of transformations to be applied to the geometry attached
 # Function Create:Bone(name:String)
 Creates a new bone with the specified name.
 
-# Method GetName:String()
-Returns the name of the bone.
+# Method Name:String() Property
+Return the name of the bone.
 
-# Method SetParent:Void(parent:Bone)
+# Method Parent:Void(parent:Bone) Property
 Sets the parent of the bone.
 
-# Method GetParent:Bone()
+# Method Parent:Bone() Property
 Returns the parent of the bone, which will be another bone, or Null if it is the root bone in the mesh.
 
 # Method SetLocalPoseMatrix:Void(matrix:Mat4)
@@ -41,14 +41,14 @@ Sets the pose matrix for this bone, which defines the position, rotation and sca
 Although this matrix must contain a transformation in local space, the global transformation is calculated and stored, so the parent's pose matrix must have been previously defined.
 You don't need to use this function, unless you are generating meshes by hand. When loading a mesh from disk, this function will be called automatically by the loader.
 
-# Method GetGlobalPoseMatrix:Mat4()
+# Method GlobalPoseMatrix:Mat4() Property
 Returns the global pose transform matrix.
-You don't normally need to call this function.
+You don't normally need to use this property.
 It is used internally when rendering the geometry attached to the bone.
 
-# Method GetInverseGlobalPoseMatrix:Float[]()
-Returns a 16 float array that contains the inverse of the global pose transform matrix.
-You don't normally need to call this function.
+# Method InverseGlobalPoseMatrix:Mat4() Property
+Returns the inverse of the global pose transform matrix.
+You don't normally need to use this property.
 It is used internally when rendering the geometry attached to the bone.
 
 # Method AddPositionKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
@@ -60,7 +60,7 @@ Adds a new rotation quaternion to the bone at the specified keyframe.
 # Method AddScaleKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
 Adds a new scale transformation to the bone at the specified keyframe.
 
-# Method GetNumPositionKeys:Int()
+# Method NumPositionKeys:Int() Property
 Returns the number of position keyframes in the bone.
 
 # Method GetPositionKeyFrame:Int(index:Int)
@@ -75,7 +75,7 @@ Returns the Y coordinate of the specified position keyframe. The value of `index
 # Method GetPositionKeyZ:Float(index:Int)
 Returns the Z coordinate of the specified position keyframe. The value of `index` goes in the range `0 .. Bone_GetNumPositionKeys(bone) - 1`.
 
-# Method GetNumRotationKeys:Int()
+# Method NumRotationKeys:Int() Property
 Returns the number of rotation keyframes in the bone.
 
 # Method GetRotationKeyFrame:Int(index:Int)
@@ -93,7 +93,7 @@ Returns the Y quaternion coordinate of the specified rotation keyframe. The valu
 # Method GetRotationKeyZ:Float(index:Int)
 Returns the Z quaternion coordinate of the specified rotation keyframe. The value of `index` goes in the range `0 .. Bone_GetNumRotationKeys(bone) - 1`.
 
-# Method GetNumScaleKeys:Int()
+# Method NumScaleKeys:Int() Property
 Returns the number of scale keyframes in the bone.
 
 # Method GetScaleKeyFrame:Int(index:Int)
@@ -144,6 +144,10 @@ Returns the texture with the specified filename, or Null if the texture was not 
 If the texture has been loaded previously by any cache object, that same object will be returned.
 Otherwise, the last pushed cache object will load and return a new texture.
 
+# Function GetTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
+Returns a cubic texture loaded from the specified filenames, or Null if the texture was not found.
+If the texture has been loaded previously by any cache object, that same object will be returned.
+Otherwise, the last pushed cache object will load and return a new texture.
 
 
 
@@ -159,13 +163,13 @@ Creates a new font, assigning a filename to it, the heigth in pixels of the font
 # Method Free:Void()
 When you are not going to render text usign this font anymore, you can call this method to deallocate its resources. If you are using the cache for loading resources, you don't need to call this method, since all cache resources are deallocated when clearing the cache.
 
-# Method GetFilename:String()
+# Method Filename:String() Property
 Returns the filename of the font.
 
-# Method GetHeight:Float()
+# Method Height:Float() Property
 Returns the height in pixels of the font.
 
-# Method GetTexture:Texture()
+# Method Texture:Texture() Property
 Returns the texture map for this font.
 
 # Method GetTextWidth:Float(text:String)
@@ -304,34 +308,43 @@ Set the properties of the material to be those of the one passed as parameter.
 # Method SetDiffuseColor:Void(r:Float, g:Float, b:Float)
 Sets the diffuse color. Geometry is tinted using the diffuse color, and it is also used in lighting calculations. The default value is white (1,1,1).
 
-# Method GetDiffuseRed:Float()
+# Method DiffuseRed:Void(red:Float) Property
+Sets the red component of the diffuse color, in the range 0 .. 1.
+
+# Method DiffuseRed:Float() Property
 Returns the red component of the diffuse color, in the range 0 .. 1.
 
-# Method GetDiffuseGreen:Float()
+# Method DiffuseGreen:Void(green:Float) Property
+Sets the green component of the diffuse color, in the range 0 .. 1.
+
+# Method DiffuseGreen:Float() Property
 Returns the green component of the diffuse color, in the range 0 .. 1.
 
-# Method GetDiffuseBlue:Float()
+# Method DiffuseBlue:Void(blue:Float) Property
+Sets the blue component of the diffuse color, in the range 0 .. 1.
+
+# Method DiffuseBlue:Float() Property
 Returns the blue component of the diffuse color, in the range 0 .. 1.
 
-# Method SetAlpha:Void(alpha:Float)
+# Method Alpha:Void(alpha:Float) Property
 Sets the alpha (opacity) of the material, with 0 being completely transparent and 1 being completely opaque. The default value is 1.
 
-# Method GetAlpha:Float()
+# Method Alpha:Float() Property
 Returns the alpha (opacity) of the material, in the range 0 (transparent) .. 1 (opaque).
 
-# Method SetShininess:Void(shininess:Float)
+# Method Shininess:Void(shininess:Float) Property
 Sets the specular shininess of the material. A value of 0 will disable specular reflections entirely, whereas a value in the range (0,1] will indicate the strength of the specular reflection.
 
-# Method GetShininess:Float()
+# Method Shininess:Float() Property
 Returns the specular shininess of the material.
 
-# Method SetDiffuseTexture:Void(tex:Texture)
+# Method DiffuseTexture:Void(tex:Texture) Property
 Sets the diffuse texture of the material.
 
-# Method GetDiffuseTexture:Texture()
+# Method DiffuseTexture:Texture() Property
 Returns the diffuse texture of the material, or `Null` if there is no diffuse texture.
 
-# Method SetBlendMode:Void(mode:Int)
+# Method BlendMode:Void(mode:Int) Property
 Sets the blend mode of the material. This defines how the final look of the geometry using this material blends with the background, after computing texture, color and lighting information.
 
 It takes one of the following values:
@@ -341,19 +354,19 @@ It takes one of the following values:
 | Renderer.BLEND_ADD   | The computed color of the material is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
 | Renderer.BLEND_MUL   | The computed color of the material is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
 
-# Method GetBlendMode:Int()
+# Method BlendMode:Int() Property
 Returns the blend mode of the material.
 
-# Method SetCulling:Void(enable:Bool)
+# Method Culling:Void(enable:Bool) Property
 Enables or disables backface culling. When it is enabled, internal faces of the geometry using this material will not be rendered. It is enabled by default.
 
-# Method GetCulling:Bool()
+# Method Culling:Bool() Property
 Returns whether backface culling is enabled or not.
 
-# Method SetDepthWrite:Void(enable:Bool)
+# Method DepthWrite:Void(enable:Bool) Property
 Enabled or disables depth buffer writing. When it is disabled, other geometry further away from the viewer may occlude the geometry that uses this material. It is enabled by default.
 
-# Method GetDepthWrite:Bool()
+# Method DepthWrite:Bool() Property
 Returns whether depth buffer writing is enabled or not.
 
 # Method Prepare:Void()
@@ -368,40 +381,39 @@ A mesh is the description of a set of geometry (triangles), materials and option
 For every material that we need, there will be a surface in the mesh containing the geometry to be drawn with that material.
 The standard way to draw a mesh on the 3D space is by adding it to a RenderBatch, together with a transformation matrix that defines its position, rotation and scale. A mesh can be added mutiple times to the same RenderBatch, using different transformation matrices.
 
-# Function Create:Mesh()
-Creates a new empty mesh. This function is used if we want to generate meshes procedurally.
+# Function Create:Mesh(filename:String = "")
+Creates a new empty mesh.
+The `filename` parameter is useful if you are implementing a custom mesh loader and you want to identify the filename that the mesh was created from.
+This function is used if we want to generate meshes procedurally.
 If you want to load meshes from disk, the the `Cache.GetMesh` function instead.
 
 # Method Free:Void()
 When we don't need to use this mesh anymore (for example, if we have removed it from all render batches and will no add it ever again), we can use this function to deallocate its resources.
 If the mesh has been created with the function `Cache.GetMesh`, we must not call this method.
 
-# Method GetFilename:String()
+# Method Filename:String() Property
 Returns the filename assigned to this mesh when it cas created.
-
-# Method SetFilename:Void(filename:String)
-Sets the filename of the mesh. This is useful if you are implementing a custom mesh loader and you want to identify the filename that the mesh was created from.
 
 # Method AddSurface:Void(surf:Surface)
 Creates a new surface on the mesh and returns its handle.
 A surface is a set of geometry that use the same material and it's attached to a same bone (if the mesh is animated).
 
-# Method GetNumSurfaces:Int()
+# Method NumSurfaces:Int() Property
 Returns the number of surfaces that this mesh contains.
 
-# Method GetSurface:Surface(index:Int)
+# Method Surface:Surface(index:Int) Property
 Returns a surface contained in the mesh. The value of `index` must be in the range `[0, GetNumSurfaces()-1]`.
 
-# Method SetLastFrame:Void(lastFrame:Int)
+# Method LastFrame:Void(lastFrame:Int) Property
 Sets the last animation frame for the mesh. You should call this method only if generating an animated mesh procedurally, but not when loading the mesh from disk.
 
-# Method GetLastFrame:Int()
+# Method LastFrame:Int() Property
 Returns the last animation frame contained in the mesh.
 
 # Method AddBone:Void(bone:Bone)
 Adds a new bone to the mesh.
 
-# Method GetNumBones:Int()
+# Method NumBones:Int() Property
 Gets the number of bones in the mesh.
 
 # Method GetBone:Bone(index:Int)
@@ -519,13 +531,13 @@ Deallocates all the resources used by this surface. You don't normally need to c
 # Method Set:Void(other:Surface)
 Sets this surface's material and geometry data to copy those of the mesh passed as parameter. The surface is automatically rebuilt.
 
-# Method GetMaterial:Material()
+# Method Material:Material() Property
 Returns the material that this surface uses.
 
 # Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
 Adds a new triangle to the surface. A triangle contains three indices, that reference the vertices in the surface. Returns the index of the triangle within the surface.
 
-# Method GetNumTriangles:Int()
+# Method NumTriangles:Int() Property
 Returns the number of triangles in the surface.
 
 # Method SetTriangleVertices:Void(index:Int, v0:Int, v1:Int, v2:Int)
@@ -543,7 +555,7 @@ Returns the index of the third vertex in the specified triangle.
 # Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, r:Float, g:Float, b:Float, a:Float, u:Float, v:Float)
 Adds a new vertex to the surface, with the given position, normal, color, and texture coordinates. Returns the index of the vertex within the surface.
 
-# Method GetNumVertices:Int()
+# Method NumVertices:Int() Property
 Returns the number of vertices in the surface.
 
 # Method SetVertexPosition:Void(index:Int, x:Float, y:Float, z:Float)
@@ -642,22 +654,36 @@ We must also specify one of the following filtering modes:
 
 You won't normally use this function directly, because textures can be obtained from image files using the `Cache.GetTexture` function.
 
+# Function Create:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int)
+Loads a cubic texture from disk.
+We must also specify one of the following filtering modes:
+
+* Renderer.FILTER_NONE
+* Renderer.FILTER_LINEAR
+* Renderer.FILTER_BILINEAR
+* Renderer.FILTER_TRILINEAR
+
+You won't normally use this function directly, because textures can be obtained from image files using the `Cache.GetTexture` function.
+
 # Method Free:Void()
 Frees the resources used by this texture.
 If you created the texture with the `Cache.GetTexture` function, then you must not call this function.
 If you created the texture with `Texture.Create`, then you must call this function when you no longer need the texture.
 
-# Method GetFilename:String()
+# Method Filename:String() Property
 Returns the filename that this texture was created from.
 
-# Method GetHandle:Int()
+# Method Handle:Int() Property
 Returns the internal handle of this texture. This is an identifier in video memory, and you don't normally need to use this value.
 
-# Method GetWidth:Int()
+# Method Width:Int() Property
 Returns the width, in pixels, of the texture.
 
-# Method GetHeight:Int()
+# Method Height:Int() Property
 Returns the height, in pixels, of the texture.
+
+# Method Cubic:Bool() Property
+Returns whether the texture is a cube map.
 
 # Method Draw:Void(x:Float, y:Float, width:Float = 0, height:Float = 0, rectx:Float = 0, recty:Float = 0, rectwidth:Float = 0, rectheight:Float = 0)
 Draws the texture to the specified screen coordinates.

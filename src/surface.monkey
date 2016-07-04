@@ -10,7 +10,7 @@ Class Surface Final
 Public
 	Function Create:Surface(mat:Material = Null)
 		Local surf:Surface = New Surface
-		surf.mMaterial = Material.Create()
+		surf.mMaterial = surf.Material.Create()	'I need to call the function as surf.Material because the compiler is not capable of finding the correct context
 		If mat Then surf.mMaterial.Set(mat)
 		surf.mIndices = New DataBuffer(INC * 2)
 		surf.mVertices = New DataBuffer(INC * VERTEX_SIZE)
@@ -52,7 +52,7 @@ Public
 		Rebuild()
 	End
 
-	Method GetMaterial:Material()
+	Method Material:Material() Property
 		Return mMaterial
 	End
 
@@ -75,10 +75,10 @@ Public
 		'Copy new index data
 		mIndices.PokeShorts(mNumIndices * 2, [v0, v1, v2], 0, 3)
 		mNumIndices += 3
-		Return GetNumTriangles()-1
+		Return NumTriangles-1
 	End
 
-	Method GetNumTriangles:Int()
+	Method NumTriangles:Int() Property
 		Return mNumIndices / 3
 	End
 
@@ -100,7 +100,7 @@ Public
 
 	Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, r:Float, g:Float, b:Float, a:Float, u0:Float, v0:Float)
 		'Create new buffer if current is too short
-		If mVertices.Length() < (GetNumVertices() + 1) * VERTEX_SIZE
+		If mVertices.Length() < (NumVertices + 1) * VERTEX_SIZE
 			'Read data in an array
 			Local data:Int[mVertices.Length()]
 			mVertices.PeekBytes(0, data, 0, mVertices.Length())
@@ -118,10 +118,10 @@ Public
 		mVertices.PokeFloats(mNumVertices * VERTEX_SIZE, [x, y, z, nx, ny, nz, 0.0, 0.0, 0.0, r, g, b, a, u0, v0, u0, v0], 0, 17)
 		mNumVertices += 1
 
-		Return GetNumVertices()-1
+		Return NumVertices-1
 	End
 
-	Method GetNumVertices:Int()
+	Method NumVertices:Int() Property
 		Return mNumVertices
 	End
 

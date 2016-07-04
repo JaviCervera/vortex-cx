@@ -29,15 +29,15 @@ Public
 		mTexture.Free()
 	End
 
-	Method GetFilename:String()
+	Method Filename:String() Property
 		Return mFilename
 	End
 
-	Method GetHeight:Float()
+	Method Height:Float() Property
 		Return mHeight
 	End
 	
-	Method GetTexture:Texture()
+	Method Texture:Texture() Property
 		Return mTexture
 	End
 

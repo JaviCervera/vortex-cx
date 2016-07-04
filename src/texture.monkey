@@ -50,37 +50,37 @@ Public
 		Renderer.FreeTexture(mHandle)
 	End
 
-	Method GetFilename:String()
+	Method Filename:String() Property
 		Return mFilename
 	End
 
-	Method GetHandle:Int()
+	Method Handle:Int() Property
 		Return mHandle
 	End
 
-	Method GetWidth:Int()
+	Method Width:Int() Property
 		Return mWidth
 	End
 
-	Method GetHeight:Int()
+	Method Height:Int() Property
 		Return mHeight
 	End
 	
-	Method IsCubic:Bool()
+	Method Cubic:Bool() Property
 		Return mIsCubic
 	End
 
 	Method Draw:Void(x:Float, y:Float, width:Float = 0, height:Float = 0, rectx:Float = 0, recty:Float = 0, rectwidth:Float = 0, rectheight:Float = 0)
-		If rectwidth = 0 Then rectwidth = GetWidth()
-		If rectheight = 0 Then rectheight = GetHeight()
+		If rectwidth = 0 Then rectwidth = Width
+		If rectheight = 0 Then rectheight = Height
 		If width = 0 Then width = rectwidth
 		If height = 0 Then height = rectheight
 
 		'Calculate texcoords in 0..1 range, independently from frame
-		Local u0:Float = rectx / GetWidth()
-		Local v0:Float = recty / GetHeight()
-		Local u1:Float = (rectx + rectwidth) / GetWidth()
-		Local v1:Float = (recty + rectheight) / GetHeight()
+		Local u0:Float = rectx / Width
+		Local v0:Float = recty / Height
+		Local u1:Float = (rectx + rectwidth) / Width
+		Local v1:Float = (recty + rectheight) / Height
 
 		'Fill buffer
 		mBuffer.PokeFloat(0, x)

@@ -85,7 +85,7 @@ Public
 		mNumRenderCalls = 1
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.ClearColorBuffer()
-		mImage.Draw((DeviceWidth() - mImage.GetWidth())/2, (DeviceHeight() - mImage.GetHeight())/2)
+		mImage.Draw((DeviceWidth() - mImage.Width)/2, (DeviceHeight() - mImage.Height)/2)
 		
 		'Draw FPS
 		Renderer.SetColor(1, 1, 1)

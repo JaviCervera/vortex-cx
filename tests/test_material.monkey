@@ -60,18 +60,18 @@ Public
 		
 		'Load box mesh
 		mMesh = Cache.GetMesh("cube.msh.xml")
-		Local mat:Material = mMesh.GetSurface(0).GetMaterial()
-		'mat.SetDiffuseTexture(Null)
-		mat.SetNormalTexture(mNormalTex)
-		'mat.SetReflectionTexture(mTexture)
-		'mat.SetRefractionTexture(mTexture)
-		'mat.SetRefractionCoef(0.98)
+		Local mat:Material = mMesh.GetSurface(0).Material
+		'mat.DiffuseTexture = Null
+		mat.NormalTexture = mNormalTex
+		'mat.ReflectionTexture = mTexture
+		'mat.RefractionTexture = mTexture
+		'mat.RefractionCoef = 0.98
 		
 		'Create skybox
 		mSkybox = Mesh.Create(mMesh)
-		mat = mSkybox.GetSurface(0).GetMaterial()
+		mat = mSkybox.GetSurface(0).Material
 		mat.Set(Material.Create(mTexture))
-		mat.SetDepthWrite(False)
+		mat.DepthWrite = False
 		
 		'Add meshes to RenderBatch
 		mBatch.AddMesh(mSkybox, mSkyModel)
