@@ -19,9 +19,9 @@ Public
 	End
 	
 	Method Set:Void(x:Float, y:Float, z:Float)
-		Self.X = x
-		Self.Y = y
-		Self.Z = z
+		X = x
+		Y = y
+		Z = z
 	End
 	
 	Method Set:Void(other:Vec3)
@@ -37,9 +37,9 @@ Public
 	End
 	
 	Method Sum:Void(x:Float, y:Float, z:Float)
-		Self.X += x
-		Self.Y += y
-		Self.Z += z
+		X += x
+		Y += y
+		Z += z
 	End
 	
 	Method Sub:Void(other:Vec3)
@@ -112,9 +112,9 @@ Public
 	End
 	
 	Method Mix:Void(other:Vec3, t:Float)
-		X += (other.X - X) * t;
-		Y += (other.Y - Y) * t;
-		Z += (other.Z - Z) * t;
+		X += (other.X - X) * t
+		Y += (other.Y - Y) * t
+		Z += (other.Z - Z) * t
 	End
 Private
 	Method New()
@@ -438,22 +438,22 @@ Public
 	
 	Method Invert:Void()		
 		t1.Set(Self)
-		M[ 0] =  t1.M[5] * t1.M[10] * t1.M[15] - t1.M[5] * t1.M[11] * t1.M[14] - t1.M[9] * t1.M[6] * t1.M[15] + t1.M[9] * t1.M[7] * t1.M[14] + t1.M[13] * t1.M[6] * t1.M[11] - t1.M[13] * t1.M[7] * t1.M[10];
-		M[ 4] = -t1.M[4] * t1.M[10] * t1.M[15] + t1.M[4] * t1.M[11] * t1.M[14] + t1.M[8] * t1.M[6] * t1.M[15] - t1.M[8] * t1.M[7] * t1.M[14] - t1.M[12] * t1.M[6] * t1.M[11] + t1.M[12] * t1.M[7] * t1.M[10];
-		M[ 8] =  t1.M[4] * t1.M[ 9] * t1.M[15] - t1.M[4] * t1.M[11] * t1.M[13] - t1.M[8] * t1.M[5] * t1.M[15] + t1.M[8] * t1.M[7] * t1.M[13] + t1.M[12] * t1.M[5] * t1.M[11] - t1.M[12] * t1.M[7] * t1.M[ 9];
-		M[12] = -t1.M[4] * t1.M[ 9] * t1.M[14] + t1.M[4] * t1.M[10] * t1.M[13] + t1.M[8] * t1.M[5] * t1.M[14] - t1.M[8] * t1.M[6] * t1.M[13] - t1.M[12] * t1.M[5] * t1.M[10] + t1.M[12] * t1.M[6] * t1.M[ 9];
-		M[ 1] = -t1.M[1] * t1.M[10] * t1.M[15] + t1.M[1] * t1.M[11] * t1.M[14] + t1.M[9] * t1.M[2] * t1.M[15] - t1.M[9] * t1.M[3] * t1.M[14] - t1.M[13] * t1.M[2] * t1.M[11] + t1.M[13] * t1.M[3] * t1.M[10];
-		M[ 5] =  t1.M[0] * t1.M[10] * t1.M[15] - t1.M[0] * t1.M[11] * t1.M[14] - t1.M[8] * t1.M[2] * t1.M[15] + t1.M[8] * t1.M[3] * t1.M[14] + t1.M[12] * t1.M[2] * t1.M[11] - t1.M[12] * t1.M[3] * t1.M[10];
-		M[ 9] = -t1.M[0] * t1.M[ 9] * t1.M[15] + t1.M[0] * t1.M[11] * t1.M[13] + t1.M[8] * t1.M[1] * t1.M[15] - t1.M[8] * t1.M[3] * t1.M[13] - t1.M[12] * t1.M[1] * t1.M[11] + t1.M[12] * t1.M[3] * t1.M[ 9];
-		M[13] =  t1.M[0] * t1.M[ 9] * t1.M[14] - t1.M[0] * t1.M[10] * t1.M[13] - t1.M[8] * t1.M[1] * t1.M[14] + t1.M[8] * t1.M[2] * t1.M[13] + t1.M[12] * t1.M[1] * t1.M[10] - t1.M[12] * t1.M[2] * t1.M[ 9];
-		M[ 2] =  t1.M[1] * t1.M[ 6] * t1.M[15] - t1.M[1] * t1.M[ 7] * t1.M[14] - t1.M[5] * t1.M[2] * t1.M[15] + t1.M[5] * t1.M[3] * t1.M[14] + t1.M[13] * t1.M[2] * t1.M[ 7] - t1.M[13] * t1.M[3] * t1.M[ 6];
-		M[ 6] = -t1.M[0] * t1.M[ 6] * t1.M[15] + t1.M[0] * t1.M[ 7] * t1.M[14] + t1.M[4] * t1.M[2] * t1.M[15] - t1.M[4] * t1.M[3] * t1.M[14] - t1.M[12] * t1.M[2] * t1.M[ 7] + t1.M[12] * t1.M[3] * t1.M[ 6];
-		M[10] =  t1.M[0] * t1.M[ 5] * t1.M[15] - t1.M[0] * t1.M[ 7] * t1.M[13] - t1.M[4] * t1.M[1] * t1.M[15] + t1.M[4] * t1.M[3] * t1.M[13] + t1.M[12] * t1.M[1] * t1.M[ 7] - t1.M[12] * t1.M[3] * t1.M[ 5];
-		M[14] = -t1.M[0] * t1.M[ 5] * t1.M[14] + t1.M[0] * t1.M[ 6] * t1.M[13] + t1.M[4] * t1.M[1] * t1.M[14] - t1.M[4] * t1.M[2] * t1.M[13] - t1.M[12] * t1.M[1] * t1.M[ 6] + t1.M[12] * t1.M[2] * t1.M[ 5];
-		M[ 3] = -t1.M[1] * t1.M[ 6] * t1.M[11] + t1.M[1] * t1.M[ 7] * t1.M[10] + t1.M[5] * t1.M[2] * t1.M[11] - t1.M[5] * t1.M[3] * t1.M[10] - t1.M[ 9] * t1.M[2] * t1.M[ 7] + t1.M[ 9] * t1.M[3] * t1.M[ 6];
-		M[ 7] =  t1.M[0] * t1.M[ 6] * t1.M[11] - t1.M[0] * t1.M[ 7] * t1.M[10] - t1.M[4] * t1.M[2] * t1.M[11] + t1.M[4] * t1.M[3] * t1.M[10] + t1.M[ 8] * t1.M[2] * t1.M[ 7] - t1.M[ 8] * t1.M[3] * t1.M[ 6];
-		M[11] = -t1.M[0] * t1.M[ 5] * t1.M[11] + t1.M[0] * t1.M[ 7] * t1.M[ 9] + t1.M[4] * t1.M[1] * t1.M[11] - t1.M[4] * t1.M[3] * t1.M[ 9] - t1.M[ 8] * t1.M[1] * t1.M[ 7] + t1.M[ 8] * t1.M[3] * t1.M[ 5];
-		M[15] =  t1.M[0] * t1.M[ 5] * t1.M[10] - t1.M[0] * t1.M[ 6] * t1.M[ 9] - t1.M[4] * t1.M[1] * t1.M[10] + t1.M[4] * t1.M[2] * t1.M[ 9] + t1.M[ 8] * t1.M[1] * t1.M[ 6] - t1.M[ 8] * t1.M[2] * t1.M[ 5];
+		M[ 0] =  t1.M[5] * t1.M[10] * t1.M[15] - t1.M[5] * t1.M[11] * t1.M[14] - t1.M[9] * t1.M[6] * t1.M[15] + t1.M[9] * t1.M[7] * t1.M[14] + t1.M[13] * t1.M[6] * t1.M[11] - t1.M[13] * t1.M[7] * t1.M[10]
+		M[ 4] = -t1.M[4] * t1.M[10] * t1.M[15] + t1.M[4] * t1.M[11] * t1.M[14] + t1.M[8] * t1.M[6] * t1.M[15] - t1.M[8] * t1.M[7] * t1.M[14] - t1.M[12] * t1.M[6] * t1.M[11] + t1.M[12] * t1.M[7] * t1.M[10]
+		M[ 8] =  t1.M[4] * t1.M[ 9] * t1.M[15] - t1.M[4] * t1.M[11] * t1.M[13] - t1.M[8] * t1.M[5] * t1.M[15] + t1.M[8] * t1.M[7] * t1.M[13] + t1.M[12] * t1.M[5] * t1.M[11] - t1.M[12] * t1.M[7] * t1.M[ 9]
+		M[12] = -t1.M[4] * t1.M[ 9] * t1.M[14] + t1.M[4] * t1.M[10] * t1.M[13] + t1.M[8] * t1.M[5] * t1.M[14] - t1.M[8] * t1.M[6] * t1.M[13] - t1.M[12] * t1.M[5] * t1.M[10] + t1.M[12] * t1.M[6] * t1.M[ 9]
+		M[ 1] = -t1.M[1] * t1.M[10] * t1.M[15] + t1.M[1] * t1.M[11] * t1.M[14] + t1.M[9] * t1.M[2] * t1.M[15] - t1.M[9] * t1.M[3] * t1.M[14] - t1.M[13] * t1.M[2] * t1.M[11] + t1.M[13] * t1.M[3] * t1.M[10]
+		M[ 5] =  t1.M[0] * t1.M[10] * t1.M[15] - t1.M[0] * t1.M[11] * t1.M[14] - t1.M[8] * t1.M[2] * t1.M[15] + t1.M[8] * t1.M[3] * t1.M[14] + t1.M[12] * t1.M[2] * t1.M[11] - t1.M[12] * t1.M[3] * t1.M[10]
+		M[ 9] = -t1.M[0] * t1.M[ 9] * t1.M[15] + t1.M[0] * t1.M[11] * t1.M[13] + t1.M[8] * t1.M[1] * t1.M[15] - t1.M[8] * t1.M[3] * t1.M[13] - t1.M[12] * t1.M[1] * t1.M[11] + t1.M[12] * t1.M[3] * t1.M[ 9]
+		M[13] =  t1.M[0] * t1.M[ 9] * t1.M[14] - t1.M[0] * t1.M[10] * t1.M[13] - t1.M[8] * t1.M[1] * t1.M[14] + t1.M[8] * t1.M[2] * t1.M[13] + t1.M[12] * t1.M[1] * t1.M[10] - t1.M[12] * t1.M[2] * t1.M[ 9]
+		M[ 2] =  t1.M[1] * t1.M[ 6] * t1.M[15] - t1.M[1] * t1.M[ 7] * t1.M[14] - t1.M[5] * t1.M[2] * t1.M[15] + t1.M[5] * t1.M[3] * t1.M[14] + t1.M[13] * t1.M[2] * t1.M[ 7] - t1.M[13] * t1.M[3] * t1.M[ 6]
+		M[ 6] = -t1.M[0] * t1.M[ 6] * t1.M[15] + t1.M[0] * t1.M[ 7] * t1.M[14] + t1.M[4] * t1.M[2] * t1.M[15] - t1.M[4] * t1.M[3] * t1.M[14] - t1.M[12] * t1.M[2] * t1.M[ 7] + t1.M[12] * t1.M[3] * t1.M[ 6]
+		M[10] =  t1.M[0] * t1.M[ 5] * t1.M[15] - t1.M[0] * t1.M[ 7] * t1.M[13] - t1.M[4] * t1.M[1] * t1.M[15] + t1.M[4] * t1.M[3] * t1.M[13] + t1.M[12] * t1.M[1] * t1.M[ 7] - t1.M[12] * t1.M[3] * t1.M[ 5]
+		M[14] = -t1.M[0] * t1.M[ 5] * t1.M[14] + t1.M[0] * t1.M[ 6] * t1.M[13] + t1.M[4] * t1.M[1] * t1.M[14] - t1.M[4] * t1.M[2] * t1.M[13] - t1.M[12] * t1.M[1] * t1.M[ 6] + t1.M[12] * t1.M[2] * t1.M[ 5]
+		M[ 3] = -t1.M[1] * t1.M[ 6] * t1.M[11] + t1.M[1] * t1.M[ 7] * t1.M[10] + t1.M[5] * t1.M[2] * t1.M[11] - t1.M[5] * t1.M[3] * t1.M[10] - t1.M[ 9] * t1.M[2] * t1.M[ 7] + t1.M[ 9] * t1.M[3] * t1.M[ 6]
+		M[ 7] =  t1.M[0] * t1.M[ 6] * t1.M[11] - t1.M[0] * t1.M[ 7] * t1.M[10] - t1.M[4] * t1.M[2] * t1.M[11] + t1.M[4] * t1.M[3] * t1.M[10] + t1.M[ 8] * t1.M[2] * t1.M[ 7] - t1.M[ 8] * t1.M[3] * t1.M[ 6]
+		M[11] = -t1.M[0] * t1.M[ 5] * t1.M[11] + t1.M[0] * t1.M[ 7] * t1.M[ 9] + t1.M[4] * t1.M[1] * t1.M[11] - t1.M[4] * t1.M[3] * t1.M[ 9] - t1.M[ 8] * t1.M[1] * t1.M[ 7] + t1.M[ 8] * t1.M[3] * t1.M[ 5]
+		M[15] =  t1.M[0] * t1.M[ 5] * t1.M[10] - t1.M[0] * t1.M[ 6] * t1.M[ 9] - t1.M[4] * t1.M[1] * t1.M[10] + t1.M[4] * t1.M[2] * t1.M[ 9] + t1.M[ 8] * t1.M[1] * t1.M[ 6] - t1.M[ 8] * t1.M[2] * t1.M[ 5]
  
 		Local det:Float = t1.M[0] * M[0] + t1.M[1] * M[4] + t1.M[2] * M[8] + t1.M[3] * M[12]
 		If Abs(det) <= 0.00001 Then Return
@@ -469,7 +469,7 @@ Public
 		Local b:Float = 2 / (top-bottom)
 		Local c:Float = 2 / (far-near)
 		Local tx:Float = (left+right) / (left-right)
-		Local ty:Float = (top+bottom) / (bottom-top)
+		Local ty:Float = (bottom+top) / (bottom-top)
 		Local tz:Float = (near+far) / (near-far)
 		Local m:Float[] = [a,0,0,0, 0,b,0,0, 0,0,c,0, tx,ty,tz,1]
 		Set(m)
@@ -480,7 +480,7 @@ Public
 		Local b:Float = 2 / (top-bottom)
 		Local c:Float = 2 / (near-far)
 		Local tx:Float = (left+right) / (left-right)
-		Local ty:Float = (top+bottom) / (bottom-top)
+		Local ty:Float = (bottom+top) / (bottom-top)
 		Local tz:Float = (near+far) / (near-far)
 		Local m:Float[] = [a,0,0,0, 0,b,0,0, 0,0,c,0, tx,ty,tz,1]
 		Set(m)
@@ -502,7 +502,7 @@ Public
 		M[5]  = 2 * near / (top - bottom)
 		M[8]  = (right + left) / (right - left)
 		M[9]  = (top + bottom) / (top - bottom)
-		M[10] = (far + near) / (near - far)
+		M[10] = (near + far) / (near - far)
 		M[11] = -1
 		M[14] = (2 * near * far) / (near - far)
 		M[15] = 0

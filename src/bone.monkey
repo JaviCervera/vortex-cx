@@ -163,17 +163,10 @@ Public
 	End
 	
 	Method Animate:Void(animMatrix:Mat4, parentAnimMatrix:Mat4, frame:Float, firstFrame:Int, lastFrame:Int)
-		CalcAnimMatrix(animMatrix, parentAnimMatrix, frame, firstFrame, lastFrame)
-	End
-Private
-	Method New()
-	End
-	
-	Method CalcAnimMatrix:Void(animMatrix:Mat4, parentAnimMatrix:Mat4, frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
 		'Check if there is a keyframe within range
 		Local keyInRange:Bool = False
 		For Local i% = Eachin mPositionKeys
-			If i >= firstSeqFrame And i <= lastSeqFrame
+			If i >= firstFrame And i <= lastFrame
 				keyInRange = True
 				Exit
 			End
@@ -184,17 +177,17 @@ Private
 			Local px#, py#, pz#, sx#, sy#, sz#
 
 			'Calculate interpolated position
-			CalcPosition(frame, firstSeqFrame, lastSeqFrame)
+			CalcPosition(frame, firstFrame, lastFrame)
 			px = mTempVec.X
 			py = mTempVec.Y
 			pz = mTempVec.Z
 
 			'Calculate interpolated rotation
-			CalcRotation(frame, firstSeqFrame, lastSeqFrame)
+			CalcRotation(frame, firstFrame, lastFrame)
 			mTempQuat.CalcAxis()
 
 			'Calculate interpolated scale
-			CalcScale(frame, firstSeqFrame, lastSeqFrame)
+			CalcScale(frame, firstFrame, lastFrame)
 			sx = mTempVec.X
 			sy = mTempVec.Y
 			sz = mTempVec.Z
@@ -208,6 +201,9 @@ Private
 		Else
 			animMatrix.Set(mPoseMatrix)
 		End
+	End
+Private
+	Method New()
 	End
 
 	Method CalcPosition:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
