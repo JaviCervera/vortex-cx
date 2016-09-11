@@ -90,8 +90,8 @@ Public
 		End
 		
 		'Setup matrices
-		mProj.SetPerspective(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10)
-		mView.LookAt(0, 0, -4, 0, 0, 0, 0, 1, 0)
+		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10)
+		mView.LookAtLH(0, 0, -4, 0, 0, 0, 0, 1, 0)
 		mModel.SetTransform(0, 0, 0, 0, mEulerY, 0, 1, 1, 1)
 		
 		'Draw triangles

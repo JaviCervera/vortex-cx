@@ -464,7 +464,7 @@ Public
 		Next
 	End
 	
-	Method SetOrtho:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
+	Method SetOrthoLH:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
 		Local a:Float = 2 / (right-left)
 		Local b:Float = 2 / (top-bottom)
 		Local c:Float = 2 / (far-near)
@@ -486,7 +486,7 @@ Public
 		Set(m)
 	End
 
-	Method SetFrustum:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
+	Method SetFrustumLH:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
 		M[0]  = 2 * near / (right - left)
 		M[5]  = 2 * near / (top - bottom)
 		M[8]  = (left + right) / (left - right)
@@ -508,10 +508,10 @@ Public
 		M[15] = 0
 	End
 	
-	Method SetPerspective:Void(fovy:Float, aspect:Float, near:Float, far:Float)
+	Method SetPerspectiveLH:Void(fovy:Float, aspect:Float, near:Float, far:Float)
 		Local height:Float = near * Tan(fovy*0.5)
 		Local width:Float = height * aspect
-		SetFrustum(-width, width, -height, height, near, far)
+		SetFrustumLH(-width, width, -height, height, near, far)
 	End
 
 	Method SetPerspectiveRH:Void(fovy:Float, aspect:Float, near:Float, far:Float)
@@ -520,7 +520,7 @@ Public
 		SetFrustumRH(-width, width, -height, height, near, far)
 	End
 	
-	Method LookAt:Void(eyex:Float, eyey:Float, eyez:Float, centerx:Float, centery:Float, centerz:Float, upx:Float, upy:Float, upz:Float)
+	Method LookAtLH:Void(eyex:Float, eyey:Float, eyez:Float, centerx:Float, centery:Float, centerz:Float, upx:Float, upy:Float, upz:Float)
 		'Calculate z
 		tv3.Set(centerx, centery, centerz)
 		tv3.Sub(eyex, eyey, eyez)
@@ -584,7 +584,7 @@ Public
 		Scale(sx, sy, sz)
 	End
 	
-	Method SetBillboardTransform:Void(view:Mat4, x:Float, y:Float, z:Float, spin:Float, width:Float, height:Float, cylindrical:Bool = False)
+	Method SetBillboardTransformLH:Void(view:Mat4, x:Float, y:Float, z:Float, spin:Float, width:Float, height:Float, cylindrical:Bool = False)
 		M[0] = view.M[0]
 		M[1] = view.M[4]
 		M[2] = view.M[8]

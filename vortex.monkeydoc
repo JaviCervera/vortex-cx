@@ -468,7 +468,7 @@ Setup the context for 2D painting. The parameters define the rectangle within th
 
 # Function Setup3D:Void(x:Int, y:Int, width:Int, height:Int)
 Setup the context for 3D painting. The parameters define the rectangle within the screen where drawing will take place.
-You must call this function before rendering a `RenderBatch' that contains geometry to render in 3D space.
+You must call this function before rendering a `RenderBatch` that contains geometry to render in 3D space.
 
 # Function SetProjectionMatrix:Void(m:Mat4)
 Setup the projection matrix. You must call this function before rendering any 2D graphics.

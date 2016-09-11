@@ -99,7 +99,7 @@ Public
 		Local bottom# = y+h
 		Local top# = 0
 		mTempMatrix.SetIdentity()
-		mTempMatrix.SetOrtho(0, x+w, bottom, top, 0, 100)
+		mTempMatrix.SetOrthoLH(0, x+w, bottom, top, 0, 100)
 		Renderer.SetProjectionMatrix(mTempMatrix)
 		mTempMatrix.SetIdentity()
 		Renderer.SetViewMatrix(mTempMatrix)
@@ -640,7 +640,6 @@ Private
 	End
 
 	Function GetMinFilter%(filtering%)
-		Return GL_LINEAR
 		Select filtering
 		Case FILTER_NONE
 			Return GL_NEAREST

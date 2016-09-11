@@ -116,8 +116,8 @@ Public
 		Local posX:Float = Cos(mEulerY) * 2
 		Local posZ:Float = -Sin(mEulerY) * 2
 	
-		mProj.SetPerspective(75, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
-		mView.LookAt(posX, 0, posZ, 0, 0, 0, 0, 1, 0)
+		mProj.SetPerspectiveLH(75, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
+		mView.LookAtLH(posX, 0, posZ, 0, 0, 0, 0, 1, 0)
 		
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetProjectionMatrix(mProj)

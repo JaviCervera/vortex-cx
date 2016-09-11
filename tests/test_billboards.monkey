@@ -107,8 +107,8 @@ Public
 			mFpsAccum = 0
 		End
 		
-		mProj.SetPerspective(45, Float(DeviceWidth()) / DeviceHeight(), 1, 100)
-		mView.LookAt(Cos(mEulerY) * 8, Sin(45) * 8, Sin(mEulerY) * 8, 0, 0, 0, 0, 1, 0)
+		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 100)
+		mView.LookAtLH(Cos(mEulerY) * 8, Sin(45) * 8, Sin(mEulerY) * 8, 0, 0, 0, 0, 1, 0)
 		
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetProjectionMatrix(mProj)
@@ -117,7 +117,7 @@ Public
 		Renderer.ClearDepthBuffer()
 	
 		For Local i:Int = 0 Until mPositions.Length()
-			mModels[i].SetBillboardTransform(mView, mPositions[i][0], 0, mPositions[i][1], 0, 1, 1)
+			mModels[i].SetBillboardTransformLH(mView, mPositions[i][0], 0, mPositions[i][1], 0, 1, 1)
 		Next
 		
 		mNumRenderCalls = mBatch.Render()

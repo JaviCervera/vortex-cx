@@ -102,8 +102,8 @@ Public
 			mFpsAccum = 0
 		End
 		
-		mProj.SetPerspective(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
-		mView.LookAt(0, 64, -128, 0, 32, 0, 0, 1, 0)
+		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
+		mView.LookAtLH(0, 64, -128, 0, 32, 0, 0, 1, 0)
 		
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetProjectionMatrix(mProj)
