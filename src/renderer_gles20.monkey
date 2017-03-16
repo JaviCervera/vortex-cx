@@ -67,10 +67,55 @@ Public
 		m2DProgram = CreateProgram(_2D_VERTEX_SHADER, _2D_FRAGMENT_SHADER)
 		If m2DProgram = Null Then Return False
 		UseProgram(mDefaultProgram)
+		
+		'Delete old buffers if they exist
+		If mEllipseBuffer <> 0 Then FreeBuffer(mEllipseBuffer)
+		If mLineBuffer <> 0 Then FreeBuffer(mLineBuffer)
+		If mRectBuffer <> 0 Then FreeBuffer(mRectBuffer)
 
-		'Create buffer for 2D rendering
-		mDataBuffer = New DataBuffer(ELLIPSEPOINTS*12)
-		mVertexBuffer2D = CreateBuffer()
+		'Create ellipse buffer
+		Local dataBuffer:DataBuffer = New DataBuffer(ELLIPSEPOINTS*12, True)
+		Local inc:Float = 360.0 / ELLIPSEPOINTS
+		For Local i:Int = 0 Until ELLIPSEPOINTS
+			Local x:Float = 0.5 + 0.5 * Cos(i * inc)
+			Local y:Float = 0.5 + 0.5 * Sin(i * inc)
+			dataBuffer.PokeFloat(i*12, x)
+			dataBuffer.PokeFloat(i*12 + 4, y)
+			dataBuffer.PokeFloat(i*12 + 8, 0)
+		Next
+		mEllipseBuffer = CreateVertexBuffer(dataBuffer.Length)
+		SetVertexBufferData(mEllipseBuffer, 0, dataBuffer.Length, dataBuffer)
+		dataBuffer.Discard()
+		
+		'Create line buffer
+		dataBuffer = New DataBuffer(24, True)
+		dataBuffer.PokeFloat(0, 0)
+		dataBuffer.PokeFloat(4, 0)
+		dataBuffer.PokeFloat(8, 0)
+		dataBuffer.PokeFloat(12, 1)
+		dataBuffer.PokeFloat(16, 1)
+		dataBuffer.PokeFloat(20, 0)
+		mLineBuffer = CreateVertexBuffer(dataBuffer.Length)
+		SetVertexBufferData(mLineBuffer, 0, dataBuffer.Length, dataBuffer)
+		dataBuffer.Discard()
+		
+		'Create rect buffer
+		dataBuffer = New DataBuffer(80, True)
+		dataBuffer.PokeFloat(0, 0)
+		dataBuffer.PokeFloat(4, 0)
+		dataBuffer.PokeFloat(8, 0)
+		dataBuffer.PokeFloat(12, 1)
+		dataBuffer.PokeFloat(16, 0)
+		dataBuffer.PokeFloat(20, 0)
+		dataBuffer.PokeFloat(24, 1)
+		dataBuffer.PokeFloat(28, 1)
+		dataBuffer.PokeFloat(32, 0)
+		dataBuffer.PokeFloat(36, 0)
+		dataBuffer.PokeFloat(40, 1)
+		dataBuffer.PokeFloat(44, 0)
+		mRectBuffer = CreateVertexBuffer(dataBuffer.Length)
+		SetVertexBufferData(mRectBuffer, 0, dataBuffer.Length, dataBuffer)
+		dataBuffer.Discard()
 
 		Return True
 	End
@@ -274,28 +319,14 @@ Public
 		glClear(GL_DEPTH_BUFFER_BIT)
 	End
 
-	Function DrawPoint:Void(x#, y#, z#)
-		mDataBuffer.PokeFloat(0, x)
-		mDataBuffer.PokeFloat(4, y)
-		mDataBuffer.PokeFloat(8, z)
-		SetVertexBufferData(mVertexBuffer2D, mDataBuffer, mDataBuffer.Length())
-		glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer2D)
-		glEnableVertexAttribArray(mActiveProgram.mVPosLoc)
-		glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
-		glDrawArrays(GL_POINTS, 0, 1)
-		glDisableVertexAttribArray(mActiveProgram.mVPosLoc)
-		glBindBuffer(GL_ARRAY_BUFFER, 0)
+	Function DrawPoint:Void(x:Float, y:Float)
+		DrawLine(x-0.5, y-0.5, x+0.5, y+0.5)
 	End
 
-	Function DrawLine:Void(x1#, y1#, z1#, x2#, y2#, z2#)
-		mDataBuffer.PokeFloat(0, x1)
-		mDataBuffer.PokeFloat(4, y1)
-		mDataBuffer.PokeFloat(8, z1)
-		mDataBuffer.PokeFloat(12, x2)
-		mDataBuffer.PokeFloat(16, y2)
-		mDataBuffer.PokeFloat(20, z2)
-		SetVertexBufferData(mVertexBuffer2D, mDataBuffer, mDataBuffer.Length())
-		glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer2D)
+	Function DrawLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)
+		mTempMatrix.SetTransform(x1, y1, 0, 0, 0, 0, x2-x1, y2-y1, 1)
+		SetModelMatrix(mTempMatrix)
+		glBindBuffer(GL_ARRAY_BUFFER, mLineBuffer)
 		glEnableVertexAttribArray(mActiveProgram.mVPosLoc)
 		glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
 		glDrawArrays(GL_LINES, 0, 2)
@@ -303,60 +334,46 @@ Public
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
 
-	Function DrawRect:Void(x#, y#, z#, width#, height#)
-		mDataBuffer.PokeFloat(0, x)
-		mDataBuffer.PokeFloat(4, y)
-		mDataBuffer.PokeFloat(8, z)
-		mDataBuffer.PokeFloat(12, x+width)
-		mDataBuffer.PokeFloat(16, y)
-		mDataBuffer.PokeFloat(20, z)
-		mDataBuffer.PokeFloat(24, x)
-		mDataBuffer.PokeFloat(28, y+height)
-		mDataBuffer.PokeFloat(32, z)
-		mDataBuffer.PokeFloat(36, x+width)
-		mDataBuffer.PokeFloat(40, y+height)
-		mDataBuffer.PokeFloat(44, z)
-		SetVertexBufferData(mVertexBuffer2D, mDataBuffer, 48)
-		glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer2D)
+	Function DrawRect:Void(x:Float, y:Float, width:Float, height:Float)
+		mTempMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
+		SetModelMatrix(mTempMatrix)
+		glBindBuffer(GL_ARRAY_BUFFER, mRectBuffer)
 		glEnableVertexAttribArray(mActiveProgram.mVPosLoc)
 		glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4)
 		glDisableVertexAttribArray(mActiveProgram.mVPosLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
 
-	Function DrawEllipse:Void(x#, y#, z#, width#, height#)
-		Local xradius# = width/2
-		Local yradius# = height/2
-		Local xcenter# = x + xradius
-		Local ycenter# = y + yradius
-
-		Local inc# = 360.0 / ELLIPSEPOINTS
-		For Local i% = 0 Until ELLIPSEPOINTS
-			Local c# = Cos(i * inc)
-			Local s# = Sin(i * inc)
-			mDataBuffer.PokeFloat(i*12, xcenter + c*xradius)
-			mDataBuffer.PokeFloat(i*12 + 4, ycenter + s*yradius)
-			mDataBuffer.PokeFloat(i*12 + 8, z)
-		Next
-
-		SetVertexBufferData(mVertexBuffer2D, mDataBuffer, ELLIPSEPOINTS * 12)
-		glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer2D)
+	Function DrawEllipse:Void(x:Float, y:Float, width:Float, height:Float)
+		mTempMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
+		SetModelMatrix(mTempMatrix)
+		glBindBuffer(GL_ARRAY_BUFFER, mEllipseBuffer)
 		glEnableVertexAttribArray(mActiveProgram.mVPosLoc)
 		glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
 		glDrawArrays(GL_TRIANGLE_FAN, 0, ELLIPSEPOINTS)
 		glDisableVertexAttribArray(mActiveProgram.mVPosLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
-
-	Function DrawTexRect:Void(buffer:DataBuffer)
-		SetVertexBufferData(mVertexBuffer2D, buffer, buffer.Length())
-		glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer2D)
+	
+	Function DrawRectEx:Void(x:Float, y:Float, width:Float, height:Float, u0:Float, v0:Float, u1:Float, v1:Float)
+		mTexDataBuffer.PokeFloat(0, u0)
+		mTexDataBuffer.PokeFloat(4, v0)
+		mTexDataBuffer.PokeFloat(8, u1)
+		mTexDataBuffer.PokeFloat(12, v0)
+		mTexDataBuffer.PokeFloat(16, u1)
+		mTexDataBuffer.PokeFloat(20, v1)
+		mTexDataBuffer.PokeFloat(24, u0)
+		mTexDataBuffer.PokeFloat(28, v1)
+		SetVertexBufferData(mRectBuffer, 48, mTexDataBuffer.Length(), mTexDataBuffer)
+		mTempMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
+		SetModelMatrix(mTempMatrix)
+		glBindBuffer(GL_ARRAY_BUFFER, mRectBuffer)
 		glEnableVertexAttribArray(mActiveProgram.mVPosLoc)
 		glEnableVertexAttribArray(mActiveProgram.mVTexLoc)
 		glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
 		glVertexAttribPointer(mActiveProgram.mVTexLoc, 2, GL_FLOAT, False, 0, 48)
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4)
 		glDisableVertexAttribArray(mActiveProgram.mVPosLoc)
 		glDisableVertexAttribArray(mActiveProgram.mVTexLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
@@ -487,23 +504,43 @@ Public
 	' VBO
 	'---------------------------------------------------------------------------
 
-	Function CreateBuffer%()
-		Return glCreateBuffer()
+	Function CreateVertexBuffer:Int(size:Int)
+		Local buffer:Int = glCreateBuffer()
+		If size > 0 Then ResizeVertexBuffer(buffer, size)
+		Return buffer
+	End
+	
+	Function CreateIndexBuffer:Int(size:Int)
+		Local buffer:Int = glCreateBuffer()
+		If size > 0 Then ResizeIndexBuffer(buffer, size)
+		Return buffer
 	End
 
-	Function FreeBuffer:Void(buffer%)
+	Function FreeBuffer:Void(buffer:Int)
 		glDeleteBuffer(buffer)
 	End
-
-	Function SetVertexBufferData:Void(buffer%, data:DataBuffer, length%)
+	
+	Function ResizeVertexBuffer:Void(buffer:Int, size:Int)
 		glBindBuffer(GL_ARRAY_BUFFER, buffer)
-		glBufferData(GL_ARRAY_BUFFER, length, data, GL_STATIC_DRAW)
+		glBufferData(GL_ARRAY_BUFFER, size, Null, GL_STATIC_DRAW)
+		glBindBuffer(GL_ARRAY_BUFFER, 0)
+	End
+	
+	Function ResizeIndexBuffer:Void(buffer:Int, size:Int)
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer)
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, Null, GL_STATIC_DRAW)
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+	End
+
+	Function SetVertexBufferData:Void(buffer:Int, offset:Int, size:Int, data:DataBuffer)
+		glBindBuffer(GL_ARRAY_BUFFER, buffer)
+		glBufferSubData(GL_ARRAY_BUFFER, offset, size, data)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
 
-	Function SetIndexBufferData:Void(buffer%, data:DataBuffer, length%)
+	Function SetIndexBufferData:Void(buffer:Int, offset:Int, size:Int, data:DataBuffer)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer)
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, length, data, GL_STATIC_DRAW)
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
 	End
 
@@ -667,8 +704,10 @@ Private
 	Global mVersion#
 	Global mShadingVersion#
 
-	Global mDataBuffer:DataBuffer
-	Global mVertexBuffer2D%
+	Global mEllipseBuffer:Int
+	Global mLineBuffer:Int
+	Global mRectBuffer:Int
+	Global mTexDataBuffer:DataBuffer = New DataBuffer(32, True)
 	Global mModelMatrix:Mat4 = Mat4.Create()
 	Global mViewMatrix:Mat4 = Mat4.Create()
 	Global mProjectionMatrix:Mat4 = Mat4.Create()

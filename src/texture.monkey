@@ -82,31 +82,9 @@ Public
 		Local u1:Float = (rectx + rectwidth) / Width
 		Local v1:Float = (recty + rectheight) / Height
 
-		'Fill buffer
-		mBuffer.PokeFloat(0, x)
-		mBuffer.PokeFloat(4, y)
-		mBuffer.PokeFloat(8, 0)
-		mBuffer.PokeFloat(12, x+width)
-		mBuffer.PokeFloat(16, y)
-		mBuffer.PokeFloat(20, 0)
-		mBuffer.PokeFloat(24, x)
-		mBuffer.PokeFloat(28, y+height)
-		mBuffer.PokeFloat(32, 0)
-		mBuffer.PokeFloat(36, x+width)
-		mBuffer.PokeFloat(40, y+height)
-		mBuffer.PokeFloat(44, 0)
-		mBuffer.PokeFloat(48, u0)
-		mBuffer.PokeFloat(52, v0)
-		mBuffer.PokeFloat(56, u1)
-		mBuffer.PokeFloat(60, v0)
-		mBuffer.PokeFloat(64, u0)
-		mBuffer.PokeFloat(68, v1)
-		mBuffer.PokeFloat(72, u1)
-		mBuffer.PokeFloat(76, v1)
-
 		'Render
 		Renderer.SetTextures(mHandle, 0, 0, 0, False)
-		Renderer.DrawTexRect(mBuffer)
+		Renderer.DrawRectEx(x, y, width, height, u0, v0, u1, v1)
 		Renderer.SetTextures(0, 0, 0, 0, False)
 	End
 Private
@@ -119,5 +97,4 @@ Private
 	Field mHeight	: Int
 	Field mIsCubic	: Bool
 	Global mSizeArr	: Int[2]
-	Global mBuffer	: DataBuffer = New DataBuffer(80)
 End

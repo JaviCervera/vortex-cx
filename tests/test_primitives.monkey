@@ -103,13 +103,13 @@ Public
 			Renderer.SetColor(prim.r, prim.g, prim.b)
 			Select prim.type
 				Case PRIM_POINT
-					Renderer.DrawPoint(prim.x, prim.y, 0)
+					Renderer.DrawPoint(prim.x, prim.y)
 				Case PRIM_LINE
-					Renderer.DrawLine(prim.x, prim.y, 0, prim.z, prim.w, 0)
+					Renderer.DrawLine(prim.x, prim.y, prim.z, prim.w)
 				Case PRIM_RECT
-					Renderer.DrawRect(prim.x, prim.y, 0, prim.z, prim.w)
+					Renderer.DrawRect(prim.x, prim.y, prim.z, prim.w)
 				Case PRIM_ELLIPSE
-					Renderer.DrawEllipse(prim.x, prim.y, 0, prim.z, prim.w)
+					Renderer.DrawEllipse(prim.x, prim.y, prim.z, prim.w)
 			End
 		Next
 		mNumRenderCalls = mNumPrimitives
