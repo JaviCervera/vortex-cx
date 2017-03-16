@@ -9,10 +9,10 @@ Import "native/lib.cpp"
 
 Extern Private
 Function _LoadLib:Int(libname:String) = "LoadLib"
+Function _LibFunction:Int(lib:Int, funcname:String) = "LibFunction"
 
 Extern
 Function FreeLib:Void(lib:Int)
-Function LibFunction:Int(lib:Int, funcname:String)
 Function PushLibInt:Void(val:Int)
 Function PushLibFloat:Void(val:Float)
 Function PushLibString:Void(str:String)
@@ -39,4 +39,12 @@ Function LoadLib:Int(libname:String)
 	libname += ".so"
 #End
 	Return _LoadLib(libname)
+End
+
+Function LibFunction:Int(lib:Int, funcname:String)
+#If HOST="macos" Or HOST="linux"
+	funcname = funcname.Split("@")[0]
+	If String.FromChar(funcname[0]) = "_" Then funcname = funcname[1 ..]
+#End
+	Return _LibFunction(lib, funcname)
 End
