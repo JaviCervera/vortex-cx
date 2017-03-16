@@ -45,8 +45,8 @@ Public
 		mProj = Mat4.Create()
 		mView = Mat4.Create()
 		
-		'Create RenderBatch
-		mBatch = RenderBatch.Create()
+		'Create RenderList
+		mRenderList = RenderList.Create()
 		
 		'Create billboard surface
 		mBillboard = Surface.Create(Material.Create(Cache.GetTexture("smile.png")))
@@ -74,7 +74,7 @@ Public
 			mPositions[i] = [x, z]
 			mMaterials[i] = Material.Create(Cache.GetTexture("smile.png"))
 			mMaterials[i].SetDiffuseColor(Rnd(0, 1), Rnd(0, 1), Rnd(0, 1))
-			mBatch.AddSurface(mBillboard, mModels[i], mMaterials[i])
+			mRenderList.AddSurface(mBillboard, mModels[i], mMaterials[i])
 			
 			x += 2; If x >= 8 Then x = -8; z += 2
 		Next
@@ -120,7 +120,7 @@ Public
 			mModels[i].SetBillboardTransformLH(mView, mPositions[i][0], 0, mPositions[i][1], 0, 1, 1)
 		Next
 		
-		mNumRenderCalls = mBatch.Render()
+		mNumRenderCalls = mRenderList.Render()
 		
 		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
@@ -152,7 +152,7 @@ Private
 	Field mPositions		: Float[][]
 	Field mMaterials		: Material[]
 	Field mBillboard		: Surface
-	Field mBatch			: RenderBatch
+	Field mRenderList		: RenderList
 	Field mEulerY			: Float
 End
 

@@ -46,8 +46,8 @@ Public
 		mView = Mat4.Create()
 		mModel = Mat4.Create()
 		
-		'Create RenderBatch
-		mBatch = RenderBatch.Create()
+		'Create RenderList
+		mRenderList = RenderList.Create()
 		
 		'Create triangle
 		mTri = Surface.Create()
@@ -58,8 +58,8 @@ Public
 		mTri.AddVertex(-0.5,-0.5,0, 0,0,-1, 0,0,1,1, 0,0)
 		mTri.Rebuild()
 		
-		'Add triangle to RenderBatch
-		mBatch.AddSurface(mTri, mModel)
+		'Add triangle to RenderList
+		mRenderList.AddSurface(mTri, mModel)
 		
 		Return False
 	End
@@ -100,7 +100,7 @@ Public
 		Renderer.SetViewMatrix(mView)
 		Renderer.ClearColorBuffer(1, 1, 1)
 		Renderer.ClearDepthBuffer()
-		mNumRenderCalls = mBatch.Render()
+		mNumRenderCalls = mRenderList.Render()
 		
 		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
@@ -130,7 +130,7 @@ Private
 	Field mView				: Mat4
 	Field mModel			: Mat4
 	Field mTri				: Surface
-	Field mBatch			: RenderBatch
+	Field mRenderList		: RenderList
 	Field mEulerY			: Float
 End
 

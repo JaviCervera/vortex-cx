@@ -49,8 +49,8 @@ Public
 		mModel.SetTransform(0, 0, 0, 0, 0, 0, 1, 1, 1)
 		mSkyModel.SetTransform(0, 0, 0, 0, 0, 0, -40, -40, -40)
 		
-		'Create RenderBatch
-		mBatch = RenderBatch.Create()
+		'Create RenderList
+		mRenderList = RenderList.Create()
 		
 		'Load cubic texture
 		mTexture = Cache.GetTexture("left.jpg", "right.jpg", "front.jpg", "back.jpg", "top.jpg", "bottom.jpg")
@@ -73,9 +73,9 @@ Public
 		mat.Set(Material.Create(mTexture))
 		mat.DepthWrite = False
 		
-		'Add meshes to RenderBatch
-		mBatch.AddMesh(mSkybox, mSkyModel)
-		mBatch.AddMesh(mMesh, mModel)
+		'Add meshes to RenderList
+		mRenderList.AddMesh(mSkybox, mSkyModel)
+		mRenderList.AddMesh(mMesh, mModel)
 		
 		'Prepare light
 		Lighting.SetLightEnabled(0, True)
@@ -126,9 +126,9 @@ Public
 		Lighting.Prepare(1, 1, 1)
 		Renderer.ClearColorBuffer(0, 0, 0)
 		Renderer.ClearDepthBuffer()
-		mNumRenderCalls = mBatch.Render()
+		mNumRenderCalls = mRenderList.Render()
 		
-		'Setup painter for 2D graphics
+		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetColor(1, 1, 1)
 		
@@ -160,7 +160,7 @@ Private
 	Field mSkybox			: Mesh
 	Field mTexture			: Texture
 	Field mNormalTex		: Texture
-	Field mBatch			: RenderBatch
+	Field mRenderList		: RenderList
 	Field mEulerY			: Float
 End
 

@@ -46,12 +46,12 @@ Public
 		mView = Mat4.Create()
 		mModel = Mat4.Create()
 		
-		'Create RenderBatch
-		mBatch = RenderBatch.Create()
+		'Create RenderList
+		mRenderList = RenderList.Create()
 		
 		'Load level
 		mLevel = Cache.GetMesh("simple-dm5.msh.xml")
-		mBatch.AddMesh(mLevel, mModel)
+		mRenderList.AddMesh(mLevel, mModel)
 		
 		Return False
 	End
@@ -92,7 +92,7 @@ Public
 		Renderer.ClearColorBuffer(0, 0, 0)
 		Renderer.ClearDepthBuffer()
 		Renderer.SetFog(True, 600, 1000, 0, 0, 0)
-		mNumRenderCalls = mBatch.Render()
+		mNumRenderCalls = mRenderList.Render()
 		
 		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
@@ -122,7 +122,7 @@ Private
 	Field mView				: Mat4
 	Field mModel			: Mat4
 	Field mLevel			: Mesh
-	Field mBatch			: RenderBatch
+	Field mRenderList		: RenderList
 	Field mEulerY			: Float
 End
 

@@ -7,8 +7,8 @@ Import src.lighting
 Import src.material
 Import src.math3d
 Import src.mesh
-Import src.renderbatch
 Import src.renderer
+Import src.renderlist
 Import src.surface
 Import src.texture
 

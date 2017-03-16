@@ -70,10 +70,10 @@ Private
 End
 
 Public
-Class RenderBatch Final
+Class RenderList Final
 Public
-	Function Create:RenderBatch()
-		Return New RenderBatch
+	Function Create:RenderList()
+		Return New RenderList
 	End
 
 	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)

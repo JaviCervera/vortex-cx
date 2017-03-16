@@ -45,20 +45,20 @@ Public
 		mProj = Mat4.Create()
 		mView = Mat4.Create()
 		
-		'Create RenderBatch
-		mBatch = RenderBatch.Create()
+		'Create RenderList
+		mRenderList = RenderList.Create()
 		
 		'Load sphere mesh
 		mMesh = Cache.GetMesh("sphere.msh.xml")
 		
-		'Create sphere model matrices and add to RenderBatch
+		'Create sphere model matrices and add to RenderList
 		mModels = New Mat4[81]
 		Local x:Int = -32, z:Int = -32
 		For Local i:Int = 0 Until mModels.Length()
 			mModels[i] = Mat4.Create()
 			mModels[i].SetTransform(x, 0, z, 0, 0, 0, 1, 1, 1)
 			x += 8; If x > 32 Then x = -32; z += 8
-			mBatch.AddMesh(mMesh, mModels[i])
+			mRenderList.AddMesh(mMesh, mModels[i])
 		Next
 		
 		'Prepare lights
@@ -119,7 +119,7 @@ Public
 		Renderer.ClearColorBuffer(0, 0, 0)
 		Renderer.ClearDepthBuffer()
 	
-		mNumRenderCalls = mBatch.Render()
+		mNumRenderCalls = mRenderList.Render()
 		
 		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
@@ -149,7 +149,7 @@ Private
 	Field mView				: Mat4
 	Field mModels			: Mat4[]
 	Field mMesh				: Mesh
-	Field mBatch			: RenderBatch
+	Field mRenderList		: RenderList
 	Field mLightsEulerY		: Float[3]
 End
 

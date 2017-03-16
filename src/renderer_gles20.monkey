@@ -12,7 +12,7 @@ Import vortex.src.math3d
 Import vortex.src.renderer_gles20_shaders
 
 '#If TARGET="html5"
-Const GLSL_VERSION$ = ""
+Const GLSL_VERSION : String = ""
 '#Else
 'Const GLSL_VERSION$ = "#version 120~n"
 '#EndIf

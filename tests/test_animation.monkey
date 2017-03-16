@@ -47,26 +47,26 @@ Public
 		mSwatModel = Mat4.Create()
 		mDwarfModel = Mat4.Create()
 		
-		'Create RenderBatch
-		mBatch = RenderBatch.Create()
+		'Create RenderList
+		mRenderList = RenderList.Create()
 		
-		'Load SWAT model, create matrices for animation data, and add mesh to RenderBatch
+		'Load SWAT model, create matrices for animation data, and add mesh to RenderList
 		mSwatMesh = Cache.GetMesh("swat.msh.xml")
 		mSwatAnimMatrices = New Mat4[mSwatMesh.NumBones]
 		For Local i:Int = 0 Until mSwatAnimMatrices.Length()
 			mSwatAnimMatrices[i] = Mat4.Create()
 		Next
 		mSwatModel.SetTransform(-32, 0, 0, 0, -15, 0, 35, 35, 35)
-		mBatch.AddMesh(mSwatMesh, mSwatModel, mSwatAnimMatrices)
+		mRenderList.AddMesh(mSwatMesh, mSwatModel, mSwatAnimMatrices)
 		
-		'Load dwarf model, create matrices for animation data, and add mesh to RenderBatch
+		'Load dwarf model, create matrices for animation data, and add mesh to RenderList
 		mDwarfMesh = Cache.GetMesh("dwarf.msh.xml")
 		mDwarfAnimMatrices = New Mat4[mDwarfMesh.NumBones]
 		For Local i:Int = 0 Until mDwarfAnimMatrices.Length()
 			mDwarfAnimMatrices[i] = Mat4.Create()
 		Next
 		mDwarfModel.SetTransform(32, 0, 0, 0, 15, 0, 1, 1, 1)
-		mBatch.AddMesh(mDwarfMesh, mDwarfModel, mDwarfAnimMatrices)
+		mRenderList.AddMesh(mDwarfMesh, mDwarfModel, mDwarfAnimMatrices)
 		
 		Return False
 	End
@@ -111,7 +111,7 @@ Public
 		Renderer.SetModelMatrix(mDwarfModel)
 		Renderer.ClearColorBuffer(1, 1, 1)
 		Renderer.ClearDepthBuffer()
-		mNumRenderCalls = mBatch.Render()
+		mNumRenderCalls = mRenderList.Render()
 		
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetColor(0, 0, 0)
@@ -148,7 +148,7 @@ Private
 	Field mDwarfAnimMatrices	: Mat4[]
 	Field mSwatCurrentFrame		: Float
 	Field mDwarfCurrentFrame	: Float
-	Field mBatch				: RenderBatch
+	Field mRenderList			: RenderList
 End
 
 Function Main:Int()

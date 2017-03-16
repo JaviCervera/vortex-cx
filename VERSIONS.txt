@@ -1,3 +1,30 @@
+V1.2
+I have separated the project into two different branches: vortex1 (the default) will
+have non-API breaking changes, while vortex2 will use a different API and much
+improved features. This release contains the last commmits I added to Vortex1, which
+do not add any big new features, but a few fixes and small improvements:
+- Added fog support through the Viewer_SetFog function.
+- Improved font spacing.
+- Changed fonttool to export glyph data as properties in XML file
+  (reduces file size of generated fonts).
+- Export_shaders (the tool that generates the shader code constants
+  from the glsl files) has been ported from BlitzMax to Monkey.
+- Updated structure so a mesh has a linear array of bones instead of a tree
+  (does not need recursion to iterate through all bones).
+- Bone's default matrix has been renamed to pose matrix, and defines a
+  global transform (relative to model matrix, not to parent's pose matrix)
+- Bone's current matrix has been renamed to anim matrix, and contains a global
+  transform to animate the bone for some specific frame.
+- The bone's anim matrix has been moved to the Drawable class, which contains
+  an array of matrices, one for each bone in its mesh.
+- To animate a drawable, before calling Drawable_Draw, you must call Drawable_Animate now.
+
+I am not attaching binary files this time, so you'll have to build yourself. The meshtool
+has not been updated, so the binary from version 1.1 will work, but fonttool has been
+updated, so you will need to build it (on Windows, you should install a recent version
+of the compiler TDM-GCC).
+
+
 V1.1
 - Now Vortex supports changing handedness. To do that, you can write this at the
   beginning of your program:
