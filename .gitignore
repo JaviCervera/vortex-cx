@@ -12,6 +12,9 @@ meshtool/_BUILD/
 meshtool
 fonttool
 *.exe
+*.dll
+*.dylib
+*.so
 
 # Qt
 /.qmake.cache

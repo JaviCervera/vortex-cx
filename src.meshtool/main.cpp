@@ -179,13 +179,13 @@ int main(int, char* argv[]) {
 
 	// init gui
 	gui::IGUIEnvironment* gui = device->getGUIEnvironment();;
-	gui->getSkin()->setFont(gui->getFont("data/fontlucida.png"));
+	gui->getSkin()->setFont(gui->getFont("meshtool.data/fontlucida.png"));
 	gui::IGUIToolBar* toolbar = gui->addToolBar();
-	toolbar->addButton(BUTTON_CUBE, NULL, L"New Cube", device->getVideoDriver()->getTexture("data/cube.png"), NULL, false, true);
-	toolbar->addButton(BUTTON_SPHERE, NULL, L"New Sphere", device->getVideoDriver()->getTexture("data/sphere.png"), NULL, false, true);
-	toolbar->addButton(BUTTON_OPEN, NULL, L"Open Mesh", device->getVideoDriver()->getTexture("data/folder.png"), NULL, false, true);
-	toolbar->addButton(BUTTON_SAVEXML, NULL, L"Save XML Mesh", device->getVideoDriver()->getTexture("data/xhtml.png"), NULL, false, true);
-	//toolbar->addButton(MENU_SAVEJSON, NULL, L"Save JSON Mesh", gDriver->getTexture("data/json.png"), NULL, false, true);
+	toolbar->addButton(BUTTON_CUBE, NULL, L"New Cube", device->getVideoDriver()->getTexture("meshtool.data/cube.png"), NULL, false, true);
+	toolbar->addButton(BUTTON_SPHERE, NULL, L"New Sphere", device->getVideoDriver()->getTexture("meshtool.data/sphere.png"), NULL, false, true);
+	toolbar->addButton(BUTTON_OPEN, NULL, L"Open Mesh", device->getVideoDriver()->getTexture("meshtool.data/folder.png"), NULL, false, true);
+	toolbar->addButton(BUTTON_SAVEXML, NULL, L"Save XML Mesh", device->getVideoDriver()->getTexture("meshtool.data/xhtml.png"), NULL, false, true);
+	//toolbar->addButton(MENU_SAVEJSON, NULL, L"Save JSON Mesh", gDriver->getTexture("meshtool.data/json.png"), NULL, false, true);
 	gui->addCheckBox(true, core::rect<s32>(150, 4, 250, 23), NULL, BUTTON_EXPORTMATERIALS, L"Materials");
 	gui->addCheckBox(true, core::rect<s32>(250, 4, 350, 23), NULL, BUTTON_EXPORTNORMALS, L"Normals");
 	gui->addCheckBox(true, core::rect<s32>(350, 4, 450, 23), NULL, BUTTON_EXPORTTANGENTS, L"Tangents");

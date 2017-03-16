@@ -396,63 +396,72 @@ Public
 		Return texture
 	End
 
-	Function LoadTexture%(filename$, size%[], filter%)
-		Local texture% = glCreateTexture()
-		glBindTexture(GL_TEXTURE_2D, texture)
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + filename)
-#If TARGET<>"html5"
-		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
-#EndIf
-		'glBindTexture(GL_TEXTURE_2D, 0)
-
+	Function LoadTexture:Int(filename:String, size:Int[], filter:Int)
 		'Trick to get texture size
-		If size.Length() >= 2
+		If size.Length >= 2
 			Local img:Image = LoadImage(filename)
 			If img <> Null
 				size[0] = img.Width()
 				size[1] = img.Height()
 				img.Discard()
 			Else
-				size[0] = 0
-				size[1] = 0
+				Return 0
 			End
 		End
+		
+		'Fix filename
+		If String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then filename = "monkey://data/" + filename
+		
+		Local texture% = glCreateTexture()
+		glBindTexture(GL_TEXTURE_2D, texture)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, filename)
+#If TARGET<>"html5"
+		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
+#EndIf
+		'glBindTexture(GL_TEXTURE_2D, 0)
 
 		Return texture
 	End
 	
 	Function LoadCubicTexture:Int(left:String, right:String, front:String, back:String, top:String, bottom:String, size:Int[], filter:Int)
-		Local texture% = glCreateTexture()
-		glBindTexture(GL_TEXTURE_CUBE_MAP, texture)
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + left)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + right)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + front)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + back)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + top)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, "monkey://data/" + bottom)
-#If TARGET<>"html5"
-		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_CUBE_MAP)
-#Endif
-		'glBindTexture(GL_TEXTURE_2D, 0)
-
 		'Trick to get texture size
-		If size.Length() >= 2
+		If size.Length >= 2
 			Local img:Image = LoadImage(left)
 			If img <> Null
 				size[0] = img.Width()
 				size[1] = img.Height()
 				img.Discard()
 			Else
-				size[0] = 0
-				size[1] = 0
+				Return 0
 			End
 		End
+		
+		'Fix filenames
+		If String.FromChar(left[0]) <> "/" And String.FromChar(left[1]) <> ":" Then left = "monkey://data/" + left
+		If String.FromChar(right[0]) <> "/" And String.FromChar(right[1]) <> ":" Then right = "monkey://data/" + right
+		If String.FromChar(front[0]) <> "/" And String.FromChar(front[1]) <> ":" Then front = "monkey://data/" + front
+		If String.FromChar(back[0]) <> "/" And String.FromChar(back[1]) <> ":" Then back = "monkey://data/" + back
+		If String.FromChar(top[0]) <> "/" And String.FromChar(top[1]) <> ":" Then top = "monkey://data/" + top
+		If String.FromChar(bottom[0]) <> "/" And String.FromChar(bottom[1]) <> ":" Then bottom = "monkey://data/" + bottom
+		
+		Local texture% = glCreateTexture()
+		glBindTexture(GL_TEXTURE_CUBE_MAP, texture)
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, left)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, right)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, front)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, back)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, top)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, bottom)
+#If TARGET<>"html5"
+		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_CUBE_MAP)
+#Endif
+		'glBindTexture(GL_TEXTURE_2D, 0)
 
 		Return texture
 	End

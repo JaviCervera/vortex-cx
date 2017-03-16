@@ -12,4 +12,4 @@ Things to do before releasing Vortex2 officially:
 - Add vertex animation
 - Embed shaders
 - Integrate with Mojo and Mojo2
-- Update docs (talk about RenderList)
+- Update docs (talk about RenderList and update classes and methods)
