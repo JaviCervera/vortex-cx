@@ -71,13 +71,13 @@ public:
 				break;
 			case gui::EGET_FILE_SELECTED:
 			{
-				std::string filename = W2S(dynamic_cast<gui::IGUIFileOpenDialog*>(event.GUIEvent.Caller)->getFileName());
+				std::string filename = W2S(static_cast<gui::IGUIFileOpenDialog*>(event.GUIEvent.Caller)->getFileName());
 				UpdateMesh(LoadMesh(mDevice, filename), filename);
 				break;
 			}
 			case gui::EGET_CHECKBOX_CHANGED:
 			{
-				gui::IGUICheckBox* checkbox = dynamic_cast<gui::IGUICheckBox*>(event.GUIEvent.Caller);
+				gui::IGUICheckBox* checkbox = static_cast<gui::IGUICheckBox*>(event.GUIEvent.Caller);
 				switch (event.GUIEvent.Caller->getID()) {
 				case BUTTON_EXPORTMATERIALS:
 					mExportMaterials = checkbox->isChecked();
@@ -186,7 +186,7 @@ int main(int, char* argv[]) {
 	toolbar->addButton(BUTTON_OPEN, NULL, L"Open Mesh", device->getVideoDriver()->getTexture("data/folder.png"), NULL, false, true);
 	toolbar->addButton(BUTTON_SAVEXML, NULL, L"Save XML Mesh", device->getVideoDriver()->getTexture("data/xhtml.png"), NULL, false, true);
 	//toolbar->addButton(MENU_SAVEJSON, NULL, L"Save JSON Mesh", gDriver->getTexture("data/json.png"), NULL, false, true);
-	gui->addCheckBox(true, core::rect<s32>(150, 4, 250, 23), NULL, BUTTON_EXPORTMATERIALS, L"Brushes");
+	gui->addCheckBox(true, core::rect<s32>(150, 4, 250, 23), NULL, BUTTON_EXPORTMATERIALS, L"Materials");
 	gui->addCheckBox(true, core::rect<s32>(250, 4, 350, 23), NULL, BUTTON_EXPORTNORMALS, L"Normals");
 	gui->addCheckBox(true, core::rect<s32>(350, 4, 450, 23), NULL, BUTTON_EXPORTTANGENTS, L"Tangents");
 	gui->addCheckBox(true, core::rect<s32>(450, 4, 550, 23), NULL, BUTTON_EXPORTANIMATIONS, L"Animations");

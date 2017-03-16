@@ -25,7 +25,7 @@ Public
 		If (doc = Null And err.error) Or doc.name <> "mesh" Then Return Null
 
 		'Get arrays
-		Local materialNodes:List<XMLNode> = doc.GetChild("brushes").GetChildren("brush")
+		Local materialNodes:List<XMLNode> = doc.GetChild("materials").GetChildren("material")
 		Local surfaceNodes:List<XMLNode> = doc.GetChild("surfaces").GetChildren("surface")
 		Local lastFrameNode:XMLNode = doc.GetChild("last_frame")
 		Local boneNodes:List<XMLNode> = doc.GetChild("bones").GetChildren("bone")
@@ -82,7 +82,7 @@ Public
 		'Parse surfaces
 		For Local surfaceNode:XMLNode = Eachin surfaceNodes
 			'Get surface data
-			Local materialStr:String = surfaceNode.GetChild("brush").value
+			Local materialStr:String = surfaceNode.GetChild("material").value
 			Local indicesStr:String[] = surfaceNode.GetChild("indices", "").value.Split(",")
 			Local coordsStr:String[] = surfaceNode.GetChild("coords", "").value.Split(",")
 			Local normalsStr:String[] = surfaceNode.GetChild("normals", "").value.Split(",")
@@ -175,35 +175,29 @@ Public
 		mesh.LastFrame = Int(lastFrameNode.value)
 
 		'Parse bones
-		Local i:Int = 0
 		For Local boneNode:XMLNode = Eachin boneNodes
 			'Get bone data
 			Local nameStr:String = boneNode.GetChild("name").value
 			Local parentStr:String = boneNode.GetChild("parent").value
-			Local defPositionStr:String[] = boneNode.GetChild("def_position").value.Split(",")
-			Local defRotationStr:String[] = boneNode.GetChild("def_rotation").value.Split(",")
-			Local defScaleStr:String[] = boneNode.GetChild("def_scale").value.Split(",")
+			Local invPoseStr:String[] = boneNode.GetChild("inv_pose").value.Split(",")
 			Local surfacesStr:String[] = boneNode.GetChild("surfaces").value.Split(",")
-			If defPositionStr.Length() <> 3 Or defRotationStr.Length() <> 4 Or defScaleStr.Length() <> 3 Then Return Null
+			If invPoseStr.Length <> 16 Then Return Null
 
 			'Create bone
-			Local bone:Bone = Bone.Create(nameStr)
+			Local bone:Bone = Bone.Create(nameStr, mesh.GetBoneIndex(parentStr))
 				
-			'Set parent
-			If parentStr <> ""
-				Local parent:Bone = mesh.FindBone(parentStr)
-				If parent = Null Then Return Null	'Parent bone must exist
-				bone.Parent = parent
-			End
-				
-			'Set pose matrix
-			mTempMatrix.SetTransform(Float(defPositionStr[0]), Float(defPositionStr[1]), Float(defPositionStr[2]), Float(defRotationStr[0]), Float(defRotationStr[1]), Float(defRotationStr[2]), Float(defRotationStr[3]), Float(defScaleStr[0]), Float(defScaleStr[1]), Float(defScaleStr[2]))
-			bone.SetLocalPoseMatrix(mTempMatrix)
+			'Set inverse pose matrix
+			Local m:Float[] = New Float[16]
+			For Local i:Int = 0 Until 16
+				mTempMatrix.M[i] = Float(invPoseStr[i])
+			Next
+			bone.InversePoseMatrix = mTempMatrix
 				
 			'Add to mesh
 			mesh.AddBone(bone)
 				
 			'Update mesh surfaces weights if needed
+			#Rem
 			If surfacesStr[0] <> ""
 				For Local j:Int = 0 Until surfacesStr.Length()
 					Local index:Int = Int(surfacesStr[j])
@@ -216,6 +210,7 @@ Public
 					surf.Rebuild()
 				Next
 			End
+			#End
 
 			'Add position frames
 			Local positionsStr$[] = boneNode.GetChild("positions").value.Split(",")
@@ -249,8 +244,6 @@ Public
 					bone.AddScaleKey(frame, x, y, z)
 				Next
 			End
-			
-			i += 1
 		Next
 
 		Return mesh

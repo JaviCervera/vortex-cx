@@ -38,17 +38,17 @@ Public
 	Method Set:Void(other:Surface)
 		If Self = other Then Return
 		mStatus = STATUS_V_DIRTY | STATUS_I_DIRTY
+		If mNumIndices <> other.mNumIndices Then mStatus |= STATUS_I_RESIZED
+		If mNumVertices <> other.mNumVertices Then mStatus |= STATUS_V_RESIZED
 		mMaterial.Set(other.mMaterial)
 		If mIndices.Length <> other.mIndices.Length
 			mIndices.Discard()
 			mIndices = New DataBuffer(other.mIndices.Length, True)
-			mStatus |= STATUS_I_RESIZED
 		End
 		other.mIndices.CopyBytes(0, mIndices, 0, mIndices.Length)
 		If mVertices.Length <> other.mVertices.Length
 			mVertices.Discard()
 			mVertices = New DataBuffer(other.mVertices.Length, True)
-			mStatus |= STATUS_V_RESIZED
 		End
 		other.mVertices.CopyBytes(0, mVertices, 0, mVertices.Length)
 		mNumIndices = other.mNumIndices

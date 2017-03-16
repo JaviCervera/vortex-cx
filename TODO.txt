@@ -3,11 +3,11 @@ Things to do before releasing Vortex2 officially:
 + Rename RenderBarch to RenderList
 + Optimize drawing of primitives
 + Optimize rebuilding of surfaces
-- Optimize Bone class
++ Rename <brushes> and <brush> in XML meshes, and its properties
++ Optimize Bone class
 - Add a Light class
 - Write new meshtool and fonttool
 - Add second UV set and lightmaps
-- Rename <brushes> and <brush> in XML meshes, and its properties
 - Add shadows
 - Add vertex animation
 - Embed shaders

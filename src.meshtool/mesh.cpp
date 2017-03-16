@@ -94,15 +94,15 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 	// Open mesh element
 	std::string buffer = "<mesh>\n";
 
-	// Brushes
+	// Materials
 	if (exportMaterials) {
-		buffer += "\t<brushes>\n";
+		buffer += "\t<materials>\n";
 
 		// Diffuse
 		for (u32 mb = 0; mb < animMesh->getMesh(0)->getMeshBufferCount(); ++mb) {
 			const video::SMaterial& mat = animMesh->getMesh(0)->getMeshBuffer(mb)->getMaterial();
-			buffer += "\t\t<brush>\n";
-			buffer += "\t\t\t<name>Brush #" + StringFromNumber(mb) + "</name>\n";
+			buffer += "\t\t<material>\n";
+			buffer += "\t\t\t<name>Material #" + StringFromNumber(mb) + "</name>\n";
 			buffer += "\t\t\t<blend>alpha</blend>\n";
 			if (mat.getTexture(0)) buffer += std::string("\t\t\t<base_tex>") + StripPath(mat.getTexture(0)->getName().getPath().c_str()) + "</base_tex>\n";
 			buffer += "\t\t\t<base_color>" + StringFromNumber(mat.DiffuseColor.getRed() / 255.0f) + "," + StringFromNumber(mat.DiffuseColor.getGreen() / 255.0f) + "," + StringFromNumber(mat.DiffuseColor.getBlue() / 255.0f) + "</base_color>\n";
@@ -110,22 +110,22 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 			buffer += "\t\t\t<shininess>" + StringFromNumber(mat.Shininess) + "</shininess>\n";
 			buffer += std::string("\t\t\t<culling>") + (mat.BackfaceCulling ? "true" : "false") + "</culling>\n";
 			buffer += std::string("\t\t\t<depth_write>") + (mat.ZWriteEnable ? "true" : "false") + "</depth_write>\n";
-			buffer += "\t\t</brush>\n";
+			buffer += "\t\t</material>\n";
 		}
 
 		// Lightmap
 		for (u32 mb = 0; mb < animMesh->getMesh(0)->getMeshBufferCount(); ++mb) {
 			const video::SMaterial& mat = animMesh->getMesh(0)->getMeshBuffer(mb)->getMaterial();
 			if (mat.getTexture(1)) {
-				buffer += "\t\t<brush>\n";
-				buffer += "\t\t\t<name>Brush #" + StringFromNumber(animMesh->getMesh(0)->getMeshBufferCount() + mb) + "</name>\n";
+				buffer += "\t\t<material>\n";
+				buffer += "\t\t\t<name>Material #" + StringFromNumber(animMesh->getMesh(0)->getMeshBufferCount() + mb) + "</name>\n";
 				buffer += "\t\t\t<blend>mul</blend>\n";
 				buffer += std::string("\t\t\t<base_tex>") + mat.getTexture(1)->getName().getPath().c_str() + ".png</base_tex>\n";
-				buffer += "\t\t</brush>\n";
+				buffer += "\t\t</material>\n";
 			}
 		}
 
-		buffer += "\t</brushes>\n";
+		buffer += "\t</materials>\n";
 	}
 
 	// Surfaces
@@ -137,9 +137,9 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 
 		buffer += "\t\t<surface>\n";
 
-		// Brush or texture
+		// Material or texture
 		if (exportMaterials) {
-			buffer += "\t\t\t<brush>Brush #" + StringFromNumber(mb) + "</brush>\n";
+			buffer += "\t\t\t<material>Material #" + StringFromNumber(mb) + "</material>\n";
 		}
 		else {
 			if (meshBuffer->getMaterial().getTexture(0)) buffer += std::string("\t\t\t<base_tex>") + StripPath(meshBuffer->getMaterial().getTexture(0)->getName().getPath().c_str()) + "</base_tex>\n";
@@ -195,8 +195,8 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 		if (exportNormals) buffer += normals;
 		if (exportTangents) buffer += tangents;
 		/*if (meshBuffer->getMaterial().getTexture(0))*/ buffer += texcoords;
-		std::vector<int> indices = BoneIndicesForSurface(dynamic_cast<scene::ISkinnedMesh*>(animMesh), mb);
-		std::vector<float> weights = BoneWeightsForSurface(dynamic_cast<scene::ISkinnedMesh*>(animMesh), mb);
+		std::vector<int> indices = BoneIndicesForSurface(static_cast<scene::ISkinnedMesh*>(animMesh), mb);
+		std::vector<float> weights = BoneWeightsForSurface(static_cast<scene::ISkinnedMesh*>(animMesh), mb);
 		if ( indices.size() > 0 && weights.size() > 0 ) {
 			std::string indicesStr = "\t\t\t<bone_indices>";
 			for ( size_t i = 0; i < indices.size(); ++i ) {
@@ -226,7 +226,7 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 				buffer += "\t\t<surface>\n";
 
 				// Material or texture
-				buffer += "\t\t\t<brush>Brush #" + StringFromNumber(animMesh->getMesh(0)->getMeshBufferCount() + mb) + "</brush>\n";
+				buffer += "\t\t\t<material>Material #" + StringFromNumber(animMesh->getMesh(0)->getMeshBufferCount() + mb) + "</material>\n";
 
 				// Indices
 				buffer += "\t\t\t<indices>";
@@ -281,7 +281,7 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 
 	// Export animations
 	if (exportAnimations && animMesh->getMeshType() == scene::EAMT_SKINNED && animMesh->getFrameCount() > 1) {
-		scene::ISkinnedMesh* skinnedMesh = dynamic_cast<scene::ISkinnedMesh*>(animMesh);
+		scene::ISkinnedMesh* skinnedMesh = static_cast<scene::ISkinnedMesh*>(animMesh);
 
 		// Export last frame id
 		buffer += "\t<last_frame>" + StringFromNumber(skinnedMesh->getFrameCount()) + "</last_frame>\n";
@@ -297,6 +297,14 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 			scene::ISkinnedMesh::SJoint* parent = FindParent(skinnedMesh, joints[i]);
 			if (parent) buffer += std::string("\t\t\t<parent>") + parent->Name.c_str() + "</parent>\n";
 
+			irr::core::matrix4 invPose = joints[i]->GlobalInversedMatrix;
+			buffer += "\t\t\t<inv_pose>";
+			for (u32 m = 0; m < 16; ++m) {
+				buffer += StringFromNumber(invPose[m]);
+				if ( m < 15 ) buffer + ",";
+			}
+			buffer += "</inv_pose>\n";
+			/*
 			core::vector3df irrPosition = joints[i]->LocalMatrix.getTranslation();
 			core::vector3df irrRotation = joints[i]->LocalMatrix.getRotationDegrees();
 			core::vector3df irrScale = joints[i]->LocalMatrix.getScale();
@@ -315,6 +323,7 @@ void SaveMesh(irr::IrrlichtDevice* device, scene::IAnimatedMesh* animMesh, const
 				buffer += "\t\t\t<def_rotation>" + StringFromNumber(-rotation.w) + "," + StringFromNumber(rotation.x) + "," + StringFromNumber(rotation.y) + "," + StringFromNumber(rotation.z) + "</def_rotation>\n";
 				buffer += "\t\t\t<def_scale>" + StringFromNumber(irrScale.X) + "," + StringFromNumber(irrScale.Z) + "," + StringFromNumber(irrScale.Y) + "</def_scale>\n";
 			}
+			*/
 
 			if (joints[i]->AttachedMeshes.size() > 0) {
 				buffer += "\t\t\t<surfaces>";

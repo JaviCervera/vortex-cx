@@ -8,11 +8,10 @@ Import vortex.src.surface
 Public
 Class Bone Final
 Public
-	Function Create:Bone(name:String)
+	Function Create:Bone(name:String, parentIndex:Int)
 		Local bone:Bone = New Bone
 		bone.mName = name
-		bone.mParent = Null
-		bone.mPoseMatrix = Mat4.Create()
+		bone.mParentIndex = parentIndex
 		bone.mInvPoseMatrix = Mat4.Create()
 		bone.mPositionKeys = New Int[0]
 		bone.mRotationKeys = New Int[0]
@@ -24,9 +23,7 @@ Public
 	End
 	
 	Function Create:Bone(other:Bone)
-		Local bone:Bone = Bone.Create(other.mName)
-		bone.mParent = other.mParent
-		bone.mPoseMatrix = Mat4.Create(other.mPoseMatrix)
+		Local bone:Bone = Bone.Create(other.mName, other.mParentIndex)
 		bone.mInvPoseMatrix = Mat4.Create(other.mInvPoseMatrix)
 		bone.mPositionKeys = other.mPositionKeys[..]
 		bone.mRotationKeys = other.mRotationKeys[..]
@@ -49,31 +46,16 @@ Public
 	Method Name:String() Property
 		Return mName
 	End
-	
-	Method Parent:Void(parent:Bone) Property
-		mParent = parent
-	End
 
-	Method Parent:Bone() Property
-		Return mParent
+	Method ParentIndex:Int() Property
+		Return mParentIndex
 	End
 	
-	Method SetLocalPoseMatrix:Void(matrix:Mat4)
-		If mParent = Null
-			mPoseMatrix.Set(matrix)
-		Else
-			mPoseMatrix.Set(mParent.mPoseMatrix)
-			mPoseMatrix.Mul(matrix)
-		End
-		mInvPoseMatrix.Set(mPoseMatrix)
-		mInvPoseMatrix.Invert()
+	Method InversePoseMatrix:Void(m:Mat4) Property
+		mInvPoseMatrix.Set(m)
 	End
 	
-	Method GlobalPoseMatrix:Mat4() Property
-		Return mPoseMatrix
-	End
-	
-	Method InverseGlobalPoseMatrix:Mat4() Property
+	Method InversePoseMatrix:Mat4() Property
 		Return mInvPoseMatrix
 	End
 
@@ -162,7 +144,7 @@ Public
 		Return mScales[index].z
 	End
 	
-	Method Animate:Void(animMatrix:Mat4, parentAnimMatrix:Mat4, frame:Float, firstFrame:Int, lastFrame:Int)
+	Method CalculateAnimMatrix:Void(animMatrix:Mat4, frame:Float, firstFrame:Int, lastFrame:Int)
 		'Check if there is a keyframe within range
 		Local keyInRange:Bool = False
 		For Local i% = Eachin mPositionKeys
@@ -193,13 +175,14 @@ Public
 			sz = mTempVec.Z
 
 			'Set matrix
-			If parentAnimMatrix Then animMatrix.Set(parentAnimMatrix) Else animMatrix.SetIdentity()
+			animMatrix.SetIdentity()
 			animMatrix.Translate(px, py, pz)
 			animMatrix.Rotate(mTempQuat.Angle(), mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z)
 			animMatrix.Scale(sx, sy, sz)
 		'If not, define default transform
 		Else
-			animMatrix.Set(mPoseMatrix)
+			'animMatrix.Set(mPoseMatrix)
+			animMatrix.SetIdentity()
 		End
 	End
 Private
@@ -297,8 +280,7 @@ Private
 	End
 
 	Field mName				: String
-	Field mParent			: Bone
-	Field mPoseMatrix		: Mat4
+	Field mParentIndex		: Int
 	Field mInvPoseMatrix	: Mat4
 	Field mPositionKeys		: Int[]
 	Field mRotationKeys		: Int[]
