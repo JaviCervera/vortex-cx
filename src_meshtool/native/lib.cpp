@@ -1,3 +1,6 @@
+#if defined(__APPLE__) || defined(__linux__)
+#include <dlfcn.h>
+#endif
 #include <vector>
 
 static std::vector<void*> __monk_libStack__;					// Array with stack variables to use when calling function
@@ -903,7 +906,7 @@ void FreeLib(int lib) {
 #if defined(_WIN32)
     FreeLibrary((HMODULE)lib);
 #else
-    dlclose(lib);
+    dlclose((void*)lib);
 #endif
 }
 
@@ -913,7 +916,7 @@ int LibFunction(int lib, String funcname) {
 #if defined(_WIN32)
 	return (int)GetProcAddress((HMODULE)lib, ptr);
 #else
-	return (int)dlsym(lib, ptr);
+	return (int)dlsym((void*)lib, ptr);
 #endif
 }
 

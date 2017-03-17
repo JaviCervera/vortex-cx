@@ -11,6 +11,9 @@
 #if defined(_WIN32)
 #define EXPORT __declspec(dllexport)
 #define CALL __stdcall
+#else
+#define EXPORT
+#define CALL
 #endif
 
 using namespace irr;
@@ -87,28 +90,28 @@ struct mesh_t {
 };
 
 extern "C" {
-  
+
 EXPORT mesh_t* CALL LoadMesh(const char* filename) {
   mesh_t* mesh = NULL;
-  
+
   // create irrlicht device
   IrrlichtDevice* device = createDevice(video::EDT_NULL);
-  
+
   // load mesh
   scene::IAnimatedMesh* anim_mesh = device->getSceneManager()->getMesh(filename);
   if ( anim_mesh ) {
     scene::ISkinnedMesh* skinned_mesh = ( anim_mesh->getMeshType() == scene::EAMT_SKINNED && anim_mesh->getFrameCount() > 1 ) ? static_cast<scene::ISkinnedMesh*>(anim_mesh) : 0;
     scene::IMesh* irr_mesh = anim_mesh->getMesh(0);
-    
+
     mesh = new mesh_t;
-    
+
     // surfaces
     for ( size_t i = 0; i < irr_mesh->getMeshBufferCount(); ++i ) {
       scene::IMeshBuffer* mesh_buffer = irr_mesh->getMeshBuffer(i);
       const video::SMaterial& mat = mesh_buffer->getMaterial();
-      
+
       surface_t surf;
-      
+
       // material
       std::string base_tex = mat.getTexture(0) ? mat.getTexture(0)->getName().getPath().c_str() : "";
       float r = mat.DiffuseColor.getRed() / 255.0f;
@@ -119,12 +122,12 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
       int culling = mat.BackfaceCulling;
       int depth_write = mat.ZWriteEnable;
       surf.material = material_t(0, base_tex, r, g, b, a, shininess, culling, depth_write);
-      
+
       // indices
       for (size_t j = 0; j < mesh_buffer->getIndexCount(); ++j) {
         surf.indices.push_back(mesh_buffer->getIndices()[j]);
       }
-      
+
       // vertices
       for ( size_t v = 0; v < mesh_buffer->getVertexCount(); ++v ) {
         float x = mesh_buffer->getPosition(v).X;
@@ -137,7 +140,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
         float v0 = mesh_buffer->getTCoords(v).Y;
         surf.vertices.push_back(vertex_t(x, y, z, nx, ny, nz, u0, v0));
       }
-      
+
       // bone indices and weights
       if ( skinned_mesh ) {
         std::vector<int> indices = BoneIndicesForSurface(skinned_mesh, i);
@@ -153,10 +156,10 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
           surf.vertices.back().weights[3] = weights[b+3];
         }
       }
-      
+
       mesh->surfaces.push_back(surf);
     }
-    
+
     // bones
     if ( skinned_mesh ) {
       const core::array<scene::ISkinnedMesh::SJoint*>& joints = skinned_mesh->getAllJoints();
@@ -260,14 +263,14 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
         */
       }
     }
-    
+
     // num frames
     mesh->num_frames = anim_mesh->getFrameCount();
   }
-  
+
   // drop irrlicht device
   device->drop();
-  
+
   return mesh;
 }
 
