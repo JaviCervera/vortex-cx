@@ -164,9 +164,9 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
       const core::array<scene::ISkinnedMesh::SJoint*>& joints = skinned_mesh->getAllJoints();
       for ( size_t b = 0; b < joints.size(); ++b ) {
         scene::ISkinnedMesh::SJoint* joint = joints[b];
-        
+
         bone_t bone;
-        
+
         // name and parent index
         bone.name = joint->Name.c_str();
         bone.parent_index = FindParentIndex(skinned_mesh, joint);
@@ -175,7 +175,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
         for ( size_t m = 0; m < 16; ++m ) {
           bone.inv_pose[m] = inv_pose[m];
         }
-        
+
         /*
         core::vector3df irrPosition = joints[i]->LocalMatrix.getTranslation();
         core::vector3df irrRotation = joints[i]->LocalMatrix.getRotationDegrees();
@@ -240,7 +240,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
         } else if ( joint->PositionKeys.size() > 0 || joint->RotationKeys.size() > 0 ) {
           bone.scales.push_back(std::pair<int, vec3_t>(0, vec3_t(1, 1, 1)));
         }
-        
+
         mesh->bones.push_back(bone);
       }
     }
@@ -369,6 +369,82 @@ EXPORT int CALL NumFrames(const mesh_t* mesh) {
 
 EXPORT int CALL NumBones(const mesh_t* mesh) {
   return static_cast<int>(mesh->bones.size());
+}
+
+EXPORT const char* CALL BoneName(const mesh_t* mesh, int bone_index) {
+  return mesh->bones[bone_index].name.c_str();
+}
+
+EXPORT int CALL BoneParentIndex(const mesh_t* mesh, int bone_index) {
+  return mesh->bones[bone_index].parent_index;
+}
+
+EXPORT float CALL BoneInvPoseMatrixElem(const mesh_t* mesh, int bone_index, int elem_index) {
+  return mesh->bones[bone_index].inv_pose[elem_index];
+}
+
+EXPORT int CALL BoneNumPositionKeys(const mesh_t* mesh, int bone_index) {
+  return static_cast<int>(mesh->bones[bone_index].positions.size());
+}
+
+EXPORT int CALL BoneNumRotationKeys(const mesh_t* mesh, int bone_index) {
+  return static_cast<int>(mesh->bones[bone_index].rotations.size());
+}
+
+EXPORT int CALL BoneNumScaleKeys(const mesh_t* mesh, int bone_index) {
+  return static_cast<int>(mesh->bones[bone_index].scales.size());
+}
+
+EXPORT int CALL BonePositionKeyFrame(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].positions[key_index].first;
+}
+
+EXPORT float CALL BonePositionKeyX(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].positions[key_index].second.x;
+}
+
+EXPORT float CALL BonePositionKeyY(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].positions[key_index].second.y;
+}
+
+EXPORT float CALL BonePositionKeyZ(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].positions[key_index].second.z;
+}
+
+EXPORT int CALL BoneRotationKeyFrame(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].rotations[key_index].first;
+}
+
+EXPORT float CALL BoneRotationKeyW(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].rotations[key_index].second.w;
+}
+
+EXPORT float CALL BoneRotationKeyX(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].rotations[key_index].second.x;
+}
+
+EXPORT float CALL BoneRotationKeyY(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].rotations[key_index].second.y;
+}
+
+EXPORT float CALL BoneRotationKeyZ(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].rotations[key_index].second.z;
+}
+
+EXPORT int CALL BoneScaleKeyFrame(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].scales[key_index].first;
+}
+
+EXPORT float CALL BoneScaleKeyX(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].scales[key_index].second.x;
+}
+
+EXPORT float CALL BoneScaleKeyY(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].scales[key_index].second.y;
+}
+
+EXPORT float CALL BoneScaleKeyZ(const mesh_t* mesh, int bone_index, int key_index) {
+  return mesh->bones[bone_index].scales[key_index].second.z;
 }
 
 } // extern "C"

@@ -36,6 +36,8 @@ Global _VertexBoneFunc:Int
 Global _VertexWeightFunc:Int
 Global _NumFramesFunc:Int
 Global _NumBonesFunc:Int
+Global _BoneNameFunc:Int
+Global _BoneParentIndexFunc:Int
 
 Function DeleteMesh:Void(meshPtr:Int)
 	PushLibInt(meshPtr)
@@ -223,6 +225,18 @@ Function NumBones:Int(meshPtr:Int)
 	Return CallIntFunction(_NumBonesFunc)
 End
 
+Function BoneName:String(meshPtr:Int, boneIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	Return CallStringFunction(_BoneNamePtr)
+End
+
+Function BoneParentIndex:Int(meshPtr:Int, boneIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	Return CallIntFunction(_BoneParentIndex)
+End
+
 Public
 
 Function InitMeshLoader:Bool(libname:String)
@@ -293,6 +307,10 @@ Function InitMeshLoader:Bool(libname:String)
 		If _NumFramesFunc = 0 Then Return False
 		_NumBonesFunc = LibFunction(lib, "NumBones@4")
 		If _NumBonesFunc = 0 Then Return False
+		_BoneNameFunc = LibFunction(lib, "BoneName@8")
+		If _BoneNameFunc = 0 Then Return False
+		_BoneParentIndexFunc = LibFunction(lib, "BoneParentIndex@8")
+		If _BoneParentIndexFunc = 0 Then Return False
 		Return True
 	Else
 		Return False
