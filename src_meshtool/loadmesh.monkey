@@ -35,6 +35,7 @@ Global _VertexV0Func:Int
 Global _VertexBoneFunc:Int
 Global _VertexWeightFunc:Int
 Global _NumFramesFunc:Int
+Global _NumBonesFunc:Int
 
 Function DeleteMesh:Void(meshPtr:Int)
 	PushLibInt(meshPtr)
@@ -217,6 +218,11 @@ Function NumFrames:Int(meshPtr:Int)
 	Return CallIntFunction(_NumFramesFunc)
 End
 
+Function NumBones:Int(meshPtr:Int)
+	PushLibInt(meshPtr)
+	Return CallIntFunction(_NumBonesFunc)
+End
+
 Public
 
 Function InitMeshLoader:Bool(libname:String)
@@ -285,6 +291,8 @@ Function InitMeshLoader:Bool(libname:String)
 		If _VertexWeightFunc = 0 Then Return False
 		_NumFramesFunc = LibFunction(lib, "NumFrames@4")
 		If _NumFramesFunc = 0 Then Return False
+		_NumBonesFunc = LibFunction(lib, "NumBones@4")
+		If _NumBonesFunc = 0 Then Return False
 		Return True
 	Else
 		Return False
@@ -304,7 +312,10 @@ Function LoadMesh:Mesh(filename:String)
 		Return Cache.GetMesh(filename)
 	'Otherwise, build mesh
 	Else
+		'Create mesh
 		Local mesh:Mesh = Mesh.Create(filename)
+		
+		'Add surfaces
 		For Local s:Int = 0 Until NumSurfaces(meshPtr)
 			Local surf:Surface = Surface.Create()
 			
@@ -329,6 +340,15 @@ Function LoadMesh:Mesh(filename:String)
 			
 			mesh.AddSurface(surf)
 		Next
+		
+		'Set last frame
+		mesh.LastFrame = NumFrames(meshPtr)
+		
+		'Add bones
+		For Local b:Int = 0 Until NumBones(meshPtr)
+		
+		End
+		
 		DeleteMesh(meshPtr)
 		Return mesh
 	End

@@ -19,7 +19,7 @@
 using namespace irr;
 
 // Forward declaration of functions
-scene::ISkinnedMesh::SJoint* FindParent(scene::ISkinnedMesh* mesh, const scene::ISkinnedMesh::SJoint* joint);;
+int FindParentIndex(scene::ISkinnedMesh* mesh, const scene::ISkinnedMesh::SJoint* joint);
 std::vector<int> BoneIndicesForSurface(scene::ISkinnedMesh* mesh, u32 surface);
 std::vector<float> BoneWeightsForSurface(scene::ISkinnedMesh* mesh, u32 surface);
 
@@ -27,7 +27,6 @@ struct vec3_t {
   float x;
   float y;
   float z;
-  vec3_t() : x(0), y(0), z(0) {}
   vec3_t(float x, float y, float z) : x(x), y(y), z(z) {}
 };
 
@@ -36,7 +35,6 @@ struct quat_t {
   float x;
   float y;
   float z;
-  quat_t() : w(1), x(0), y(0), z(0) {}
   quat_t(float w, float x, float y, float z) : w(w), x(x), y(y), z(z) {}
 };
 
@@ -76,17 +74,18 @@ struct surface_t {
 };
 
 struct bone_t {
-  std::string             name;
-  int                     parent_index;
-  float                   inv_pose[16];
-  std::pair<int, vec3_t>  positions;
-  std::pair<int, quat_t>  rotations;
-  std::pair<int, vec3_t>  scales;
+  std::string                           name;
+  int                                   parent_index;
+  float                                 inv_pose[16];
+  std::vector<std::pair<int, vec3_t> >  positions;
+  std::vector<std::pair<int, quat_t> >  rotations;
+  std::vector<std::pair<int, vec3_t> >  scales;
 };
 
 struct mesh_t {
-  std::vector<surface_t> surfaces;
-  int num_frames;
+  std::vector<surface_t>  surfaces;
+  std::vector<bone_t>     bones;
+  int                     num_frames;
 };
 
 extern "C" {
@@ -164,19 +163,19 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
     if ( skinned_mesh ) {
       const core::array<scene::ISkinnedMesh::SJoint*>& joints = skinned_mesh->getAllJoints();
       for ( size_t b = 0; b < joints.size(); ++b ) {
-        /*
-        buffer += std::string("\t\t\t<name>") + joints[i]->Name.c_str() + "</name>\n";
+        scene::ISkinnedMesh::SJoint* joint = joints[b];
+        
+        bone_t bone;
+        
+        // name and parent index
+        bone.name = joint->Name.c_str();
+        bone.parent_index = FindParentIndex(skinned_mesh, joint);
 
-        scene::ISkinnedMesh::SJoint* parent = FindParent(skinnedMesh, joints[i]);
-        if (parent) buffer += std::string("\t\t\t<parent>") + parent->Name.c_str() + "</parent>\n";
-
-        irr::core::matrix4 invPose = joints[i]->GlobalInversedMatrix;
-        buffer += "\t\t\t<inv_pose>";
-        for (u32 m = 0; m < 16; ++m) {
-          buffer += StringFromNumber(invPose[m]);
-          if ( m < 15 ) buffer + ",";
+        core::matrix4 inv_pose = joint->GlobalInversedMatrix;
+        for ( size_t m = 0; m < 16; ++m ) {
+          bone.inv_pose[m] = inv_pose[m];
         }
-        buffer += "</inv_pose>\n";
+        
         /*
         core::vector3df irrPosition = joints[i]->LocalMatrix.getTranslation();
         core::vector3df irrRotation = joints[i]->LocalMatrix.getRotationDegrees();
@@ -196,8 +195,9 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
           buffer += "\t\t\t<def_rotation>" + StringFromNumber(-rotation.w) + "," + StringFromNumber(rotation.x) + "," + StringFromNumber(rotation.y) + "," + StringFromNumber(rotation.z) + "</def_rotation>\n";
           buffer += "\t\t\t<def_scale>" + StringFromNumber(irrScale.X) + "," + StringFromNumber(irrScale.Z) + "," + StringFromNumber(irrScale.Y) + "</def_scale>\n";
         }
-        * /
+        */
 
+        /*
         if (joints[i]->AttachedMeshes.size() > 0) {
           buffer += "\t\t\t<surfaces>";
           for (u32 j = 0; j < joints[i]->AttachedMeshes.size(); ++j) {
@@ -206,61 +206,42 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
           }
           buffer += "</surfaces>\n";
         }
-
-        if (joints[i]->PositionKeys.size() > 0) {
-          buffer += "\t\t\t<positions>";
-          for (u32 j = 0; j < joints[i]->PositionKeys.size(); ++j) {
-            if (VORTEX_HANDEDNESS == VORTEX_LH) {
-              buffer += StringFromNumber(int(joints[i]->PositionKeys[j].frame)) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.X) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.Y) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.Z);
-            } else if (VORTEX_HANDEDNESS == VORTEX_RH_Y) {
-              buffer += StringFromNumber(int(joints[i]->PositionKeys[j].frame)) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.X) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.Y) + "," + StringFromNumber(-joints[i]->PositionKeys[j].position.Z);
-            } else {
-              buffer += StringFromNumber(int(joints[i]->PositionKeys[j].frame)) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.X) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.Z) + "," + StringFromNumber(joints[i]->PositionKeys[j].position.Y);
-            }
-            if (j < joints[i]->PositionKeys.size() - 1) buffer += ",";
-          }
-          buffer += "</positions>\n";
-        }
-        else if (joints[i]->RotationKeys.size() > 0 || joints[i]->ScaleKeys.size() > 0) {
-          buffer += "\t\t\t<positions>0,0,0,0</positions>\n";
-        }
-
-        if (joints[i]->RotationKeys.size() > 0) {
-          buffer += "\t\t\t<rotations>";
-          for (u32 j = 0; j < joints[i]->RotationKeys.size(); ++j) {
-            if (VORTEX_HANDEDNESS == VORTEX_LH) {
-              buffer += StringFromNumber(int(joints[i]->RotationKeys[j].frame)) + "," + StringFromNumber(-joints[i]->RotationKeys[j].rotation.W) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.X) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Y) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Z);
-            } else if (VORTEX_HANDEDNESS == VORTEX_RH_Y) {
-              buffer += StringFromNumber(int(joints[i]->RotationKeys[j].frame)) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.W) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.X) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Y) + "," + StringFromNumber(-joints[i]->RotationKeys[j].rotation.Z);
-            } else {
-              buffer += StringFromNumber(int(joints[i]->RotationKeys[j].frame)) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.W) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.X) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Z) + "," + StringFromNumber(joints[i]->RotationKeys[j].rotation.Y);
-            }
-            if (j < joints[i]->RotationKeys.size() - 1) buffer += ",";
-          }
-          buffer += "</rotations>\n";
-        }
-        else if (joints[i]->PositionKeys.size() > 0 || joints[i]->ScaleKeys.size() > 0) {
-          buffer += "\t\t\t<rotations>0,1,0,0,0</rotations>\n";
-        }
-
-        if (joints[i]->ScaleKeys.size() > 0) {
-          buffer += "\t\t\t<scales>";
-          for (u32 j = 0; j < joints[i]->ScaleKeys.size(); ++j) {
-            if (VORTEX_HANDEDNESS == VORTEX_RH_Z) {
-              buffer += StringFromNumber(int(joints[i]->ScaleKeys[j].frame)) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.X) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.Z) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.Y);
-            } else {
-              buffer += StringFromNumber(int(joints[i]->ScaleKeys[j].frame)) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.X) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.Y) + "," + StringFromNumber(joints[i]->ScaleKeys[j].scale.Z);
-            }
-            if (j < joints[i]->ScaleKeys.size() - 1) buffer += ",";
-          }
-          buffer += "</scales>\n";
-        }
-        else if (joints[i]->PositionKeys.size() > 0 || joints[i]->RotationKeys.size() > 0) {
-          buffer += "\t\t\t<scales>0,1,1,1</scales>\n";
-        }
-
-        buffer += "\t\t</bone>\n";
         */
+
+        if ( joint->PositionKeys.size() > 0 ) {
+          for ( size_t p = 0; p < joint->PositionKeys.size(); ++p ) {
+            bone.positions.push_back(std::pair<int, vec3_t>(
+              static_cast<int>(joint->PositionKeys[p].frame),
+              vec3_t(joint->PositionKeys[p].position.X, joint->PositionKeys[p].position.Y, joint->PositionKeys[p].position.Z)
+            ));
+          }
+        } else if ( joint->RotationKeys.size() > 0 || joint->ScaleKeys.size() > 0 ) {
+          bone.positions.push_back(std::pair<int, vec3_t>(0, vec3_t(0, 0, 0)));
+        }
+
+        if ( joint->RotationKeys.size() > 0 ) {
+          for ( size_t r = 0; r < joint->RotationKeys.size(); ++r ) {
+            bone.rotations.push_back(std::pair<int, quat_t>(
+              static_cast<int>(joint->RotationKeys[r].frame),
+              quat_t(joint->RotationKeys[r].rotation.W, joint->RotationKeys[r].rotation.X, joint->RotationKeys[r].rotation.Y, joint->RotationKeys[r].rotation.Z)
+            ));
+          }
+        } else if ( joint->PositionKeys.size() > 0 || joint->ScaleKeys.size() > 0 ) {
+          bone.rotations.push_back(std::pair<int, quat_t>(0, quat_t(1, 0, 0, 0)));
+        }
+
+        if ( joint->ScaleKeys.size() > 0 ) {
+          for ( size_t s = 0; s < joint->ScaleKeys.size(); ++s ) {
+            bone.scales.push_back(std::pair<int, vec3_t>(
+              static_cast<int>(joint->ScaleKeys[s].frame),
+              vec3_t(joint->ScaleKeys[s].scale.X, joint->ScaleKeys[s].scale.Z, joint->ScaleKeys[s].scale.Y)
+            ));
+          }
+        } else if ( joint->PositionKeys.size() > 0 || joint->RotationKeys.size() > 0 ) {
+          bone.scales.push_back(std::pair<int, vec3_t>(0, vec3_t(1, 1, 1)));
+        }
+        
+        mesh->bones.push_back(bone);
       }
     }
 
@@ -386,6 +367,10 @@ EXPORT int CALL NumFrames(const mesh_t* mesh) {
   return mesh->num_frames;
 }
 
+EXPORT int CALL NumBones(const mesh_t* mesh) {
+  return static_cast<int>(mesh->bones.size());
+}
+
 } // extern "C"
 
 std::vector<int> BoneIndicesForSurface(scene::ISkinnedMesh* mesh, u32 surface) {
@@ -431,6 +416,17 @@ std::vector<float> BoneWeightsForSurface(scene::ISkinnedMesh* mesh, u32 surface)
 
   if ( weightsFound ) return weights;
   else return std::vector<float>();
+}
+
+int FindParentIndex(scene::ISkinnedMesh* mesh, const scene::ISkinnedMesh::SJoint* joint) {
+  for ( size_t i = 0; i < mesh->getJointCount(); ++i ) {
+    for (size_t j = 0; j < mesh->getAllJoints()[i]->Children.size(); ++j ) {
+      if ( mesh->getAllJoints()[i]->Children[j]->Name == joint->Name ) {
+        return static_cast<int>(i);
+      }
+    }
+  }
+  return -1;
 }
 
 /*
@@ -771,16 +767,5 @@ void SaveLightmaps(scene::IMesh* mesh) {
       free(pixels);
     }
   }
-}
-
-scene::ISkinnedMesh::SJoint* FindParent(scene::ISkinnedMesh* mesh, const scene::ISkinnedMesh::SJoint* joint) {
-  for (u32 i = 0; i < mesh->getJointCount(); ++i) {
-    for (u32 j = 0; j < mesh->getAllJoints()[i]->Children.size(); ++j) {
-      if (mesh->getAllJoints()[i]->Children[j]->Name == joint->Name) {
-        return mesh->getAllJoints()[i];
-      }
-    }
-  }
-  return NULL;
 }
 */
