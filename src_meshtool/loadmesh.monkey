@@ -38,6 +38,10 @@ Global _NumFramesFunc:Int
 Global _NumBonesFunc:Int
 Global _BoneNameFunc:Int
 Global _BoneParentIndexFunc:Int
+Global _BoneInvPoseMatrixElemFunc:Int
+Global _BoneNumPositionKeysFunc:Int
+Global _BoneNumRotationKeysFunc:Int
+Global _BoneNumScaleKeysFunc:Int
 
 Function DeleteMesh:Void(meshPtr:Int)
 	PushLibInt(meshPtr)
@@ -237,6 +241,31 @@ Function BoneParentIndex:Int(meshPtr:Int, boneIndex:Int)
 	Return CallIntFunction(_BoneParentIndex)
 End
 
+Function BoneInvPoseMatrixElem:Float(meshPtr:Int, boneIndex:Int, elemIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PusLibInt(elemIndex)
+	Return CallFloatFunction(_BoneInvPoseMatrixElem)
+End
+
+Function BoneNumPositionKeys:Int(meshPtr:Int, boneIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	CallIntFunction(_BoneNumPositionKeysFunc)
+End
+
+Function BoneNumRotationKeys:Int(meshPtr:Int, boneIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	CallIntFunction(_BoneNumRotationKeysFunc)
+End
+
+Function BoneNumScaleKeys:Int(meshPtr:Int, boneIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	CallIntFunction(_BoneNumScaleKeysFunc)
+End
+
 Public
 
 Function InitMeshLoader:Bool(libname:String)
@@ -311,6 +340,14 @@ Function InitMeshLoader:Bool(libname:String)
 		If _BoneNameFunc = 0 Then Return False
 		_BoneParentIndexFunc = LibFunction(lib, "BoneParentIndex@8")
 		If _BoneParentIndexFunc = 0 Then Return False
+		_BoneInvPoseMatrixElemFunc = LibFunction(lib, "BoneInvPoseMatrixElem@12")
+		If _BoneInvPoseMatrixElemFunc = 0 Then Return False
+		_BoneNumPositionKeysFunc = LibFunction(lib, "BoneNumPositionKeys@8")
+		If _BoneNumPositionKeysFunc = 0 Then Return False
+		_BoneNumRotationKeysFunc = LibFunction(lib, "BoneNumRotationKeys@8")
+		If _BoneNumRotationKeysFunc = 0 Then Return False
+		_BoneNumScaleKeysFunc = LibFunction(lib, "BoneNumScaleKeys@8")
+		If _BoneNumScaleKeysFunc = 0 Then Return False
 		Return True
 	Else
 		Return False
