@@ -1,9 +1,28 @@
 Irrlicht version 1.8.4 has been used. On Windows, it has been compiled
 with the MinGW version that ships with Code::Blocks 16.01.
-In Project / Build Options..., Target x86 (32bit) [-m32] has been selected. 
+In Project / Build Options..., Target x86 (32bit) [-m32] has been selected.
 The Win32 - Release - fast math - static target has been used.
 It links correctly with TDM-GCC-64 v5.1.0, which is what I use
 to build the dlls used in the tools.
+
+On macOS, architecture has been changed to 32-bit Intel (i386).
+On the top of the file CIrrDeviceMacOSX.mm, the following needed to be added:
+
+#include <Carbon/Carbon.h>
+
+On that same file, the line 499
+
+[NSApp setDelegate:(id<NSFileManagerDelegate>)[[[AppDelegate alloc] initWithDevice:this] autorelease]];
+
+was changed to
+
+[NSApp setDelegate:(id<NSApplicationDelegate>)[[[AppDelegate alloc] initWithDevice:this] autorelease]];
+
+and the line 500
+
+[NSBundle loadNibNamed:@"MainMenu" owner:[NSApp delegate]];
+
+was commented.
 
 Irrlicht preprocessor definitions
 (defined in include/IrrCompileConfig.h):
