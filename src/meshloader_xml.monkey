@@ -194,22 +194,6 @@ Public
 				
 			'Add to mesh
 			mesh.AddBone(bone)
-				
-			'Update mesh surfaces weights if needed
-			#Rem
-			If surfacesStr[0] <> ""
-				For Local j:Int = 0 Until surfacesStr.Length()
-					Local index:Int = Int(surfacesStr[j])
-					Local surf:Surface = mesh.GetSurface(index)
-					For Local v:Int = 0 Until surf.NumVertices
-						bone.GlobalPoseMatrix.Mul(surf.GetVertexX(v), surf.GetVertexY(v), surf.GetVertexZ(v), 1)
-						surf.SetVertexPosition(v, bone.GlobalPoseMatrix.ResultVector().X, bone.GlobalPoseMatrix.ResultVector().Y, bone.GlobalPoseMatrix.ResultVector().Z)
-						surf.SetVertexBone(v, 0, i, 1)
-					Next
-					surf.Rebuild()
-				Next
-			End
-			#End
 
 			'Add position frames
 			Local positionsStr$[] = boneNode.GetChild("positions").value.Split(",")

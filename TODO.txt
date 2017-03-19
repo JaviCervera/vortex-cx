@@ -4,12 +4,12 @@ Things to do before releasing Vortex2 officially:
 + Optimize drawing of primitives
 + Optimize rebuilding of surfaces
 + Optimize Bone class
-* Write new meshtool and fonttool
 + Rename <brushes> and <brush> in XML meshes, and its properties
++ Embed shaders
+* Write new meshtool and fonttool
 - Add second UV set and lightmaps
 - Add material editor in meshtool
 - Add vertex animation
 - Add shadows
-- Embed shaders
 - Integrate with Mojo and Mojo2
 - Update docs (talk about RenderList and update classes and methods)
