@@ -87,9 +87,13 @@ Public
 			'Calculate animation matrix for all bones
 			For Local i:Int = 0 Until NumBones
 				Local parentIndex:Int = GetBone(i).ParentIndex
-				If parentIndex > -1 Then mTempMatrix.Set(animMatrices[parentIndex]) Else mTempMatrix.SetIdentity()
-				GetBone(i).CalculateAnimMatrix(mTempMatrix, frame, firstFrame, lastFrame)
-				animMatrices[i].Mul(mTempMatrix)
+				If parentIndex > -1
+					animMatrices[i].Set(animMatrices[parentIndex])
+					GetBone(i).CalculateAnimMatrix(mTempMatrix, frame, firstFrame, lastFrame)
+					animMatrices[i].Mul(mTempMatrix)
+				Else
+					GetBone(i).CalculateAnimMatrix(animMatrices[i], frame, firstFrame, lastFrame)
+				End
 			Next
 			
 			'Multiply every animation matrix by the inverse of the pose matrix

@@ -42,6 +42,19 @@ Global _BoneInvPoseMatrixElemFunc:Int
 Global _BoneNumPositionKeysFunc:Int
 Global _BoneNumRotationKeysFunc:Int
 Global _BoneNumScaleKeysFunc:Int
+Global _BonePositionKeyFrameFunc:Int
+Global _BonePositionKeyXFunc:Int
+Global _BonePositionKeyYFunc:Int
+Global _BonePositionKeyZFunc:Int
+Global _BoneRotationKeyFrameFunc:Int
+Global _BoneRotationKeyWFunc:Int
+Global _BoneRotationKeyXFunc:Int
+Global _BoneRotationKeyYFunc:Int
+Global _BoneRotationKeyZFunc:Int
+Global _BoneScaleKeyFrameFunc:Int
+Global _BoneScaleKeyXFunc:Int
+Global _BoneScaleKeyYFunc:Int
+Global _BoneScaleKeyZFunc:Int
 
 Function DeleteMesh:Void(meshPtr:Int)
 	PushLibInt(meshPtr)
@@ -232,38 +245,129 @@ End
 Function BoneName:String(meshPtr:Int, boneIndex:Int)
 	PushLibInt(meshPtr)
 	PushLibInt(boneIndex)
-	Return CallStringFunction(_BoneNamePtr)
+	Return CallStringFunction(_BoneNameFunc)
 End
 
 Function BoneParentIndex:Int(meshPtr:Int, boneIndex:Int)
 	PushLibInt(meshPtr)
 	PushLibInt(boneIndex)
-	Return CallIntFunction(_BoneParentIndex)
+	Return CallIntFunction(_BoneParentIndexFunc)
 End
 
 Function BoneInvPoseMatrixElem:Float(meshPtr:Int, boneIndex:Int, elemIndex:Int)
 	PushLibInt(meshPtr)
 	PushLibInt(boneIndex)
-	PusLibInt(elemIndex)
-	Return CallFloatFunction(_BoneInvPoseMatrixElem)
+	PushLibInt(elemIndex)
+	Return CallFloatFunction(_BoneInvPoseMatrixElemFunc)
 End
 
 Function BoneNumPositionKeys:Int(meshPtr:Int, boneIndex:Int)
 	PushLibInt(meshPtr)
 	PushLibInt(boneIndex)
-	CallIntFunction(_BoneNumPositionKeysFunc)
+	Return CallIntFunction(_BoneNumPositionKeysFunc)
 End
 
 Function BoneNumRotationKeys:Int(meshPtr:Int, boneIndex:Int)
 	PushLibInt(meshPtr)
 	PushLibInt(boneIndex)
-	CallIntFunction(_BoneNumRotationKeysFunc)
+	Return CallIntFunction(_BoneNumRotationKeysFunc)
 End
 
 Function BoneNumScaleKeys:Int(meshPtr:Int, boneIndex:Int)
 	PushLibInt(meshPtr)
 	PushLibInt(boneIndex)
-	CallIntFunction(_BoneNumScaleKeysFunc)
+	Return CallIntFunction(_BoneNumScaleKeysFunc)
+End
+
+Function BonePositionKeyFrame:Int(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallIntFunction(_BonePositionKeyFrameFunc)
+End
+
+Function BonePositionKeyX:Float(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallFloatFunction(_BonePositionKeyXFunc)
+End
+
+Function BonePositionKeyY:Float(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallFloatFunction(_BonePositionKeyYFunc)
+End
+
+Function BonePositionKeyZ:Float(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallFloatFunction(_BonePositionKeyZFunc)
+End
+
+Function BoneRotationKeyFrame:Int(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallIntFunction(_BoneRotationKeyFrameFunc)
+End
+
+Function BoneRotationKeyW:Float(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallFloatFunction(_BoneRotationKeyWFunc)
+End
+
+Function BoneRotationKeyX:Float(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallFloatFunction(_BoneRotationKeyXFunc)
+End
+
+Function BoneRotationKeyY:Float(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallFloatFunction(_BoneRotationKeyYFunc)
+End
+
+Function BoneRotationKeyZ:Float(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallFloatFunction(_BoneRotationKeyZFunc)
+End
+
+Function BoneScaleKeyFrame:Int(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallIntFunction(_BoneScaleKeyFrameFunc)
+End
+
+Function BoneScaleKeyX:Float(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallFloatFunction(_BoneScaleKeyXFunc)
+End
+
+Function BoneScaleKeyY:Float(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallFloatFunction(_BoneScaleKeyYFunc)
+End
+
+Function BoneScaleKeyZ:Float(meshPtr:Int, boneIndex:Int, keyIndex:Int)
+	PushLibInt(meshPtr)
+	PushLibInt(boneIndex)
+	PushLibInt(keyIndex)
+	Return CallFloatFunction(_BoneScaleKeyZFunc)
 End
 
 Public
@@ -348,6 +452,32 @@ Function InitMeshLoader:Bool(libname:String)
 		If _BoneNumRotationKeysFunc = 0 Then Return False
 		_BoneNumScaleKeysFunc = LibFunction(lib, "BoneNumScaleKeys@8")
 		If _BoneNumScaleKeysFunc = 0 Then Return False
+		_BonePositionKeyFrameFunc = LibFunction(lib, "BonePositionKeyFrame@12")
+		If _BonePositionKeyFrameFunc = 0 Then Return False
+		_BonePositionKeyXFunc = LibFunction(lib, "BonePositionKeyX@12")
+		If _BonePositionKeyXFunc = 0 Then Return False
+		_BonePositionKeyYFunc = LibFunction(lib, "BonePositionKeyY@12")
+		If _BonePositionKeyYFunc = 0 Then Return False
+		_BonePositionKeyZFunc = LibFunction(lib, "BonePositionKeyZ@12")
+		If _BonePositionKeyZFunc = 0 Then Return False
+		_BoneRotationKeyFrameFunc = LibFunction(lib, "BoneRotationKeyFrame@12")
+		If _BoneRotationKeyFrameFunc = 0 Then Return False
+		_BoneRotationKeyWFunc = LibFunction(lib, "BoneRotationKeyW@12")
+		If _BoneRotationKeyWFunc = 0 Then Return False
+		_BoneRotationKeyXFunc = LibFunction(lib, "BoneRotationKeyX@12")
+		If _BoneRotationKeyXFunc = 0 Then Return False
+		_BoneRotationKeyYFunc = LibFunction(lib, "BoneRotationKeyY@12")
+		If _BoneRotationKeyYFunc = 0 Then Return False
+		_BoneRotationKeyZFunc = LibFunction(lib, "BoneRotationKeyZ@12")
+		If _BoneRotationKeyZFunc = 0 Then Return False
+		_BoneScaleKeyFrameFunc = LibFunction(lib, "BoneScaleKeyFrame@12")
+		If _BoneScaleKeyFrameFunc = 0 Then Return False
+		_BoneScaleKeyXFunc = LibFunction(lib, "BoneScaleKeyX@12")
+		If _BoneScaleKeyXFunc = 0 Then Return False
+		_BoneScaleKeyYFunc = LibFunction(lib, "BoneScaleKeyY@12")
+		If _BoneScaleKeyYFunc = 0 Then Return False
+		_BoneScaleKeyZFunc = LibFunction(lib, "BoneScaleKeyZ@12")
+		If _BoneScaleKeyZFunc = 0 Then Return False
 		Return True
 	Else
 		Return False
@@ -380,7 +510,7 @@ Function LoadMesh:Mesh(filename:String)
 			mat.DiffuseRed = MaterialRed(meshPtr, s)
 			mat.DiffuseGreen = MaterialGreen(meshPtr, s)
 			mat.DiffuseBlue = MaterialBlue(meshPtr, s)
-			mat.Alpha = MaterialOpacity(meshPtr, s)
+			mat.Opacity = MaterialOpacity(meshPtr, s)
 			
 			For Local i:Int = 0 Until NumIndices(meshPtr, s) Step 3
 				surf.AddTriangle(GetIndex(meshPtr, s, i), GetIndex(meshPtr, s, i+1), GetIndex(meshPtr, s, i+2))
@@ -401,7 +531,21 @@ Function LoadMesh:Mesh(filename:String)
 		
 		'Add bones
 		For Local b:Int = 0 Until NumBones(meshPtr)
-		
+			Local bone:Bone = Bone.Create(BoneName(meshPtr, b), BoneParentIndex(meshPtr, b))
+			Local s:String = ""
+			For Local m:Int = 0 Until 16
+				bone.InversePoseMatrix.M[m] = BoneInvPoseMatrixElem(meshPtr, b, m)
+			Next
+			For Local p:Int = 0 Until BoneNumPositionKeys(meshPtr, b)
+				bone.AddPositionKey(BonePositionKeyFrame(meshPtr, b, p), BonePositionKeyX(meshPtr, b, p), BonePositionKeyY(meshPtr, b, p), BonePositionKeyZ(meshPtr, b, p))
+			Next
+			For Local r:Int = 0 Until BoneNumRotationKeys(meshPtr, b)
+				bone.AddRotationKey(BoneRotationKeyFrame(meshPtr, b, r), BoneRotationKeyW(meshPtr, b, r), BoneRotationKeyX(meshPtr, b, r), BoneRotationKeyY(meshPtr, b, r), BoneRotationKeyZ(meshPtr, b, r))
+			Next
+			For Local s:Int = 0 Until BoneNumScaleKeys(meshPtr, b)
+				bone.AddScaleKey(BoneScaleKeyFrame(meshPtr, b, s), BoneScaleKeyX(meshPtr, b, s), BoneScaleKeyY(meshPtr, b, s), BoneScaleKeyZ(meshPtr, b, s))
+			Next
+			mesh.AddBone(bone)
 		End
 		
 		DeleteMesh(meshPtr)

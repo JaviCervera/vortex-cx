@@ -37,12 +37,12 @@ Public
 			'Get material data
 			Local nameStr:String = materialNode.GetChild("name").value
 			Local blendStr:String = materialNode.GetChild("blend").value
-			Local baseColorStr:String[] = materialNode.GetChild("base_color").value.Split(",")
+			Local baseColorStr:String[] = materialNode.GetChild("diffuse_color").value.Split(",")
 			Local opacityStr:String = materialNode.GetChild("opacity").value
 			Local shininess:Float = Float(materialNode.GetChild("shininess").value)
 			Local cullingStr:String = materialNode.GetChild("culling").value
 			Local depthWriteStr:String = materialNode.GetChild("depth_write").value
-			Local baseTexStr:String = materialNode.GetChild("base_tex").value
+			Local baseTexStr:String = materialNode.GetChild("diffuse_tex").value
 			Local opacity:Float = 1
 			Local culling:Bool = True
 			Local depthWrite:Bool = True
@@ -69,7 +69,7 @@ Public
 			If blendStr.ToLower() = "add" Then material.BlendMode = Renderer.BLEND_ADD
 			If blendStr.ToLower() = "mul" Then material.BlendMode = Renderer.BLEND_MUL
 			material.SetDiffuseColor(baseColor[0], baseColor[1], baseColor[2])
-			material.Alpha = opacity
+			material.Opacity = opacity
 			material.Shininess = shininess
 			material.Culling = culling
 			material.DepthWrite = depthWrite
@@ -189,9 +189,8 @@ Public
 			'Set inverse pose matrix
 			Local m:Float[] = New Float[16]
 			For Local i:Int = 0 Until 16
-				mTempMatrix.M[i] = Float(invPoseStr[i])
+				bone.InversePoseMatrix.M[i] = Float(invPoseStr[i])
 			Next
-			bone.InversePoseMatrix = mTempMatrix
 				
 			'Add to mesh
 			mesh.AddBone(bone)
@@ -251,7 +250,4 @@ Public
 Private
 	Method New()
 	End
-	
-	'Used to calculate pose matrix
-	Global mTempMatrix:Mat4 = Mat4.Create()
 End

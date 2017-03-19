@@ -51,6 +51,17 @@ struct material_t {
   material_t() {}
   material_t(int blend, const std::string& base_tex, float r, float g, float b, float a, float shininess, int culling, int depth_write)
     : blend(blend), base_tex(base_tex), red(r), green(g), blue(b), opacity(a), shininess(shininess), culling(culling), depth_write(depth_write) {}
+  bool operator==(const material_t& other) {
+    return  blend == other.blend &&
+            base_tex == other.base_tex &&
+            red == other.red &&
+            green == other.green &&
+            blue == other.blue &&
+            opacity == other.opacity &&
+            shininess == other.shininess &&
+            culling == other.culling &&
+            depth_write == other.depth_write;
+  }
 };
 
 struct vertex_t {
@@ -145,14 +156,14 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
         std::vector<int> indices = BoneIndicesForSurface(skinned_mesh, i);
         std::vector<float> weights = BoneWeightsForSurface(skinned_mesh, i);
         for ( size_t b = 0; b < indices.size(); b += 4 ) {
-          surf.vertices.back().bones[0] = indices[b];
-          surf.vertices.back().bones[1] = indices[b+1];
-          surf.vertices.back().bones[2] = indices[b+2];
-          surf.vertices.back().bones[3] = indices[b+3];
-          surf.vertices.back().weights[0] = weights[b];
-          surf.vertices.back().weights[1] = weights[b+1];
-          surf.vertices.back().weights[2] = weights[b+2];
-          surf.vertices.back().weights[3] = weights[b+3];
+          surf.vertices[b/4].bones[0] = indices[b];
+          surf.vertices[b/4].bones[1] = indices[b+1];
+          surf.vertices[b/4].bones[2] = indices[b+2];
+          surf.vertices[b/4].bones[3] = indices[b+3];
+          surf.vertices[b/4].weights[0] = weights[b];
+          surf.vertices[b/4].weights[1] = weights[b+1];
+          surf.vertices[b/4].weights[2] = weights[b+2];
+          surf.vertices[b/4].weights[3] = weights[b+3];
         }
       }
 
@@ -171,43 +182,33 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
         bone.name = joint->Name.c_str();
         bone.parent_index = FindParentIndex(skinned_mesh, joint);
 
+        // inverse pose matrix
         core::matrix4 inv_pose = joint->GlobalInversedMatrix;
         for ( size_t m = 0; m < 16; ++m ) {
           bone.inv_pose[m] = inv_pose[m];
         }
 
-        /*
-        core::vector3df irrPosition = joints[i]->LocalMatrix.getTranslation();
-        core::vector3df irrRotation = joints[i]->LocalMatrix.getRotationDegrees();
-        core::vector3df irrScale = joints[i]->LocalMatrix.getScale();
-        glm::quat rotation(glm::radians(glm::vec3(irrRotation.X, irrRotation.Y, irrRotation.Z)));
-        if (VORTEX_HANDEDNESS == VORTEX_LH) {
-          buffer += "\t\t\t<def_position>" + StringFromNumber(irrPosition.X) + "," + StringFromNumber(irrPosition.Y) + "," + StringFromNumber(irrPosition.Z) + "</def_position>\n";
-          buffer += "\t\t\t<def_rotation>" + StringFromNumber(rotation.w) + "," + StringFromNumber(rotation.x) + "," + StringFromNumber(rotation.y) + "," + StringFromNumber(rotation.z) + "</def_rotation>\n";
-          buffer += "\t\t\t<def_scale>" + StringFromNumber(irrScale.X) + "," + StringFromNumber(irrScale.Y) + "," + StringFromNumber(irrScale.Z) + "</def_scale>\n";
-        } else if (VORTEX_HANDEDNESS == VORTEX_RH_Y) {
-          rotation = glm::quat(glm::radians(glm::vec3(-irrRotation.X, -irrRotation.Y, -irrRotation.Z)));
-          buffer += "\t\t\t<def_position>" + StringFromNumber(irrPosition.X) + "," + StringFromNumber(irrPosition.Y) + "," + StringFromNumber(-irrPosition.Z) + "</def_position>\n";
-          buffer += "\t\t\t<def_rotation>" + StringFromNumber(rotation.w) + "," + StringFromNumber(rotation.x) + "," + StringFromNumber(rotation.y) + "," + StringFromNumber(rotation.z) + "</def_rotation>\n";
-          buffer += "\t\t\t<def_scale>" + StringFromNumber(irrScale.X) + "," + StringFromNumber(irrScale.Y) + "," + StringFromNumber(irrScale.Z) + "</def_scale>\n";
-        } else {
-          buffer += "\t\t\t<def_position>" + StringFromNumber(irrPosition.X) + "," + StringFromNumber(irrPosition.Z) + "," + StringFromNumber(irrPosition.Y) + "</def_position>\n";
-          buffer += "\t\t\t<def_rotation>" + StringFromNumber(-rotation.w) + "," + StringFromNumber(rotation.x) + "," + StringFromNumber(rotation.y) + "," + StringFromNumber(rotation.z) + "</def_rotation>\n";
-          buffer += "\t\t\t<def_scale>" + StringFromNumber(irrScale.X) + "," + StringFromNumber(irrScale.Z) + "," + StringFromNumber(irrScale.Y) + "</def_scale>\n";
-        }
-        */
-
-        /*
-        if (joints[i]->AttachedMeshes.size() > 0) {
-          buffer += "\t\t\t<surfaces>";
-          for (u32 j = 0; j < joints[i]->AttachedMeshes.size(); ++j) {
-            buffer += StringFromNumber(joints[i]->AttachedMeshes[j]);
-            if (j < joints[i]->AttachedMeshes.size() - 1) buffer + ",";
+        // Convert non-skeletal meshes
+        for ( size_t i = 0; i < joint->AttachedMeshes.size(); ++i ) {
+          int surf_index = joint->AttachedMeshes[i];
+          scene::IMeshBuffer* mesh_buffer = irr_mesh->getMeshBuffer(surf_index);
+          
+          // update vertices
+          for ( size_t v = 0; v < mesh->surfaces[surf_index].vertices.size(); ++v ) {
+            // move vertex from bone to model space
+            core::vector3df model_pos(mesh->surfaces[surf_index].vertices[v].x, mesh->surfaces[surf_index].vertices[v].y, mesh->surfaces[surf_index].vertices[v].z);
+            joint->GlobalMatrix.transformVect(model_pos);
+            mesh->surfaces[surf_index].vertices[v].x = model_pos.X;
+            mesh->surfaces[surf_index].vertices[v].y = model_pos.Y;
+            mesh->surfaces[surf_index].vertices[v].z = model_pos.Z;
+            
+            // set vertex bone and weight
+            mesh->surfaces[surf_index].vertices[v].bones[0] = b;
+            mesh->surfaces[surf_index].vertices[v].weights[0] = 1;
           }
-          buffer += "</surfaces>\n";
         }
-        */
 
+        // position keys
         if ( joint->PositionKeys.size() > 0 ) {
           for ( size_t p = 0; p < joint->PositionKeys.size(); ++p ) {
             bone.positions.push_back(std::pair<int, vec3_t>(
@@ -219,17 +220,19 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
           bone.positions.push_back(std::pair<int, vec3_t>(0, vec3_t(0, 0, 0)));
         }
 
+        // rotation keys
         if ( joint->RotationKeys.size() > 0 ) {
           for ( size_t r = 0; r < joint->RotationKeys.size(); ++r ) {
             bone.rotations.push_back(std::pair<int, quat_t>(
               static_cast<int>(joint->RotationKeys[r].frame),
-              quat_t(joint->RotationKeys[r].rotation.W, joint->RotationKeys[r].rotation.X, joint->RotationKeys[r].rotation.Y, joint->RotationKeys[r].rotation.Z)
+              quat_t(-joint->RotationKeys[r].rotation.W, joint->RotationKeys[r].rotation.X, joint->RotationKeys[r].rotation.Y, joint->RotationKeys[r].rotation.Z)
             ));
           }
         } else if ( joint->PositionKeys.size() > 0 || joint->ScaleKeys.size() > 0 ) {
           bone.rotations.push_back(std::pair<int, quat_t>(0, quat_t(1, 0, 0, 0)));
         }
 
+        // scale keys
         if ( joint->ScaleKeys.size() > 0 ) {
           for ( size_t s = 0; s < joint->ScaleKeys.size(); ++s ) {
             bone.scales.push_back(std::pair<int, vec3_t>(
@@ -247,6 +250,40 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
 
     // num frames
     mesh->num_frames = anim_mesh->getFrameCount();
+  }
+  
+  // optimize mesh
+  size_t s = 1;
+  while ( s < mesh->surfaces.size() ) {
+    // look for a previous surface with same material
+    int same_mat_surf_index = -1;
+    for ( size_t i = 0; i < s; ++i ) {
+      if ( mesh->surfaces[s].material == mesh->surfaces[i].material ) {
+        same_mat_surf_index = i;
+        break;
+      }
+    }
+    
+    // if it has been found, merge both surfaces
+    if ( same_mat_surf_index > -1 ) {
+      size_t new_first = mesh->surfaces[same_mat_surf_index].vertices.size();
+      
+      // add vertices
+      for ( size_t i = 0; i < mesh->surfaces[s].vertices.size(); ++i ) {
+        mesh->surfaces[same_mat_surf_index].vertices.push_back(mesh->surfaces[s].vertices[i]);
+      }
+      
+      // add indices
+      for ( size_t i = 0; i < mesh->surfaces[s].indices.size(); ++i ) {
+        mesh->surfaces[same_mat_surf_index].indices.push_back(new_first + mesh->surfaces[s].indices[i]);
+      }
+      
+      // remove second surface
+      mesh->surfaces.erase(mesh->surfaces.begin() + s);
+    // otherwise, go to next surface
+    } else {
+      ++s;
+    }
   }
 
   // drop irrlicht device

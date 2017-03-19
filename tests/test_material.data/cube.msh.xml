@@ -3,8 +3,8 @@
 		<material>
 			<name>default</name>
 			<blend>alpha</blend>
-			<base_color>1,1,1</base_color>
-			<base_tex>t3.png</base_tex>
+			<diffuse_tex>t3.png</diffuse_tex>
+			<diffuse_color>1,1,1</diffuse_color>
 			<opacity>1</opacity>
 			<shininess>1</shininess>
 		</material>

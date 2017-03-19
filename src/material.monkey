@@ -14,7 +14,7 @@ Public
 		mat.mDiffuseGreen = 1
 		mat.mDiffuseBlue = 1
 		mat.mDiffuseTex = diffuseTex
-		mat.mAlpha = 1
+		mat.mOpacity = 1
 		mat.mShininess = 0
 		mat.mRefractCoef = 1
 		mat.mBlendMode = Renderer.BLEND_ALPHA
@@ -25,7 +25,7 @@ Public
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mDiffuseRed = other.mDiffuseRed And mDiffuseGreen = other.mDiffuseGreen And mDiffuseBlue = other.mDiffuseBlue And mDiffuseTex = other.mDiffuseTex And mNormalTex = other.mNormalTex And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mAlpha = other.mAlpha And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite
+		If mDiffuseRed = other.mDiffuseRed And mDiffuseGreen = other.mDiffuseGreen And mDiffuseBlue = other.mDiffuseBlue And mDiffuseTex = other.mDiffuseTex And mNormalTex = other.mNormalTex And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mOpacity = other.mOpacity And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite
 			Return True
 		Else
 			Return False
@@ -41,7 +41,7 @@ Public
 		mNormalTex = other.mNormalTex
 		mReflectTex = other.mReflectTex
 		mRefractTex = other.mRefractTex
-		mAlpha = other.mAlpha
+		mOpacity = other.mOpacity
 		mShininess = other.mShininess
 		mRefractCoef = other.mRefractCoef
 		mBlendMode = other.mBlendMode
@@ -111,12 +111,12 @@ Public
 		Return mRefractTex
 	End
 
-	Method Alpha:Void(alpha:Float) Property
-		mAlpha = alpha
+	Method Opacity:Void(opacity:Float) Property
+		mOpacity = opacity
 	End
 
-	Method Alpha:Float() Property
-		Return mAlpha
+	Method Opacity:Float() Property
+		Return mOpacity
 	End
 
 	Method Shininess:Void(shininess:Float) Property
@@ -166,7 +166,7 @@ Public
 		Local refractHandle:Int = 0
 		Local shininess:Int = 0
 		If mShininess > 0 Then shininess = Int(mShininess * 128)
-		Renderer.SetColor(mDiffuseRed, mDiffuseGreen, mDiffuseBlue, mAlpha)
+		Renderer.SetColor(mDiffuseRed, mDiffuseGreen, mDiffuseBlue, mOpacity)
 		Renderer.SetShininess(shininess)
 		Renderer.SetRefractCoef(mRefractCoef)
 		Renderer.SetBlendMode(mBlendMode)
@@ -190,7 +190,7 @@ Private
 	Field mNormalTex	: Texture
 	Field mReflectTex	: Texture
 	Field mRefractTex	: Texture
-	Field mAlpha		: Float
+	Field mOpacity		: Float
 	Field mShininess	: Float
 	Field mRefractCoef	: Float
 	Field mBlendMode	: Int

@@ -1,16 +1,16 @@
 Strict
 
-Import src.bone
-Import src.cache
-Import src.font
-Import src.lighting
-Import src.material
-Import src.math3d
-Import src.mesh
-Import src.renderer
-Import src.renderlist
-Import src.surface
-Import src.texture
+Import vortex.src.bone
+Import vortex.src.cache
+Import vortex.src.font
+Import vortex.src.lighting
+Import vortex.src.material
+Import vortex.src.math3d
+Import vortex.src.mesh
+Import vortex.src.renderer
+Import vortex.src.renderlist
+Import vortex.src.surface
+Import vortex.src.texture
 
 Class Vortex Final
 Public

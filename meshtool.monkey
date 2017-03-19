@@ -15,6 +15,7 @@ Strict
 #BINARY_FILES="*.bin|*.dat|*.so"
 #End
 
+Import brl.filepath
 #If TARGET="glfw" And HOST<>"linux"
 Import brl.requesters
 #Endif
@@ -22,6 +23,7 @@ Import mojo.app
 Import mojo.input
 Import src_meshtool.gui
 Import src_meshtool.loadmesh
+Import src_meshtool.savemesh
 Import vortex
 
 Class TestApp Extends App Final
@@ -55,7 +57,7 @@ Public
 		mFont = Cache.GetFont("system_16.fnt.xml")
 		mCubeTex = Cache.GetTexture("cube.png", Renderer.FILTER_NONE)
 		mOpenTex = Cache.GetTexture("folder.png", Renderer.FILTER_NONE)
-		mSaveTex = Cache.GetTexture("xhtml.png", Renderer.FILTER_NONE)
+		mSaveTex = Cache.GetTexture("disk.png", Renderer.FILTER_NONE)
 		
 		'Define gui elements rectangles
 		mPanelRect = New Rect(8, 8, 64, 24)
@@ -78,32 +80,11 @@ Public
 		Lighting.SetLightType(0, Lighting.DIRECTIONAL)
 		
 		mExportAnimations = True
-		mPitch = 45
-		mYaw = -45
-		mDistance = 16
+		mCamPos = Vec3.Create(0, 16, -16)
+		mCamRot = Vec3.Create()
 		mLastMouseX = MouseX()
 		mLastMouseY = MouseY()
-		mClickGUI = False
-		
-		#Rem
-		'Load SWAT model, create matrices for animation data, and add mesh to RenderList
-		mSwatMesh = Cache.GetMesh("swat.msh.xml")
-		mSwatAnimMatrices = New Mat4[mSwatMesh.NumBones]
-		For Local i:Int = 0 Until mSwatAnimMatrices.Length()
-			mSwatAnimMatrices[i] = Mat4.Create()
-		Next
-		mSwatModel.SetTransform(-32, 0, 0, 0, -15, 0, 35, 35, 35)
-		mRenderList.AddMesh(mSwatMesh, mSwatModel, mSwatAnimMatrices)
-		
-		'Load dwarf model, create matrices for animation data, and add mesh to RenderList
-		mDwarfMesh = Cache.GetMesh("dwarf.msh.xml")
-		mDwarfAnimMatrices = New Mat4[mDwarfMesh.NumBones]
-		For Local i:Int = 0 Until mDwarfAnimMatrices.Length()
-			mDwarfAnimMatrices[i] = Mat4.Create()
-		Next
-		mDwarfModel.SetTransform(32, 0, 0, 0, 15, 0, 1, 1, 1)
-		mRenderList.AddMesh(mDwarfMesh, mDwarfModel, mDwarfAnimMatrices)
-		#End
+		mFreeLook = False
 		
 		Return False
 	End
@@ -117,37 +98,68 @@ Public
 		If MouseHit(MOUSE_LEFT)
 			'Load mesh
 			If mOpenRect.IsPointInside(MouseX(), MouseY())
-				Local filename:String = RequestFile("Select mesh")', "Mesh Files:msh.xml;All Files:*", False)
+				Local filename:String = RequestFile("Open mesh")', "Mesh Files:msh.xml;All Files:*", False)
 				If filename <> ""
 					filename = filename.Replace("\", "/")
 					Local mesh:Mesh = LoadMesh(filename)
 					If mesh <> Null
+						mFilename = filename
 						If mMesh Then mRenderList.RemoveMesh(mMesh, mModel)
-						mRenderList.AddMesh(mesh, mModel)
 						mMesh = mesh
+						mAnimMatrices = New Mat4[mesh.NumBones]
+						For Local m:Int = 0 Until mAnimMatrices.Length
+							mAnimMatrices[m] = Mat4.Create()
+							mAnimMatrices[m].Set(mesh.GetBone(m).InversePoseMatrix)
+						Next
+						mAnimFrame = 0
+						mRenderList.AddMesh(mesh, mModel, mAnimMatrices)
 					End
 				End
-				mClickGUI = True
+			'Save mesh
+			Elseif mSaveRect.IsPointInside(MouseX(), MouseY())
+				If mMesh
+					Local filename:String = mFilename
+					If filename = ""
+						filename = RequestFile("Save mesh", "Mesh Files:msh.xml;All Files:*", True)
+						If filename <> "" Then mFilename = filename
+					Else
+						filename = StripExt(filename) + ".msh.xml"
+					End
+					If filename <> "" Then SaveMesh(mMesh, filename, mExportAnimations)
+				End
 			'Check export animations
 			Elseif mAnimationsRect.IsPointInside(MouseX(), MouseY())
 				mExportAnimations = Not mExportAnimations
-				mClickGUI = True
 			End
 		End
 		
 		'Update camera controls
-		If MouseDown(MOUSE_LEFT)
-			If Not mClickGUI
-				mPitch += (MouseY() - mLastMouseY) * 360 * mDeltaTime
-				mYaw += (MouseX() - mLastMouseX) * 360 * mDeltaTime
-				If mPitch > 89 Then mPitch = 89
-				If mPitch < -89 Then mPitch = -89
-			End
-		Else
-			mClickGUI = False
+		If MouseHit(MOUSE_RIGHT)
+			mFreeLook = Not mFreeLook
+			'If mFreeLook Then HideMouse() Else ShowMouse()
 		End
-		If MouseDown(MOUSE_RIGHT)
-			mDistance += (MouseY() - mLastMouseY) * 32 * mDeltaTime
+		If mFreeLook
+			mCamRot.X += (MouseY() - mLastMouseY) * 90 * mDeltaTime
+			mCamRot.Y += (MouseX() - mLastMouseX) * 90 * mDeltaTime
+			If mCamRot.X > 89 Then mCamRot.X = 89
+			If mCamRot.X < -89 Then mCamRot.X = -89
+			mTempQuat.SetEuler(mCamRot.X, mCamRot.Y, mCamRot.Z)
+			If KeyDown(KEY_W)
+				mTempQuat.Mul(0, 0, 32 * mDeltaTime)
+				mCamPos.Sum(mTempQuat.ResultVector())
+			End
+			If KeyDown(KEY_S)
+				mTempQuat.Mul(0, 0, -32 * mDeltaTime)
+				mCamPos.Sum(mTempQuat.ResultVector())
+			End
+			If KeyDown(KEY_A)
+				mTempQuat.Mul(-32 * mDeltaTime, 0, 0)
+				mCamPos.Sum(mTempQuat.ResultVector())
+			End
+			If KeyDown(KEY_D)
+				mTempQuat.Mul(32 * mDeltaTime, 0, 0)
+				mCamPos.Sum(mTempQuat.ResultVector())
+			End
 		End
 		
 		'Update mouse
@@ -158,23 +170,22 @@ Public
 		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 5000)
 		
 		'Update camera view
-		mTempQuat.SetEuler(mPitch, mYaw, 0)
-		mTempQuat.Mul(0, 0, -mDistance)
-		mView.LookAtLH(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, 0, 0, 0, 0, 1, 0)
+		mTempQuat.SetEuler(mCamRot.X, mCamRot.Y, mCamRot.Z)
+		mTempQuat.Mul(0, 0, 1)
+		mView.LookAtLH(mCamPos.X, mCamPos.Y, mCamPos.Z, mCamPos.X + mTempQuat.ResultVector().X, mCamPos.Y + mTempQuat.ResultVector().Y, mCamPos.Z + mTempQuat.ResultVector().Z, 0, 1, 0)
 		
 		'Update light
+		mTempQuat.ResultVector().Sub(mCamPos)
 		mTempQuat.ResultVector().Normalize()
+		mTempQuat.ResultVector().Mul(-1)
 		Lighting.SetLightPosition(0, mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z)
 		
-		#Rem
-		mSwatCurrentFrame += 16 * mDeltaTime
-		If mSwatCurrentFrame > mSwatMesh.LastFrame+1 Then mSwatCurrentFrame = mSwatCurrentFrame - Int(mSwatCurrentFrame)
-		mSwatMesh.Animate(mSwatAnimMatrices, mSwatCurrentFrame)
-	
-		mDwarfCurrentFrame += 16 * mDeltaTime
-		If mDwarfCurrentFrame > mDwarfMesh.LastFrame+1 Then mDwarfCurrentFrame = mDwarfCurrentFrame - Int(mDwarfCurrentFrame)
-		mDwarfMesh.Animate(mDwarfAnimMatrices, mDwarfCurrentFrame)
-		#End
+		'Update animations
+		If mMesh And mMesh.LastFrame > 0
+			mAnimFrame += 16 * mDeltaTime
+			If mAnimFrame > mMesh.LastFrame+1 Then mAnimFrame -= Int(mAnimFrame)
+			mMesh.Animate(mAnimMatrices, mAnimFrame)
+		End
 		
 		Return False
 	End
@@ -207,6 +218,12 @@ Public
 		mOpenTex.Draw(mOpenRect.x, mOpenRect.y)
 		mSaveTex.Draw(mSaveRect.x, mSaveRect.y)
 		DrawCheckbox(mAnimationsRect, "Export Animations", mFont, mExportAnimations)
+		If mMesh
+			Renderer.SetColor(1, 1, 1)
+			mFont.Draw(8, 34, "Num surfaces: " + mMesh.NumSurfaces)
+			mFont.Draw(8, 50, "Num Frames: " + mMesh.LastFrame)
+			mFont.Draw(8, 66, "Num Bones: " + mMesh.NumBones)
+		End
 	
 		Return False
 	End
@@ -228,6 +245,7 @@ Private
 	Field mProj					: Mat4
 	Field mView					: Mat4
 	Field mModel				: Mat4
+	Field mAnimMatrices			: Mat4[]
 	Field mTempQuat				: Quat
 	Field mRenderList			: RenderList
 	
@@ -239,13 +257,14 @@ Private
 	Field mAnimationsRect	: Rect
 	
 	'Misc
+	Field mFilename			: String
 	Field mExportAnimations	: Bool
-	Field mPitch			: Float
-	Field mYaw				: Float
-	Field mDistance			: Float
+	Field mCamPos			: Vec3
+	Field mCamRot			: Vec3
 	Field mLastMouseX		: Float
 	Field mLastMouseY		: Float
-	Field mClickGUI			: Bool
+	Field mFreeLook			: Bool
+	Field mAnimFrame		: Float
 End
 
 Function Main:Int()

@@ -81,7 +81,7 @@ Public
 	End
 
 	Method NumPositionKeys:Int() Property
-		Return mPositionKeys.Length()
+		Return mPositionKeys.Length
 	End
 
 	Method GetPositionKeyFrame:Int(index:Int)
@@ -89,19 +89,19 @@ Public
 	End
 
 	Method GetPositionKeyX:Float(index:Int)
-		Return mPositions[index].x
+		Return mPositions[index].X
 	End
 
 	Method GetPositionKeyY:Float(index:Int)
-		Return mPositions[index].y
+		Return mPositions[index].Y
 	End
 
 	Method GetPositionKeyZ:Float(index:Int)
-		Return mPositions[index].z
+		Return mPositions[index].Z
 	End
 
 	Method NumRotationKeys:Int() Property
-		Return mRotationsKeys.Length()
+		Return mRotationKeys.Length
 	End
 
 	Method GetRotationKeyFrame:Int(index:Int)
@@ -109,23 +109,23 @@ Public
 	End
 
 	Method GetRotationKeyW:Float(index:Int)
-		Return mRotations[index].w
+		Return mRotations[index].W
 	End
 
 	Method GetRotationKeyX:Float(index:Int)
-		Return mRotations[index].x
+		Return mRotations[index].X
 	End
 
 	Method GetRotationKeyY:Float(index:Int)
-		Return mRotations[index].y
+		Return mRotations[index].Y
 	End
 
 	Method GetRotationKeyZ:Float(index:Int)
-		Return mRotations[index].z
+		Return mRotations[index].Z
 	End
 
 	Method NumScaleKeys:Int() Property
-		Return mScaleKeys.Length()
+		Return mScaleKeys.Length
 	End
 
 	Method GetScaleKeyFrame:Int(index:Int)
@@ -133,21 +133,21 @@ Public
 	End
 
 	Method GetScaleKeyX:Float(index:Int)
-		Return mScales[index].x
+		Return mScales[index].X
 	End
 
 	Method GetScaleKeyY:Float(index:Int)
-		Return mScales[index].y
+		Return mScales[index].Y
 	End
 
 	Method GetScaleKeyZ:Float(index:Int)
-		Return mScales[index].z
+		Return mScales[index].Z
 	End
 	
 	Method CalculateAnimMatrix:Void(animMatrix:Mat4, frame:Float, firstFrame:Int, lastFrame:Int)
 		'Check if there is a keyframe within range
 		Local keyInRange:Bool = False
-		For Local i% = Eachin mPositionKeys
+		For Local i:Int = Eachin mPositionKeys
 			If i >= firstFrame And i <= lastFrame
 				keyInRange = True
 				Exit
