@@ -5,15 +5,6 @@
 #include "irrlicht/irrlicht.h"
 #include "mesh.h"
 
-// Export mode and call convention
-#if defined(_WIN32)
-#define EXPORT __declspec(dllexport)
-#define CALL __stdcall
-#else
-#define EXPORT
-#define CALL
-#endif
-
 using namespace irr;
 
 // Forward declaration of functions
@@ -27,7 +18,11 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
   mesh_t* mesh = NULL;
 
   // create irrlicht device
-  IrrlichtDevice* device = createDevice(video::EDT_NULL);
+  SIrrlichtCreationParameters params;
+  params.DeviceType = EIDT_CONSOLE;
+  params.DriverType = video::EDT_NULL;
+  params.LoggingLevel = ELL_NONE;
+  IrrlichtDevice* device = createDeviceEx(params);
 
   // load mesh
   scene::IAnimatedMesh* anim_mesh = device->getSceneManager()->getMesh(filename);

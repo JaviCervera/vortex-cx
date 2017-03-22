@@ -1,6 +1,15 @@
 #ifndef MESH_H
 #define MESH_H
 
+// Export mode and call convention
+#if defined(_WIN32) && defined(BUILD_SHARED)
+#define EXPORT __declspec(dllexport)
+#define CALL __stdcall
+#else
+#define EXPORT
+#define CALL
+#endif
+
 #include <string>
 #include <vector>
 
@@ -81,8 +90,8 @@ struct mesh_t {
 };
 
 extern "C" {
-  mesh_t* LoadMesh(const char* filename);
-  void DeleteMesh(mesh_t* mesh);
+  EXPORT mesh_t* CALL LoadMesh(const char* filename);
+  EXPORT void CALL DeleteMesh(mesh_t* mesh);
 }
 
 #endif

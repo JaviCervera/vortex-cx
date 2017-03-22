@@ -216,7 +216,7 @@ Public
 		DrawCheckbox(mAnimationsRect, "Export Animations", mFont, mExportAnimations)
 		If mMesh
 			Renderer.SetColor(1, 1, 1)
-			mFont.Draw(8, 34, "Num surfaces: " + mMesh.NumSurfaces)
+			mFont.Draw(8, 34, "Num Surfaces: " + mMesh.NumSurfaces)
 			mFont.Draw(8, 50, "Num Frames: " + mMesh.LastFrame)
 			mFont.Draw(8, 66, "Num Bones: " + mMesh.NumBones)
 		End

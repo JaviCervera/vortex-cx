@@ -39,11 +39,14 @@ Public
 	End
 	
 	Function Load:Mesh(filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
+		Return Mesh.LoadString(app.LoadString(filename), filename, texFilter)
+	End
+	
+	Function LoadString:Mesh(buffer:String, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
 		'Parse XML mesh
-		Local xmlString$ = LoadString(filename)
-		If xmlString = "" Then Return Null
+		If buffer = "" Then Return Null
 		Local err:XMLError = New XMLError
-		Local doc:XMLDoc = ParseXML(xmlString, err)
+		Local doc:XMLDoc = ParseXML(buffer, err)
 		If (doc = Null And err.error) Or doc.name <> "mesh" Then Return Null
 
 		'Get arrays
