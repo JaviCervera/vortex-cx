@@ -39,7 +39,7 @@ Public
 		Print "Shader compilation: " + Vortex.GetShaderError()
 		
 		'Load font
-		mFont = Cache.GetFont("system_16.fnt.xml")
+		mFont = Font.Load("system_16.fnt.xml")
 		
 		'Create projection and view matrices
 		mProj = Mat4.Create()
@@ -48,8 +48,11 @@ Public
 		'Create RenderList
 		mRenderList = RenderList.Create()
 		
+		'Load texture
+		Local smileTex:Texture = Texture.Load("smile.png")
+		
 		'Create billboard surface
-		mBillboard = Surface.Create(Material.Create(Cache.GetTexture("smile.png")))
+		mBillboard = Surface.Create(Material.Create(smileTex))
 
 		'Add vertices and indices
 		Local x0# = -0.5
@@ -72,7 +75,7 @@ Public
 		For Local i:Int = 0 Until mModels.Length()
 			mModels[i] = Mat4.Create()
 			mPositions[i] = [x, z]
-			mMaterials[i] = Material.Create(Cache.GetTexture("smile.png"))
+			mMaterials[i] = Material.Create(smileTex)
 			mMaterials[i].SetDiffuseColor(Rnd(0, 1), Rnd(0, 1), Rnd(0, 1))
 			mRenderList.AddSurface(mBillboard, mModels[i], mMaterials[i])
 			

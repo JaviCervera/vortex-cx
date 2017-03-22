@@ -1,3 +1,4 @@
+#Rem
 Strict
 
 Private
@@ -102,3 +103,4 @@ Private
 	Field mMeshes	: StringMap<Mesh>
 	Field mTextures	: StringMap<Texture>
 End
+#End

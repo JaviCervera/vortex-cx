@@ -39,7 +39,7 @@ Public
 		Print "Shader compilation: " + Vortex.GetShaderError()
 		
 		'Load font
-		mFont = Cache.GetFont("system_16.fnt.xml")
+		mFont = Font.Load("system_16.fnt.xml")
 		
 		'Create matrices
 		mProj = Mat4.Create()
@@ -53,13 +53,13 @@ Public
 		mRenderList = RenderList.Create()
 		
 		'Load cubic texture
-		mTexture = Cache.GetTexture("left.jpg", "right.jpg", "front.jpg", "back.jpg", "top.jpg", "bottom.jpg")
+		mTexture = Texture.Load("left.jpg", "right.jpg", "front.jpg", "back.jpg", "top.jpg", "bottom.jpg")
 		
 		'Load normal texture
-		mNormalTex = Cache.GetTexture("t3_NORMALS.png")
+		mNormalTex = Texture.Load("t3_NORMALS.png")
 		
 		'Load box mesh
-		mMesh = Cache.GetMesh("cube.msh.xml")
+		mMesh = Mesh.Load("cube.msh.xml")
 		Local mat:Material = mMesh.GetSurface(0).Material
 		'mat.DiffuseTexture = Null
 		mat.NormalTexture = mNormalTex

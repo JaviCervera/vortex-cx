@@ -8,11 +8,7 @@ Strict
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 '#GLFW_GCC_MSIZE_LINUX="32"
 #If HOST="winnt"
-#BINARY_FILES="*.bin|*.dat|*.dll"
-#Elseif HOST="macos"
-#BINARY_FILES="*.bin|*.dat|*.dylib"
-#Elseif HOST="linux"
-#BINARY_FILES="*.bin|*.dat|*.so"
+#BINARY_FILES="*.bin|*.dat|*.exe"
 #End
 
 Import brl.filepath
@@ -36,7 +32,7 @@ Public
 		mLastMillisecs = Millisecs()
 		
 		'Init LoadMesh dll
-		If Not InitMeshLoader("loadmesh") Then Error "Could not load mesh loader library"
+		'If Not InitMeshLoader("loadmesh") Then Error "Could not load mesh loader library"
 	
 		'Init vortex
 		If Not Vortex.Init()
@@ -54,10 +50,10 @@ Public
 		Print "Shader compilation: " + Vortex.GetShaderError()
 		
 		'Load resources
-		mFont = Cache.GetFont("system_16.fnt.xml")
-		mCubeTex = Cache.GetTexture("cube.png", Renderer.FILTER_NONE)
-		mOpenTex = Cache.GetTexture("folder.png", Renderer.FILTER_NONE)
-		mSaveTex = Cache.GetTexture("disk.png", Renderer.FILTER_NONE)
+		mFont = Font.Load("system_16.fnt.xml")
+		mCubeTex = Texture.Load("cube.png", Renderer.FILTER_NONE)
+		mOpenTex = Texture.Load("folder.png", Renderer.FILTER_NONE)
+		mSaveTex = Texture.Load("disk.png", Renderer.FILTER_NONE)
 		
 		'Define gui elements rectangles
 		mPanelRect = New Rect(8, 8, 64, 24)

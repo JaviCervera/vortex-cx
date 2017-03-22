@@ -56,7 +56,7 @@ Public
 		Next
 		
 		'Load font
-		mFont = Cache.GetFont("system_16.fnt.xml")
+		mFont = Font.Load("system_16.fnt.xml")
 		
 		Return False
 	End

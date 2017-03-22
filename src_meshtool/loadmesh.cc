@@ -3,9 +3,7 @@
 
 #define _IRR_STATIC_LIB_
 #include "irrlicht/irrlicht.h"
-//#include <iostream>
-#include <string>
-#include <vector>
+#include "mesh.h"
 
 // Export mode and call convention
 #if defined(_WIN32)
@@ -22,82 +20,6 @@ using namespace irr;
 int FindParentIndex(scene::ISkinnedMesh* mesh, const scene::ISkinnedMesh::SJoint* joint);
 std::vector<int> BoneIndicesForSurface(scene::ISkinnedMesh* mesh, u32 surface);
 std::vector<float> BoneWeightsForSurface(scene::ISkinnedMesh* mesh, u32 surface);
-
-struct vec3_t {
-  float x;
-  float y;
-  float z;
-  vec3_t(float x, float y, float z) : x(x), y(y), z(z) {}
-};
-
-struct quat_t {
-  float w;
-  float x;
-  float y;
-  float z;
-  quat_t(float w, float x, float y, float z) : w(w), x(x), y(y), z(z) {}
-};
-
-struct material_t {
-  int blend;
-  std::string base_tex;
-  float red;
-  float green;
-  float blue;
-  float opacity;
-  float shininess;
-  int culling;
-  int depth_write;
-  material_t() {}
-  material_t(int blend, const std::string& base_tex, float r, float g, float b, float a, float shininess, int culling, int depth_write)
-    : blend(blend), base_tex(base_tex), red(r), green(g), blue(b), opacity(a), shininess(shininess), culling(culling), depth_write(depth_write) {}
-  bool operator==(const material_t& other) {
-    return  blend == other.blend &&
-            base_tex == other.base_tex &&
-            red == other.red &&
-            green == other.green &&
-            blue == other.blue &&
-            opacity == other.opacity &&
-            shininess == other.shininess &&
-            culling == other.culling &&
-            depth_write == other.depth_write;
-  }
-};
-
-struct vertex_t {
-  float x, y, z;
-  float nx, ny, nz;
-  float tx, ty, tz;
-  float u0, v0;
-  int bones[4];
-  float weights[4];
-  vertex_t(float x, float y, float z, float nx, float ny, float nz, float u0, float v0)
-    : x(x), y(y), z(z), nx(nx), ny(ny), nz(nz), tx(0), ty(0), tz(0), u0(u0), v0(v0) {
-      bones[0] = bones[1] = bones[2] = bones[3] = -1;
-      weights[0] = weights[1] = weights[2] = weights[3] = 0;
-    }
-};
-
-struct surface_t {
-  material_t                  material;
-  std::vector<unsigned short> indices;
-  std::vector<vertex_t>       vertices;
-};
-
-struct bone_t {
-  std::string                           name;
-  int                                   parent_index;
-  float                                 inv_pose[16];
-  std::vector<std::pair<int, vec3_t> >  positions;
-  std::vector<std::pair<int, quat_t> >  rotations;
-  std::vector<std::pair<int, vec3_t> >  scales;
-};
-
-struct mesh_t {
-  std::vector<surface_t>  surfaces;
-  std::vector<bone_t>     bones;
-  int                     num_frames;
-};
 
 extern "C" {
 
@@ -192,7 +114,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
         for ( size_t i = 0; i < joint->AttachedMeshes.size(); ++i ) {
           int surf_index = joint->AttachedMeshes[i];
           scene::IMeshBuffer* mesh_buffer = irr_mesh->getMeshBuffer(surf_index);
-          
+
           // update vertices
           for ( size_t v = 0; v < mesh->surfaces[surf_index].vertices.size(); ++v ) {
             // move vertex from bone to model space
@@ -201,7 +123,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
             mesh->surfaces[surf_index].vertices[v].x = model_pos.X;
             mesh->surfaces[surf_index].vertices[v].y = model_pos.Y;
             mesh->surfaces[surf_index].vertices[v].z = model_pos.Z;
-            
+
             // set vertex bone and weight
             mesh->surfaces[surf_index].vertices[v].bones[0] = b;
             mesh->surfaces[surf_index].vertices[v].weights[0] = 1;
@@ -251,7 +173,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
     // num frames
     mesh->num_frames = anim_mesh->getFrameCount();
   }
-  
+
   // optimize mesh
   size_t s = 1;
   while ( s < mesh->surfaces.size() ) {
@@ -263,21 +185,21 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
         break;
       }
     }
-    
+
     // if it has been found, merge both surfaces
     if ( same_mat_surf_index > -1 ) {
       size_t new_first = mesh->surfaces[same_mat_surf_index].vertices.size();
-      
+
       // add vertices
       for ( size_t i = 0; i < mesh->surfaces[s].vertices.size(); ++i ) {
         mesh->surfaces[same_mat_surf_index].vertices.push_back(mesh->surfaces[s].vertices[i]);
       }
-      
+
       // add indices
       for ( size_t i = 0; i < mesh->surfaces[s].indices.size(); ++i ) {
         mesh->surfaces[same_mat_surf_index].indices.push_back(new_first + mesh->surfaces[s].indices[i]);
       }
-      
+
       // remove second surface
       mesh->surfaces.erase(mesh->surfaces.begin() + s);
     // otherwise, go to next surface

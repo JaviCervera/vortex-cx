@@ -39,7 +39,7 @@ Public
 		Print "Shader compilation: " + Vortex.GetShaderError()
 		
 		'Load font
-		mFont = Cache.GetFont("system_16.fnt.xml")
+		mFont = Font.Load("system_16.fnt.xml")
 		
 		'Create matrices
 		mProj = Mat4.Create()
@@ -50,7 +50,7 @@ Public
 		mRenderList = RenderList.Create()
 		
 		'Load level
-		mLevel = Cache.GetMesh("simple-dm5.msh.xml")
+		mLevel = Mesh.Load("simple-dm5.msh.xml")
 		mRenderList.AddMesh(mLevel, mModel)
 		
 		Return False

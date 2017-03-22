@@ -39,7 +39,7 @@ Public
 		Print "Shader compilation: " + Vortex.GetShaderError()
 		
 		'Load font
-		mFont = Cache.GetFont("system_16.fnt.xml")
+		mFont = Font.Load("system_16.fnt.xml")
 		
 		'Create matrices
 		mProj = Mat4.Create()
@@ -51,7 +51,7 @@ Public
 		mRenderList = RenderList.Create()
 		
 		'Load SWAT model, create matrices for animation data, and add mesh to RenderList
-		mSwatMesh = Cache.GetMesh("swat.msh.xml")
+		mSwatMesh = Mesh.Load ("swat.msh.xml")
 		mSwatAnimMatrices = New Mat4[mSwatMesh.NumBones]
 		For Local i:Int = 0 Until mSwatAnimMatrices.Length()
 			mSwatAnimMatrices[i] = Mat4.Create()
@@ -60,7 +60,7 @@ Public
 		mRenderList.AddMesh(mSwatMesh, mSwatModel, mSwatAnimMatrices)
 		
 		'Load dwarf model, create matrices for animation data, and add mesh to RenderList
-		mDwarfMesh = Cache.GetMesh("dwarf.msh.xml")
+		mDwarfMesh = Mesh.Load("dwarf.msh.xml")
 		mDwarfAnimMatrices = New Mat4[mDwarfMesh.NumBones]
 		For Local i:Int = 0 Until mDwarfAnimMatrices.Length()
 			mDwarfAnimMatrices[i] = Mat4.Create()

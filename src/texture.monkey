@@ -7,7 +7,7 @@ Import vortex.src.renderer
 Public
 Class Texture Final
 Public
-	Function Create:Texture(buffer:DataBuffer, width:Int, height:Int, filter:Int)
+	Function Create:Texture(buffer:DataBuffer, width:Int, height:Int, filter:Int = Renderer.FILTER_NONE)
 		Local tex:Texture = New Texture
 		tex.mHandle = Renderer.GenTexture(buffer, width, height, filter)
 		tex.mWidth = width
@@ -16,7 +16,7 @@ Public
 		Return tex
 	End
 	
-	Function Create:Texture(filename:String, filter:Int)
+	Function Load:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
 		Local handle:Int = Renderer.LoadTexture(filename, mSizeArr, filter)
 		If mSizeArr[0] > 0
 			Local tex:Texture = New Texture
@@ -31,7 +31,7 @@ Public
 		End
 	End
 	
-	Function Create:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int)
+	Function Load:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
 		Local handle:Int = Renderer.LoadCubicTexture(left, right, front, back, top, bottom, mSizeArr, filter)
 		If mSizeArr[0] > 0
 			Local tex:Texture = New Texture

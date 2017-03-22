@@ -1,7 +1,6 @@
 Strict
 
 Import vortex.src.bone
-Import vortex.src.cache
 Import vortex.src.font
 Import vortex.src.lighting
 Import vortex.src.material
@@ -16,7 +15,7 @@ Class Vortex Final
 Public
 	Function Init:Bool(numLights:Int = 8, numBones:Int = 75)
 		If Renderer.Init(numLights, numBones)
-			Cache.Push()
+			'Cache.Push()
 			Return True
 		Else
 			Return False

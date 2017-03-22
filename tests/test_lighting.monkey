@@ -39,7 +39,7 @@ Public
 		Print "Shader compilation: " + Vortex.GetShaderError()
 		
 		'Load font
-		mFont = Cache.GetFont("system_16.fnt.xml")
+		mFont = Font.Load("system_16.fnt.xml")
 		
 		'Create projection and view matrices
 		mProj = Mat4.Create()
@@ -49,7 +49,7 @@ Public
 		mRenderList = RenderList.Create()
 		
 		'Load sphere mesh
-		mMesh = Cache.GetMesh("sphere.msh.xml")
+		mMesh = Mesh.Load("sphere.msh.xml")
 		
 		'Create sphere model matrices and add to RenderList
 		mModels = New Mat4[81]

@@ -50,10 +50,10 @@ Public
 		Print "Shader compilation: " + Vortex.GetShaderError()
 		
 		'Load font
-		mFont = Cache.GetFont("system_16.fnt.xml")
+		mFont = Font.Load("system_16.fnt.xml")
 		
 		'Load image
-		mImage = Cache.GetTexture("smile.png")
+		mImage = Texture.Load("smile.png")
 		
 		Return False
 	End
