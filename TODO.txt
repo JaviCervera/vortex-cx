@@ -1,4 +1,4 @@
-Things to do before releasing Vortex2 officially:
+V2.0:
 
 + Rename RenderBarch to RenderList
 + Optimize drawing of primitives
@@ -8,8 +8,10 @@ Things to do before releasing Vortex2 officially:
 + Embed shaders
 * Write new meshtool and fonttool
 - Add second UV set and lightmaps
+- Add tangents export in meshtool
 - Add material editor in meshtool
-- Add vertex animation
 - Add shadows
-- Integrate with Mojo and Mojo2
 - Update docs (talk about RenderList and update classes and methods)
+
+V2.1:
+- Integrate with Mojo and Mojo2
