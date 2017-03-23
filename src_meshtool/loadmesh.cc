@@ -1,5 +1,5 @@
 // TODO:
-// - Export vertex colors
+// - export vertex colors
 
 #define _IRR_STATIC_LIB_
 #include "irrlicht/irrlicht.h"
@@ -7,7 +7,7 @@
 
 using namespace irr;
 
-// Forward declaration of functions
+// forward declaration of functions
 int FindParentIndex(scene::ISkinnedMesh* mesh, const scene::ISkinnedMesh::SJoint* joint);
 std::vector<int> BoneIndicesForSurface(scene::ISkinnedMesh* mesh, u32 surface);
 std::vector<float> BoneWeightsForSurface(scene::ISkinnedMesh* mesh, u32 surface);

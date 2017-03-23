@@ -20,5 +20,7 @@ Function LoadMesh:Mesh(filename:String)
 	If FileType(path) <> FILETYPE_FILE Then path = CurrentDir() + "/meshtool.data/meshtool" + ext
 	Local command:String = path + " ~q" + filename + "~q"
 	Local output:String = Process.Execute(command).Trim()
+	Local findIndex:Int = output.Find("<mesh>")
+	If findIndex > -1 Then output = output[findIndex ..]
 	Return Mesh.LoadString(output, "")
 End
