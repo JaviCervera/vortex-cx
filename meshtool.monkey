@@ -64,6 +64,13 @@ Public
 		mOpenRect = New Rect(8 + 24, 8 + 4, 16, 16)
 		mSaveRect = New Rect(8 + 44, 8 + 4, 16, 16)
 		mAnimationsRect = New Rect(76, 8, 150, 24)
+		mPitchRect = New Rect(230, 8, 96, 24)
+		mYawRect = New Rect(330, 8, 96, 24)
+		mRollRect = New Rect(430, 8, 96, 24)
+		mMaterialRect = New Rect(8, 0, 0, 164)
+		mSelMatRect = New Rect(4, 4, 128, 24)
+		mDiffuseColorRect = New Rect(136, 4, 128, 24)
+		mDiffuseTexRect = New Rect(4, 32, 128, 128)
 		
 		'Create matrices and quaternions
 		mProj = Mat4.Create()
@@ -84,6 +91,10 @@ Public
 		mLastMouseX = MouseX()
 		mLastMouseY = MouseY()
 		mFreeLook = False
+		mAnimFrame = 0
+		mPitchFix = 0
+		mYawFix = 0
+		mRollFix = 0
 		
 		Return False
 	End
@@ -92,6 +103,10 @@ Public
 		'Update delta time
 		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
 		mLastMillisecs = Millisecs()
+		
+		'Update material rect
+		mMaterialRect.y = DeviceHeight() - 172
+		mMaterialRect.width = DeviceWidth() - 16
 		
 		'Update GUI controls
 		If MouseHit(MOUSE_LEFT)
@@ -114,7 +129,12 @@ Public
 							mAnimMatrices[m] = Mat4.Create()
 							mAnimMatrices[m].Set(mesh.GetBone(m).InversePoseMatrix)
 						Next
+						mExportAnimations = True
+						mPitchFix = 0
+						mYawFix = 0
+						mRollFix = 0
 						mAnimFrame = 0
+						mSelMat = 0
 						mRenderList.AddMesh(mesh, mModel, mAnimMatrices)
 					End
 				End
@@ -134,9 +154,22 @@ Public
 					End
 					If filename <> "" Then SaveMesh(mMesh, filename, mExportAnimations)
 				End
-			'Check export animations
-			Elseif mAnimationsRect.IsPointInside(MouseX(), MouseY())
+			'Export animations
+			Elseif mAnimationsRect.IsPointInside(MouseX(), MouseY()) And mMesh
 				mExportAnimations = Not mExportAnimations
+			'Pitch
+			Elseif mPitchRect.IsPointInside(MouseX(), MouseY()) And mMesh
+				mPitchFix = (mPitchFix + 90) Mod 360
+			'Yaw
+			Elseif mYawRect.IsPointInside(MouseX(), MouseY()) And mMesh
+				mYawFix = (mYawFix + 90) Mod 360
+			'Roll
+			Elseif mRollRect.IsPointInside(MouseX(), MouseY()) And mMesh
+				mRollFix = (mRollFix + 90) Mod 360
+			'Material
+			Elseif mSelMatRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				mSelMat += 1
+				If mSelMat = mMesh.NumSurfaces Then mSelMat = 0
 			End
 		End
 		
@@ -224,12 +257,24 @@ Public
 		mCubeTex.Draw(mCubeRect.x, mCubeRect.y)
 		mOpenTex.Draw(mOpenRect.x, mOpenRect.y)
 		mSaveTex.Draw(mSaveRect.x, mSaveRect.y)
-		DrawCheckbox(mAnimationsRect, "Export Animations", mFont, mExportAnimations)
 		If mMesh
+			DrawCheckbox(mAnimationsRect, "Export Animations", mFont, mExportAnimations)
+			DrawPanel(mPitchRect, "Pitch: " + mPitchFix, mFont)
+			DrawPanel(mYawRect, "Yaw: " + mYawFix, mFont)
+			DrawPanel(mRollRect, "Roll: " + mRollFix, mFont)
 			Renderer.SetColor(1, 1, 1)
 			mFont.Draw(8, 34, "Num Surfaces: " + mMesh.NumSurfaces)
 			mFont.Draw(8, 50, "Num Frames: " + mMesh.LastFrame)
 			mFont.Draw(8, 66, "Num Bones: " + mMesh.NumBones)
+			DrawPanel(mMaterialRect)
+			DrawPanel(mMaterialRect.x + mSelMatRect.x, mMaterialRect.y + mSelMatRect.y, mSelMatRect.width, mSelMatRect.height, "Material #" + mSelMat, mFont)
+			DrawPanel(mMaterialRect.x + mDiffuseColorRect.x, mMaterialRect.y + mDiffuseColorRect.y, mDiffuseColorRect.width, mDiffuseColorRect.height, "Diffuse Color", mFont, mMesh.GetSurface(mSelMat).Material.DiffuseRed, mMesh.GetSurface(mSelMat).Material.DiffuseGreen, mMesh.GetSurface(mSelMat).Material.DiffuseBlue)
+			If mMesh.GetSurface(mSelMat).Material.DiffuseTexture
+				Renderer.SetColor(1, 1, 1)
+				mMesh.GetSurface(mSelMat).Material.DiffuseTexture.Draw(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
+			Else
+				DrawPanel(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
+			End
 		End
 	
 		Return False
@@ -262,6 +307,13 @@ Private
 	Field mOpenRect			: Rect
 	Field mSaveRect			: Rect
 	Field mAnimationsRect	: Rect
+	Field mPitchRect		: Rect
+	Field mYawRect			: Rect
+	Field mRollRect			: Rect
+	Field mMaterialRect		: Rect
+	Field mSelMatRect		: Rect
+	Field mDiffuseColorRect	: Rect
+	Field mDiffuseTexRect	: Rect
 	
 	'Misc
 	Field mFilename			: String
@@ -272,6 +324,10 @@ Private
 	Field mLastMouseY		: Float
 	Field mFreeLook			: Bool
 	Field mAnimFrame		: Float
+	Field mPitchFix			: Int
+	Field mYawFix			: Int
+	Field mRollFix			: Int
+	Field mSelMat			: Int
 End
 
 Function Main:Int()

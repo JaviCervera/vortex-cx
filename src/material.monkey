@@ -39,6 +39,7 @@ Public
 		mDiffuseBlue = other.mDiffuseBlue
 		mDiffuseTex = other.mDiffuseTex
 		mNormalTex = other.mNormalTex
+		mLightmap = other.mLightmap
 		mReflectTex = other.mReflectTex
 		mRefractTex = other.mRefractTex
 		mOpacity = other.mOpacity
@@ -93,6 +94,14 @@ Public
 	
 	Method NormalTexture:Texture() Property
 		Return mNormalTex
+	End
+	
+	Method Lightmap:Void(tex:Texture) Property
+		mLightmap = tex
+	End
+	
+	Method Lightmap:Texture() Property
+		Return mLightmap
 	End
 	
 	Method ReflectionTexture:Void(tex:Texture) Property
@@ -188,6 +197,7 @@ Private
 	Field mDiffuseBlue	: Float
 	Field mDiffuseTex	: Texture
 	Field mNormalTex	: Texture
+	Field mLightmap		: Texture
 	Field mReflectTex	: Texture
 	Field mRefractTex	: Texture
 	Field mOpacity		: Float

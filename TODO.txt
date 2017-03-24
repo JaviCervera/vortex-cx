@@ -7,9 +7,10 @@ V2.0:
 + Rename <brushes> and <brush> in XML meshes, and its properties
 + Embed shaders
 * Write new meshtool and fonttool
+* Add material editor in meshtool
+- Replace XML meshes and fonts with binary ones
 - Add second UV set and lightmaps
 - Add tangents export in meshtool
-- Add material editor in meshtool
 - Add shadows
 - Update docs (talk about RenderList and update classes and methods)
 
