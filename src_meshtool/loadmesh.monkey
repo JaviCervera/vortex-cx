@@ -17,8 +17,13 @@ Function LoadMesh:Mesh(filename:String)
 	Local ext:String = ".bin"
 #End
 	Local path:String = CurrentDir() + "/data/meshtool" + ext
-	If FileType(path) <> FILETYPE_FILE Then path = CurrentDir() + "/meshtool.data/meshtool" + ext
-	Local command:String = path + " ~q" + filename + "~q"
+	If FileType(path) <> FILETYPE_FILE
+		path = CurrentDir() + "/meshtool.data/meshtool" + ext
+	Else
+		'Make sure that file is given execution permissions on Linux
+		Process.Execute("chmod +x ~q" + path + "~q")
+	End
+	Local command:String = "~q" + path + "~q ~q" + filename + "~q"
 	Local output:String = Process.Execute(command).Trim()
 	Local findIndex:Int = output.Find("<mesh>")
 	If findIndex > -1 Then output = output[findIndex ..]

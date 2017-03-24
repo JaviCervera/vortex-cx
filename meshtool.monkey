@@ -15,6 +15,9 @@ Import brl.filepath
 #If TARGET="glfw" And HOST<>"linux"
 Import brl.requesters
 #Endif
+#If TARGET="glfw" And HOST="linux"
+Import src_meshtool.fltkrequestfile
+#End
 Import mojo.app
 Import mojo.input
 Import src_meshtool.gui
@@ -94,7 +97,11 @@ Public
 		If MouseHit(MOUSE_LEFT)
 			'Load mesh
 			If mOpenRect.IsPointInside(MouseX(), MouseY())
-				Local filename:String = RequestFile("Open mesh")', "Mesh Files:msh.xml;All Files:*", False)
+#If HOST="linux"
+				Local filename:String = FltkRequestFile("Load mesh")
+#Else
+				Local filename:String = RequestFile("Load mesh")', "Mesh Files:msh.xml;All Files:*", False)
+#End
 				If filename <> ""
 					filename = filename.Replace("\", "/")
 					Local mesh:Mesh = LoadMesh(filename)
@@ -116,7 +123,11 @@ Public
 				If mMesh
 					Local filename:String = mFilename
 					If filename = ""
+#If HOST="linux"
+						filename = FltkRequestFile("Save mesh", "Mesh Files (*.msh.xml)~tAll Files (*)", True)
+#Else
 						filename = RequestFile("Save mesh", "Mesh Files:msh.xml;All Files:*", True)
+#End
 						If filename <> "" Then mFilename = filename
 					Else
 						filename = StripExt(filename) + ".msh.xml"
