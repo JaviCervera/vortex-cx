@@ -8,7 +8,8 @@ V2.0:
 + Embed shaders
 * Write new meshtool and fonttool
 * Add material editor in meshtool
-- Replace XML meshes and fonts with binary ones
+- Make shininess go in range 0..1
+- Replace XML meshes and fonts with binary ones (use separate mesh, skeleton and animation files)
 - Add second UV set and lightmaps
 - Add tangents export in meshtool
 - Add shadows

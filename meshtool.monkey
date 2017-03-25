@@ -29,8 +29,8 @@ Class TestApp Extends App Final
 Public
 	Method OnCreate:Int()
 		'Setup update rate and swap to maximum FPS, and init random seed
-		SetUpdateRate(0)
-		SetSwapInterval(0)
+		SetUpdateRate(30)
+		SetSwapInterval(1)
 		Seed = Millisecs()
 		mLastMillisecs = Millisecs()
 		
@@ -67,10 +67,20 @@ Public
 		mPitchRect = New Rect(230, 8, 96, 24)
 		mYawRect = New Rect(330, 8, 96, 24)
 		mRollRect = New Rect(430, 8, 96, 24)
-		mMaterialRect = New Rect(8, 0, 0, 164)
-		mSelMatRect = New Rect(4, 4, 128, 24)
-		mDiffuseColorRect = New Rect(136, 4, 128, 24)
-		mDiffuseTexRect = New Rect(4, 32, 128, 128)
+		mMaterialRect = New Rect(0, 8, 108, 748)
+		mSelMatRect = New Rect(4, 4, 100, 24)
+		mDiffuseColorRect = New Rect(4, 32, 100, 24)
+		mDiffuseTexRect = New Rect(4, 60, 100, 100)
+		mNormalTexRect = New Rect(4, 164, 100, 100)
+		mLightmapRect = New Rect(4, 268, 100, 100)
+		mReflectionTexRect = New Rect(4, 372, 100, 100)
+		mRefractionTexRect = New Rect (4, 476, 100, 100)
+		mRefractionCoefRect = New Rect(4, 580, 100, 24)
+		mOpacityRect = New Rect(4, 608, 100, 24)
+		mShininessRect = New Rect(4, 636, 100, 24)
+		mBlendModeRect = New Rect(4, 664, 100, 24)
+		mCullingRect = New Rect(4, 692, 100, 24)
+		mDepthWriteRect = New Rect(4, 720, 100, 24)
 		
 		'Create matrices and quaternions
 		mProj = Mat4.Create()
@@ -105,18 +115,13 @@ Public
 		mLastMillisecs = Millisecs()
 		
 		'Update material rect
-		mMaterialRect.y = DeviceHeight() - 172
-		mMaterialRect.width = DeviceWidth() - 16
+		mMaterialRect.x = DeviceWidth() - 112
 		
 		'Update GUI controls
 		If MouseHit(MOUSE_LEFT)
 			'Load mesh
 			If mOpenRect.IsPointInside(MouseX(), MouseY())
-#If HOST="linux"
-				Local filename:String = FltkRequestFile("Load mesh")
-#Else
 				Local filename:String = RequestFile("Load mesh")', "Mesh Files:msh.xml;All Files:*", False)
-#End
 				If filename <> ""
 					filename = filename.Replace("\", "/")
 					Local mesh:Mesh = LoadMesh(filename)
@@ -144,7 +149,7 @@ Public
 					Local filename:String = mFilename
 					If filename = ""
 #If HOST="linux"
-						filename = FltkRequestFile("Save mesh", "Mesh Files (*.msh.xml)~tAll Files (*)", True)
+						filename = RequestFile("Save mesh", "Mesh Files (*.msh.xml)~tAll Files (*)", True)
 #Else
 						filename = RequestFile("Save mesh", "Mesh Files:msh.xml;All Files:*", True)
 #End
@@ -160,16 +165,82 @@ Public
 			'Pitch
 			Elseif mPitchRect.IsPointInside(MouseX(), MouseY()) And mMesh
 				mPitchFix = (mPitchFix + 90) Mod 360
+				RotateMesh(mMesh, 90, 0, 0)
 			'Yaw
 			Elseif mYawRect.IsPointInside(MouseX(), MouseY()) And mMesh
 				mYawFix = (mYawFix + 90) Mod 360
+				RotateMesh(mMesh, 0, 90, 0)
 			'Roll
 			Elseif mRollRect.IsPointInside(MouseX(), MouseY()) And mMesh
 				mRollFix = (mRollFix + 90) Mod 360
+				RotateMesh(mMesh, 0, 0, 90)
 			'Material
 			Elseif mSelMatRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
 				mSelMat += 1
 				If mSelMat = mMesh.NumSurfaces Then mSelMat = 0
+			'Diffuse texture
+			Elseif mDiffuseTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				Local filename:String = RequestFile("Select diffuse texture")
+				If filename <> ""
+					Local tex:Texture = Texture.Load(filename)
+					If tex Then mMesh.GetSurface(mSelMat).Material.DiffuseTexture = tex
+				End
+			'Normal texture
+			Elseif mNormalTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				Local filename:String = RequestFile("Select normal texture")
+				If filename <> ""
+					Local tex:Texture = Texture.Load(filename)
+					If tex Then mMesh.GetSurface(mSelMat).Material.NormalTexture = tex
+				End
+			'Lightmap
+			Elseif mLightmapRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				Local filename:String = RequestFile("Select lightmap")
+				If filename <> ""
+					Local tex:Texture = Texture.Load(filename)
+					If tex Then mMesh.GetSurface(mSelMat).Material.Lightmap = tex
+				End
+			#Rem
+			'Reflection texture
+			Elseif mReflectionTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				Local filename:String = RequestFile("Select reflection texture")
+				If filename <> ""
+					Local tex:Texture = Texture.Load(filename)
+					If tex Then mMesh.GetSurface(mSelMat).Material.ReflectionTexture = tex
+				End
+			'Refraction texture
+			Elseif mRefractionTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				Local filename:String = RequestFile("Select refraction texture")
+				If filename <> ""
+					Local tex:Texture = Texture.Load(filename)
+					If tex Then mMesh.GetSurface(mSelMat).Material.RefractionTexture = tex
+				End
+			#End
+			'Refraction coef
+			Else If mRefractionCoefRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				Local iCoef:Int = Int(mMesh.GetSurface(mSelMat).Material.RefractionCoef * 100)
+				iCoef += 5
+				If iCoef > 100 Then iCoef = 0
+				mMesh.GetSurface(mSelMat).Material.RefractionCoef = iCoef / 100.0
+			'Opacity
+			Else If mOpacityRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				Local iOp:Int = Int(mMesh.GetSurface(mSelMat).Material.Opacity * 100)
+				iOp += 5
+				If iOp > 100 Then iOp = 0
+				mMesh.GetSurface(mSelMat).Material.Opacity = iOp / 100.0
+			'Shininess
+			Else If mShininessRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				mMesh.GetSurface(mSelMat).Material.Shininess += 5
+				If mMesh.GetSurface(mSelMat).Material.Shininess > 100 Then mMesh.GetSurface(mSelMat).Material.Shininess = 0
+			'Blend
+			Else If mBlendModeRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				mMesh.GetSurface(mSelMat).Material.BlendMode += 1
+				If mMesh.GetSurface(mSelMat).Material.BlendMode > Renderer.BLEND_MUL Then mMesh.GetSurface(mSelMat).Material.BlendMode = 0
+			'Culling
+			Else If mCullingRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				mMesh.GetSurface(mSelMat).Material.Culling = Not mMesh.GetSurface(mSelMat).Material.Culling
+			'Depth write
+			Else If mDepthWriteRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				mMesh.GetSurface(mSelMat).Material.DepthWrite = Not mMesh.GetSurface(mSelMat).Material.DepthWrite
 			End
 		End
 		
@@ -269,12 +340,62 @@ Public
 			DrawPanel(mMaterialRect)
 			DrawPanel(mMaterialRect.x + mSelMatRect.x, mMaterialRect.y + mSelMatRect.y, mSelMatRect.width, mSelMatRect.height, "Material #" + mSelMat, mFont)
 			DrawPanel(mMaterialRect.x + mDiffuseColorRect.x, mMaterialRect.y + mDiffuseColorRect.y, mDiffuseColorRect.width, mDiffuseColorRect.height, "Diffuse Color", mFont, mMesh.GetSurface(mSelMat).Material.DiffuseRed, mMesh.GetSurface(mSelMat).Material.DiffuseGreen, mMesh.GetSurface(mSelMat).Material.DiffuseBlue)
+			
+			'Diffuse
 			If mMesh.GetSurface(mSelMat).Material.DiffuseTexture
 				Renderer.SetColor(1, 1, 1)
 				mMesh.GetSurface(mSelMat).Material.DiffuseTexture.Draw(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
 			End
+			
+			'Normal
+			If mMesh.GetSurface(mSelMat).Material.NormalTexture
+				Renderer.SetColor(1, 1, 1)
+				mMesh.GetSurface(mSelMat).Material.NormalTexture.Draw(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
+			Else
+				DrawPanel(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
+			End
+			
+			'Lightmap
+			If mMesh.GetSurface(mSelMat).Material.Lightmap
+				Renderer.SetColor(1, 1, 1)
+				mMesh.GetSurface(mSelMat).Material.Lightmap.Draw(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
+			Else
+				DrawPanel(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
+			End
+			
+			'Reflection
+			If mMesh.GetSurface(mSelMat).Material.ReflectionTexture
+				Renderer.SetColor(1, 1, 1)
+				mMesh.GetSurface(mSelMat).Material.ReflectionTexture.Draw(mMaterialRect.x + mReflectionTexRect.x, mMaterialRect.y + mReflectionTexRect.y, mReflectionTexRect.width, mReflectionTexRect.height)
+			Else
+				DrawPanel(mMaterialRect.x + mReflectionTexRect.x, mMaterialRect.y + mReflectionTexRect.y, mReflectionTexRect.width, mReflectionTexRect.height)
+			End
+			
+			'Refraction
+			If mMesh.GetSurface(mSelMat).Material.RefractionTexture
+				Renderer.SetColor(1, 1, 1)
+				mMesh.GetSurface(mSelMat).Material.RefractionTexture.Draw(mMaterialRect.x + mRefractionTexRect.x, mMaterialRect.y + mRefractionTexRect.y, mRefractionTexRect.width, mRefractionTexRect.height)
+			Else
+				DrawPanel(mMaterialRect.x + mRefractionTexRect.x, mMaterialRect.y + mRefractionTexRect.y, mRefractionTexRect.width, mRefractionTexRect.height)
+			End
+	
+			DrawPanel(mMaterialRect.x + mRefractionCoefRect.x, mMaterialRect.y + mRefractionCoefRect.y, mRefractionCoefRect.width, mRefractionCoefRect.height, "Refr. Coef: " + String(mMesh.GetSurface(mSelMat).Material.RefractionCoef)[..4], mFont)
+			DrawPanel(mMaterialRect.x + mOpacityRect.x, mMaterialRect.y + mOpacityRect.y, mOpacityRect.width, mOpacityRect.height, "Opacity: " + String(mMesh.GetSurface(mSelMat).Material.Opacity)[..4], mFont)
+			DrawPanel(mMaterialRect.x + mShininessRect.x, mMaterialRect.y + mShininessRect.y, mShininessRect.width, mShininessRect.height, "Shininess: " + mMesh.GetSurface(mSelMat).Material.Shininess, mFont)
+			Local blendStr:String = ""
+			Select mMesh.GetSurface(mSelMat).Material.BlendMode
+			Case Renderer.BLEND_ALPHA
+				blendStr = "Alpha"
+			Case Renderer.BLEND_ADD
+				blendStr = "Add"
+			Case Renderer.BLEND_MUL
+				blendStr = "Mul"
+			End
+			DrawPanel(mMaterialRect.x + mBlendModeRect.x, mMaterialRect.y + mBlendModeRect.y, mBlendModeRect.width, mBlendModeRect.height, "Blend: " + blendStr, mFont)
+			DrawCheckbox(mMaterialRect.x + mCullingRect.x, mMaterialRect.y + mCullingRect.y, mCullingRect.width, mCullingRect.height, "Culling", mFont, mMesh.GetSurface(mSelMat).Material.Culling)
+			DrawCheckbox(mMaterialRect.x + mDepthWriteRect.x, mMaterialRect.y + mDepthWriteRect.y, mDepthWriteRect.width, mDepthWriteRect.height, "Depth Write", mFont, mMesh.GetSurface(mSelMat).Material.DepthWrite)
 		End
 	
 		Return False
@@ -302,18 +423,28 @@ Private
 	Field mRenderList			: RenderList
 	
 	'GUI
-	Field mPanelRect		: Rect
-	Field mCubeRect			: Rect
-	Field mOpenRect			: Rect
-	Field mSaveRect			: Rect
-	Field mAnimationsRect	: Rect
-	Field mPitchRect		: Rect
-	Field mYawRect			: Rect
-	Field mRollRect			: Rect
-	Field mMaterialRect		: Rect
-	Field mSelMatRect		: Rect
-	Field mDiffuseColorRect	: Rect
-	Field mDiffuseTexRect	: Rect
+	Field mPanelRect			: Rect
+	Field mCubeRect				: Rect
+	Field mOpenRect				: Rect
+	Field mSaveRect				: Rect
+	Field mAnimationsRect		: Rect
+	Field mPitchRect			: Rect
+	Field mYawRect				: Rect
+	Field mRollRect				: Rect
+	Field mMaterialRect			: Rect
+	Field mSelMatRect			: Rect
+	Field mDiffuseColorRect		: Rect
+	Field mDiffuseTexRect		: Rect
+	Field mNormalTexRect		: Rect
+	Field mLightmapRect			: Rect
+	Field mReflectionTexRect	: Rect
+	Field mRefractionTexRect	: Rect
+	Field mRefractionCoefRect	: Rect
+	Field mOpacityRect			: Rect
+	Field mShininessRect		: Rect
+	Field mBlendModeRect		: Rect
+	Field mCullingRect			: Rect
+	Field mDepthWriteRect		: Rect
 	
 	'Misc
 	Field mFilename			: String
@@ -328,6 +459,42 @@ Private
 	Field mYawFix			: Int
 	Field mRollFix			: Int
 	Field mSelMat			: Int
+End
+
+Function RotateMesh:Void(mesh:Mesh, pitch:Float, yaw:Float, roll:Float)
+	'Get rotation quaternion
+	Local q:Quat = Quat.Create()
+	q.SetEuler(pitch, yaw, roll)
+	q.CalcAxis()
+	
+	'Define rotation matrix
+	Local mat:Mat4 = Mat4.Create()
+	mat.Rotate(q.Angle(), q.ResultVector().X, q.ResultVector().Y, q.ResultVector().Z)
+	
+	'Rotate all surfaces
+	For Local i:Int = 0 Until mesh.NumSurfaces
+		RotateSurface(mesh.GetSurface(i), mat)
+	Next
+	
+	'Rotate all bones
+	For Local i:Int = 0 Until mesh.NumBones
+		RotateBone(mesh.GetBone(i), mat, q)
+	Next
+End
+
+Function RotateSurface:Void(surf:Surface, mat:Mat4)	
+	For Local i:Int = 0 Until surf.NumVertices
+		mat.Mul(surf.GetVertexX(i), surf.GetVertexY(i), surf.GetVertexZ(i), 1)
+		surf.SetVertexPosition(i, mat.ResultVector().X, mat.ResultVector().Y, mat.ResultVector().Z)
+		mat.Mul(surf.GetVertexNX(i), surf.GetVertexNY(i), surf.GetVertexNZ(i), 1)
+		surf.SetVertexNormal(i, mat.ResultVector().X, mat.ResultVector().Y, mat.ResultVector().Z)
+	Next
+	
+	surf.Rebuild()
+End
+
+Function RotateBone:Void(bone:Bone, mat:Mat4, q:Quat)
+	'TODO
 End
 
 Function Main:Int()

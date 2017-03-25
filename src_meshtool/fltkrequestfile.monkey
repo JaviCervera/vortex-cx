@@ -10,7 +10,7 @@ Import vortex
 
 Public
 
-Function FltkRequestFile:String(title:String, filter:String = "", save:Bool = False, file:String = "")
+Function RequestFile:String(title:String, filter:String = "", save:Bool = False, file:String = "")
 #If HOST="winnt"
 	Local ext:String = ".exe"
 #Else
