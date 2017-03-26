@@ -25,7 +25,7 @@ Public
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mDiffuseRed = other.mDiffuseRed And mDiffuseGreen = other.mDiffuseGreen And mDiffuseBlue = other.mDiffuseBlue And mDiffuseTex = other.mDiffuseTex And mNormalTex = other.mNormalTex And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mOpacity = other.mOpacity And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite
+		If mDiffuseRed = other.mDiffuseRed And mDiffuseGreen = other.mDiffuseGreen And mDiffuseBlue = other.mDiffuseBlue And mDiffuseTex = other.mDiffuseTex And mNormalTex = other.mNormalTex And mLightmap = other.mLightmap And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mOpacity = other.mOpacity And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite
 			Return True
 		Else
 			Return False
@@ -129,7 +129,7 @@ Public
 	End
 
 	Method Shininess:Void(shininess:Float) Property
-		mShininess = shininess
+		mShininess = Clamp(shininess, 0.0, 1.0)
 	End
 
 	Method Shininess:Float() Property
@@ -171,6 +171,7 @@ Public
 	Method Prepare:Void()
 		Local diffuseHandle:Int = 0
 		Local normalHandle:Int = 0
+		Local lightmapHandle:Int = 0
 		Local reflectHandle:Int = 0
 		Local refractHandle:Int = 0
 		Local shininess:Int = 0
@@ -183,9 +184,10 @@ Public
 		Renderer.SetDepthWrite(mDepthWrite)
 		If mDiffuseTex <> Null Then diffuseHandle = mDiffuseTex.Handle
 		If mNormalTex <> Null Then normalHandle = mNormalTex.Handle
+		If mLightmap <> Null Then lightmapHandle = mLightmap.Handle
 		If mReflectTex <> Null Then reflectHandle = mReflectTex.Handle
 		If mRefractTex <> Null Then refractHandle = mRefractTex.Handle
-		Renderer.SetTextures(diffuseHandle, normalHandle, reflectHandle, refractHandle, mDiffuseTex And mDiffuseTex.Cubic)
+		Renderer.SetTextures(diffuseHandle, normalHandle, lightmapHandle, reflectHandle, refractHandle, mDiffuseTex And mDiffuseTex.Cubic)
 		Renderer.SetPixelLighting(Lighting.GetGlobalPixelLighting())
 	End
 Private

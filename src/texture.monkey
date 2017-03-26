@@ -18,7 +18,7 @@ Public
 	
 	Function Load:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
 		Local handle:Int = Renderer.LoadTexture(filename, mSizeArr, filter)
-		If mSizeArr[0] > 0
+		If handle > 0
 			Local tex:Texture = New Texture
 			tex.mFilename = filename
 			tex.mHandle = handle
@@ -33,7 +33,7 @@ Public
 	
 	Function Load:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
 		Local handle:Int = Renderer.LoadCubicTexture(left, right, front, back, top, bottom, mSizeArr, filter)
-		If mSizeArr[0] > 0
+		If handle > 0
 			Local tex:Texture = New Texture
 			tex.mFilename = left + "," + right + "," + front + "," + back + "," + top + "," + bottom
 			tex.mHandle = handle
@@ -83,9 +83,9 @@ Public
 		Local v1:Float = (recty + rectheight) / Height
 
 		'Render
-		Renderer.SetTextures(mHandle, 0, 0, 0, False)
+		Renderer.SetTextures(mHandle, 0, 0, 0, 0, False)
 		Renderer.DrawRectEx(x, y, width, height, u0, v0, u1, v1)
-		Renderer.SetTextures(0, 0, 0, 0, False)
+		Renderer.SetTextures(0, 0, 0, 0, 0, False)
 	End
 Private
 	Method New()

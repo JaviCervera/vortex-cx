@@ -218,19 +218,21 @@ Public
 			'Refraction coef
 			Else If mRefractionCoefRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
 				Local iCoef:Int = Int(mMesh.GetSurface(mSelMat).Material.RefractionCoef * 100)
-				iCoef += 5
+				iCoef += 10
 				If iCoef > 100 Then iCoef = 0
 				mMesh.GetSurface(mSelMat).Material.RefractionCoef = iCoef / 100.0
 			'Opacity
 			Else If mOpacityRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
 				Local iOp:Int = Int(mMesh.GetSurface(mSelMat).Material.Opacity * 100)
-				iOp += 5
+				iOp += 10
 				If iOp > 100 Then iOp = 0
 				mMesh.GetSurface(mSelMat).Material.Opacity = iOp / 100.0
 			'Shininess
 			Else If mShininessRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
-				mMesh.GetSurface(mSelMat).Material.Shininess += 5
-				If mMesh.GetSurface(mSelMat).Material.Shininess > 100 Then mMesh.GetSurface(mSelMat).Material.Shininess = 0
+				Local iShininess:Int = Int(mMesh.GetSurface(mSelMat).Material.Shininess * 100)
+				iShininess += 10
+				If iShininess > 100 Then iShininess = 0
+				mMesh.GetSurface(mSelMat).Material.Shininess = iShininess / 100.0
 			'Blend
 			Else If mBlendModeRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
 				mMesh.GetSurface(mSelMat).Material.BlendMode += 1
@@ -315,7 +317,7 @@ Public
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetProjectionMatrix(mProj)
 		Renderer.SetViewMatrix(mView)
-		Lighting.Prepare(0.3, 0.3, 0.3)
+		Lighting.Prepare(0, 0, 0)
 		Renderer.ClearColorBuffer(0.4, 0.4, 0.4)
 		Renderer.ClearDepthBuffer()
 		mRenderList.Render()
@@ -383,7 +385,7 @@ Public
 	
 			DrawPanel(mMaterialRect.x + mRefractionCoefRect.x, mMaterialRect.y + mRefractionCoefRect.y, mRefractionCoefRect.width, mRefractionCoefRect.height, "Refr. Coef: " + String(mMesh.GetSurface(mSelMat).Material.RefractionCoef)[..4], mFont)
 			DrawPanel(mMaterialRect.x + mOpacityRect.x, mMaterialRect.y + mOpacityRect.y, mOpacityRect.width, mOpacityRect.height, "Opacity: " + String(mMesh.GetSurface(mSelMat).Material.Opacity)[..4], mFont)
-			DrawPanel(mMaterialRect.x + mShininessRect.x, mMaterialRect.y + mShininessRect.y, mShininessRect.width, mShininessRect.height, "Shininess: " + mMesh.GetSurface(mSelMat).Material.Shininess, mFont)
+			DrawPanel(mMaterialRect.x + mShininessRect.x, mMaterialRect.y + mShininessRect.y, mShininessRect.width, mShininessRect.height, "Shininess: " + String(mMesh.GetSurface(mSelMat).Material.Shininess)[..4], mFont)
 			Local blendStr:String = ""
 			Select mMesh.GetSurface(mSelMat).Material.BlendMode
 			Case Renderer.BLEND_ALPHA

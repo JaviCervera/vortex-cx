@@ -68,6 +68,7 @@ Public
 			Local cullingStr:String = materialNode.GetChild("culling").value
 			Local depthWriteStr:String = materialNode.GetChild("depth_write").value
 			Local baseTexStr:String = materialNode.GetChild("diffuse_tex").value
+			Local lightmapStr:String = materialNode.GetChild("lightmap").value
 			Local opacity:Float = 1
 			Local culling:Bool = True
 			Local depthWrite:Bool = True
@@ -81,15 +82,23 @@ Public
 				baseColor[2] = Float(baseColorStr[2])
 			End
 
-			'Load texture
+			'Load diffuse texture
 			Local diffuseTex:Texture = Null
 			If baseTexStr <> ""
 				If ExtractDir(filename) <> "" Then baseTexStr = ExtractDir(filename) + "/" + baseTexStr
 				diffuseTex = Texture.Load(baseTexStr, texFilter)
 			End
+			
+			'Load lightmap
+			Local lightmap:Texture = Null
+			If lightmapStr <> ""
+				If ExtractDir(filename) <> "" Then lightmapStr = ExtractDir(filename) + "/" + lightmapStr
+				lightmap = Texture.Load(lightmapStr, texFilter)
+			End
 
 			'Create material
 			Local material:Material = Material.Create(diffuseTex)
+			material.Lightmap = lightmap
 			If blendStr.ToLower() = "alpha" Then material.BlendMode = Renderer.BLEND_ALPHA
 			If blendStr.ToLower() = "add" Then material.BlendMode = Renderer.BLEND_ADD
 			If blendStr.ToLower() = "mul" Then material.BlendMode = Renderer.BLEND_MUL
@@ -115,6 +124,7 @@ Public
 			Local tangentsStr:String[] = surfaceNode.GetChild("tangents", "").value.Split(",")
 			Local colorsStr:String[] = surfaceNode.GetChild("colors", "").value.Split(",")
 			Local texcoordsStr:String[] = surfaceNode.GetChild("texcoords", "").value.Split(",")
+			Local texcoords2Str:String[] = surfaceNode.GetChild("texcoords2", "").value.Split(",")
 			Local boneIndicesStr:String[] = surfaceNode.GetChild("bone_indices", "").value.Split(",")
 			Local boneWeightsStr:String[] = surfaceNode.GetChild("bone_weights", "").value.Split(",")
 
@@ -130,7 +140,8 @@ Public
 				Local nx# = 0, ny# = 0, nz# = 0
 				Local tx# = 0, ty# = 0, tz# = 0
 				Local r# = 1, g# = 1, b# = 1, a# = 1
-				Local u# = 0, v# = 0
+				Local u0# = 0, v0# = 0
+				Local u1:Float = 0, v1:Float = 0
 				Local b0% = -1, b1% = -1, b2% = -1, b3% = -1
 				Local w0# = 0, w1# = 0, w2# = 0, w3# = 0
 
@@ -163,8 +174,15 @@ Public
 
 				'Read tex coords
 				If texcoordsStr.Length() > 1
-					u = Float(texcoordsStr[j*2])
-					v = Float(texcoordsStr[j*2+1])
+					u0 = Float(texcoordsStr[j*2])
+					v0 = Float(texcoordsStr[j*2+1])
+				End
+				If texcoords2Str.Length() > 1
+					u1 = Float(texcoords2Str[j*2])
+					v1 = Float(texcoords2Str[j*2+1])
+				Else
+					u1 = u0
+					v1 = v0
 				End
 				
 				'Read bone indices
@@ -184,7 +202,8 @@ Public
 				End
 
 				'Add vertex
-				Local vertex:Int = surf.AddVertex(x, y, z, nx, ny, nz, r, g, b, a, u, v)
+				Local vertex:Int = surf.AddVertex(x, y, z, nx, ny, nz, r, g, b, a, u0, v0)
+				surf.SetVertexTexCoords(vertex, u1, v1, 1)
 				surf.SetVertexTangent(vertex, tx, ty, tz)
 				
 				'Set vertex bones and weights

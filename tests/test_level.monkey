@@ -50,7 +50,7 @@ Public
 		mRenderList = RenderList.Create()
 		
 		'Load level
-		mLevel = Mesh.Load("simple-dm5.msh.xml")
+		mLevel = Mesh.Load("ruin.msh.xml")
 		mRenderList.AddMesh(mLevel, mModel)
 		
 		Return False
@@ -81,24 +81,23 @@ Public
 			mFpsAccum = 0
 		End
 		
-		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
-		mView.LookAtLH(0, 100, 0, 0, 100, 100, 0, 1, 0)
+		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10000)
+		mView.LookAtLH(0, 150, -250, 0, 0, 0, 0, 1, 0)
 		mModel.SetTransform(0, 0, 0, 0, mEulerY, 0, 1, 1, 1)
-		
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetProjectionMatrix(mProj)
 		Renderer.SetViewMatrix(mView)
 		Renderer.SetModelMatrix(mModel)
 		Renderer.ClearColorBuffer(0, 0, 0)
 		Renderer.ClearDepthBuffer()
-		Renderer.SetFog(True, 600, 1000, 0, 0, 0)
+		'Renderer.SetFog(True, 600, 1000, 0, 0, 0)
 		mNumRenderCalls = mRenderList.Render()
 		
 		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Renderer.SetColor(1, 1, 1)
+		Renderer.SetColor(1, 1, 0)
 		Local text$ = mCurrentFPS + " FPS"
 		mFont.Draw(2, 2, text)
 		

@@ -41,6 +41,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
 
       // material
       std::string base_tex = mat.getTexture(0) ? mat.getTexture(0)->getName().getPath().c_str() : "";
+      std::string lightmap = mat.getTexture(1) ? mat.getTexture(1)->getName().getPath().c_str() : "";
       float r = mat.DiffuseColor.getRed() / 255.0f;
       float g = mat.DiffuseColor.getGreen() / 255.0f;
       float b = mat.DiffuseColor.getBlue() / 255.0f;
@@ -48,7 +49,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
       float shininess = mat.Shininess;
       int culling = mat.BackfaceCulling;
       int depth_write = mat.ZWriteEnable;
-      surf.material = material_t(0, base_tex, r, g, b, a, shininess, culling, depth_write);
+      surf.material = material_t(0, base_tex, lightmap, r, g, b, a, shininess, culling, depth_write);
 
       // indices
       for (size_t j = 0; j < mesh_buffer->getIndexCount(); ++j) {
@@ -56,6 +57,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
       }
 
       // vertices
+      video::S3DVertex2TCoords* vertices2t = mesh_buffer->getVertexType() == video::EVT_2TCOORDS ? static_cast<video::S3DVertex2TCoords*>(mesh_buffer->getVertices()) : 0;
       for ( size_t v = 0; v < mesh_buffer->getVertexCount(); ++v ) {
         float x = mesh_buffer->getPosition(v).X;
         float y = mesh_buffer->getPosition(v).Y;
@@ -65,7 +67,9 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
         float nz = mesh_buffer->getNormal(v).Z;
         float u0 = mesh_buffer->getTCoords(v).X;
         float v0 = mesh_buffer->getTCoords(v).Y;
-        surf.vertices.push_back(vertex_t(x, y, z, nx, ny, nz, u0, v0));
+        float u1 = vertices2t ? vertices2t[v].TCoords2.X : u0;
+        float v1 = vertices2t ? vertices2t[v].TCoords2.Y : v0;
+        surf.vertices.push_back(vertex_t(x, y, z, nx, ny, nz, u0, v0, u1, v1));
       }
 
       // bone indices and weights
@@ -211,194 +215,6 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
 
 EXPORT void CALL DeleteMesh(mesh_t* mesh) {
   delete mesh;
-}
-
-EXPORT int CALL NumSurfaces(const mesh_t* mesh) {
-  return static_cast<int>(mesh->surfaces.size());
-}
-
-EXPORT int CALL MaterialBlend(const mesh_t* mesh, int surf_index) {
-  return mesh->surfaces[surf_index].material.blend;
-}
-
-EXPORT const char* CALL MaterialTextureName(const mesh_t* mesh, int surf_index) {
-  return mesh->surfaces[surf_index].material.base_tex.c_str();
-}
-
-EXPORT float CALL MaterialRed(const mesh_t* mesh, int surf_index) {
-  return mesh->surfaces[surf_index].material.red;
-}
-
-EXPORT float CALL MaterialGreen(const mesh_t* mesh, int surf_index) {
-  return mesh->surfaces[surf_index].material.green;
-}
-
-EXPORT float CALL MaterialBlue(const mesh_t* mesh, int surf_index) {
-  return mesh->surfaces[surf_index].material.blue;
-}
-
-EXPORT float CALL MaterialOpacity(const mesh_t* mesh, int surf_index) {
-  return mesh->surfaces[surf_index].material.opacity;
-}
-
-EXPORT float CALL MaterialShininess(const mesh_t* mesh, int surf_index) {
-  return mesh->surfaces[surf_index].material.shininess;
-}
-
-EXPORT int CALL MaterialCulling(const mesh_t* mesh, int surf_index) {
-  return mesh->surfaces[surf_index].material.culling;
-}
-
-EXPORT int CALL MaterialDepthWrite(const mesh_t* mesh, int surf_index) {
-  return mesh->surfaces[surf_index].material.depth_write;
-}
-
-EXPORT int CALL NumIndices(const mesh_t* mesh, int surf_index) {
-  return static_cast<int>(mesh->surfaces[surf_index].indices.size());
-}
-
-EXPORT int CALL GetIndex(const mesh_t* mesh, int surf_index, int index_number) {
-  return mesh->surfaces[surf_index].indices[index_number];
-}
-
-EXPORT int CALL NumVertices(const mesh_t* mesh, int surf_index) {
-  return static_cast<int>(mesh->surfaces[surf_index].vertices.size());
-}
-
-EXPORT float CALL VertexX(const mesh_t* mesh, int surf_index, int vertex_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].x;
-}
-
-EXPORT float CALL VertexY(const mesh_t* mesh, int surf_index, int vertex_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].y;
-}
-
-EXPORT float CALL VertexZ(const mesh_t* mesh, int surf_index, int vertex_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].z;
-}
-
-EXPORT float CALL VertexNX(const mesh_t* mesh, int surf_index, int vertex_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].nx;
-}
-
-EXPORT float CALL VertexNY(const mesh_t* mesh, int surf_index, int vertex_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].ny;
-}
-
-EXPORT float CALL VertexNZ(const mesh_t* mesh, int surf_index, int vertex_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].nz;
-}
-
-EXPORT float CALL VertexTX(const mesh_t* mesh, int surf_index, int vertex_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].tx;
-}
-
-EXPORT float CALL VertexTY(const mesh_t* mesh, int surf_index, int vertex_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].ty;
-}
-
-EXPORT float CALL VertexTZ(const mesh_t* mesh, int surf_index, int vertex_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].tz;
-}
-
-EXPORT float CALL VertexU0(const mesh_t* mesh, int surf_index, int vertex_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].u0;
-}
-
-EXPORT float CALL VertexV0(const mesh_t* mesh, int surf_index, int vertex_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].v0;
-}
-
-EXPORT int CALL VertexBone(const mesh_t* mesh, int surf_index, int vertex_index, int bone_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].bones[bone_index];
-}
-
-EXPORT float CALL VertexWeight(const mesh_t* mesh, int surf_index, int vertex_index, int weight_index) {
-  return mesh->surfaces[surf_index].vertices[vertex_index].weights[weight_index];
-}
-
-EXPORT int CALL NumFrames(const mesh_t* mesh) {
-  return mesh->num_frames;
-}
-
-EXPORT int CALL NumBones(const mesh_t* mesh) {
-  return static_cast<int>(mesh->bones.size());
-}
-
-EXPORT const char* CALL BoneName(const mesh_t* mesh, int bone_index) {
-  return mesh->bones[bone_index].name.c_str();
-}
-
-EXPORT int CALL BoneParentIndex(const mesh_t* mesh, int bone_index) {
-  return mesh->bones[bone_index].parent_index;
-}
-
-EXPORT float CALL BoneInvPoseMatrixElem(const mesh_t* mesh, int bone_index, int elem_index) {
-  return mesh->bones[bone_index].inv_pose[elem_index];
-}
-
-EXPORT int CALL BoneNumPositionKeys(const mesh_t* mesh, int bone_index) {
-  return static_cast<int>(mesh->bones[bone_index].positions.size());
-}
-
-EXPORT int CALL BoneNumRotationKeys(const mesh_t* mesh, int bone_index) {
-  return static_cast<int>(mesh->bones[bone_index].rotations.size());
-}
-
-EXPORT int CALL BoneNumScaleKeys(const mesh_t* mesh, int bone_index) {
-  return static_cast<int>(mesh->bones[bone_index].scales.size());
-}
-
-EXPORT int CALL BonePositionKeyFrame(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].positions[key_index].first;
-}
-
-EXPORT float CALL BonePositionKeyX(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].positions[key_index].second.x;
-}
-
-EXPORT float CALL BonePositionKeyY(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].positions[key_index].second.y;
-}
-
-EXPORT float CALL BonePositionKeyZ(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].positions[key_index].second.z;
-}
-
-EXPORT int CALL BoneRotationKeyFrame(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].rotations[key_index].first;
-}
-
-EXPORT float CALL BoneRotationKeyW(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].rotations[key_index].second.w;
-}
-
-EXPORT float CALL BoneRotationKeyX(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].rotations[key_index].second.x;
-}
-
-EXPORT float CALL BoneRotationKeyY(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].rotations[key_index].second.y;
-}
-
-EXPORT float CALL BoneRotationKeyZ(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].rotations[key_index].second.z;
-}
-
-EXPORT int CALL BoneScaleKeyFrame(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].scales[key_index].first;
-}
-
-EXPORT float CALL BoneScaleKeyX(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].scales[key_index].second.x;
-}
-
-EXPORT float CALL BoneScaleKeyY(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].scales[key_index].second.y;
-}
-
-EXPORT float CALL BoneScaleKeyZ(const mesh_t* mesh, int bone_index, int key_index) {
-  return mesh->bones[bone_index].scales[key_index].second.z;
 }
 
 } // extern "C"

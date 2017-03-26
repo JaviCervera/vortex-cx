@@ -61,6 +61,7 @@ Public
 		'Load box mesh
 		mMesh = Mesh.Load("cube.msh.xml")
 		Local mat:Material = mMesh.GetSurface(0).Material
+		mat.Shininess = 1
 		'mat.DiffuseTexture = Null
 		mat.NormalTexture = mNormalTex
 		'mat.ReflectionTexture = mTexture
@@ -82,8 +83,6 @@ Public
 		Lighting.SetLightType(0, Lighting.POINT)
 		Lighting.SetLightAttenuation(0, 0.05)
 		Lighting.SetLightColor(0, 1, 1, 1)
-		
-		mEulerY = 0
 			
 		Return False
 	End
@@ -97,6 +96,15 @@ Public
 		#If TARGET<>"html5"
 		If KeyHit(KEY_ESCAPE) Then EndApp()
 		#End
+		
+		'Update shininess
+		If KeyHit(KEY_SPACE)
+			If ( mMesh.GetSurface(0).Material.Shininess >= 1 )
+				mMesh.GetSurface(0).Material.Shininess = 0
+			Else
+				mMesh.GetSurface(0).Material.Shininess = Clamp(mMesh.GetSurface(0).Material.Shininess + 0.1, 0.0, 1.0)
+			End
+		End
 		
 		mEulerY += 32 * mDeltaTime
 
@@ -139,6 +147,10 @@ Public
 		'Draw RenderCalls
 		text = "Render calls: " + mNumRenderCalls
 		mFont.Draw(2, 18, text)
+		
+		'Draw shininess
+		text = "Shininess: " + String(mMesh.GetSurface(0).Material.Shininess)[..3]
+		mFont.Draw(2, 34, text)
 	
 		Return False
 	End

@@ -25,6 +25,7 @@ std::string GenXML(const mesh_t* mesh) {
     }
     buffer += "</blend>\n";
     if ( mat.base_tex != "" ) buffer += "\t\t\t<diffuse_tex>" + mat.base_tex + "</diffuse_tex>\n";
+    if ( mat.lightmap != "" ) buffer += "\t\t\t<lightmap>" + mat.lightmap + "</lightmap>\n";
     buffer += "\t\t\t<diffuse_color>" + StringFromNumber(mat.red) + "," + StringFromNumber(mat.green) + "," + StringFromNumber(mat.blue) + "</diffuse_color>\n";
     buffer += "\t\t\t<opacity>" + StringFromNumber(mat.opacity) + "</opacity>\n";
     buffer += "\t\t\t<shininess>" + StringFromNumber(mat.shininess) + "</shininess>\n";
@@ -64,6 +65,12 @@ std::string GenXML(const mesh_t* mesh) {
       if ( j < surf.vertices.size() - 1 ) buffer += ",";
     }
     buffer += "</texcoords>\n";
+    buffer += "\t\t\t<texcoords2>";
+    for ( size_t j = 0; j < surf.vertices.size(); ++j ) {
+      buffer += StringFromNumber(surf.vertices[j].u1) + "," + StringFromNumber(surf.vertices[j].v1);
+      if ( j < surf.vertices.size() - 1 ) buffer += ",";
+    }
+    buffer += "</texcoords2>\n";
     buffer += "\t\t\t<bone_indices>";
     for ( size_t j = 0; j < surf.vertices.size(); ++j ) {
       buffer += StringFromNumber(surf.vertices[j].bones[0]) + "," + StringFromNumber(surf.vertices[j].bones[1]) + "," + StringFromNumber(surf.vertices[j].bones[2]) + "," + StringFromNumber(surf.vertices[j].bones[3]);

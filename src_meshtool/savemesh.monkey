@@ -25,6 +25,7 @@ Function SaveMesh:Void(mesh:Mesh, filename:String, exportAnimations:Bool)
 		End
 		buffer += "</blend>~n"
 		If mat.DiffuseTexture Then buffer += "~t~t~t<diffuse_tex>" + StripDir(mat.DiffuseTexture.Filename) + "</diffuse_tex>~n"
+		If mat.Lightmap Then buffer += "~t~t~t<lightmap>" + StripDir(mat.Lightmap.Filename) + "</lightmap>~n"
 		buffer += "~t~t~t<diffuse_color>" + mat.DiffuseRed + "," + mat.DiffuseGreen + "," + mat.DiffuseBlue + "</diffuse_color>~n"
 		buffer += "~t~t~t<opacity>" + mat.Opacity + "</opacity>~n"
 		buffer += "~t~t~t<shininess>" + mat.Shininess + "</shininess>~n"
@@ -64,6 +65,12 @@ Function SaveMesh:Void(mesh:Mesh, filename:String, exportAnimations:Bool)
 			If v < surf.NumVertices - 1 Then buffer += ","
 		Next
 		buffer += "</texcoords>~n"
+		buffer += "~t~t~t<texcoords2>"
+		For Local v:Int = 0 Until surf.NumVertices
+			buffer += surf.GetVertexU(v, 1) + "," + surf.GetVertexV(v, 1)
+			If v < surf.NumVertices - 1 Then buffer += ","
+		Next
+		buffer += "</texcoords2>~n"
 		If exportAnimations
 			buffer += "~t~t~t<bone_indices>"
 			For Local v:Int = 0 Until surf.NumVertices
