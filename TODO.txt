@@ -10,8 +10,9 @@ V2.0:
 * Add material editor in meshtool
 + Make shininess go in range 0..1 and intensify color
 + Add second UV set and lightmaps
-- Reuse textures when loading
-- Add "Create cube" in meshtool
++ Reuse textures when loading
++ Add "Create cube" in meshtool
+- Remove textures on meshtool
 - Materials without depth writing should be rendered after the ones with it
 - Replace XML meshes and fonts with binary ones (use separate mesh, skeleton and animation files)
 - Add tangents export in meshtool

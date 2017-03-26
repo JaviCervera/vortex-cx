@@ -28,11 +28,12 @@ Public
 		Return surf
 	End
 
-	Method Free:Void()
+	Method Free:Void(freeTextures:Bool)
 		mIndices.Discard()
 		mVertices.Discard()
 		Renderer.FreeBuffer(mIndexBuffer)
 		Renderer.FreeBuffer(mVertexBuffer)
+		If freeTextures Then mMaterial.FreeTextures()
 	End
 	
 	Method Set:Void(other:Surface)

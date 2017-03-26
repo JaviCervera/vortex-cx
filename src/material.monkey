@@ -23,6 +23,14 @@ Public
 		Return mat
 	End
 	
+	Method FreeTextures:Void()
+		If mDiffuseTex Then mDiffuseTex.Free()
+		If mNormalTex Then mNormalTex.Free()
+		If mLightmap Then mLightmap.Free()
+		If mReflectTex Then mReflectTex.Free()
+		If mReflectTex Then mRefractTex.Free()
+	End
+	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
 		If mDiffuseRed = other.mDiffuseRed And mDiffuseGreen = other.mDiffuseGreen And mDiffuseBlue = other.mDiffuseBlue And mDiffuseTex = other.mDiffuseTex And mNormalTex = other.mNormalTex And mLightmap = other.mLightmap And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mOpacity = other.mOpacity And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite

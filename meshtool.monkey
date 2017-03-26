@@ -96,8 +96,8 @@ Public
 		Lighting.SetLightType(0, Lighting.DIRECTIONAL)
 		
 		mExportAnimations = True
-		mCamPos = Vec3.Create(0, 16, -16)
-		mCamRot = Vec3.Create()
+		mCamPos = Vec3.Create(2, 2, -2)
+		mCamRot = Vec3.Create(37, -45, 0)
 		mLastMouseX = MouseX()
 		mLastMouseY = MouseY()
 		mFreeLook = False
@@ -119,8 +119,14 @@ Public
 		
 		'Update GUI controls
 		If MouseHit(MOUSE_LEFT)
+			'Create cube
+			If mCubeRect.IsPointInside(MouseX(), MouseY())
+				If mMesh Then mRenderList.RemoveMesh(mMesh, mModel)
+				mMesh = CreateCube()
+				mFilename = ""
+				mRenderList.AddMesh(mMesh, mModel)
 			'Load mesh
-			If mOpenRect.IsPointInside(MouseX(), MouseY())
+			Elseif mOpenRect.IsPointInside(MouseX(), MouseY())
 				Local filename:String = RequestFile("Load mesh")', "Mesh Files:msh.xml;All Files:*", False)
 				If filename <> ""
 					filename = filename.Replace("\", "/")
@@ -463,6 +469,88 @@ Private
 	Field mSelMat			: Int
 End
 
+Function CreateCube:Mesh()
+	Local surf:Surface = Surface.Create()
+	
+	'Front face
+	surf.AddVertex(-0.5,  0.5, -0.5,  0, 0, -1,  1, 1, 1, 1,  0, 0)
+	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
+	surf.AddVertex( 0.5,  0.5, -0.5,  0, 0, -1,  1, 1, 1, 1,  1, 0)
+	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
+	surf.AddVertex(-0.5, -0.5, -0.5,  0, 0, -1,  1, 1, 1, 1,  0, 1)
+	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
+	surf.AddVertex( 0.5, -0.5, -0.5,  0, 0, -1,  1, 1, 1, 1,  1, 1)
+	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
+	surf.AddTriangle(0, 1, 2)
+	surf.AddTriangle(3, 2, 1)
+	
+	'Back face
+	surf.AddVertex( 0.5,  0.5, 0.5,  0, 0, 1,  1, 1, 1, 1,  0, 0)
+	surf.SetVertexTangent(surf.NumVertices-1, -1, 0, 0)
+	surf.AddVertex(-0.5,  0.5, 0.5,  0, 0, 1,  1, 1, 1, 1,  1, 0)
+	surf.SetVertexTangent(surf.NumVertices-1, -1, 0, 0)
+	surf.AddVertex( 0.5, -0.5, 0.5,  0, 0, 1,  1, 1, 1, 1,  0, 1)
+	surf.SetVertexTangent(surf.NumVertices-1, -1, 0, 0)
+	surf.AddVertex(-0.5, -0.5, 0.5,  0, 0, 1,  1, 1, 1, 1,  1, 1)
+	surf.SetVertexTangent(surf.NumVertices-1, -1, 0, 0)
+	surf.AddTriangle(4, 5, 6)
+	surf.AddTriangle(7, 6, 5)
+	
+	'Left face
+	surf.AddVertex(-0.5,  0.5,  0.5,  -1, 0, 0,  1, 1, 1, 1,  0, 0)
+	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, -1)
+	surf.AddVertex(-0.5,  0.5, -0.5,  -1, 0, 0,  1, 1, 1, 1,  1, 0)
+	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, -1)
+	surf.AddVertex(-0.5, -0.5,  0.5,  -1, 0, 0,  1, 1, 1, 1,  0, 1)
+	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, -1)
+	surf.AddVertex(-0.5, -0.5, -0.5,  -1, 0, 0,  1, 1, 1, 1,  1, 1)
+	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, -1)
+	surf.AddTriangle(8, 9, 10)
+	surf.AddTriangle(11, 10, 9)
+	
+	'Right face
+	surf.AddVertex(0.5,  0.5, -0.5,  1, 0, 0,  1, 1, 1, 1,  0, 0)
+	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, 1)
+	surf.AddVertex(0.5,  0.5,  0.5,  1, 0, 0,  1, 1, 1, 1,  1, 0)
+	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, 1)
+	surf.AddVertex(0.5, -0.5, -0.5,  1, 0, 0,  1, 1, 1, 1,  0, 1)
+	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, 1)
+	surf.AddVertex(0.5, -0.5,  0.5,  1, 0, 0,  1, 1, 1, 1,  1, 1)
+	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, 1)
+	surf.AddTriangle(12, 13, 14)
+	surf.AddTriangle(15, 14, 13)
+	
+	'Top face
+	surf.AddVertex(-0.5, 0.5,  0.5,  0, 1, 0,  1, 1, 1, 1,  0, 0)
+	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
+	surf.AddVertex( 0.5, 0.5,  0.5,  0, 1, 0,  1, 1, 1, 1,  1, 0)
+	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
+	surf.AddVertex(-0.5, 0.5, -0.5,  0, 1, 0,  1, 1, 1, 1,  0, 1)
+	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
+	surf.AddVertex( 0.5, 0.5, -0.5,  0, 1, 0,  1, 1, 1, 1,  1, 1)
+	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
+	surf.AddTriangle(16, 17, 18)
+	surf.AddTriangle(19, 18, 17)
+	
+	'Bottom face
+	surf.AddVertex(-0.5, -0.5, -0.5,  0, -1, 0,  1, 1, 1, 1,  0, 0)
+	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
+	surf.AddVertex( 0.5, -0.5, -0.5,  0, -1, 0,  1, 1, 1, 1,  1, 0)
+	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
+	surf.AddVertex(-0.5, -0.5,  0.5,  0, -1, 0,  1, 1, 1, 1,  0, 1)
+	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
+	surf.AddVertex( 0.5, -0.5,  0.5,  0, -1, 0,  1, 1, 1, 1,  1, 1)
+	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
+	surf.AddTriangle(20, 21, 22)
+	surf.AddTriangle(23, 22, 21)
+
+	'Create mesh with surface
+	Local cube:Mesh = Mesh.Create()
+	cube.AddSurface(surf)
+	
+	Return cube
+End
+
 Function RotateMesh:Void(mesh:Mesh, pitch:Float, yaw:Float, roll:Float)
 	'Get rotation quaternion
 	Local q:Quat = Quat.Create()
@@ -490,6 +578,8 @@ Function RotateSurface:Void(surf:Surface, mat:Mat4)
 		surf.SetVertexPosition(i, mat.ResultVector().X, mat.ResultVector().Y, mat.ResultVector().Z)
 		mat.Mul(surf.GetVertexNX(i), surf.GetVertexNY(i), surf.GetVertexNZ(i), 1)
 		surf.SetVertexNormal(i, mat.ResultVector().X, mat.ResultVector().Y, mat.ResultVector().Z)
+		mat.Mul(surf.GetVertexTX(i), surf.GetVertexTY(i), surf.GetVertexTZ(i), 1)
+		surf.SetVertexTangent(i, mat.ResultVector().X, mat.ResultVector().Y, mat.ResultVector().Z)
 	Next
 	
 	surf.Rebuild()

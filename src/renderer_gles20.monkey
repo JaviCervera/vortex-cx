@@ -406,6 +406,8 @@ Public
 				size[1] = img.Height()
 				img.Discard()
 			Else
+				size[0] = 0
+				size[1] = 0
 				Return 0
 			End
 		End
@@ -413,7 +415,7 @@ Public
 		'Fix filename
 		If String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then filename = "monkey://data/" + filename
 		
-		Local texture% = glCreateTexture()
+		Local texture:Int = glCreateTexture()
 		glBindTexture(GL_TEXTURE_2D, texture)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
@@ -435,6 +437,8 @@ Public
 				size[1] = img.Height()
 				img.Discard()
 			Else
+				size[0] = 0
+				size[1] = 0
 				Return 0
 			End
 		End
@@ -447,7 +451,7 @@ Public
 		If String.FromChar(top[0]) <> "/" And String.FromChar(top[1]) <> ":" Then top = "monkey://data/" + top
 		If String.FromChar(bottom[0]) <> "/" And String.FromChar(bottom[1]) <> ":" Then bottom = "monkey://data/" + bottom
 		
-		Local texture% = glCreateTexture()
+		Local texture:Int = glCreateTexture()
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texture)
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)

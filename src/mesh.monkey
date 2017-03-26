@@ -55,6 +55,10 @@ Public
 		Local lastFrameNode:XMLNode = doc.GetChild("last_frame")
 		Local boneNodes:List<XMLNode> = doc.GetChild("bones").GetChildren("bone")
 		If surfaceNodes.IsEmpty() Then Return Null
+		
+		'Texture caches
+		Local loadedDiffuse:StringMap<Texture> = New StringMap<Texture>
+		Local loadedLightmaps:StringMap<Texture> = New StringMap<Texture>
 
 		'Parse materials
 		Local materialsMap:StringMap<Material> = New StringMap<Material>
@@ -86,14 +90,24 @@ Public
 			Local diffuseTex:Texture = Null
 			If baseTexStr <> ""
 				If ExtractDir(filename) <> "" Then baseTexStr = ExtractDir(filename) + "/" + baseTexStr
-				diffuseTex = Texture.Load(baseTexStr, texFilter)
+				If loadedDiffuse.Contains(baseTexStr)
+					diffuseTex = loadedDiffuse.Get(baseTexStr)
+				Else
+					diffuseTex = Texture.Load(baseTexStr, texFilter)
+					loadedDiffuse.Add(baseTexStr, diffuseTex)
+				End
 			End
 			
 			'Load lightmap
 			Local lightmap:Texture = Null
 			If lightmapStr <> ""
 				If ExtractDir(filename) <> "" Then lightmapStr = ExtractDir(filename) + "/" + lightmapStr
-				lightmap = Texture.Load(lightmapStr, texFilter)
+				If loadedLightmaps.Contains(lightmapStr)
+					lightmap = loadedLightmaps.Get(lightmapStr)
+				Else
+					lightmap = Texture.Load(lightmapStr, texFilter)
+					loadedLightmaps.Add(lightmapStr, lightmap)
+				End
 			End
 
 			'Create material
@@ -277,9 +291,9 @@ Public
 		Return mesh
 	End
 
-	Method Free:Void()
+	Method Free:Void(freeTextures:Bool)
 		For Local surf:Surface = Eachin mSurfaces
-			surf.Free()
+			surf.Free(freeTextures)
 		Next
 	End
 	

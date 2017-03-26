@@ -17,8 +17,9 @@ Public
 	End
 	
 	Function Load:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
+		filename = filename.Replace("\", "/")
 		Local handle:Int = Renderer.LoadTexture(filename, mSizeArr, filter)
-		If handle > 0
+		If mSizeArr[0] > 0
 			Local tex:Texture = New Texture
 			tex.mFilename = filename
 			tex.mHandle = handle
@@ -32,8 +33,14 @@ Public
 	End
 	
 	Function Load:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
+		left = left.Replace("\", "/")
+		right = right.Replace("\", "/")
+		front = front.Replace("\", "/")
+		back = back.Replace("\", "/")
+		top = top.Replace("\", "/")
+		bottom = bottom.Replace("\", "/")
 		Local handle:Int = Renderer.LoadCubicTexture(left, right, front, back, top, bottom, mSizeArr, filter)
-		If handle > 0
+		If mSizeArr[0] > 0
 			Local tex:Texture = New Texture
 			tex.mFilename = left + "," + right + "," + front + "," + back + "," + top + "," + bottom
 			tex.mHandle = handle
@@ -47,7 +54,8 @@ Public
 	End
 
 	Method Free:Void()
-		Renderer.FreeTexture(mHandle)
+		If mHandle <> 0 Then Renderer.FreeTexture(mHandle)
+		mHandle = 0
 	End
 
 	Method Filename:String() Property
