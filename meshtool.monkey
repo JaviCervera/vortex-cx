@@ -25,7 +25,7 @@ Import src_meshtool.loadmesh
 Import src_meshtool.savemesh
 Import vortex
 
-Class TestApp Extends App Final
+Class MeshToolApp Extends App Final
 Public
 	Method OnCreate:Int()
 		'Setup update rate and swap to maximum FPS, and init random seed
@@ -590,6 +590,6 @@ Function RotateBone:Void(bone:Bone, mat:Mat4, q:Quat)
 End
 
 Function Main:Int()
-	New TestApp()
+	New MeshToolApp()
 	Return False
 End

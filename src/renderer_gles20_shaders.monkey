@@ -214,7 +214,7 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 
 	'Lightmap
 "	if ( useLightmap ) {" +
-"		if ( lightingEnabled ) combinedColor += texture2D(lightmapSampler, ftex2);" +
+"		if ( lightingEnabled ) combinedColor += vec4(vec3(texture2D(lightmapSampler, ftex2)), 0.0);" +
 "		else combinedColor *= texture2D(lightmapSampler, ftex2);" +
 "	}" +
 
