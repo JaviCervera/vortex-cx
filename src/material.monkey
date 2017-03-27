@@ -23,6 +23,12 @@ Public
 		Return mat
 	End
 	
+	Function Create:Material(other:Material)
+		Local mat:Material = Material.Create()
+		mat.Set(other)
+		Return mat
+	End
+	
 	Method FreeTextures:Void()
 		If mDiffuseTex Then mDiffuseTex.Free()
 		If mNormalTex Then mNormalTex.Free()

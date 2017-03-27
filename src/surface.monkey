@@ -28,7 +28,7 @@ Public
 		Return surf
 	End
 
-	Method Free:Void(freeTextures:Bool)
+	Method Free:Void(freeTextures:Bool = False)
 		mIndices.Discard()
 		mVertices.Discard()
 		Renderer.FreeBuffer(mIndexBuffer)

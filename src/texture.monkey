@@ -61,6 +61,10 @@ Public
 	Method Filename:String() Property
 		Return mFilename
 	End
+	
+	Method Filename:Void(filename:String) Property
+		mFilename = filename
+	End
 
 	Method Handle:Int() Property
 		Return mHandle

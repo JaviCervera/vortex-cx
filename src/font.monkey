@@ -28,13 +28,16 @@ Public
 		Next
 		Return f
 	End
+  
+  Function Load:Font(filename:String)
+    Return Font.LoadString(app.LoadString(filename), filename)
+  End
 	
-	Function Load:Font(filename:String)
+	Function LoadString:Font(buffer:String, filename:String)
 		'Parse XML font
-		Local xmlString$ = LoadString(filename)
-		If xmlString = "" Then Return Null
+		If buffer = "" Then Return Null
 		Local err:XMLError = New XMLError
-		Local doc:XMLDoc = ParseXML(xmlString, err)
+		Local doc:XMLDoc = ParseXML(buffer, err)
 		If (doc = Null And err.error) Or doc.name <> "font" Then Return Null
 
 		'Get data

@@ -566,6 +566,10 @@ Public
 		Translate(-eyex, -eyey, -eyez)
 	End
 	
+	Method SetTransform:Void(position:Vec3, rotation:Quat, scale:Vec3)
+		SetTransform(position.X, position.Y, position.Z, rotation.W, rotation.X, rotation.Y, rotation.Z, scale.X, scale.Y, scale.Z)
+	End
+	
 	Method SetTransform:Void(x:Float, y:Float, z:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
 		q1.Set(rw, rx, ry, rz)
 		q1.CalcAxis()
@@ -573,6 +577,10 @@ Public
 		Translate(x, y, z)
 		Rotate(q1.Angle(), q1.ResultVector().X, q1.ResultVector().Y, q1.ResultVector().Z)
 		Scale(sx, sy, sz)
+	End
+	
+	Method SetTransform:Void(position:Vec3, rotation:Vec3, scale:Vec3)
+		SetTransform(position.X, position.Y, position.Z, rotation.X, rotation.Y, rotation.Z, scale.X, scale.Y, scale.Z)
 	End
 	
 	Method SetTransform:Void(x:Float, y:Float, z:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)

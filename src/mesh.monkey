@@ -291,7 +291,7 @@ Public
 		Return mesh
 	End
 
-	Method Free:Void(freeTextures:Bool)
+	Method Free:Void(freeTextures:Bool = False)
 		For Local surf:Surface = Eachin mSurfaces
 			surf.Free(freeTextures)
 		Next

@@ -121,7 +121,7 @@ Public
 		Return True
 	End
 
-	Function Setup2D:Void(x%, y%, w%, h%)
+	Function Setup2D:Void(x:Int, y:Int, w:Int, h:Int)
 		'Switch to 2D program
 		UseProgram(m2DProgram)
 
@@ -152,7 +152,7 @@ Public
 		Renderer.SetModelMatrix(mTempMatrix)
 	End
 
-	Function Setup3D:Void(x%, y%, w%, h%)
+	Function Setup3D:Void(x:Int, y:Int, w:Int, h:Int)
 		'Switch to 3D program
 		UseProgram(mDefaultProgram)
 
