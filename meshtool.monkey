@@ -20,6 +20,7 @@ Import src_meshtool.fltkrequestfile
 #End
 Import mojo.app
 Import mojo.input
+Import src_meshtool.fltkrequestcolor
 Import src_meshtool.gui
 Import src_meshtool.loadmesh
 Import src_meshtool.savemesh
@@ -184,6 +185,10 @@ Public
 			Elseif mSelMatRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
 				mSelMat += 1
 				If mSelMat = mMesh.NumSurfaces Then mSelMat = 0
+			'Diffuse color
+			Elseif mDiffuseColorRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
+				Local color:Float[] = RequestColor("Select diffuse color", mMesh.GetSurface(mSelMat).Material.DiffuseRed, mMesh.GetSurface(mSelMat).Material.DiffuseGreen, mMesh.GetSurface(mSelMat).Material.DiffuseBlue)
+				If color.Length > 0 Then mMesh.GetSurface(mSelMat).Material.SetDiffuseColor(color[0], color[1], color[2])
 			'Diffuse texture
 			Elseif mDiffuseTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
 				Local filename:String = RequestFile("Select diffuse texture")

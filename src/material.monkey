@@ -65,13 +65,13 @@ Public
 	End
 
 	Method SetDiffuseColor:Void(r:Float, g:Float, b:Float)
-		mDiffuseRed = r
-		mDiffuseGreen = g
-		mDiffuseBlue = b
+		DiffuseRed = r
+		DiffuseGreen = g
+		DiffuseBlue = b
 	End
 	
 	Method DiffuseRed:Void(red:Float) Property
-		mDiffuseRed = red
+		mDiffuseRed = Clamp(red, 0.0, 1.0)
 	End
 
 	Method DiffuseRed:Float() Property
@@ -79,7 +79,7 @@ Public
 	End
 	
 	Method DiffuseGreen:Void(green:Float) Property
-		mDiffuseGreen = green
+		mDiffuseGreen = Clamp(green, 0.0, 1.0)
 	End
 
 	Method DiffuseGreen:Float() Property
@@ -87,7 +87,7 @@ Public
 	End
 	
 	Method DiffuseBlue:Void(blue:Float) Property
-		mDiffuseBlue = blue
+		mDiffuseBlue = Clamp(blue, 0.0, 1.0)
 	End
 
 	Method DiffuseBlue:Float() Property
