@@ -384,8 +384,8 @@ Public
 	' Texture
 	'---------------------------------------------------------------------------
 	
-	Function GenTexture%(buffer:DataBuffer, width%, height%, filter%)
-		Local texture% = glCreateTexture()
+	Function GenTexture:Int(buffer:DataBuffer, width:Int, height:Int, filter:Int)
+		Local texture:Int = glCreateTexture()
 		glBindTexture(GL_TEXTURE_2D, texture)
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
@@ -459,8 +459,8 @@ Public
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, left)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, right)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, front)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, back)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, back)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, front)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, top)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, bottom)
 #If TARGET<>"html5"
