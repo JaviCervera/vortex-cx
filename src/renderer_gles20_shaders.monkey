@@ -177,7 +177,7 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 
 	'Cube mapping coordinates
 "	if ( baseTexMode == 2 || useReflectTex || useRefractTex ) {" +
-" 		if ( baseTexMode == 2 ) fcubeCoords = vec3(invView * vec4(V, 1));" +
+" 		if ( baseTexMode == 2 ) fcubeCoords = vec3(invView * vec4(NV, 0));" +
 "		if ( useReflectTex ) freflectCoords = normalize(vec3(invView * vec4(reflect(NV, N), 0)));" +
 "		if ( useRefractTex ) frefractCoords = normalize(vec3(invView * vec4(refract(NV, N, refractCoef), 0)));" +
 "	}" +

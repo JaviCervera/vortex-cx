@@ -12,9 +12,9 @@ V2.0:
 + Add second UV set and lightmaps
 + Reuse textures when loading
 + Add "Create cube" in meshtool
++ Materials without depth writing should be rendered after the ones with it
 - Add texture matrix in Material
 - Remove textures on meshtool
-- Materials without depth writing should be rendered after the ones with it
 - Replace XML meshes and fonts with binary ones (use separate mesh, skeleton and animation files)
 - Add tangents export in meshtool
 - Add shadows

@@ -164,7 +164,6 @@ Public
 		glEnable(GL_DEPTH_TEST)
 		glEnable(GL_SCISSOR_TEST)
 		glDepthFunc(GL_LEQUAL)
-
 		SetPixelLighting(False)
 		SetLighting(False)
 		SetCulling(True)
@@ -682,7 +681,7 @@ Private
 	Method New()
 	End
 
-	Function GetMagFilter%(filtering%)
+	Function GetMagFilter:Int(filtering:Int)
 		Select filtering
 		Case FILTER_NONE
 			Return GL_NEAREST
@@ -697,7 +696,7 @@ Private
 		End
 	End
 
-	Function GetMinFilter%(filtering%)
+	Function GetMinFilter:Int(filtering:Int)
 		Select filtering
 		Case FILTER_NONE
 			Return GL_NEAREST
@@ -708,7 +707,7 @@ Private
 			Return GL_LINEAR_MIPMAP_NEAREST
 		Case FILTER_TRILINEAR
 			Return GL_LINEAR_MIPMAP_LINEAR
-#EndIf
+#End
 		Default
 			Return GL_LINEAR
 		End

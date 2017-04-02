@@ -2,6 +2,7 @@ Strict
 
 Private
 Import vortex.src.lighting
+Import vortex.src.renderlist
 Import vortex.src.renderer
 Import vortex.src.texture
 
@@ -175,7 +176,10 @@ Public
 	End
 
 	Method DepthWrite:Void(enable:Bool) Property
-		mDepthWrite = enable
+		If enable <> mDepthWrite
+			mDepthWrite = enable
+			RenderList.Sort(Self)
+		End
 	End
 
 	Method DepthWrite:Bool() Property

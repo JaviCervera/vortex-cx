@@ -75,6 +75,10 @@ Public
 	Function Create:RenderList()
 		Return New RenderList
 	End
+	
+	Method Free:Void()
+		mRendeLists.RemoveFirst(Self)
+	End
 
 	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
 		If overrideMaterial = Null Then overrideMaterial = surface.Material
@@ -119,21 +123,49 @@ Public
 		Next
 		Return numRenderCalls
 	End
+	
+	Function Sort:Void(mat:Material)
+		For Local renderList:RenderList = Eachin mRenderLists
+			Local op:RenderOp = renderList.RenderOpForMaterial(mat)
+			If op
+				renderList.mOps.RemoveFirst(op)
+				If mat.DepthWrite = False
+					renderList.mOps.AddLast(op)
+				Else
+					renderList.mOps.AddFirst(op)
+				End
+			End
+		Next
+	End
 Private
 	Method New()
 		mOps = New List<RenderOp>
+		mRenderLists.AddLast(Self)
+	End
+	
+	Method RenderOpForMaterial:RenderOp(material:Material)
+		For Local op:RenderOp = Eachin mOps
+			If op.mMaterial.IsEqual(material)
+				Return op
+			End
+		Next
+		Return Null
 	End
 	
 	Method RenderGeomForSurface:RenderGeom(surface:Surface, material:Material, animMatrices:Mat4[])
-		For Local op:RenderOp = Eachin mOps
-			If op.mMaterial.IsEqual(material)
-				For Local geom:RenderGeom = Eachin op.mGeoms
-					If geom.mSurface = surface Then Return geom
-				Next
-			End
-		Next
+		Local op:RenderOp = RenderOpForMaterial(material)
+		If op
+			For Local geom:RenderGeom = Eachin op.mGeoms
+				If geom.mSurface = surface Then Return geom
+			Next
+		End
+		
 		Local geom:RenderGeom = New RenderGeom(surface, animMatrices)
-		mOps.AddLast(New RenderOp(material, geom))
+		If material.DepthWrite = False
+			mOps.AddLast(New RenderOp(material, geom))
+		Else
+			mOps.AddFirst(New RenderOp(material, geom))
+		End
 		Return geom
 	End
 	
@@ -151,5 +183,6 @@ Private
 	End
 
 	Field mOps			: List<RenderOp>
+	Global mRenderLists	: List<RenderList> = New List<RenderList>
 	Global mTempArray	: Mat4[0]
 End
