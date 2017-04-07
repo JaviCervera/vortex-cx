@@ -112,7 +112,7 @@ Public
 		InitLights()
 		Renderer.SetLighting(True)
 		Renderer.SetAmbient(ambientRed, ambientGreen, ambientBlue)
-		For Local i% = 0 Until mLights.Length()
+		For Local i:Int = 0 Until mLights.Length()
 			Local light:LightData = mLights[i]
 			Renderer.GetViewMatrix().Mul(light.mX, light.mY, light.mZ, light.mW)
 			Renderer.SetLight(i, light.mEnabled, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, light.mW, light.mRed, light.mGreen, light.mBlue, light.mAttenuation)
