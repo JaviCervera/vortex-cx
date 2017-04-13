@@ -78,7 +78,9 @@ Public
 		End
 
 		'Copy new index data
-		mIndices.PokeShorts(mNumIndices * 2, [v0, v1, v2], 0, 3)
+		mIndices.PokeShort(mNumIndices * 2, v0)
+		mIndices.PokeShort(mNumIndices * 2 + 2, v1)
+		mIndices.PokeShort(mNumIndices * 2 + 4, v2)
 		mNumIndices += 3
 		
 		'Update status
@@ -139,36 +141,48 @@ Public
 	End
 
 	Method SetVertexPosition:Void(index:Int, x:Float, y:Float, z:Float)
-		mVertices.PokeFloats(index * VERTEX_SIZE + POS_OFFSET, [x, y, z], 0, 3)
+		mVertices.PokeFloat(index * VERTEX_SIZE + POS_OFFSET, x)
+		mVertices.PokeFloat(index * VERTEX_SIZE + POS_OFFSET + 4, y)
+		mVertices.PokeFloat(index * VERTEX_SIZE + POS_OFFSET + 8, z)
 		mStatus |= STATUS_V_DIRTY
 	End
 
 	Method SetVertexNormal:Void(index:Int, nx:Float, ny:Float, nz:Float)
-		mVertices.PokeFloats(index * VERTEX_SIZE + NORMAL_OFFSET, [nx, ny, nz], 0, 3)
+		mVertices.PokeFloat(index * VERTEX_SIZE + NORMAL_OFFSET, nx)
+		mVertices.PokeFloat(index * VERTEX_SIZE + NORMAL_OFFSET + 4, ny)
+		mVertices.PokeFloat(index * VERTEX_SIZE + NORMAL_OFFSET + 8, nz)
 		mStatus |= STATUS_V_DIRTY
 	End
 	
 	Method SetVertexTangent:Void(index:Int, tx:Float, ty:Float, tz:Float)
-		mVertices.PokeFloats(index * VERTEX_SIZE + TANGENT_OFFSET, [tx, ty, tz], 0, 3)
+		mVertices.PokeFloat(index * VERTEX_SIZE + TANGENT_OFFSET, tx)
+		mVertices.PokeFloat(index * VERTEX_SIZE + TANGENT_OFFSET + 4, ty)
+		mVertices.PokeFloat(index * VERTEX_SIZE + TANGENT_OFFSET + 8, tz)
 		mStatus |= STATUS_V_DIRTY
 	End
 
 	Method SetVertexColor:Void(index:Int, r:Float, g:Float, b:Float, a:Float)
-		mVertices.PokeFloats(index * VERTEX_SIZE + COLOR_OFFSET, [r, g, b, a], 0, 4)
+		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET, r)
+		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 4, g)
+		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 8, b)
+		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 12, a)
 		mStatus |= STATUS_V_DIRTY
 	End
 
 	Method SetVertexTexCoords:Void(index:Int, u:Float, v:Float, set:Int = 0)
 		If set = 0
-			mVertices.PokeFloats(index * VERTEX_SIZE + TEX0_OFFSET, [u, v], 0, 2)
+			mVertices.PokeFloat(index * VERTEX_SIZE + TEX0_OFFSET, u)
+			mVertices.PokeFloat(index * VERTEX_SIZE + TEX0_OFFSET + 4, v)
 		Else
-			mVertices.PokeFloats(index * VERTEX_SIZE + TEX1_OFFSET, [u, v], 0, 2)
+			mVertices.PokeFloat(index * VERTEX_SIZE + TEX1_OFFSET, u)
+			mVertices.PokeFloat(index * VERTEX_SIZE + TEX1_OFFSET + 4, v)
+
 		End
 		mStatus |= STATUS_V_DIRTY
 	End
 	
 	Method SetVertexBone:Void(vertex:Int, index:Int, bone:Int, weight:Float)
-		'WebGL does not support int attributes, so storing it as a float is a very dirty trick I am using
+		'WebGL does not support int attributes, so storing it as a float is a trick I am using
 		mVertices.PokeFloat(vertex * VERTEX_SIZE + BONEINDICES_OFFSET + index * 4, bone)
 		mVertices.PokeFloat(vertex * VERTEX_SIZE + BONEWEIGHTS_OFFSET + index * 4, weight)
 		mStatus |= STATUS_V_DIRTY
