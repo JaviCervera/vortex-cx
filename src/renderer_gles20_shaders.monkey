@@ -34,7 +34,7 @@ Const STD_VERTEX_VARS:String = "" +
 "uniform bool lightEnabled[MAX_LIGHTS];" +
 "uniform vec4 lightPos[MAX_LIGHTS];" + 'In viewer space !!!
 "uniform vec3 lightColor[MAX_LIGHTS];" +
-"uniform float lightAttenuation[MAX_LIGHTS];" +
+"uniform float lightRadius[MAX_LIGHTS];" +
 "uniform vec4 baseColor;" +
 "uniform vec3 ambient;" +
 "uniform int shininess;" +
@@ -70,7 +70,7 @@ Const STD_FRAGMENT_VARS:String = "" +
 "uniform bool lightEnabled[MAX_LIGHTS];" +
 "uniform vec4 lightPos[MAX_LIGHTS];" +	'In viewer space !!!
 "uniform vec3 lightColor[MAX_LIGHTS];" +
-"uniform float lightAttenuation[MAX_LIGHTS];" +
+"uniform float lightRadius[MAX_LIGHTS];" +
 "uniform vec3 ambient;" +
 "uniform int shininess;" +
 "uniform bool fogEnabled;" +
@@ -94,7 +94,7 @@ Const SHADER_CALC_LIGHTING:String = "" +
 			'Point light
 "			if ( lightPos[i].w == 1.0 ) {" +
 "				L -= V;" +
-"				att = 1.0 / (1.0 + lightAttenuation[i]*length(L));" +
+"				att = 1.0 - clamp(length(L) / lightRadius[i], 0.0, 1.0);" +
 "			}" +
 
 "			L = normalize(L);" +

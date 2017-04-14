@@ -81,7 +81,7 @@ Public
 		'Prepare light
 		Lighting.SetLightEnabled(0, True)
 		Lighting.SetLightType(0, Lighting.POINT)
-		Lighting.SetLightAttenuation(0, 0.05)
+		Lighting.SetLightRadius(0, 10)
 		Lighting.SetLightColor(0, 1, 1, 1)
 			
 		Return False

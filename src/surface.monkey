@@ -64,15 +64,9 @@ Public
 	Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
 		'Create new buffer if current is too short
 		If mIndices.Length() < (mNumIndices + 3) * 2
-			'Read data in an array
-			Local data:Int[mIndices.Length()]
-			mIndices.PeekBytes(0, data, 0, mIndices.Length())
-
-			'Copy into new buffer
+			'Copy old buffer into new one
 			Local buf:DataBuffer = New DataBuffer(mIndices.Length() + INC*2)
-			buf.PokeBytes(0, data, 0, mIndices.Length())
-
-			'Change buffer
+			mIndices.CopyBytes(0, buf, 0, mIndices.Length())
 			mIndices.Discard()
 			mIndices = buf
 		End
@@ -94,7 +88,9 @@ Public
 	End
 
 	Method SetTriangleVertices:Void(index:Int, v0:Int, v1:Int, v2:Int)
-		mIndices.PokeShorts(index * 6, [v0, v1, v2], 0, 3)
+		mIndices.PokeShort(index * 6, v0)
+		mIndices.PokeShort(index * 6 + 2, v1)
+		mIndices.PokeShort(index * 6 + 4, v2)
 		mStatus |= STATUS_I_DIRTY
 	End
 
@@ -113,21 +109,28 @@ Public
 	Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, r:Float, g:Float, b:Float, a:Float, u0:Float, v0:Float)
 		'Create new buffer if current is too short
 		If mVertices.Length() < (NumVertices + 1) * VERTEX_SIZE
-			'Read data in an array
-			Local data:Int[mVertices.Length()]
-			mVertices.PeekBytes(0, data, 0, mVertices.Length())
-
-			'Copy into new buffer
+			'Copy old buffer into new one
 			Local buf:DataBuffer = New DataBuffer(mVertices.Length() + INC*VERTEX_SIZE)
-			buf.PokeBytes(0, data, 0, mVertices.Length())
-
-			'Change buffer
+			mVertices.CopyBytes(0, buf, 0, mVertices.Length())
 			mVertices.Discard()
 			mVertices = buf
 		End
 
 		'Copy new vertex data
-		mVertices.PokeFloats(mNumVertices * VERTEX_SIZE, [x, y, z, nx, ny, nz, 0.0, 0.0, 0.0, r, g, b, a, u0, v0, u0, v0], 0, 17)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE, x)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 4, y)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 8, z)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 12, nx)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 16, ny)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 20, nz)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 36, r)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 40, g)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 44, b)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 48, a)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 52, u0)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 56, v0)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 60, u0)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 64, v0)
 		mNumVertices += 1
 		
 		'Update status

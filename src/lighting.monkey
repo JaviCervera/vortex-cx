@@ -14,7 +14,7 @@ Class LightData Final
 		mRed = 1
 		mGreen = 1
 		mBlue = 1
-		mAttenuation = 0
+		mRadius = 100
 	End
 
 	Field mEnabled		: Bool
@@ -25,7 +25,7 @@ Class LightData Final
 	Field mRed			: Float
 	Field mGreen		: Float
 	Field mBlue			: Float
-	Field mAttenuation	: Float
+	Field mRadius		: Float
 End
 
 Public
@@ -98,14 +98,14 @@ Public
 		Return mLights[index].mBlue
 	End
 
-	Function SetLightAttenuation:Void(index:Int, att:Float)
+	Function SetLightRadius:Void(index:Int, radius:Float)
 		InitLights()
-		mLights[index].mAttenuation = att
+		mLights[index].mRadius = radius
 	End
 
-	Function GetLightAttenuation:Float(index:Int)
+	Function GetLightRadius:Float(index:Int)
 		InitLights()
-		Return mLights[index].mAttenuation
+		Return mLights[index].mRadius
 	End
 
 	Function Prepare:Void(ambientRed:Float = 0.3, ambientGreen:Float = 0.3, ambientBlue:Float = 0.3, globalPixelLighting:Bool = False)
@@ -115,7 +115,7 @@ Public
 		For Local i:Int = 0 Until mLights.Length()
 			Local light:LightData = mLights[i]
 			Renderer.GetViewMatrix().Mul(light.mX, light.mY, light.mZ, light.mW)
-			Renderer.SetLight(i, light.mEnabled, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, light.mW, light.mRed, light.mGreen, light.mBlue, light.mAttenuation)
+			Renderer.SetLight(i, light.mEnabled, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, light.mW, light.mRed, light.mGreen, light.mBlue, light.mRadius)
 		Next
 		mGlobalPixelLighting = globalPixelLighting
 	End

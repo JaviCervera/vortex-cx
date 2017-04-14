@@ -14,29 +14,29 @@ Import vortex.src.renderer_gles20_shaders
 '#If TARGET="html5"
 Const GLSL_VERSION : String = ""
 '#Else
-'Const GLSL_VERSION$ = "#version 120~n"
+'Const GLSL_VERSION:String = "#version 120~n"
 '#EndIf
 
 Public
 
 Class Renderer Final
 Public
-	Const BLEND_ALPHA% = 0
-	Const BLEND_ADD% = 1
-	Const BLEND_MUL% = 2
-	Const ELLIPSEPOINTS% = 64
-	Const FILTER_NONE% = 0
-	Const FILTER_LINEAR% = 1
-	Const FILTER_BILINEAR% = 2
-	Const FILTER_TRILINEAR% = 3
-	Const TEXTURE_DISABLED% = 0
-	Const TEXTURE_2D% = 1
-	Const BASETEX_UNIT% = 0
-	Const BASECUBE_UNIT% = 1
-	Const NORMALTEX_UNIT% = 2
-	Const LIGHTMAP_UNIT% = 3
-	Const REFLECTTEX_UNIT% = 4
-	Const REFRACTTEX_UNIT% = 5
+	Const BLEND_ALPHA:Int = 0
+	Const BLEND_ADD:Int = 1
+	Const BLEND_MUL:Int = 2
+	Const ELLIPSEPOINTS:Int = 64
+	Const FILTER_NONE:Int = 0
+	Const FILTER_LINEAR:Int = 1
+	Const FILTER_BILINEAR:Int = 2
+	Const FILTER_TRILINEAR:Int = 3
+	Const TEXTURE_DISABLED:Int = 0
+	Const TEXTURE_2D:Int = 1
+	Const BASETEX_UNIT:Int = 0
+	Const BASECUBE_UNIT:Int = 1
+	Const NORMALTEX_UNIT:Int = 2
+	Const LIGHTMAP_UNIT:Int = 3
+	Const REFLECTTEX_UNIT:Int = 4
+	Const REFRACTTEX_UNIT:Int = 5
 
 	'---------------------------------------------------------------------------
 	'Setup
@@ -53,8 +53,8 @@ Public
 		mVersionStr = glGetString(GL_VERSION)
 		mShadingVersionStr = glGetString(GL_SHADING_LANGUAGE_VERSION)
 #If LANG = "js"
-		Local glVersionStr$[] = mVersionStr.Split(" ")
-		Local glslVersionStr$[] = mShadingVersionStr.Split(" ")
+		Local glVersionStr:String[] = mVersionStr.Split(" ")
+		Local glslVersionStr:String[] = mShadingVersionStr.Split(" ")
 		mVersion = Float(glVersionStr[glVersionStr.Length() - 1])
 		mShadingVersion = Float(glslVersionStr[glslVersionStr.Length() - 1])
 #Else
@@ -142,8 +142,8 @@ Public
 		glScissor(x, y, w, h)
 
 		'Setup matrices
-		Local bottom# = y+h
-		Local top# = 0
+		Local bottom:Float = y+h
+		Local top:Float = 0
 		mTempMatrix.SetIdentity()
 		mTempMatrix.SetOrthoLH(0, x+w, bottom, top, 0, 100)
 		Renderer.SetProjectionMatrix(mTempMatrix)
@@ -242,7 +242,7 @@ Public
 		If mActiveProgram.mSkinnedLoc <> -1 Then glUniform1i(mActiveProgram.mSkinnedLoc, enable)
 	End
 
-	Function SetBlendMode:Void(mode%)
+	Function SetBlendMode:Void(mode:Int)
 		Select mode
 		Case BLEND_ALPHA
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -253,15 +253,15 @@ Public
 		End
 	End
 
-	Function SetColor:Void(r#, g#, b#, a# = 1)
+	Function SetColor:Void(r:Float, g:Float, b:Float, a:Float = 1)
 		If mActiveProgram.mBaseColorLoc <> -1 Then glUniform4f(mActiveProgram.mBaseColorLoc, r, g, b, a)
 	End
 
-	Function SetAmbient:Void(r#, g#, b#)
+	Function SetAmbient:Void(r:Float, g:Float, b:Float)
 		If mActiveProgram.mAmbientLoc <> -1 Then glUniform3f(mActiveProgram.mAmbientLoc, r, g, b)
 	End
 
-	Function SetShininess:Void(shininess%)
+	Function SetShininess:Void(shininess:Int)
 		If mActiveProgram.mShininessLoc <> -1 Then glUniform1i(mActiveProgram.mShininessLoc, shininess)
 	End
 	
@@ -293,12 +293,12 @@ Public
 		If mActiveProgram.mLightingEnabledLoc <> -1 Then glUniform1i(mActiveProgram.mLightingEnabledLoc, enable)
 	End
 
-	Function SetLight:Void(index%, enable:Bool, x#, y#, z#, w#, r#, g#, b#, att#)
+	Function SetLight:Void(index:Int, enable:Bool, x:Float, y:Float, z:Float, w:Float, r:Float, g:Float, b:Float, radius:Float)
 		If mActiveProgram.mLightEnabledLoc[index] <> -1 Then glUniform1i(mActiveProgram.mLightEnabledLoc[index], enable)
 		If enable
 			If mActiveProgram.mLightPosLoc[index] <> -1 Then glUniform4f(mActiveProgram.mLightPosLoc[index], x, y, z, w)
 			If mActiveProgram.mLightColorLoc[index] <> -1 Then glUniform3f(mActiveProgram.mLightColorLoc[index], r, g, b)
-			If mActiveProgram.mLightAttenuationLoc[index] <> -1 Then glUniform1f(mActiveProgram.mLightAttenuationLoc[index], att)
+			If mActiveProgram.mLightRadiusLoc[index] <> -1 Then glUniform1f(mActiveProgram.mLightRadiusLoc[index], radius)
 		End
 	End
 	
@@ -310,7 +310,7 @@ Public
 	' Drawing
 	'---------------------------------------------------------------------------
 
-	Function ClearColorBuffer:Void(r# = 0, g# = 0, b# = 0)
+	Function ClearColorBuffer:Void(r:Float = 0, g:Float = 0, b:Float = 0)
 		glClearColor(r, g, b, 1)
 		glClear(GL_COLOR_BUFFER_BIT)
 	End
@@ -470,7 +470,7 @@ Public
 		Return texture
 	End
 
-	Function FreeTexture:Void(texture%)
+	Function FreeTexture:Void(texture:Int)
 		glDeleteTexture(texture)
 	End
 
@@ -562,7 +562,7 @@ Public
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
 	End
 
-	Function DrawBuffers:Void(vertexBuffer%, indexBuffer%, numIndices%, coordsOffset%, normalsOffset%, tangentsOffset%, colorsOffset%, texCoordsOffset%, texCoords2Offset%, boneIndicesOffset%, boneWeightsOffset%, stride%)
+	Function DrawBuffers:Void(vertexBuffer:Int, indexBuffer:Int, numIndices:Int, coordsOffset:Int, normalsOffset:Int, tangentsOffset:Int, colorsOffset:Int, texCoordsOffset:Int, texCoords2Offset:Int, boneIndicesOffset:Int, boneWeightsOffset:Int, stride:Int)
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer)
 		If coordsOffset >= 0 And mActiveProgram.mVPosLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVPosLoc); glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, stride, coordsOffset)
@@ -590,14 +590,14 @@ Public
 	' Shaders
 	'---------------------------------------------------------------------------
 
-	Function CreateProgram:GpuProgram(vertex$, fragment$)
+	Function CreateProgram:GpuProgram(vertex:String, fragment:String)
 		vertex = GLSL_VERSION + "#define MAX_LIGHTS " + mMaxLights + "~n#define MAX_BONES " + mMaxBones + "~n" + vertex
 		fragment = GLSL_VERSION + "#define MAX_LIGHTS " + mMaxLights + "~n" + fragment
 
-		Local retCode%[1]
+		Local retCode:Int[1]
 
 		'Create vertex shader
-		Local vshader% = glCreateShader(GL_VERTEX_SHADER)
+		Local vshader:Int = glCreateShader(GL_VERTEX_SHADER)
 		glShaderSource(vshader, vertex)
 		glCompileShader(vshader)
 		mProgramError = glGetShaderInfoLog(vshader)
@@ -608,7 +608,7 @@ Public
 		End
 
 		'Create fragment shader
-		Local fshader% = glCreateShader(GL_FRAGMENT_SHADER)
+		Local fshader:Int = glCreateShader(GL_FRAGMENT_SHADER)
 		glShaderSource(fshader, fragment)
 		glCompileShader(fshader)
 		mProgramError += "~n" + glGetShaderInfoLog(fshader)
@@ -620,7 +620,7 @@ Public
 		End
 
 		'Create program
-		Local program% = glCreateProgram()
+		Local program:Int = glCreateProgram()
 		glAttachShader(program, vshader)
 		glAttachShader(program, fshader)
 		glLinkProgram(program)
@@ -650,7 +650,7 @@ Public
 		Return mDefaultProgram
 	End
 
-	Function GetProgramError$()
+	Function GetProgramError:String()
 		Return mProgramError
 	End
 	
@@ -721,8 +721,8 @@ Private
 	Global mRenderer:String
 	Global mVersionStr:String
 	Global mShadingVersionStr:String
-	Global mVersion#
-	Global mShadingVersion#
+	Global mVersion:Float
+	Global mShadingVersion:Float
 
 	Global mEllipseBuffer:Int
 	Global mLineBuffer:Int
@@ -736,53 +736,53 @@ Private
 	Global mDefaultProgram:GpuProgram			'Default program id
 	Global m2DProgram:GpuProgram				'Default 2D program id
 	Global mActiveProgram:GpuProgram			'Currently active program
-	Global mProgramError$						'Last error occured when compiling or linking a shader
+	Global mProgramError:String						'Last error occured when compiling or linking a shader
 End
 
 Private
 
 Class GpuProgram
-	Field mProgramId%
-	Field mMVPLoc%
-	Field mModelViewLoc%
-	Field mNormalMatrixLoc%
-	Field mInvViewLoc%
-	Field mBaseTexModeLoc%
-	Field mUseNormalTexLoc%
+	Field mProgramId:Int
+	Field mMVPLoc:Int
+	Field mModelViewLoc:Int
+	Field mNormalMatrixLoc:Int
+	Field mInvViewLoc:Int
+	Field mBaseTexModeLoc:Int
+	Field mUseNormalTexLoc:Int
 	Field mUseLightmapLoc:Int
-	Field mUseReflectTexLoc%
-	Field mUseRefractTexLoc%
-	Field mBaseTexSamplerLoc%
-	Field mBaseCubeSamplerLoc%
-	Field mNormalTexSamplerLoc%
+	Field mUseReflectTexLoc:Int
+	Field mUseRefractTexLoc:Int
+	Field mBaseTexSamplerLoc:Int
+	Field mBaseCubeSamplerLoc:Int
+	Field mNormalTexSamplerLoc:Int
 	Field mLightmapSamplerLoc:Int
-	Field mReflectCubeSamplerLoc%
-	Field mRefractCubeSamplerLoc%
-	Field mUsePixelLightingLoc%
-	Field mLightingEnabledLoc%
-	Field mLightEnabledLoc%[Renderer.mMaxLights]
-	Field mLightPosLoc%[Renderer.mMaxLights]
-	Field mLightColorLoc%[Renderer.mMaxLights]
-	Field mLightAttenuationLoc%[Renderer.mMaxLights]
-	Field mBaseColorLoc%
-	Field mAmbientLoc%
-	Field mShininessLoc%
-	Field mRefractCoefLoc%
-	Field mFogEnabledLoc%
-	Field mFogDistLoc%
-	Field mFogColorLoc%
-	Field mSkinnedLoc%
-	Field mBonesLoc%[Renderer.mMaxBones]
-	Field mVPosLoc%
-	Field mVNormalLoc%
-	Field mVTangentLoc%
-	Field mVColorLoc%
-	Field mVTexLoc%
+	Field mReflectCubeSamplerLoc:Int
+	Field mRefractCubeSamplerLoc:Int
+	Field mUsePixelLightingLoc:Int
+	Field mLightingEnabledLoc:Int
+	Field mLightEnabledLoc:Int[Renderer.mMaxLights]
+	Field mLightPosLoc:Int[Renderer.mMaxLights]
+	Field mLightColorLoc:Int[Renderer.mMaxLights]
+	Field mLightRadiusLoc:Int[Renderer.mMaxLights]
+	Field mBaseColorLoc:Int
+	Field mAmbientLoc:Int
+	Field mShininessLoc:Int
+	Field mRefractCoefLoc:Int
+	Field mFogEnabledLoc:Int
+	Field mFogDistLoc:Int
+	Field mFogColorLoc:Int
+	Field mSkinnedLoc:Int
+	Field mBonesLoc:Int[Renderer.mMaxBones]
+	Field mVPosLoc:Int
+	Field mVNormalLoc:Int
+	Field mVTangentLoc:Int
+	Field mVColorLoc:Int
+	Field mVTexLoc:Int
 	Field mVTex2Loc:Int
-	Field mVBoneIndicesLoc%
-	Field mVBoneWeightsLoc%
+	Field mVBoneIndicesLoc:Int
+	Field mVBoneWeightsLoc:Int
 	
-	Method New(program%)
+	Method New(program:Int)
 		mProgramId = program
 		glUseProgram(program)
 		mMVPLoc = glGetUniformLocation(program, "mvp")
@@ -796,11 +796,11 @@ Class GpuProgram
 		mUseRefractTexLoc = glGetUniformLocation(program, "useRefractTex")
 		mUsePixelLightingLoc = glGetUniformLocation(program, "usePixelLighting")
 		mLightingEnabledLoc = glGetUniformLocation(program, "lightingEnabled")
-		For Local i% = 0 Until Renderer.mMaxLights
+		For Local i:Int = 0 Until Renderer.mMaxLights
 			mLightEnabledLoc[i] = glGetUniformLocation(program, "lightEnabled[" + i + "]")
 			mLightPosLoc[i] = glGetUniformLocation(program, "lightPos[" + i + "]")
 			mLightColorLoc[i] = glGetUniformLocation(program, "lightColor[" + i + "]")
-			mLightAttenuationLoc[i] = glGetUniformLocation(program, "lightAttenuation[" + i + "]")
+			mLightRadiusLoc[i] = glGetUniformLocation(program, "lightRadius[" + i + "]")
 		Next
 		mBaseColorLoc = glGetUniformLocation(program, "baseColor")
 		mAmbientLoc = glGetUniformLocation(program, "ambient")
@@ -810,7 +810,7 @@ Class GpuProgram
 		mFogDistLoc = glGetUniformLocation(program, "fogDist")
 		mFogColorLoc = glGetUniformLocation(program, "fogColor")
 		mSkinnedLoc = glGetUniformLocation(program, "skinned")
-		For Local i% = 0 Until Renderer.mMaxBones
+		For Local i:Int = 0 Until Renderer.mMaxBones
 			mBonesLoc[i] = glGetUniformLocation(program, "bones[" + i + "]")
 		Next
 		mVPosLoc = glGetAttribLocation(program, "vpos")

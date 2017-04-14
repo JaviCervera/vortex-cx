@@ -13,11 +13,11 @@ V2.0:
 + Reuse textures when loading
 + Add "Create cube" in meshtool
 + Materials without depth writing should be rendered after the ones with it
-- Remove use of arrays in Surface class
-- Replace light attenuation with radius
++ Remove use of arrays in Surface class
++ Replace light attenuation with radius
+- Replace XML meshes and fonts with binary ones (use separate mesh, skeleton and animation files)
 - Add texture matrix in Material
 - Remove textures on meshtool
-- Replace XML meshes and fonts with binary ones (use separate mesh, skeleton and animation files)
 - Add tangents export in meshtool
 - Add shadows
 - Update docs (talk about RenderList and update classes and methods)
