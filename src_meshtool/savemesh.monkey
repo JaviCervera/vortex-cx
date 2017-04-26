@@ -5,7 +5,52 @@ Import os
 Import vortex
 
 Public
-Function SaveMesh:Void(mesh:Mesh, filename:String, exportAnimations:Bool)
+
+Function MaterialSize:Int(mat:Material)
+	Local size:Int = 16		'RGBA
+	'Set used textures
+	Local usedTextures:Int = 0	'1=Diffuse2D,2=DiffuseCube,4=Normal,8=Lightmap,16=Reflect,32=Refract
+	If mat.DiffuseTexture And mat.DiffuseTexture.Cubic Then usedTexture |= 1
+	
+	size += 64 * 6			'Diffuse Tex (only one string if 2d, 6 strings if cube
+	size += 64				'Normal
+	size += 64				'Lightmap
+	size += 64 * 6			'Reflect
+	size += 64 * 6			'Refract
+	size += 4				'RefractCoef
+	size += 4				'Shininess
+	size += 1				'BlendMode
+	size += 1				'Flags
+End
+
+Function SurfaceSize:Int(surf:Surface)
+	Local size:Int = MaterialSize(surf.Material)
+	
+End
+
+Function MeshSize:Int(mesh:Mesh)
+	Local size:Int = 4	'Id + version
+	size += 4			'Number of surfaces
+	For Local surf:Surface = Eachin mesh.mSurfaces
+		size += SurfaceSize(surf)
+	Next
+	Return size 
+End
+
+Function SaveMesh:Void(mesh:Mesh, filename:String)
+	DataStream
+End
+
+Function SaveSkeleton:Void(bones:Bone[], filename:String)
+
+End
+
+Function SaveAnimation:Void(bones:Bone[], filename:String)
+
+End
+
+
+Function SaveMeshXML:Void(mesh:Mesh, filename:String, exportAnimations:Bool)
 	Local buffer:String = "<mesh>~n"
 	
 	'Export materials

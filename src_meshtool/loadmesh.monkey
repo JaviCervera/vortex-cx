@@ -11,6 +11,10 @@ Import vortex
 Public
 
 Function LoadMesh:Mesh(filename:String)
+	'Directly load native XML meshes
+	If ExtractExt(filename).ToLower() = "xml" Then Return Mesh.Load(filename)
+
+	'Use external tool to load other mesh formats
 #If HOST="winnt"
 	Local ext:String = ".exe"
 #Else

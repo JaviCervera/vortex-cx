@@ -164,7 +164,7 @@ Public
 					Else
 						filename = StripExt(filename) + ".msh.xml"
 					End
-					If filename <> "" Then SaveMesh(mMesh, filename, mExportAnimations)
+					If filename <> "" Then SaveMeshXML(mMesh, filename, mExportAnimations)
 				End
 			'Export animations
 			Elseif mAnimationsRect.IsPointInside(MouseX(), MouseY()) And mMesh
