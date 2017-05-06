@@ -1,44 +1,168 @@
 Strict
 
 Private
+Import brl.datastream
+Import brl.filestream
 Import os
 Import vortex
 
 Public
 
 Function MaterialSize:Int(mat:Material)
-	Local size:Int = 16		'RGBA
-	'Set used textures
-	Local usedTextures:Int = 0	'1=Diffuse2D,2=DiffuseCube,4=Normal,8=Lightmap,16=Reflect,32=Refract
-	If mat.DiffuseTexture And mat.DiffuseTexture.Cubic Then usedTexture |= 1
+	'Fixed header
+	Local size:Int = 16	'RGBA
+	size += 1			'BlendMode
+	size += 1			'Flags
+	size += 4			'Shininess
+	size += 4			'RefractCoef
+	size += 1			'Used textures
 	
-	size += 64 * 6			'Diffuse Tex (only one string if 2d, 6 strings if cube
-	size += 64				'Normal
-	size += 64				'Lightmap
-	size += 64 * 6			'Reflect
-	size += 64 * 6			'Refract
-	size += 4				'RefractCoef
-	size += 4				'Shininess
-	size += 1				'BlendMode
-	size += 1				'Flags
+	'Texture names
+	If mat.DiffuseTexture Then size += 4 + mat.DiffuseTexture.Filename.Length
+	If mat.NormalTexture Then size += 4 + mat.NormalTexture.Filename.Length
+	If mat.Lightmap Then size += 4 + mat.Lightmap.Filename.Length
+	If mat.ReflectionTexture Then size += 4 + mat.ReflectionTexture.Filename.Length
+	If mat.RefractionTexture Then size += 4 + mat.RefractionTexture.Filename.Length
+	
+	Return size
 End
 
 Function SurfaceSize:Int(surf:Surface)
-	Local size:Int = MaterialSize(surf.Material)
+	'Header
+	Local size:Int = MaterialSize(surf.Material)	'Material
+	size += 4										'NumIndices
+	size += 2										'NumVertices
 	
+	'Indices and vertices
+	size += surf.NumTriangles * 6
+	size += surf.NumVertices * 92
+	
+	Return size
 End
 
 Function MeshSize:Int(mesh:Mesh)
-	Local size:Int = 4	'Id + version
-	size += 4			'Number of surfaces
-	For Local surf:Surface = Eachin mesh.mSurfaces
-		size += SurfaceSize(surf)
+	'Fixed header
+	Local size:Int = 4	'Id & version
+	size += 2			'Number of surfaces
+	
+	'Surfaces
+	For Local i:Int = 0 Until mesh.NumSurfaces
+		size += SurfaceSize(mesh.GetSurface(i))
 	Next
+	
 	Return size 
 End
 
+Function WriteMaterialData:Void(stream:DataStream, mat:Material)
+	'Color
+	stream.WriteFloat(mat.DiffuseRed)
+	stream.WriteFloat(mat.DiffuseGreen)
+	stream.WriteFloat(mat.DiffuseBlue)
+	stream.WriteFloat(mat.Opacity)
+	
+	'Blend mode
+	stream.WriteByte(mat.BlendMode)
+	
+	'Flags
+	Local flags:Int = 0
+	If mat.Culling Then flags |= 1
+	If mat.DepthWrite Then flags |= 2
+	stream.WriteByte(flags)
+	
+	'Shininess
+	stream.WriteFloat(mat.Shininess)
+	
+	'Refraction coef
+	stream.WriteFloat(mat.RefractionCoef)
+	
+	'Used textures
+	Local usedTexs:Int = 0	'1=Diffuse2D,2=DiffuseCube,4=Normal,8=Lightmap,16=Reflect,32=Refract
+	If mat.DiffuseTexture And Not mat.DiffuseTexture.Cubic Then usedTexs |= 1
+	If mat.DiffuseTexture And mat.DiffuseTexture.Cubic Then usedTexs |= 2
+	If mat.NormalTexture Then usedTexs |= 4
+	If mat.Lightmap Then usedTexs |= 8
+	If mat.ReflectionTexture Then usedTexs |= 16
+	If mat.RefractionTexture Then usedTexs |= 32
+	stream.WriteByte(usedTexs)
+	
+	'Texture names
+	If mat.DiffuseTexture Then stream.WriteInt(mat.DiffuseTexture.Filename.Length); stream.WriteString(mat.DiffuseTexture.Filename)
+	If mat.NormalTexture Then stream.WriteInt(mat.NormalTexture.Filename.Length); stream.WriteString(mat.NormalTexture.Filename)
+	If mat.Lightmap Then stream.WriteInt(mat.Lightmap.Filename.Length); stream.WriteString(mat.Lightmap.Filename)
+	If mat.ReflectionTexture Then stream.WriteInt(mat.ReflectionTexture.Filename.Length); stream.WriteString(mat.ReflectionTexture.Filename)
+	If mat.RefractionTexture Then stream.WriteInt(mat.RefractionTexture.Filename.Length); stream.WriteString(mat.RefractionTexture.Filename)
+End
+
+Function WriteSurfaceData:Void(stream:DataStream, surf:Surface)
+	'Material
+	WriteMaterialData(stream, surf.Material)
+	
+	'Number of indices and vertices
+	stream.WriteInt(surf.NumTriangles * 3)
+	stream.WriteShort(surf.NumVertices)
+	
+	'Indices
+	For Local t:Int = 0 Until surf.NumTriangles
+		stream.WriteShort(surf.GetTriangleV0(t))
+		stream.WriteShort(surf.GetTriangleV1(t))
+		stream.WriteShort(surf.GetTriangleV2(t))
+	Next
+	
+	'Vertices
+	For Local v:Int = 0 Until surf.NumVertices
+		stream.WriteFloat(surf.GetVertexX(v))
+		stream.WriteFloat(surf.GetVertexY(v))
+		stream.WriteFloat(surf.GetVertexZ(v))
+		stream.WriteFloat(surf.GetVertexNX(v))
+		stream.WriteFloat(surf.GetVertexNY(v))
+		stream.WriteFloat(surf.GetVertexNZ(v))
+		stream.WriteFloat(surf.GetVertexTX(v))
+		stream.WriteFloat(surf.GetVertexTY(v))
+		stream.WriteFloat(surf.GetVertexTZ(v))
+		stream.WriteFloat(surf.GetVertexRed(v))
+		stream.WriteFloat(surf.GetVertexGreen(v))
+		stream.WriteFloat(surf.GetVertexBlue(v))
+		stream.WriteFloat(surf.GetVertexAlpha(v))
+		stream.WriteFloat(surf.GetVertexU(v, 0))
+		stream.WriteFloat(surf.GetVertexV(v, 0))
+		stream.WriteFloat(surf.GetVertexU(v, 1))
+		stream.WriteFloat(surf.GetVertexV(v, 1))
+		stream.WriteShort(surf.GetVertexBoneIndex(v, 0))
+		stream.WriteShort(surf.GetVertexBoneIndex(v, 1))
+		stream.WriteShort(surf.GetVertexBoneIndex(v, 2))
+		stream.WriteShort(surf.GetVertexBoneIndex(v, 3))
+		stream.WriteFloat(surf.GetVertexBoneWeight(v, 0))
+		stream.WriteFloat(surf.GetVertexBoneWeight(v, 1))
+		stream.WriteFloat(surf.GetVertexBoneWeight(v, 2))
+		stream.WriteFloat(surf.GetVertexBoneWeight(v, 3))
+	Next
+End
+
+Function CreateMeshData:DataBuffer(mesh:Mesh)
+	Local stream:DataStream = New DataStream(New DataBuffer(MeshSize(mesh)))
+	
+	'Id & version
+	stream.WriteByte("M"[0])
+	stream.WriteByte("E"[0])
+	stream.WriteByte("0"[0])
+	stream.WriteByte("1"[0])
+	
+	'Number of surfaces
+	stream.WriteShort(mesh.NumSurfaces)
+	
+	'Surfaces
+	For Local i:Int = 0 Until mesh.NumSurfaces
+		WriteSurfaceData(stream, mesh.GetSurface(i))
+	Next
+	
+	Return stream.Data
+End
+
 Function SaveMesh:Void(mesh:Mesh, filename:String)
-	DataStream
+	Local meshData:DataBuffer = CreateMeshData(mesh)
+	Local fileStream:FileStream = New FileStream(filename, "w")
+	fileStream.WriteAll(meshData, 0, meshData.Length)
+	fileStream.Close()
 End
 
 Function SaveSkeleton:Void(bones:Bone[], filename:String)
