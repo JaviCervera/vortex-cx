@@ -156,15 +156,19 @@ Public
 					Local filename:String = mFilename
 					If filename = ""
 #If HOST="linux"
-						filename = RequestFile("Save mesh", "Mesh Files (*.msh.xml)~tAll Files (*)", True)
+						'filename = RequestFile("Save mesh", "Mesh Files (*.msh.xml)~tAll Files (*)", True)
+						filename = RequestFile("Save mesh", "Mesh Files (*.msh)~tAll Files (*)", True)
 #Else
-						filename = RequestFile("Save mesh", "Mesh Files:msh.xml;All Files:*", True)
+						'filename = RequestFile("Save mesh", "Mesh Files:msh.xml;All Files:*", True)
+						filename = RequestFile("Save mesh", "Mesh Files:msh;All Files:*", True)
 #End
 						If filename <> "" Then mFilename = filename
 					Else
-						filename = StripExt(filename) + ".msh.xml"
+						'filename = StripExt(filename) + ".msh.xml"
+						filename = StripExt(filename) + ".msh"
 					End
-					If filename <> "" Then SaveMeshXML(mMesh, filename, mExportAnimations)
+					'If filename <> "" Then SaveMeshXML(mMesh, filename, mExportAnimations)
+					If filename <> "" Then SaveMesh(mMesh, filename)
 				End
 			'Export animations
 			Elseif mAnimationsRect.IsPointInside(MouseX(), MouseY()) And mMesh

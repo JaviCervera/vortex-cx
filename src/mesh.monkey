@@ -1,6 +1,8 @@
 Strict
 
 Private
+Import brl.databuffer
+Import brl.datastream
 Import brl.filepath
 Import mojo.app
 Import vortex.src.bone
@@ -39,7 +41,131 @@ Public
 	End
 	
 	Function Load:Mesh(filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
-		Return Mesh.LoadString(app.LoadString(filename), filename, texFilter)
+		If ExtractExt(filename).ToLower() = "xml"
+			Return Mesh.LoadString(app.LoadString(filename), filename, texFilter)
+		Else
+			'Fix filename
+			If String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then filename = "monkey://data/" + filename
+			Local data:DataBuffer = DataBuffer.Load(filename)
+			If Not data Then Return Null
+			Return Mesh.LoadData(data, filename, texFilter)
+		End
+	End
+	
+	Function LoadData:Mesh(data:DataBuffer, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
+		Local stream:DataStream = New DataStream(data)
+		
+		'Id
+		Local id:String = stream.ReadString(4)
+		If id <> "ME01" Then Return Null
+		
+		'Create mesh
+		Local mesh:Mesh = Mesh.Create()
+		mesh.Filename = filename
+		
+		'Surfaces
+		Local numSurfaces:Int = stream.ReadShort()
+		For Local s:Int = 0 Until numSurfaces
+			Local surf:Surface = Surface.Create()
+		
+			'Material
+			Local flags:Int = 0
+			surf.Material.DiffuseRed = stream.ReadFloat()
+			surf.Material.DiffuseGreen = stream.ReadFloat()
+			surf.Material.DiffuseBlue = stream.ReadFloat()
+			surf.Material.Opacity = stream.ReadFloat()
+			surf.Material.BlendMode = stream.ReadByte()
+			flags = stream.ReadByte()
+			If flags & 1 Then surf.Material.Culling = True Else surf.Material.Culling = False
+			If flags & 2 Then surf.Material.DepthWrite = True Else surf.Material.DepthWrite = False
+			surf.Material.Shininess = stream.ReadFloat()
+			surf.Material.RefractionCoef = stream.ReadFloat()
+			
+			'Material textures
+			Local usedTexs:Int = 0
+			Local strLen:Int = 0
+			usedTexs = stream.ReadByte()
+			If usedTexs & 1
+				strLen = stream.ReadInt()
+				surf.Material.DiffuseTexture = Texture.Load(stream.ReadString(strLen), texFilter)
+			End
+			If usedTexs & 2
+				strLen = stream.ReadInt()
+				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
+				surf.Material.DiffuseTexture = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+			End
+			If usedTexs & 4
+				strLen = stream.ReadInt()
+				surf.Material.NormalTexture = Texture.Load(stream.ReadString(strLen), texFilter)
+			End
+			If usedTexs & 8
+				strLen = stream.ReadInt()
+				surf.Material.Lightmap = Texture.Load(stream.ReadString(strLen), texFilter)
+			End
+			If usedTexs & 16
+				strLen = stream.ReadInt()
+				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
+				surf.Material.ReflectionTexture = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+			End
+			If usedTexs & 32
+				strLen = stream.ReadInt()
+				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
+				surf.Material.RefractionTexture = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+			End
+			
+			'Number of indices and vertices
+			Local numIndices:Int = stream.ReadInt()
+			Local numVertices:Int = stream.ReadShort()
+			
+			'Indices
+			For Local i:Int = 0 Until numIndices Step 3
+				Local v0:Int = stream.ReadShort()
+				Local v1:Int = stream.ReadShort()
+				Local v2:Int = stream.ReadShort()
+				surf.AddTriangle(v0, v1, v2)
+			Next
+			
+			'Vertices
+			For Local v:Int = 0 Until numVertices
+				Local x:Float = stream.ReadFloat()
+				Local y:Float = stream.ReadFloat()
+				Local z:Float = stream.ReadFloat()
+				Local nx:Float = stream.ReadFloat()
+				Local ny:Float = stream.ReadFloat()
+				Local nz:Float = stream.ReadFloat()
+				Local tx:Float = stream.ReadFloat()
+				Local ty:Float = stream.ReadFloat()
+				Local tz:Float = stream.ReadFloat()
+				Local r:Float = stream.ReadFloat()
+				Local g:Float = stream.ReadFloat()
+				Local b:Float = stream.ReadFloat()
+				Local a:Float = stream.ReadFloat()
+				Local u0:Float = stream.ReadFloat()
+				Local v0:Float = stream.ReadFloat()
+				Local u1:Float = stream.ReadFloat()
+				Local v1:Float = stream.ReadFloat()
+				Local b0:Int = stream.ReadShort()
+				Local b1:Int = stream.ReadShort()
+				Local b2:Int = stream.ReadShort()
+				Local b3:Int = stream.ReadShort()
+				Local w0:Float = stream.ReadFloat()
+				Local w1:Float = stream.ReadFloat()
+				Local w2:Float = stream.ReadFloat()
+				Local w3:Float = stream.ReadFloat()
+				
+				surf.AddVertex(x, y, z, nx, ny, nz, r, g, b, a, u0, v0)
+				surf.SetVertexTangent(v, tx, ty, tz)
+				surf.SetVertexTexCoords(v, u1, v1, 1)
+				surf.SetVertexBone(v, 0, b0, w0)
+				surf.SetVertexBone(v, 1, b1, w1)
+				surf.SetVertexBone(v, 2, b2, w2)
+				surf.SetVertexBone(v, 3, b3, w3)
+			Next
+			
+			mesh.AddSurface(surf)
+		Next
+		
+		Return mesh
 	End
 	
 	Function LoadString:Mesh(buffer:String, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
