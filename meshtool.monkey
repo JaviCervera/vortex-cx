@@ -1,3 +1,6 @@
+'NOTE: To build on Win32 GCC, you need to go to the Makefile (i.e. glfw3/gcc_winnt/Makefile)
+'and add -lole32 to LDLIBS property
+
 Strict
 
 #GLFW_WINDOW_TITLE="Vortex2 Mesh Tool"
@@ -12,15 +15,9 @@ Strict
 #End
 
 Import brl.filepath
-#If TARGET="glfw" And HOST<>"linux"
-Import brl.requesters
-#Endif
-#If TARGET="glfw" And HOST="linux"
-Import src_meshtool.fltkrequestfile
-#End
 Import mojo.app
 Import mojo.input
-Import src_meshtool.fltkrequestcolor
+Import src_meshtool.dialog
 Import src_meshtool.gui
 Import src_meshtool.loadmesh
 Import src_meshtool.savemesh
@@ -155,13 +152,8 @@ Public
 				If mMesh
 					Local filename:String = mFilename
 					If filename = ""
-#If HOST="linux"
-						'filename = RequestFile("Save mesh", "Mesh Files (*.msh.xml)~tAll Files (*)", True)
-						filename = RequestFile("Save mesh", "Mesh Files (*.msh)~tAll Files (*)", True)
-#Else
 						'filename = RequestFile("Save mesh", "Mesh Files:msh.xml;All Files:*", True)
 						filename = RequestFile("Save mesh", "Mesh Files:msh;All Files:*", True)
-#End
 						If filename <> "" Then mFilename = filename
 					Else
 						'filename = StripExt(filename) + ".msh.xml"
@@ -191,7 +183,7 @@ Public
 				If mSelMat = mMesh.NumSurfaces Then mSelMat = 0
 			'Diffuse color
 			Elseif mDiffuseColorRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
-				Local color:Float[] = RequestColor("Select diffuse color", mMesh.GetSurface(mSelMat).Material.DiffuseRed, mMesh.GetSurface(mSelMat).Material.DiffuseGreen, mMesh.GetSurface(mSelMat).Material.DiffuseBlue)
+				Local color:Float[] = ColorDialog("Select diffuse color", mMesh.GetSurface(mSelMat).Material.DiffuseRed, mMesh.GetSurface(mSelMat).Material.DiffuseGreen, mMesh.GetSurface(mSelMat).Material.DiffuseBlue)
 				If color.Length > 0 Then mMesh.GetSurface(mSelMat).Material.SetDiffuseColor(color[0], color[1], color[2])
 			'Diffuse texture
 			Elseif mDiffuseTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y) And mMesh
