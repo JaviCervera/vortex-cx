@@ -87,8 +87,8 @@ std::string GenXML(const mesh_t* mesh) {
   }
   buffer += "\t</surfaces>\n";
 
-  // gen last frame
-  buffer += "\t<last_frame>" + StringFromNumber(mesh->num_frames) + "</last_frame>\n";
+  // gen num frames
+  buffer += "\t<num_frames>" + StringFromNumber(mesh->num_frames) + "</num_frames>\n";
 
   // gen bones
   buffer += "\t<bones>\n";

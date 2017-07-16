@@ -9,7 +9,7 @@ Import "native/dialog.cpp"
 '#GLFW_GCC_CC_OPTS+="-lole32"
 #End
 #Else
-#Error "Only the C++ language is supported in Lib module"
+#Error "Only the C++ language is supported in Dialog module"
 #End
 
 Extern Private

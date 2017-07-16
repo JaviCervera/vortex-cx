@@ -6,6 +6,7 @@ Strict
 #GLFW_WINDOW_RESIZABLE=True
 #GLFW_WINDOW_SAMPLES=2
 #OPENGL_DEPTH_BUFFER_ENABLED=True
+#BINARY_FILES+="*.msh|*.skl|*.anm"
 
 #If TARGET="glfw" And HOST<>"linux"
 Import brl.requesters
@@ -55,15 +56,11 @@ Public
 		'Load cubic texture
 		mTexture = Texture.Load("left.jpg", "right.jpg", "front.jpg", "back.jpg", "top.jpg", "bottom.jpg")
 		
-		'Load normal texture
-		mNormalTex = Texture.Load("t3_NORMALS.png")
-		
 		'Load box mesh
-		mMesh = Mesh.Load("cube.msh.xml")
+		mMesh = Mesh.Load("cube.msh")
 		Local mat:Material = mMesh.GetSurface(0).Material
 		mat.Shininess = 1
 		'mat.DiffuseTexture = Null
-		mat.NormalTexture = mNormalTex
 		'mat.ReflectionTexture = mTexture
 		'mat.RefractionTexture = mTexture
 		'mat.RefractionCoef = 0.98

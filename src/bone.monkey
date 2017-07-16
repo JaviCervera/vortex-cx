@@ -190,8 +190,8 @@ Private
 	End
 
 	Method CalcPosition:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
-		Local firstFrameIndex% = -1
-		For Local i% = 0 Until mPositionKeys.Length()
+		Local firstFrameIndex:Int = -1
+		For Local i:Int = 0 Until mPositionKeys.Length()
 			'Find first frame
 			If mPositionKeys[i] < firstSeqFrame
 				Continue
@@ -220,8 +220,8 @@ Private
 	End
 
 	Method CalcRotation:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
-		Local firstFrameIndex% = -1
-		For Local i% = 0 Until mRotationKeys.Length()
+		Local firstFrameIndex:Int = -1
+		For Local i:Int = 0 Until mRotationKeys.Length()
 			'Find first frame
 			If mRotationKeys[i] < firstSeqFrame
 				Continue
@@ -250,8 +250,8 @@ Private
 	End
 
 	Method CalcScale:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
-		Local firstFrameIndex% = -1
-		For Local i% = 0 Until mScaleKeys.Length()
+		Local firstFrameIndex:Int = -1
+		For Local i:Int = 0 Until mScaleKeys.Length()
 			'Find first frame
 			If mScaleKeys[i] < firstSeqFrame
 				Continue

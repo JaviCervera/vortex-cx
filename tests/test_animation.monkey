@@ -6,6 +6,7 @@ Strict
 #GLFW_WINDOW_RESIZABLE=True
 #GLFW_WINDOW_SAMPLES=2
 #OPENGL_DEPTH_BUFFER_ENABLED=True
+#BINARY_FILES+="*.msh|*.skl|*.anm"
 
 #If TARGET="glfw" And HOST<>"linux"
 Import brl.requesters
@@ -51,7 +52,7 @@ Public
 		mRenderList = RenderList.Create()
 		
 		'Load SWAT model, create matrices for animation data, and add mesh to RenderList
-		mSwatMesh = Mesh.Load ("swat.msh.xml")
+		mSwatMesh = Mesh.Load ("swat.msh", "swat.skl", "swat.anm")
 		mSwatAnimMatrices = New Mat4[mSwatMesh.NumBones]
 		For Local i:Int = 0 Until mSwatAnimMatrices.Length()
 			mSwatAnimMatrices[i] = Mat4.Create()
@@ -60,7 +61,7 @@ Public
 		mRenderList.AddMesh(mSwatMesh, mSwatModel, mSwatAnimMatrices)
 		
 		'Load dwarf model, create matrices for animation data, and add mesh to RenderList
-		mDwarfMesh = Mesh.Load("dwarf.msh.xml")
+		mDwarfMesh = Mesh.Load("dwarf.msh", "dwarf.skl", "dwarf.anm")
 		mDwarfAnimMatrices = New Mat4[mDwarfMesh.NumBones]
 		For Local i:Int = 0 Until mDwarfAnimMatrices.Length()
 			mDwarfAnimMatrices[i] = Mat4.Create()
@@ -82,11 +83,11 @@ Public
 		#End
 		
 		mSwatCurrentFrame += 16 * mDeltaTime
-		If mSwatCurrentFrame > mSwatMesh.LastFrame+1 Then mSwatCurrentFrame = mSwatCurrentFrame - Int(mSwatCurrentFrame)
+		If mSwatCurrentFrame >= mSwatMesh.NumFrames Then mSwatCurrentFrame = mSwatCurrentFrame - Int(mSwatCurrentFrame)
 		mSwatMesh.Animate(mSwatAnimMatrices, mSwatCurrentFrame)
 	
 		mDwarfCurrentFrame += 16 * mDeltaTime
-		If mDwarfCurrentFrame > mDwarfMesh.LastFrame+1 Then mDwarfCurrentFrame = mDwarfCurrentFrame - Int(mDwarfCurrentFrame)
+		If mDwarfCurrentFrame >= mDwarfMesh.NumFrames Then mDwarfCurrentFrame = mDwarfCurrentFrame - Int(mDwarfCurrentFrame)
 		mDwarfMesh.Animate(mDwarfAnimMatrices, mDwarfCurrentFrame)
 		
 		Return False

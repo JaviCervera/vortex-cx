@@ -158,6 +158,146 @@ Function CreateMeshData:DataBuffer(mesh:Mesh)
 	Return stream.Data
 End
 
+Function BoneSize:Int(bone:Bone)
+	Local size:Int = 4 + bone.Name.Length	'Name
+	size += 4								'Parent index
+	size += 16 * 4							'Inv pose matrix
+	Return size
+End
+
+Function SkeletonSize:Int(mesh:Mesh)
+	'Fixed header
+	Local size:Int = 4	'Id & version
+	size += 2			'Number of bones
+	
+	'Bones
+	For Local i:Int = 0 Until mesh.NumBones
+		size += BoneSize(mesh.GetBone(i))
+	Next
+	
+	Return size 
+End
+
+Function WriteBoneData:Void(stream:DataStream, bone:Bone)
+	'Name
+	stream.WriteInt(bone.Name.Length)
+	stream.WriteString(bone.Name)
+	
+	'Parent index
+	stream.WriteInt(bone.ParentIndex)
+	
+	'Inv pose matrix
+	For Local i:Int = 0 Until 16
+		stream.WriteFloat(bone.InversePoseMatrix.M[i])
+	Next
+End
+
+Function CreateSkeletonData:DataBuffer(mesh:Mesh)
+	Local stream:DataStream = New DataStream(New DataBuffer(SkeletonSize(mesh)))
+	
+	'Id & version
+	stream.WriteByte("S"[0])
+	stream.WriteByte("K"[0])
+	stream.WriteByte("0"[0])
+	stream.WriteByte("1"[0])
+	
+	'Number of bones
+	stream.WriteShort(mesh.NumBones)
+	
+	'Bones
+	For Local b:Int = 0 Until mesh.NumBones
+		WriteBoneData(stream, mesh.GetBone(b))
+	Next
+	
+	Return stream.Data
+End
+
+Function BoneAnimationSize:Int(bone:Bone)
+	'Position keys
+	Local size:Int = 2						'Num keys
+	size += bone.NumPositionKeys * 2		'Indices
+	size += bone.NumPositionKeys * 3 * 4	'Positions
+	
+	'Rotation keys
+	size += 2								'Num keys
+	size += bone.NumRotationKeys * 2		'Indices
+	size += bone.NumRotationKeys * 4 * 4	'Rotations
+	
+	'Scale keys
+	size += 2								'Num keys
+	size += bone.NumScaleKeys * 2			'Indices
+	size += bone.NumScaleKeys * 3 * 4		'Scales
+	
+	Return size
+End
+
+Function AnimationSize:Int(mesh:Mesh)
+	'Fixed header
+	Local size:Int = 4	'Id & version
+	size += 2			'Number of frames
+	size += 2			'Number of bones
+	
+	'Animations
+	For Local i:Int = 0 Until mesh.NumBones
+		size += BoneAnimationSize(mesh.GetBone(i))
+	Next
+	
+	Return size
+End
+
+Function WriteAnimationData:Void(stream:DataStream, bone:Bone)
+	'Position keys
+	stream.WriteShort(bone.NumPositionKeys)
+	For Local i:Int = 0 Until bone.NumPositionKeys
+		stream.WriteShort(bone.GetPositionKeyFrame(i))
+		stream.WriteFloat(bone.GetPositionKeyX(i))
+		stream.WriteFloat(bone.GetPositionKeyY(i))
+		stream.WriteFloat(bone.GetPositionKeyZ(i))
+	Next
+	
+	'Rotation keys
+	stream.WriteShort(bone.NumRotationKeys)
+	For Local i:Int = 0 Until bone.NumRotationKeys
+		stream.WriteShort(bone.GetRotationKeyFrame(i))
+		stream.WriteFloat(bone.GetRotationKeyW(i))
+		stream.WriteFloat(bone.GetRotationKeyX(i))
+		stream.WriteFloat(bone.GetRotationKeyY(i))
+		stream.WriteFloat(bone.GetRotationKeyZ(i))
+	Next
+	
+	'Scale keys
+	stream.WriteShort(bone.NumScaleKeys)
+	For Local i:Int = 0 Until bone.NumScaleKeys
+		stream.WriteShort(bone.GetScaleKeyFrame(i))
+		stream.WriteFloat(bone.GetScaleKeyX(i))
+		stream.WriteFloat(bone.GetScaleKeyY(i))
+		stream.WriteFloat(bone.GetScaleKeyZ(i))
+	Next
+End
+
+Function CreateAnimationData:DataBuffer(mesh:Mesh)
+	Local stream:DataStream = New DataStream(New DataBuffer(AnimationSize(mesh)))
+	
+	'Id & version
+	stream.WriteByte("A"[0])
+	stream.WriteByte("N"[0])
+	stream.WriteByte("0"[0])
+	stream.WriteByte("1"[0])
+	
+	'Number of frames
+	stream.WriteShort(mesh.NumFrames)
+	
+	'Number of bones
+	stream.WriteShort(mesh.NumBones)
+	
+	'Animation data
+	For Local b:Int = 0 Until mesh.NumBones
+		WriteAnimationData(stream, mesh.GetBone(b))
+	Next
+	
+	Return stream.Data
+End
+
 Function SaveMesh:Void(mesh:Mesh, filename:String)
 	Local meshData:DataBuffer = CreateMeshData(mesh)
 	Local fileStream:FileStream = New FileStream(filename, "w")
@@ -165,12 +305,18 @@ Function SaveMesh:Void(mesh:Mesh, filename:String)
 	fileStream.Close()
 End
 
-Function SaveSkeleton:Void(bones:Bone[], filename:String)
-
+Function SaveSkeleton:Void(mesh:Mesh, filename:String)
+	Local skeletonData:DataBuffer = CreateSkeletonData(mesh)
+	Local fileStream:FileStream = New FileStream(filename, "w")
+	fileStream.WriteAll(skeletonData, 0, skeletonData.Length)
+	fileStream.Close()
 End
 
-Function SaveAnimation:Void(bones:Bone[], filename:String)
-
+Function SaveAnimation:Void(mesh:Mesh, filename:String)
+	Local animationData:DataBuffer = CreateAnimationData(mesh)
+	Local fileStream:FileStream = New FileStream(filename, "w")
+	fileStream.WriteAll(animationData, 0, animationData.Length)
+	fileStream.Close()
 End
 
 

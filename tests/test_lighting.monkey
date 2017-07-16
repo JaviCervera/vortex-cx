@@ -6,6 +6,7 @@ Strict
 #GLFW_WINDOW_RESIZABLE=True
 #GLFW_WINDOW_SAMPLES=2
 #OPENGL_DEPTH_BUFFER_ENABLED=True
+#BINARY_FILES+="*.msh|*.skl|*.anm"
 
 #If TARGET="glfw" And HOST<>"linux"
 Import brl.requesters
@@ -49,7 +50,7 @@ Public
 		mRenderList = RenderList.Create()
 		
 		'Load sphere mesh
-		mMesh = Mesh.Load("sphere.msh.xml")
+		mMesh = Mesh.Load("sphere.msh")
 		
 		'Create sphere model matrices and add to RenderList
 		mModels = New Mat4[81]

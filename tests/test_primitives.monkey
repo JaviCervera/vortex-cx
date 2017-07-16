@@ -6,6 +6,7 @@ Strict
 #GLFW_WINDOW_RESIZABLE=True
 #GLFW_WINDOW_SAMPLES=2
 #OPENGL_DEPTH_BUFFER_ENABLED=True
+#BINARY_FILES+="*.msh|*.skl|*.anm"
 
 #If TARGET="glfw" And HOST<>"linux"
 Import brl.requesters
