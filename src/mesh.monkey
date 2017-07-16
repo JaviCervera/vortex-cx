@@ -231,6 +231,8 @@ Public
 			mesh.AddSurface(surf)
 		Next
 		
+		stream.Close()
+		
 		Return mesh
 	End
 	

@@ -12,15 +12,14 @@ Strict
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 '#GLFW_GCC_MSIZE_LINUX="32"
 #If HOST = "winnt"
-#BINARY_FILES += "*.exe"
+#BINARY_FILES += "*.exe|*.fnt"
 #End
 
 'Imports
-Import brl.filepath
 Import mojo.app
 Import mojo.input
-Import src_meshtool.dialog
-Import src_meshtool.gui
+Import src_tools.dialog
+Import src_tools.meshtool_gui
 Import vortex
 
 Class MeshToolApp Extends App Final
@@ -34,11 +33,7 @@ Public
 	
 		'Init vortex
 		If Not Vortex.Init()
-#If TARGET="glfw" And HOST<>"linux"
 			Notify "Error", Vortex.GetShaderError(), True
-#Else
-			Print "Error: " + Vortex.GetShaderError()
-#Endif
 			EndApp()
 		End
 		Print "Vendor name: " + Vortex.GetVendorName()

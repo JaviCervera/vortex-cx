@@ -6,8 +6,8 @@ V2.0:
 + Optimize Bone class
 + Rename <brushes> and <brush> in XML meshes, and its properties
 + Embed shaders
-* Write new meshtool and fonttool
-* Add material editor in meshtool
++ Write new meshtool and fonttool
++ Add material editor in meshtool
 + Make shininess go in range 0..1 and intensify color
 + Add second UV set and lightmaps
 + Reuse textures when loading
@@ -15,7 +15,8 @@ V2.0:
 + Materials without depth writing should be rendered after the ones with it
 + Remove use of arrays in Surface class
 + Replace light attenuation with radius
-- Replace XML meshes and fonts with binary ones (use separate mesh, skeleton and animation files)
++ Replace XML meshes and fonts with binary ones (use separate mesh, skeleton and animation files)
+- Font size should not be editable when loading XML and FNT fonts, and it should reflect the real font height
 - Add texture matrix in Material
 - Remove textures on meshtool
 - Add tangents export in meshtool

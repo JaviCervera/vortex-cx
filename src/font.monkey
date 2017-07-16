@@ -1,21 +1,24 @@
 Strict
 
 Private
+Import brl.databuffer
+Import brl.datastream
 Import brl.filepath
 Import mojo.app
 Import vortex.src.renderer
 Import vortex.src.texture
-Import vortex.src.xml
+
+Public
 
 Class Glyph Final
 	Field mX		: Float
 	Field mY		: Float
 	Field mWidth	: Float
 	Field mHeight	: Float
+	Field mXOffset	: Float
 	Field mYOffset	: Float
 End
 
-Public
 Class Font Final
 Public
 	Function Create:Font(filename:String, height:Float, tex:Texture)
@@ -28,52 +31,71 @@ Public
 		Next
 		Return f
 	End
-  
-  Function Load:Font(filename:String)
-    Return Font.LoadString(app.LoadString(filename), filename)
-  End
+
+	Function Load:Font(filename:String)
+		'Fix filename
+		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then filename = "monkey://data/" + filename
+		
+		'Load font data
+		Local data:DataBuffer = DataBuffer.Load(filename)
+		If Not data Then Return Null
+		Local font:Font = Font.LoadData(data, filename)
+		data.Discard()
 	
-	Function LoadString:Font(buffer:String, filename:String)
-		'Parse XML font
-		If buffer = "" Then Return Null
-		Local err:XMLError = New XMLError
-		Local doc:XMLDoc = ParseXML(buffer, err)
-		If (doc = Null And err.error) Or doc.name <> "font" Then Return Null
-
-		'Get data
-		Local image:String = doc.GetChild("image").value
-		Local height:Int = Int(doc.GetChild("height").value)
-		Local glyphNodes:List<XMLNode> = doc.GetChild("glyphs").GetChildren("glyph")
-		If height = 0 Or glyphNodes.IsEmpty() Then Return Null
-
-		'Load texture map
-		If ExtractDir(filename) <> "" Then image = ExtractDir(filename) + "/" + image
-		Local tex:Texture = texture.Texture.Load(image, Renderer.FILTER_NONE)
-		If Not tex Then Return Null
-
+		Return font
+	End
+	
+	Function LoadData:Font(data:DataBuffer, filename:String)
+		Local stream:DataStream = New DataStream(data)
+		
+		'Id
+		Local id:String = stream.ReadString(4)
+		If id <> "FN01" Then Return Null
+		
+		'Texture name
+		Local texLen:Int = stream.ReadInt()
+		Local texName:String = stream.ReadString(texLen)
+		
+		'Font height
+		Local height:Int = stream.ReadShort()
+		
+		'Num glyphs
+		Local numGlyphs:Int = stream.ReadInt()
+		
+		'First char
+		Local firstChar:Int = stream.ReadInt()
+		
+		'Load texture
+		Local tex:Texture = texture.Texture.Load(texName, Renderer.FILTER_NONE)
+		
 		'Create font
 		Local font:Font = Font.Create(filename, height, tex)
-
-		'Parse glyphs
-		Local index:Int = 0
-		For Local glyphNode:XMLNode = Eachin glyphNodes
+		
+		'Add glyphs
+		For Local i:Int = 0 Until numGlyphs
 			'Get glyph data
-			Local x:Float = glyphNode.GetAttribute("x", 0.0)
-			Local y:Float = glyphNode.GetAttribute("y", 0.0)
-			Local w:Float = glyphNode.GetAttribute("width", 0.0)
-			Local h:Float = glyphNode.GetAttribute("height", 0.0)
-			Local yoffset:Float = glyphNode.GetAttribute("yoffset", 0.0)
-
-			'Add glyph
-			font.SetGlyphData(index, x, y, w, h, yoffset)
-			index += 1
+			Local x:Float = stream.ReadFloat()
+			Local y:Float = stream.ReadFloat()
+			Local width:Float = stream.ReadFloat()
+			Local height:Float = stream.ReadFloat()
+			Local xoffset:Float = stream.ReadFloat()
+			Local yoffset:Float = stream.ReadFloat()
+			
+			'Add glyph data
+			font.SetGlyphData(i, x, y, width, height, yoffset)
 		Next
-
+		
+		stream.Close()
+		
 		Return font
 	End
 
 	Method Free:Void()
 		mTexture.Free()
+	End
+	
+	Method Filename:Void(filename:String) Property
+		mFilename = filename
 	End
 
 	Method Filename:String() Property
@@ -123,6 +145,10 @@ Public
 		Next
 	End
 	
+	Method NumGlyphs:Int() Property
+		Return mGlyphs.Length
+	End
+	
 	Method SetGlyphData:Void(index:Int, x:Float, y:Float, w:Float, h:Float, yoffset:Float)
 		mGlyphs[index].mX = x
 		mGlyphs[index].mY = y
@@ -131,6 +157,10 @@ Public
 		mGlyphs[index].mYOffset = yoffset
 		If index = 33 And mGlyphs[0].mWidth = 0 Then mGlyphs[0].mWidth = w
 		If h > mMaxHeight Then mMaxHeight = h
+	End
+	
+	Method GetGlyphData:Glyph(index:Int)
+		Return mGlyphs[index]
 	End
 Private
 	Method New()

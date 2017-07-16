@@ -6,7 +6,7 @@ Strict
 #GLFW_WINDOW_RESIZABLE=True
 #GLFW_WINDOW_SAMPLES=2
 #OPENGL_DEPTH_BUFFER_ENABLED=True
-#BINARY_FILES+="*.msh|*.skl|*.anm"
+#BINARY_FILES+="*.msh|*.skl|*.anm|*.fnt"
 
 #If TARGET="glfw" And HOST<>"linux"
 Import brl.requesters
@@ -57,7 +57,7 @@ Public
 		Next
 		
 		'Load font
-		mFont = Font.Load("system_16.fnt.xml")
+		mFont = Font.Load("system.fnt")
 		
 		Return False
 	End
