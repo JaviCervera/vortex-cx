@@ -27,27 +27,88 @@ Function MaterialSize:Int(mat:Material)
 	Return size
 End
 
-Function SurfaceSize:Int(surf:Surface)
+Function NormalsSize:Int(surf:Surface)
+	For Local v:Int = 0 Until surf.NumVertices
+		If surf.GetVertexNX(v) <> 0 Or surf.GetVertexNY(v) <> 0 Or surf.GetVertexNZ(v) <> 0
+			Return surf.NumVertices * 3 * 4
+		End
+	Next
+	Return 0
+End
+
+Function TangentsSize:Int(surf:Surface)
+	For Local v:Int = 0 Until surf.NumVertices
+		If surf.GetVertexTX(v) <> 0 Or surf.GetVertexTY(v) <> 0 Or surf.GetVertexTZ(v) <> 0
+			Return surf.NumVertices * 3 * 4
+		End
+	Next
+	Return 0
+End
+
+Function ColorsSize:Int(surf:Surface)
+	For Local v:Int = 0 Until surf.NumVertices
+		If surf.GetVertexRed(v) <> 1 Or surf.GetVertexGreen(v) <> 1 Or surf.GetVertexBlue(v) <> 1 Or surf.GetVertexAlpha(v) <> 1
+			Return surf.NumVertices * 4 * 4
+		End
+	Next
+	Return 0
+End
+
+Function Tex0Size:Int(surf:Surface)
+	For Local v:Int = 0 Until surf.NumVertices
+		If surf.GetVertexU(v) <> 0 Or surf.GetVertexV(v) <> 0
+			Return surf.NumVertices * 2 * 4
+		End
+	Next
+	Return 0
+End
+
+Function Tex1Size:Int(surf:Surface)
+	For Local v:Int = 0 Until surf.NumVertices
+		If surf.GetVertexU(v, 1) <> surf.GetVertexU(v) Or surf.GetVertexV(v, 1) <> surf.GetVertexV(v)
+			Return surf.NumVertices * 2 * 4
+		End
+	Next
+	Return 0
+End
+
+Function WeightsSize:Int(surf:Surface)
+	For Local v:Int = 0 Until surf.NumVertices
+		If surf.GetVertexBoneIndex(v, 0) <> -1 Or surf.GetVertexBoneIndex(v, 1) <> -1 Or surf.GetVertexBoneIndex(v, 2) <> -1 Or surf.GetVertexBoneIndex(v, 3) <> -1
+			Return (surf.NumVertices * 4 * 2) + (surf.NumVertices * 4 * 4)
+		End
+	Next
+	Return 0
+End
+
+Function SurfaceSize:Int(surf:Surface, includeBones:Bool)
 	'Header
 	Local size:Int = MaterialSize(surf.Material)	'Material
 	size += 4										'NumIndices
 	size += 2										'NumVertices
+	size += 1										'Vertex flags
 	
 	'Indices and vertices
-	size += surf.NumTriangles * 6
-	size += surf.NumVertices * 92
+	size += surf.NumTriangles * 6					'Indices
+	size += surf.NumVertices * 3 * 4				'Vertex positions
+	size += NormalsSize(surf)						'Vertex normals
+	size += TangentsSize(surf)						'Vertex tangents
+	size += ColorsSize(surf)						'Vertex colors
+	size += Tex0Size(surf)							'Vertex tex coords 0
+	size += Tex1Size(surf)							'Vertex tex coords 1
+	If includeBones Then size += WeightsSize(surf)	'Vertex bones
 	
 	Return size
 End
 
-Function MeshSize:Int(mesh:Mesh)
+Function MeshSize:Int(mesh:Mesh, includeBones:Bool)
 	'Fixed header
 	Local size:Int = 4	'Id & version
 	size += 2			'Number of surfaces
 	
 	'Surfaces
 	For Local i:Int = 0 Until mesh.NumSurfaces
-		size += SurfaceSize(mesh.GetSurface(i))
+		size += SurfaceSize(mesh.GetSurface(i), includeBones)
 	Next
 	
 	Return size 
@@ -93,13 +154,23 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	If mat.RefractionTexture Then stream.WriteInt(mat.RefractionTexture.Filename.Length); stream.WriteString(mat.RefractionTexture.Filename)
 End
 
-Function WriteSurfaceData:Void(stream:DataStream, surf:Surface)
+Function WriteSurfaceData:Void(stream:DataStream, surf:Surface, includeBones:Bool)
 	'Material
 	WriteMaterialData(stream, surf.Material)
 	
 	'Number of indices and vertices
 	stream.WriteInt(surf.NumTriangles * 3)
 	stream.WriteShort(surf.NumVertices)
+	
+	'Vertex flags
+	Local vertexFlags:Int = 0
+	If NormalsSize(surf) > 0 Then vertexFlags |= 1
+	If TangentsSize(surf) > 0 Then vertexFlags |= 2
+	If ColorsSize(surf) > 0	Then vertexFlags |= 4
+	If Tex0Size(surf) > 0 Then vertexFlags |= 8
+	If Tex1Size(surf) > 0 Then vertexFlags |= 16
+	If includeBones And WeightsSize(surf) > 0 Then vertexFlags |= 32
+	stream.WriteByte(vertexFlags)
 	
 	'Indices
 	For Local t:Int = 0 Until surf.NumTriangles
@@ -113,33 +184,51 @@ Function WriteSurfaceData:Void(stream:DataStream, surf:Surface)
 		stream.WriteFloat(surf.GetVertexX(v))
 		stream.WriteFloat(surf.GetVertexY(v))
 		stream.WriteFloat(surf.GetVertexZ(v))
-		stream.WriteFloat(surf.GetVertexNX(v))
-		stream.WriteFloat(surf.GetVertexNY(v))
-		stream.WriteFloat(surf.GetVertexNZ(v))
-		stream.WriteFloat(surf.GetVertexTX(v))
-		stream.WriteFloat(surf.GetVertexTY(v))
-		stream.WriteFloat(surf.GetVertexTZ(v))
-		stream.WriteFloat(surf.GetVertexRed(v))
-		stream.WriteFloat(surf.GetVertexGreen(v))
-		stream.WriteFloat(surf.GetVertexBlue(v))
-		stream.WriteFloat(surf.GetVertexAlpha(v))
-		stream.WriteFloat(surf.GetVertexU(v, 0))
-		stream.WriteFloat(surf.GetVertexV(v, 0))
-		stream.WriteFloat(surf.GetVertexU(v, 1))
-		stream.WriteFloat(surf.GetVertexV(v, 1))
-		stream.WriteShort(surf.GetVertexBoneIndex(v, 0))
-		stream.WriteShort(surf.GetVertexBoneIndex(v, 1))
-		stream.WriteShort(surf.GetVertexBoneIndex(v, 2))
-		stream.WriteShort(surf.GetVertexBoneIndex(v, 3))
-		stream.WriteFloat(surf.GetVertexBoneWeight(v, 0))
-		stream.WriteFloat(surf.GetVertexBoneWeight(v, 1))
-		stream.WriteFloat(surf.GetVertexBoneWeight(v, 2))
-		stream.WriteFloat(surf.GetVertexBoneWeight(v, 3))
+		
+		If vertexFlags & 1 = 1
+			stream.WriteFloat(surf.GetVertexNX(v))
+			stream.WriteFloat(surf.GetVertexNY(v))
+			stream.WriteFloat(surf.GetVertexNZ(v))
+		End
+		
+		If vertexFlags & 2 = 2
+			stream.WriteFloat(surf.GetVertexTX(v))
+			stream.WriteFloat(surf.GetVertexTY(v))
+			stream.WriteFloat(surf.GetVertexTZ(v))
+		End
+		
+		If vertexFlags & 4 = 4
+			stream.WriteFloat(surf.GetVertexRed(v))
+			stream.WriteFloat(surf.GetVertexGreen(v))
+			stream.WriteFloat(surf.GetVertexBlue(v))
+			stream.WriteFloat(surf.GetVertexAlpha(v))
+		End
+		
+		If vertexFlags & 8 = 8
+			stream.WriteFloat(surf.GetVertexU(v, 0))
+			stream.WriteFloat(surf.GetVertexV(v, 0))
+		End
+		
+		If vertexFlags & 16 = 16
+			stream.WriteFloat(surf.GetVertexU(v, 1))
+			stream.WriteFloat(surf.GetVertexV(v, 1))
+		End
+		
+		If vertexFlags & 32 = 32
+			stream.WriteShort(surf.GetVertexBoneIndex(v, 0))
+			stream.WriteShort(surf.GetVertexBoneIndex(v, 1))
+			stream.WriteShort(surf.GetVertexBoneIndex(v, 2))
+			stream.WriteShort(surf.GetVertexBoneIndex(v, 3))
+			stream.WriteFloat(surf.GetVertexBoneWeight(v, 0))
+			stream.WriteFloat(surf.GetVertexBoneWeight(v, 1))
+			stream.WriteFloat(surf.GetVertexBoneWeight(v, 2))
+			stream.WriteFloat(surf.GetVertexBoneWeight(v, 3))
+		End
 	Next
 End
 
-Function CreateMeshData:DataBuffer(mesh:Mesh)
-	Local stream:DataStream = New DataStream(New DataBuffer(MeshSize(mesh)))
+Function CreateMeshData:DataBuffer(mesh:Mesh, includeBones:Bool)
+	Local stream:DataStream = New DataStream(New DataBuffer(MeshSize(mesh, includeBones)))
 	
 	'Id & version
 	stream.WriteByte("M"[0])
@@ -152,7 +241,7 @@ Function CreateMeshData:DataBuffer(mesh:Mesh)
 	
 	'Surfaces
 	For Local i:Int = 0 Until mesh.NumSurfaces
-		WriteSurfaceData(stream, mesh.GetSurface(i))
+		WriteSurfaceData(stream, mesh.GetSurface(i), includeBones)
 	Next
 	
 	Return stream.Data
@@ -298,8 +387,8 @@ Function CreateAnimationData:DataBuffer(mesh:Mesh)
 	Return stream.Data
 End
 
-Function SaveMesh:Void(mesh:Mesh, filename:String)
-	Local meshData:DataBuffer = CreateMeshData(mesh)
+Function SaveMesh:Void(mesh:Mesh, filename:String, includeBones:Bool)
+	Local meshData:DataBuffer = CreateMeshData(mesh, includeBones)
 	Local fileStream:FileStream = New FileStream(filename, "w")
 	fileStream.WriteAll(meshData, 0, meshData.Length)
 	fileStream.Close()

@@ -1,7 +1,7 @@
 Strict
 
 Private
-Import brl.databuffer
+Import brl.databufferf
 Import brl.datastream
 Import brl.filepath
 Import mojo.app
@@ -133,6 +133,9 @@ Public
 			Local numIndices:Int = stream.ReadInt()
 			Local numVertices:Int = stream.ReadShort()
 			
+			'Vertex flags
+			Local vertexFlags:Int = stream.ReadByte()
+			
 			'Indices
 			For Local i:Int = 0 Until numIndices Step 3
 				Local v0:Int = stream.ReadShort()
@@ -143,31 +146,78 @@ Public
 			
 			'Vertices
 			For Local v:Int = 0 Until numVertices
+				'Load vertices
 				Local x:Float = stream.ReadFloat()
 				Local y:Float = stream.ReadFloat()
 				Local z:Float = stream.ReadFloat()
-				Local nx:Float = stream.ReadFloat()
-				Local ny:Float = stream.ReadFloat()
-				Local nz:Float = stream.ReadFloat()
-				Local tx:Float = stream.ReadFloat()
-				Local ty:Float = stream.ReadFloat()
-				Local tz:Float = stream.ReadFloat()
-				Local r:Float = stream.ReadFloat()
-				Local g:Float = stream.ReadFloat()
-				Local b:Float = stream.ReadFloat()
-				Local a:Float = stream.ReadFloat()
-				Local u0:Float = stream.ReadFloat()
-				Local v0:Float = stream.ReadFloat()
-				Local u1:Float = stream.ReadFloat()
-				Local v1:Float = stream.ReadFloat()
-				Local b0:Int = stream.ReadShort()
-				Local b1:Int = stream.ReadShort()
-				Local b2:Int = stream.ReadShort()
-				Local b3:Int = stream.ReadShort()
-				Local w0:Float = stream.ReadFloat()
-				Local w1:Float = stream.ReadFloat()
-				Local w2:Float = stream.ReadFloat()
-				Local w3:Float = stream.ReadFloat()
+				
+				'Load normals if present
+				Local nx:Float = 0
+				Local ny:Float = 0
+				Local nz:Float = 0
+				If vertexFlags & 1 = 1
+					nx = stream.ReadFloat()
+					ny = stream.ReadFloat()
+					nz = stream.ReadFloat()
+				End
+				
+				'Load tangents if present
+				Local tx:Float = 0
+				Local ty:Float = 0
+				Local tz:Float = 0
+				If vertexFlags & 2 = 2
+					tx = stream.ReadFloat()
+					ty = stream.ReadFloat()
+					tz = stream.ReadFloat()
+				End
+				
+				'Load colors if present
+				Local r:Float = 1
+				Local g:Float = 1
+				Local b:Float = 1
+				Local a:Float = 1
+				If vertexFlags & 4 = 4
+					r = stream.ReadFloat()
+					g = stream.ReadFloat()
+					b = stream.ReadFloat()
+					a = stream.ReadFloat()
+				End
+				
+				'Load texcoords0 if present
+				Local u0:Float = 0
+				Local v0:Float = 0
+				If vertexFlags & 8 = 8
+					u0 = stream.ReadFloat()
+					v0 = stream.ReadFloat()
+				End
+				
+				'Load texcoords1 if present
+				Local u1:Float = u0
+				Local v1:Float = v0
+				If vertexFlags & 16 = 16
+					u1 = stream.ReadFloat()
+					v1 = stream.ReadFloat()
+				End
+				
+				'Load bones if present
+				Local b0:Int = -1
+				Local b1:Int = -1
+				Local b2:Int = -1
+				Local b3:Int = -1
+				Local w0:Float = 0
+				Local w1:Float = 0
+				Local w2:Float = 0
+				Local w3:Float = 0
+				If vertexFlags & 32 = 32
+					b0 = stream.ReadShort()
+					b1 = stream.ReadShort()
+					b2 = stream.ReadShort()
+					b3 = stream.ReadShort()
+					w0 = stream.ReadFloat()
+					w1 = stream.ReadFloat()
+					w2 = stream.ReadFloat()
+					w3 = stream.ReadFloat()
+				End
 				
 				surf.AddVertex(x, y, z, nx, ny, nz, r, g, b, a, u0, v0)
 				surf.SetVertexTangent(v, tx, ty, tz)

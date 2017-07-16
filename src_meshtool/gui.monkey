@@ -72,7 +72,11 @@ Public
 				'If filename <> "" Then SaveMeshXML(currentMesh, filename, mExportAnimations)
 				If filename <> ""
 					'Save mesh
-					SaveMesh(currentMesh, filename)
+					If mExportAnimations And currentMesh.NumBones > 0
+						SaveMesh(currentMesh, filename, True)
+					Else
+						SaveMesh(currentMesh, filename, False)
+					End
 					
 					'Save skeleton and animations
 					If mExportAnimations And currentMesh.NumBones > 0
