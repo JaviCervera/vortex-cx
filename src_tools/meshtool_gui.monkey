@@ -105,8 +105,9 @@ Public
 				If mSelMat = currentMesh.NumSurfaces Then mSelMat = 0
 			'Diffuse color
 			Elseif mDiffuseColorRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local color:Float[] = ColorDialog("Select diffuse color", currentMesh.GetSurface(mSelMat).Material.DiffuseRed, currentMesh.GetSurface(mSelMat).Material.DiffuseGreen, currentMesh.GetSurface(mSelMat).Material.DiffuseBlue)
-				If color.Length > 0 Then currentMesh.GetSurface(mSelMat).Material.SetDiffuseColor(color[0], color[1], color[2])
+				If RequestColor("Select diffuse color", currentMesh.GetSurface(mSelMat).Material.DiffuseRed * 255, currentMesh.GetSurface(mSelMat).Material.DiffuseGreen * 255, currentMesh.GetSurface(mSelMat).Material.DiffuseBlue * 255)
+					currentMesh.GetSurface(mSelMat).Material.SetDiffuseColor(RequestedRed() / 255.0, RequestedGreen() / 255.0, RequestedBlue() / 255.0)
+				End
 			'Diffuse texture
 			Elseif mDiffuseTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local filename:String = RequestFile("Select diffuse texture")
