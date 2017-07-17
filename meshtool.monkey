@@ -13,6 +13,8 @@ Strict
 '#GLFW_GCC_MSIZE_LINUX="32"
 #If HOST = "winnt"
 #BINARY_FILES += "*.exe|*.fnt"
+#Else
+#BINARY_FILES += "*.bin|*.fnt"
 #End
 
 'Imports
