@@ -306,11 +306,11 @@ Function MaterialSize:Int(mat:Material)
 	size += 1			'Used textures
 	
 	'Texture names
-	If mat.DiffuseTexture Then size += 4 + mat.DiffuseTexture.Filename.Length
-	If mat.NormalTexture Then size += 4 + mat.NormalTexture.Filename.Length
-	If mat.Lightmap Then size += 4 + mat.Lightmap.Filename.Length
-	If mat.ReflectionTexture Then size += 4 + mat.ReflectionTexture.Filename.Length
-	If mat.RefractionTexture Then size += 4 + mat.RefractionTexture.Filename.Length
+	If mat.DiffuseTexture Then size += 4 + StripDir(mat.DiffuseTexture.Filename).Length
+	If mat.NormalTexture Then size += 4 + StripDir(mat.NormalTexture.Filename).Length
+	If mat.Lightmap Then size += 4 + StripDir(mat.Lightmap.Filename).Length
+	If mat.ReflectionTexture Then size += 4 + StripDir(mat.ReflectionTexture.Filename).Length
+	If mat.RefractionTexture Then size += 4 + StripDir(mat.RefractionTexture.Filename).Length
 	
 	Return size
 End
@@ -435,11 +435,12 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	stream.WriteByte(usedTexs)
 	
 	'Texture names
-	If mat.DiffuseTexture Then stream.WriteInt(mat.DiffuseTexture.Filename.Length); stream.WriteString(mat.DiffuseTexture.Filename)
-	If mat.NormalTexture Then stream.WriteInt(mat.NormalTexture.Filename.Length); stream.WriteString(mat.NormalTexture.Filename)
-	If mat.Lightmap Then stream.WriteInt(mat.Lightmap.Filename.Length); stream.WriteString(mat.Lightmap.Filename)
-	If mat.ReflectionTexture Then stream.WriteInt(mat.ReflectionTexture.Filename.Length); stream.WriteString(mat.ReflectionTexture.Filename)
-	If mat.RefractionTexture Then stream.WriteInt(mat.RefractionTexture.Filename.Length); stream.WriteString(mat.RefractionTexture.Filename)
+	Local filename:String = ""
+	If mat.DiffuseTexture Then filename = StripDir(mat.DiffuseTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.NormalTexture Then filename = StripDir(mat.NormalTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.Lightmap Then filename = StripDir(mat.Lightmap.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.ReflectionTexture Then filename = StripDir(mat.ReflectionTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.RefractionTexture Then filename = StripDir(mat.RefractionTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 End
 
 Function WriteSurfaceData:Void(stream:DataStream, surf:Surface, includeBones:Bool)

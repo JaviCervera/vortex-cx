@@ -18,6 +18,7 @@ Const STD_VARYING_VARS:String = "" +
 "varying vec3 fcubeCoords;" +
 "varying vec3 freflectCoords;" +
 "varying vec3 frefractCoords;" +
+"varying vec3 fdepthCoords;" +
 "varying mat3 tbnMatrix;"
 
 Const STD_VERTEX_VARS:String = "" +
@@ -25,6 +26,7 @@ Const STD_VERTEX_VARS:String = "" +
 "uniform mat4 modelView;" +
 "uniform mat4 normalMatrix;" +
 "uniform mat4 invView;" +
+"uniform mat4 depthBias;" +
 "uniform int baseTexMode;" +
 "uniform bool useNormalTex;" +
 "uniform bool useReflectTex;" +
@@ -63,6 +65,7 @@ Const STD_FRAGMENT_VARS:String = "" +
 "uniform samplerCube baseCubeSampler;" +
 "uniform sampler2D normalTexSampler;" +
 "uniform sampler2D lightmapSampler;" +
+"uniform sampler2D depthSampler;" +
 "uniform samplerCube reflectCubeSampler;" +
 "uniform samplerCube refractCubeSampler;" +
 "uniform bool usePixelLighting;" +
@@ -75,6 +78,8 @@ Const STD_FRAGMENT_VARS:String = "" +
 "uniform int shininess;" +
 "uniform bool fogEnabled;" +
 "uniform vec3 fogColor;" +
+"uniform bool shadowsEnabled;" +
+"uniform float depthEpsilon;" +
 STD_VARYING_VARS
 
 Const SHADER_CALC_LIGHTING:String = "" +
@@ -133,6 +138,9 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 
 	'Vertex position in projection space
 "	gl_Position = mvp * vpos4;" +
+
+	'Vertex position in depth space
+"	fdepthCoords = vec3(depthBias * vpos4);" +
 
 	'Fragment color
 "	fcolor = baseColor * vcolor;" +
@@ -242,11 +250,29 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 "		combinedColor = clamp(combinedColor, 0.0, 1.0);" +
 "	}" +
 
+	'Shadows
+"	if ( shadowsEnabled && texture2D(depthSampler, vec2(fdepthCoords)).z < fdepthCoords.z - depthEpsilon ) combinedColor *= vec4(ambient, 1);" +
+
 	'Add fog
 "	if ( fogEnabled ) combinedColor = vec4(mix(fogColor, vec3(combinedColor), fogFactor), combinedColor.a);" +
 
 	'Set final color
 "	gl_FragColor = combinedColor;" +
+"}"
+
+Const DEPTH_VERTEX_SHADER:String = SHADER_VAR_PRECISION +
+"uniform mat4 mvp;" +
+"attribute vec3 vpos;" +
+"varying float depth;" +
+"void main() {" +
+"	gl_Position = mvp * vec4(vpos, 1);" +
+"	depth = gl_Position.z / gl_Position.w;" +
+"}"
+
+Const DEPTH_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION +
+"varying float depth;" +
+"void main() {" +
+"	gl_FragColor = vec4(depth, depth, depth, 1);" +
 "}"
 
 Const _2D_VERTEX_SHADER:String = SHADER_VAR_PRECISION +

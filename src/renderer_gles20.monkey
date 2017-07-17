@@ -37,6 +37,7 @@ Public
 	Const LIGHTMAP_UNIT:Int = 3
 	Const REFLECTTEX_UNIT:Int = 4
 	Const REFRACTTEX_UNIT:Int = 5
+	Const DEPTHTEX_UNIT:Int = 6
 
 	'---------------------------------------------------------------------------
 	'Setup
@@ -65,8 +66,16 @@ Public
 		'Prepare default program
 		mDefaultProgram = CreateProgram(STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
 		If mDefaultProgram = Null Then Return False
+		
+		'Prepare depth program
+		mDepthProgram = CreateProgram(DEPTH_VERTEX_SHADER, DEPTH_FRAGMENT_SHADER)
+		If mDepthProgram = Null Then Return False
+		
+		'Prepare 2D program
 		m2DProgram = CreateProgram(_2D_VERTEX_SHADER, _2D_FRAGMENT_SHADER)
 		If m2DProgram = Null Then Return False
+		
+		'Use default program
 		UseProgram(mDefaultProgram)
 		
 		'Delete old buffers if they exist
@@ -121,7 +130,7 @@ Public
 		Return True
 	End
 
-	Function Setup2D:Void(x:Int, y:Int, w:Int, h:Int)
+	Function Setup2D:Void(x:Int, y:Int, w:Int, h:Int, framebufferHeight:Int = DeviceHeight())
 		'Switch to 2D program
 		UseProgram(m2DProgram)
 
@@ -138,23 +147,26 @@ Public
 		SetColor(1,1,1,1)
 
 		'Setup viewport
+		y = framebufferHeight - y - h
 		glViewport(x, y, w, h)
 		glScissor(x, y, w, h)
 
 		'Setup matrices
-		Local bottom:Float = y+h
-		Local top:Float = 0
 		mTempMatrix.SetIdentity()
-		mTempMatrix.SetOrthoLH(0, x+w, bottom, top, 0, 100)
+		mTempMatrix.SetOrthoLH(0, w, h, 0, 0, 100)
 		Renderer.SetProjectionMatrix(mTempMatrix)
 		mTempMatrix.SetIdentity()
 		Renderer.SetViewMatrix(mTempMatrix)
 		Renderer.SetModelMatrix(mTempMatrix)
 	End
 
-	Function Setup3D:Void(x:Int, y:Int, w:Int, h:Int)
+	Function Setup3D:Void(x:Int, y:Int, w:Int, h:Int, isDepthPass:Bool = False, framebufferHeight:Int = DeviceHeight())
 		'Switch to 3D program
-		UseProgram(mDefaultProgram)
+		If Not isDepthPass
+			UseProgram(mDefaultProgram)
+		Else
+			UseProgram(mDepthProgram)
+		End
 
 		'Disable 2D & mojo states
 		'glBindTexture(GL_TEXTURE_2D, 0)
@@ -174,8 +186,13 @@ Public
 		SetSkinned(False)
 
 		'Setup viewport
+		y = framebufferHeight - y - h
 		glViewport(x, y, w, h)
 		glScissor(x, y, w, h)
+		
+		'Disable shadows by default
+		mTempMatrix.SetIdentity()
+		Renderer.SetDepthData(mTempMatrix, mTempMatrix, 0, 0)
 	End
 
 	Function SetProjectionMatrix:Void(m:Mat4)
@@ -223,10 +240,43 @@ Public
 			mTempMatrix.Mul(mModelMatrix)
 			glUniformMatrix4fv(mActiveProgram.mMVPLoc, 1, False, mTempMatrix.M)
 		End
+		
+		'Calculate depth bias
+		If mActiveProgram.mDepthBiasLoc <> -1
+			mTempMatrix.Set(mDepthBiasMatrix)
+			mTempMatrix.Mul(mModelMatrix)
+			glUniformMatrix4fv(mActiveProgram.mDepthBiasLoc, 1, False, mTempMatrix.M)
+		End
 	End
 
 	Function GetModelMatrix:Mat4()
 		Return mModelMatrix
+	End
+	
+	Function SetDepthData:Void(depthProj:Mat4, depthView:Mat4, depthTex:Int, depthEpsilon:Float)
+		mDepthBiasMatrix.SetIdentity()
+		mDepthBiasMatrix.M[0] = 0.5
+		mDepthBiasMatrix.M[5] = 0.5
+		mDepthBiasMatrix.M[10] = 0.5
+		mDepthBiasMatrix.M[12] = 0.5
+		mDepthBiasMatrix.M[13] = 0.5
+		mDepthBiasMatrix.M[14] = 0.5
+		mDepthBiasMatrix.Mul(depthProj)
+		mDepthBiasMatrix.Mul(depthView)
+	
+		glActiveTexture(GL_TEXTURE0 + DEPTHTEX_UNIT)
+		glBindTexture(GL_TEXTURE_2D, depthTex)
+		glActiveTexture(GL_TEXTURE0)
+		
+		If mActiveProgram.mShadowsEnabledLoc <> -1 And mActiveProgram.mDepthEpsilonLoc <> -1
+			If depthTex <> 0
+				glUniform1i(mActiveProgram.mShadowsEnabledLoc, True)
+				glUniform1f(mActiveProgram.mDepthEpsilonLoc, depthEpsilon)
+			Else
+				glUniform1i(mActiveProgram.mShadowsEnabledLoc, False)
+				glUniform1f(mActiveProgram.mDepthEpsilonLoc, depthEpsilon)
+			End
+		End
 	End
 	
 	Function SetBoneMatrices:Void(matrices:Mat4[])
@@ -310,8 +360,8 @@ Public
 	' Drawing
 	'---------------------------------------------------------------------------
 
-	Function ClearColorBuffer:Void(r:Float = 0, g:Float = 0, b:Float = 0)
-		glClearColor(r, g, b, 1)
+	Function ClearColorBuffer:Void(r:Float = 0, g:Float = 0, b:Float = 0, a:Float = 1)
+		glClearColor(r, g, b, a)
 		glClear(GL_COLOR_BUFFER_BIT)
 	End
 
@@ -383,15 +433,34 @@ Public
 	' Texture
 	'---------------------------------------------------------------------------
 	
-	Function GenTexture:Int(buffer:DataBuffer, width:Int, height:Int, filter:Int)
+	Function CreateTexture:Int(width:Int, height:Int, isDepth:Bool)
+		Local internalFormat:Int = GL_RGBA
+		Local format:Int = GL_RGBA
+		If isDepth
+			internalFormat = GL_DEPTH_COMPONENT16
+			format = GL_DEPTH_COMPONENT
+		End
+
+		Local texture:Int = glCreateTexture()
+		glBindTexture(GL_TEXTURE_2D, texture)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+		'glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+		'glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, Null)
+		'glBindTexture(GL_TEXTURE_2D, 0)
+		Return texture
+	End
+	
+	Function CreateTexture:Int(buffer:DataBuffer, width:Int, height:Int, filter:Int)
 		Local texture:Int = glCreateTexture()
 		glBindTexture(GL_TEXTURE_2D, texture)
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer)
-#If TARGET<>"html5"
+'#If TARGET<>"html5"
 		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
-#EndIf
+'#EndIf
 		'glBindTexture(GL_TEXTURE_2D, 0)
 		Return texture
 	End
@@ -419,9 +488,9 @@ Public
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, filename)
-#If TARGET<>"html5"
+'#If TARGET<>"html5"
 		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
-#EndIf
+'#EndIf
 		'glBindTexture(GL_TEXTURE_2D, 0)
 
 		Return texture
@@ -455,16 +524,16 @@ Public
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter, True))
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, left)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, right)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, back)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, front)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, top)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, bottom)
-#If TARGET<>"html5"
+'#If TARGET<>"html5"
 		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_CUBE_MAP)
-#Endif
+'#Endif
 		'glBindTexture(GL_TEXTURE_2D, 0)
 
 		Return texture
@@ -516,6 +585,27 @@ Public
 		If mActiveProgram.mUseRefractTexLoc <> -1 Then glUniform1i(mActiveProgram.mUseRefractTexLoc, refractionTex <> 0)
 		
 		glActiveTexture(GL_TEXTURE0)
+	End
+	
+	'---------------------------------------------------------------------------
+	' Framebuffer
+	'---------------------------------------------------------------------------
+	
+	Function CreateFramebuffer:Int(colorTex:Int, depthTex:Int)
+		Local fb:Int = glCreateFramebuffer()
+		SetFramebuffer(fb)
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0)
+		If depthTex > 0 Then glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0)
+		SetFramebuffer(0)
+		Return fb
+	End
+	
+	Function FreeFramebuffer:Void(fb:Int)
+		glDeleteFramebuffer(fb)
+	End
+	
+	Function SetFramebuffer:Void(fb:Int)
+		glBindFramebuffer(GL_FRAMEBUFFER, fb)
 	End
 
 	'---------------------------------------------------------------------------
@@ -646,10 +736,6 @@ Public
 		mActiveProgram = program
 	End
 
-	Function GetDefaultProgram:GpuProgram()
-		Return mDefaultProgram
-	End
-
 	Function GetProgramError:String()
 		Return mProgramError
 	End
@@ -696,7 +782,7 @@ Private
 		End
 	End
 
-	Function GetMinFilter:Int(filtering:Int)
+	Function GetMinFilter:Int(filtering:Int, isCubeMap:Bool = False)
 		Select filtering
 		Case FILTER_NONE
 			Return GL_NEAREST
@@ -707,6 +793,11 @@ Private
 			Return GL_LINEAR_MIPMAP_NEAREST
 		Case FILTER_TRILINEAR
 			Return GL_LINEAR_MIPMAP_LINEAR
+#Else
+		Case FILTER_BILINEAR
+			If Not isCubeMap Then Return GL_LINEAR_MIPMAP_NEAREST Else Return GL_LINEAR
+		Case FILTER_TRILINEAR
+			If Not isCubeMap Then Return GL_LINEAR_MIPMAP_LINEAR Else Return GL_LINEAR
 #End
 		Default
 			Return GL_LINEAR
@@ -732,11 +823,14 @@ Private
 	Global mViewMatrix:Mat4 = Mat4.Create()
 	Global mProjectionMatrix:Mat4 = Mat4.Create()
 	Global mInvViewMatrix:Mat4 = Mat4.Create()
+	Global mDepthBiasMatrix:Mat4 = Mat4.Create()
 	Global mTempMatrix:Mat4 = Mat4.Create()
 	Global mDefaultProgram:GpuProgram			'Default program id
+	Global mDepthProgram:GpuProgram				'Depth program id
 	Global m2DProgram:GpuProgram				'Default 2D program id
 	Global mActiveProgram:GpuProgram			'Currently active program
-	Global mProgramError:String						'Last error occured when compiling or linking a shader
+	Global mProgramError:String					'Last error occured when compiling or linking a shader
+	Global mTempArray:Int[1]					'Array used when requesting parameters to OpenGL
 End
 
 Private
@@ -747,6 +841,7 @@ Class GpuProgram
 	Field mModelViewLoc:Int
 	Field mNormalMatrixLoc:Int
 	Field mInvViewLoc:Int
+	Field mDepthBiasLoc:Int
 	Field mBaseTexModeLoc:Int
 	Field mUseNormalTexLoc:Int
 	Field mUseLightmapLoc:Int
@@ -758,6 +853,7 @@ Class GpuProgram
 	Field mLightmapSamplerLoc:Int
 	Field mReflectCubeSamplerLoc:Int
 	Field mRefractCubeSamplerLoc:Int
+	Field mDepthSamplerLoc:Int
 	Field mUsePixelLightingLoc:Int
 	Field mLightingEnabledLoc:Int
 	Field mLightEnabledLoc:Int[Renderer.mMaxLights]
@@ -771,6 +867,8 @@ Class GpuProgram
 	Field mFogEnabledLoc:Int
 	Field mFogDistLoc:Int
 	Field mFogColorLoc:Int
+	Field mShadowsEnabledLoc:Int
+	Field mDepthEpsilonLoc:Int
 	Field mSkinnedLoc:Int
 	Field mBonesLoc:Int[Renderer.mMaxBones]
 	Field mVPosLoc:Int
@@ -789,6 +887,7 @@ Class GpuProgram
 		mModelViewLoc = glGetUniformLocation(program, "modelView")
 		mNormalMatrixLoc = glGetUniformLocation(program, "normalMatrix")
 		mInvViewLoc = glGetUniformLocation(program, "invView")
+		mDepthBiasLoc = glGetUniformLocation(program, "depthBias")
 		mBaseTexModeLoc = glGetUniformLocation(program, "baseTexMode")
 		mUseNormalTexLoc = glGetUniformLocation(program, "useNormalTex")
 		mUseLightmapLoc = glGetUniformLocation(program, "useLightmap")
@@ -809,6 +908,8 @@ Class GpuProgram
 		mFogEnabledLoc = glGetUniformLocation(program, "fogEnabled")
 		mFogDistLoc = glGetUniformLocation(program, "fogDist")
 		mFogColorLoc = glGetUniformLocation(program, "fogColor")
+		mShadowsEnabledLoc = glGetUniformLocation(program, "shadowsEnabled")
+		mDepthEpsilonLoc = glGetUniformLocation(program, "depthEpsilon")
 		mSkinnedLoc = glGetUniformLocation(program, "skinned")
 		For Local i:Int = 0 Until Renderer.mMaxBones
 			mBonesLoc[i] = glGetUniformLocation(program, "bones[" + i + "]")
@@ -828,6 +929,7 @@ Class GpuProgram
 		mLightmapSamplerLoc = glGetUniformLocation(program, "lightmapSampler")
 		mReflectCubeSamplerLoc = glGetUniformLocation(program, "reflectCubeSampler")
 		mRefractCubeSamplerLoc = glGetUniformLocation(program, "refractCubeSampler")
+		mDepthSamplerLoc = glGetUniformLocation(program, "depthSampler")
 	End
 	
 	Method Free:Void()
@@ -842,5 +944,6 @@ Class GpuProgram
 		If mLightmapSamplerLoc <> -1 Then glUniform1i(mLightmapSamplerLoc, Renderer.LIGHTMAP_UNIT)
 		If mReflectCubeSamplerLoc <> -1 Then glUniform1i(mReflectCubeSamplerLoc, Renderer.REFLECTTEX_UNIT)
 		If mRefractCubeSamplerLoc <> -1 Then glUniform1i(mRefractCubeSamplerLoc, Renderer.REFRACTTEX_UNIT)
+		If mDepthSamplerLoc <> -1 Then glUniform1i(mDepthSamplerLoc, Renderer.DEPTHTEX_UNIT)
 	End
 End

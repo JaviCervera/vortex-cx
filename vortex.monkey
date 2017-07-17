@@ -2,6 +2,7 @@ Strict
 
 Import vortex.src.bone
 Import vortex.src.font
+Import vortex.src.framebuffer
 Import vortex.src.lighting
 Import vortex.src.material
 Import vortex.src.math3d

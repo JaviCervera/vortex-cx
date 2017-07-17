@@ -16,11 +16,11 @@ V2.0:
 + Remove use of arrays in Surface class
 + Replace light attenuation with radius
 + Replace XML meshes and fonts with binary ones (use separate mesh, skeleton and animation files)
+* Add shadows
 - Font size should not be editable when loading XML and FNT fonts, and it should reflect the real font height
 - Add texture matrix in Material
 - Remove textures on meshtool
 - Add tangents export in meshtool
-- Add shadows
 - Update docs (talk about RenderList and update classes and methods)
 
 V2.1:

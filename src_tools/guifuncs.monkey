@@ -21,6 +21,13 @@ Class Rect
 	Method InRange:Bool(val:Float, min:Float, max:Float)
 		If val >= min And val <= max Then Return True Else Return False
 	End
+	
+	Method Set:Void(other:Rect)
+		x = other.x
+		y = other.y
+		width = other.width
+		height = other.height
+	End
 End
 
 Function DrawRectOutline:Void(r:Rect)

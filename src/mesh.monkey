@@ -1,7 +1,6 @@
 Strict
 
 Private
-Import brl.databufferf
 Import brl.datastream
 Import brl.filepath
 Import mojo.app
@@ -41,25 +40,28 @@ Public
 	
 	Function Load:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
 		'Fix filenames
-		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then filename = "monkey://data/" + filename
-		If skeletonFilename.Length > 2 And String.FromChar(skeletonFilename[0]) <> "/" And String.FromChar(skeletonFilename[1]) <> ":" Then skeletonFilename = "monkey://data/" + skeletonFilename
-		If animationFilename.Length > 2 And String.FromChar(animationFilename[0]) <> "/" And String.FromChar(animationFilename[1]) <> ":" Then animationFilename = "monkey://data/" + animationFilename
+		Local fixedFilename:String = filename
+		Local fixedSkeletonFilename:String = skeletonFilename
+		Local fixedAnimationFilename:String = animationFilename
+		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then fixedFilename = "monkey://data/" + filename
+		If skeletonFilename.Length > 2 And String.FromChar(skeletonFilename[0]) <> "/" And String.FromChar(skeletonFilename[1]) <> ":" Then fixedSkeletonFilename = "monkey://data/" + skeletonFilename
+		If animationFilename.Length > 2 And String.FromChar(animationFilename[0]) <> "/" And String.FromChar(animationFilename[1]) <> ":" Then fixedAnimationFilename = "monkey://data/" + animationFilename
 		
 		'Load mesh data
-		Local data:DataBuffer = DataBuffer.Load(filename)
+		Local data:DataBuffer = DataBuffer.Load(fixedFilename)
 		If Not data Then Return Null
 		Local mesh:Mesh = Mesh.LoadData(data, filename, texFilter)
 		data.Discard()
 		
 		'Load skeleton data
-		data = DataBuffer.Load(skeletonFilename)
+		data = DataBuffer.Load(fixedSkeletonFilename)
 		If data
 			mesh.LoadSkeletonData(data)
 			data.Discard()
 		End
 		
 		'Load animation data
-		data = DataBuffer.Load(animationFilename)
+		data = DataBuffer.Load(fixedAnimationFilename)
 		If data
 			mesh.LoadAnimationData(data)
 			data.Discard()
@@ -70,6 +72,8 @@ Public
 	
 	Function LoadData:Mesh(data:DataBuffer, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
 		Local stream:DataStream = New DataStream(data)
+		Local meshPath:String = ExtractDir(filename)
+		If meshPath <> "" Then meshPath += "/"
 		
 		'Id
 		Local id:String = stream.ReadString(4)
@@ -99,33 +103,47 @@ Public
 			
 			'Material textures
 			Local usedTexs:Int = 0
-			Local strLen:Int = 0
 			usedTexs = stream.ReadByte()
 			If usedTexs & 1
-				strLen = stream.ReadInt()
-				surf.Material.DiffuseTexture = Texture.Load(stream.ReadString(strLen), texFilter)
+				Local strLen:Int = stream.ReadInt()
+				Local str:String = stream.ReadString(strLen)
+				If str <> "" Then str = meshPath + str
+				surf.Material.DiffuseTexture = Texture.Load(str, texFilter)
 			End
 			If usedTexs & 2
-				strLen = stream.ReadInt()
+				Local strLen:Int = stream.ReadInt()
 				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
+				For Local t:Int = 0 Until cubeTexs.Length
+					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
+				Next
 				surf.Material.DiffuseTexture = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
 			End
 			If usedTexs & 4
-				strLen = stream.ReadInt()
-				surf.Material.NormalTexture = Texture.Load(stream.ReadString(strLen), texFilter)
+				Local strLen:Int = stream.ReadInt()
+				Local str:String = stream.ReadString(strLen)
+				If str <> "" Then str = meshPath + str
+				surf.Material.NormalTexture = Texture.Load(str, texFilter)
 			End
 			If usedTexs & 8
-				strLen = stream.ReadInt()
-				surf.Material.Lightmap = Texture.Load(stream.ReadString(strLen), texFilter)
+				Local strLen:Int = stream.ReadInt()
+				Local str:String = stream.ReadString(strLen)
+				If str <> "" Then str = meshPath + str
+				surf.Material.Lightmap = Texture.Load(str, texFilter)
 			End
 			If usedTexs & 16
-				strLen = stream.ReadInt()
+				Local strLen:Int = stream.ReadInt()
 				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
+				For Local t:Int = 0 Until cubeTexs.Length
+					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
+				Next
 				surf.Material.ReflectionTexture = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
 			End
 			If usedTexs & 32
-				strLen = stream.ReadInt()
+				Local strLen:Int = stream.ReadInt()
 				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
+				For Local t:Int = 0 Until cubeTexs.Length
+					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
+				Next
 				surf.Material.RefractionTexture = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
 			End
 			

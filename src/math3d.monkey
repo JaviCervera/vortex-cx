@@ -485,6 +485,18 @@ Public
 		Local m:Float[] = [a,0,0,0, 0,b,0,0, 0,0,c,0, tx,ty,tz,1]
 		Set(m)
 	End
+	
+	Method SetOrthoLH:Void(height:Float, aspect:Float, near:Float, far:Float)
+		Local halfHeight:Float = height * 0.5
+		Local halfWidth:Float = halfHeight * aspect
+		SetOrthoLH(-halfWidth, halfWidth, -halfHeight, halfHeight, near, far)
+	End
+
+	Method SetOrthoRH:Void(height:Float, aspect:Float, near:Float, far:Float)
+		Local halfHeight:Float = height * 0.5
+		Local halfWidth:Float = halfHeight * aspect
+		SetOrthoRH(-halfWidth, halfWidth, -halfHeight, halfHeight, near, far)
+	End
 
 	Method SetFrustumLH:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
 		M[0]  = 2 * near / (right - left)
