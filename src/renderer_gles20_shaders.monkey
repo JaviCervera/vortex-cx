@@ -263,16 +263,16 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 Const DEPTH_VERTEX_SHADER:String = SHADER_VAR_PRECISION +
 "uniform mat4 mvp;" +
 "attribute vec3 vpos;" +
-"varying float depth;" +
+'"varying float depth;" +
 "void main() {" +
 "	gl_Position = mvp * vec4(vpos, 1);" +
-"	depth = gl_Position.z / gl_Position.w;" +
+'"	depth = gl_Position.z / gl_Position.w;" +
 "}"
 
 Const DEPTH_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION +
-"varying float depth;" +
+'"varying float depth;" +
 "void main() {" +
-"	gl_FragColor = vec4(depth, depth, depth, 1);" +
+"	gl_FragColor = vec4(gl_FragCoord.z, gl_FragCoord.z, gl_FragCoord.z, 1);" +
 "}"
 
 Const _2D_VERTEX_SHADER:String = SHADER_VAR_PRECISION +

@@ -205,7 +205,7 @@ Public
 		If mLightmap <> Null Then lightmapHandle = mLightmap.Handle
 		If mReflectTex <> Null Then reflectHandle = mReflectTex.Handle
 		If mRefractTex <> Null Then refractHandle = mRefractTex.Handle
-		Renderer.SetTextures(diffuseHandle, normalHandle, lightmapHandle, reflectHandle, refractHandle, mDiffuseTex And mDiffuseTex.Cubic)
+		Renderer.SetTextures(diffuseHandle, normalHandle, lightmapHandle, reflectHandle, refractHandle, mDiffuseTex And mDiffuseTex.IsCubic)
 		Renderer.SetPixelLighting(Lighting.GetGlobalPixelLighting())
 	End
 Private

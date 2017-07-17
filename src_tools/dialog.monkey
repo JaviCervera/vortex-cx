@@ -18,7 +18,7 @@ Function _RequestColor:Int(title:String, color:Int) = "RequestColor"
 
 Extern
 Function Notify:Void(title:String, text:String, serious:Bool = False)
-Function RequestFile:String(title:String, filters:String = "", save:Bool = False, file:String = CurrentDir())
+Function RequestFile:String(title:String, filters:String = "", save:Bool = False, file:String = "")
 
 Private
 Global _requestedRed:Int

@@ -56,8 +56,8 @@ Public
 		'Create render list
 		mRenderList = RenderList.Create()
 		
-		'Create texture and framebuffer
-		mFramebuffer = Framebuffer.Create(Texture.Create(512, 512),  Texture.Create(512, 512, True))
+		'Create framebuffer
+		mFramebuffer = Framebuffer.Create(512, 512, True)
 		
 		'Load level
 		mLevel = Mesh.Load("low-poly-mill.msh")
@@ -103,7 +103,7 @@ Public
 		
 		'Render depth
 		mFramebuffer.Set()
-		Renderer.Setup3D(0, 0, mFramebuffer.DepthTexture.Width, mFramebuffer.DepthTexture.Height, True, mFramebuffer.DepthTexture.Height)
+		Renderer.Setup3D(0, 0, mFramebuffer.ColorTexture.Width, mFramebuffer.ColorTexture.Height, True, mFramebuffer.ColorTexture.Height)
 		Renderer.SetProjectionMatrix(mDepthProj)
 		Renderer.SetViewMatrix(mDepthView)
 		RenderScene(True)
@@ -111,7 +111,7 @@ Public
 		'Render scene
 		Framebuffer.SetScreen()
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.SetDepthData(mDepthProj, mDepthView, mFramebuffer.ColorTexture.Handle, 0.005) 'We should really pass the DepthTexture handle, but there are issues in WebGL
+		Renderer.SetDepthData(mDepthProj, mDepthView, mFramebuffer.ColorTexture.Handle, 0.005)
 		Renderer.SetAmbient(0.6, 0.6, 0.6)
 		Renderer.SetProjectionMatrix(mProj)
 		Renderer.SetViewMatrix(mView)
@@ -125,6 +125,7 @@ Public
 		
 		'Render thumbnail of depth view (the closer a fragment is to camera, the darker it looks)
 		mFramebuffer.ColorTexture.Draw(DeviceWidth() - DeviceWidth()/3 - 4, DeviceHeight() - DeviceHeight()/3 - 4, DeviceWidth()/3, -DeviceHeight()/3)
+		'mFramebuffer.ColorTexture.Draw(0, 0, DeviceWidth(), -DeviceHeight())
 		
 		'Draw FPS
 		Renderer.SetColor(1, 1, 0)

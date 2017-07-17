@@ -7,12 +7,11 @@ Import vortex.src.renderer
 Public
 Class Texture Final
 Public
-	Function Create:Texture(width:Int, height:Int, isDepth:Bool = False)
+	Function Create:Texture(width:Int, height:Int)
 		Local tex:Texture = New Texture
-		tex.mHandle = Renderer.CreateTexture(width, height, isDepth)
+		tex.mHandle = Renderer.CreateTexture(width, height)
 		tex.mWidth = width
 		tex.mHeight = height
-		tex.mIsDepth = isDepth
 		tex.mIsCubic = False
 		Return tex
 	End
@@ -22,7 +21,6 @@ Public
 		tex.mHandle = Renderer.CreateTexture(buffer, width, height, filter)
 		tex.mWidth = width
 		tex.mHeight = height
-		tex.mIsDepth = False
 		tex.mIsCubic = False
 		Return tex
 	End
@@ -36,7 +34,6 @@ Public
 			tex.mHandle = handle
 			tex.mWidth = mSizeArr[0]
 			tex.mHeight = mSizeArr[1]
-			tex.mIsDepth = False
 			tex.mIsCubic = False
 			Return tex
 		Else
@@ -58,7 +55,6 @@ Public
 			tex.mHandle = handle
 			tex.mWidth = mSizeArr[0]
 			tex.mHeight = mSizeArr[1]
-			tex.mIsDepth = False
 			tex.mIsCubic = True
 			Return tex
 		Else
@@ -91,11 +87,7 @@ Public
 		Return mHeight
 	End
 	
-	Method Depth:Bool() Property
-		Return mIsDepth
-	End
-	
-	Method Cubic:Bool() Property
+	Method IsCubic:Bool() Property
 		Return mIsCubic
 	End
 
@@ -124,7 +116,6 @@ Private
 	Field mHandle	: Int
 	Field mWidth	: Int
 	Field mHeight	: Int
-	Field mIsDepth	: Bool
 	Field mIsCubic	: Bool
 	Global mSizeArr	: Int[2]
 End

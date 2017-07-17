@@ -433,21 +433,14 @@ Public
 	' Texture
 	'---------------------------------------------------------------------------
 	
-	Function CreateTexture:Int(width:Int, height:Int, isDepth:Bool)
-		Local internalFormat:Int = GL_RGBA
-		Local format:Int = GL_RGBA
-		If isDepth
-			internalFormat = GL_DEPTH_COMPONENT16
-			format = GL_DEPTH_COMPONENT
-		End
-
+	Function CreateTexture:Int(width:Int, height:Int)
 		Local texture:Int = glCreateTexture()
 		glBindTexture(GL_TEXTURE_2D, texture)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
 		'glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
 		'glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, Null)
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Null)
 		'glBindTexture(GL_TEXTURE_2D, 0)
 		Return texture
 	End
@@ -591,11 +584,11 @@ Public
 	' Framebuffer
 	'---------------------------------------------------------------------------
 	
-	Function CreateFramebuffer:Int(colorTex:Int, depthTex:Int)
+	Function CreateFramebuffer:Int(colorTex:Int, depthBuffer:Int)
 		Local fb:Int = glCreateFramebuffer()
 		SetFramebuffer(fb)
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0)
-		If depthTex > 0 Then glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0)
+		If depthBuffer <> 0 Then glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer)
 		SetFramebuffer(0)
 		Return fb
 	End
@@ -606,6 +599,22 @@ Public
 	
 	Function SetFramebuffer:Void(fb:Int)
 		glBindFramebuffer(GL_FRAMEBUFFER, fb)
+	End
+	
+	'---------------------------------------------------------------------------
+	'	Renderbuffer
+	'---------------------------------------------------------------------------
+	
+	Function CreateRenderbuffer:Int(width:Int, height:Int)
+		Local rb:Int = glCreateRenderbuffer()
+		glBindRenderbuffer(GL_RENDERBUFFER, rb)
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height)
+		glBindRenderbuffer(GL_RENDERBUFFER, 0)
+		Return rb
+	End
+	
+	Function FreeRenderbuffer:Void(rb:Int)
+		glDeleteRenderbuffer(rb)
 	End
 
 	'---------------------------------------------------------------------------
@@ -763,6 +772,26 @@ Public
 	Function GetShadingVersion:Float()
 		Return mShadingVersion
 	End Function
+	
+	Function GetErrorString:String()
+		Local err:Int = glGetError()
+		Select err
+		Case GL_NO_ERROR
+			Return "No error"
+		Case GL_INVALID_ENUM
+			Return "Invalid enum"
+		Case GL_INVALID_VALUE
+			Return "Invalid value"
+		Case GL_INVALID_OPERATION
+			Return "Invalid operation"
+		Case GL_INVALID_FRAMEBUFFER_OPERATION
+			Return "Invalid framebuffer operation"
+		Case GL_OUT_OF_MEMORY
+			Return "Out of memory"
+		Default
+			Return ""
+		End
+	End
 Private
 	Method New()
 	End
