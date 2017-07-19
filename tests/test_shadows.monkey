@@ -51,6 +51,7 @@ Public
 		
 		'Setup depth matrices
 		mDepthProj.SetOrthoLH(250, Float(DeviceWidth()) / DeviceHeight(), 0, 500)
+		'mDepthProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 500)	'It doesn't work with a perspective projection yet
 		mDepthView.LookAtLH(256, 256, 256, 0, 0, 0, 0, 1, 0)
 		
 		'Create render list

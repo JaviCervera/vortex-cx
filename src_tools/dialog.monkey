@@ -17,8 +17,12 @@ Extern Private
 Function _RequestColor:Int(title:String, color:Int) = "RequestColor"
 
 Extern
+Function Confirm:Bool(title:String, text:String, serious:Bool = False)
 Function Notify:Void(title:String, text:String, serious:Bool = False)
+Function Proceed:Int(title:String, text:String, serious:Bool = False)
+Function RequestDir:String(title:String, dir:String = "")
 Function RequestFile:String(title:String, filters:String = "", save:Bool = False, file:String = "")
+Function RequestInput:String(tilte:String, text:String, def:String = "", password:Bool = False)
 
 Private
 Global _requestedRed:Int
