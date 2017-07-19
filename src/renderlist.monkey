@@ -10,7 +10,8 @@ Import vortex.src.surface
 
 Class RenderGeom Final
 Public
-	Method New(surface:Surface, animMatrices:Mat4[])
+	Method New(op:RenderOp, surface:Surface, animMatrices:Mat4[])
+		mOp = op
 		mSurface = surface
 		mAnimMatrices = animMatrices
 		mTransforms = New List<Mat4>
@@ -43,6 +44,7 @@ Private
 	Method New()
 	End
 	
+	Field mOp:RenderOp
 	Field mSurface:Surface
 	Field mAnimMatrices:Mat4[]
 	Field mTransforms:List<Mat4>
@@ -50,10 +52,9 @@ End
 
 Class RenderOp Final
 Public
-	Method New(material:Material, geom:RenderGeom)
-		mMaterial = material
+	Method New(material:Material)
+		mMaterial = Material.Create(material)
 		mGeoms = New List<RenderGeom>
-		mGeoms.AddLast(geom)
 	End
 	
 	Method Render:Int()
@@ -63,6 +64,18 @@ Public
 			numRenderCalls += geom.Render()
 		Next
 		Return numRenderCalls
+	End
+	
+	Method AddGeom:Void(geom:RenderGeom)
+		mGeoms.AddLast(geom)
+	End
+	
+	Method RemoveGeom:Void(geom:RenderGeom)
+		mGeoms.Remove(geom)
+	End
+	
+	Method HasGeoms:Bool()
+		Return Not mGeoms.IsEmpty()
 	End
 Private
 	Field mMaterial	: Material
@@ -85,16 +98,30 @@ Public
 		RenderGeomForSurface(surface, overrideMaterial, mTempArray).AddTransform(transform)
 	End
 	
-	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null, animMatrices:Mat4[])
+	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material, animMatrices:Mat4[])
 		If overrideMaterial = Null Then overrideMaterial = surface.Material
 		RenderGeomForSurface(surface, overrideMaterial, animMatrices).AddTransform(transform)
 	End
 	
-	Method RemoveSurface:Void(surface:Surface, transform:Mat4)
-		Local geoms:RenderGeom[] = RenderGeomsForSurface(surface)
+	Method RemoveSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
+		Local geoms:RenderGeom[] = RenderGeomsForSurface(surface, overrideMaterial, mTempArray)
 		For Local geom:RenderGeom = Eachin geoms
 			geom.RemoveTransform(transform)
-			'If Not geom.HasTransforms() Then mOps.RemoveFirst(op)
+			If Not geom.HasTransforms()
+				geom.mOp.RemoveGeom(geom)
+				If Not geom.mOp.HasGeoms() Then RemoveOp(geom.mOp)
+			End
+		End
+	End
+	
+	Method RemoveSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material, animMatrices:Mat4[])
+		Local geoms:RenderGeom[] = RenderGeomsForSurface(surface, overrideMaterial, animMatrices)
+		For Local geom:RenderGeom = Eachin geoms
+			geom.RemoveTransform(transform)
+			If Not geom.HasTransforms()
+				geom.mOp.RemoveGeom(geom)
+				If Not geom.mOp.HasGeoms() Then RemoveOp(geom.mOp)
+			End
 		End
 	End
 	
@@ -153,33 +180,65 @@ Private
 	End
 	
 	Method RenderGeomForSurface:RenderGeom(surface:Surface, material:Material, animMatrices:Mat4[])
+		'Check for op with requested material
 		Local op:RenderOp = RenderOpForMaterial(material)
 		If op
+			'If the op has the geom, return it
 			For Local geom:RenderGeom = Eachin op.mGeoms
-				If geom.mSurface = surface Then Return geom
+				If geom.mSurface = surface
+					Local differ:Bool = False
+					Local len:Int = Min(animMatrices.Length, geom.mAnimMatrices.Length)
+					For Local i:Int = 0 Until len
+						If animMatrices[i] <> geom.mAnimMatrices[i] Then differ = True; Exit
+					Next
+					If Not differ Then Return geom
+				End
 			Next
 		End
 		
-		Local geom:RenderGeom = New RenderGeom(surface, animMatrices)
-		If material.DepthWrite = False
-			mOps.AddLast(New RenderOp(material, geom))
-		Else
-			mOps.AddFirst(New RenderOp(material, geom))
+		'If there is no op for the material, create one
+		If Not op
+			op = New RenderOp(material)
+			If material.DepthWrite = False
+				mOps.AddLast(op)
+			Else
+				mOps.AddFirst(op)
+			End
 		End
+		
+		'Create new geom
+		Local geom:RenderGeom = New RenderGeom(op, surface, animMatrices)
+		
+		'Add geom to op
+		op.AddGeom(geom)
+		'Otherwise, insert a new op
+		
 		Return geom
 	End
 	
-	Method RenderGeomsForSurface:RenderGeom[](surface:Surface)
+	Method RenderGeomsForSurface:RenderGeom[](surface:Surface, material:Material, animMatrices:Mat4[])
 		Local geoms:RenderGeom[0]
 		For Local op:RenderOp = Eachin mOps
+			If material And Not material.IsEqual(op.mMaterial) Then Continue
 			For Local geom:RenderGeom = Eachin op.mGeoms
 				If geom.mSurface = surface
-					geoms = geoms.Resize(geoms.Length() + 1)
-					geoms[geoms.Length()-1] = geom
+					Local differ:Bool = False
+					Local len:Int = Min(animMatrices.Length, geom.mAnimMatrices.Length)
+					For Local i:Int = 0 Until len
+						If animMatrices[i] <> geom.mAnimMatrices[i] Then differ = True; Exit
+					Next
+					If Not differ
+						geoms = geoms.Resize(geoms.Length() + 1)
+						geoms[geoms.Length()-1] = geom
+					End
 				End
 			Next
 		Next
 		Return geoms
+	End
+	
+	Method RemoveOp:Void(op:RenderOp)
+		mOps.Remove(op)
 	End
 
 	Field mOps			: List<RenderOp>

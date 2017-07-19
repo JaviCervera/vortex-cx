@@ -11,7 +11,7 @@ Public
 	Function Create:Surface(mat:Material = Null)
 		Local surf:Surface = New Surface
 		surf.mMaterial = surf.Material.Create()	'I need to call the function as surf.Material because the compiler is not capable of finding the correct context
-		If mat Then surf.mMaterial.Set(mat)
+		If mat Then surf.mMaterial.Set(mat); surf.mMaterial.Delegate = mat.Delegate
 		surf.mIndices = New DataBuffer(INC * 2, True)
 		surf.mVertices = New DataBuffer(INC * VERTEX_SIZE, True)
 		surf.mNumIndices = 0
@@ -269,6 +269,52 @@ Public
 	Method GetVertexBoneWeight:Float(vertex:Int, index:Int)
 		Return mVertices.PeekFloat(vertex * VERTEX_SIZE + BONEWEIGHTS_OFFSET + index * 4)
 	End
+	
+	Method Translate:Void(x:Float, y:Float, z:Float, rebuild:Bool = True)
+		For Local i:Int = 0 Until NumVertices
+			SetVertexPosition(i, GetVertexX(i) + x, GetVertexY(i) + y, GetVertexZ(i) + z)
+		Next
+		If rebuild Then Rebuild()
+	End
+
+	Method Rotate:Void(pitch:Float, yaw:Float, roll:Float, rebuild:Bool = True)
+		mTempQuat.SetEuler(pitch, yaw, roll)
+		mTempQuat.CalcAxis()
+		mTempMat.Rotate(mTempQuat.Angle(), mTempQuat.ResultVector())
+		For Local i:Int = 0 Until NumVertices
+			mTempMat.Mul(GetVertexX(i), GetVertexY(i), GetVertexZ(i), 1)
+			SetVertexPosition(i, mTempMat.ResultVector().X, mTempMat.ResultVector().Y, mTempMat.ResultVector().Z)
+			'TODO: Set normals
+			'mat.Mul(SurfaceVertexNX(surf, i), SurfaceVertexNY(surf, i), SurfaceVertexNZ(surf, i), 0)
+			'SetSurfaceVertexNormal(surf, i, mTempMat.ResultVector().X, mTempMat.ResultVector().Y, mTempMat.ResultVector().Z)
+		Next
+		If rebuild Then Rebuild()
+	End
+
+	Method Scale:Void(x:Float, y:Float, z:Float, rebuild:Bool = True)
+		For Local i:Int = 0 Until NumVertices
+			SetVertexPosition(i, GetVertexX(i) * x, GetVertexY(i) * y, GetVertexZ(i) * z)
+		Next
+		If rebuild Then Rebuild()
+	End
+
+	Method Flip:Void(rebuild:Bool = True)
+		'For Local i:Int = 0 Until NumSurfaceVertices(surf)
+			'TODO: Set normals
+			'SetSurfaceVertexNormal(surf, i, -SurfaceVertexNX(surf, i), -SurfaceVertexNY(surf, i), -SurfaceVertexNZ(surf, i))
+		'Next
+		For Local i:Int = 0 Until NumVertices
+			SetTriangleVertices(i, GetTriangleV2( i), GetTriangleV1(i), GetTriangleV0(i))
+		Next
+		If rebuild Then Rebuild()
+	End
+
+	Method SetColor:Void(r:Float, g:Float, b:Float, a:Float, rebuild:Bool = True)
+		For Local i:Int = 0 Until NumVertices
+			SetVertexColor(i, r, g, b, a)
+		Next
+		If rebuild Then Rebuild()
+	End
 
 	Method Rebuild:Void()
 		If mStatus & STATUS_I_RESIZED Then Renderer.ResizeIndexBuffer(mIndexBuffer, mNumIndices * 2)
@@ -310,4 +356,6 @@ Private
 	Field mIndexBuffer	: Int
 	Field mVertexBuffer	: Int
 	Field mStatus		: Int
+	Global mTempMatrix	: Mat4 = Mat4.Create()
+	Global mTempQuat	: Quat = Quat.Create()
 End

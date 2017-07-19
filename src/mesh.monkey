@@ -20,6 +20,8 @@ Public
 		mesh.mSurfaces = New Surface[0]
 		mesh.mBones = New Bone[0]
 		mesh.mNumFrames = 0
+		mesh.mMinBounds = Vec3.Create()
+		mesh.mMaxBounds = Vec3.Create()
 		Return mesh
 	End
 	
@@ -35,6 +37,8 @@ Public
 			mesh.mBones[i] = Bone.Create(other.mBones[i])
 		Next
 		mesh.mNumFrames = other.mNumFrames
+		mesh.mMinBounds.Set(other.mMinBounds)
+		mesh.mMaxBounds.Set(other.mMaxBounds)
 		Return mesh
 	End
 	
@@ -251,6 +255,8 @@ Public
 		
 		stream.Close()
 		
+		mesh.UpdateBounds()
+		
 		Return mesh
 	End
 	
@@ -357,6 +363,7 @@ Public
 	Method AddSurface:Void(surf:Surface)
 		mSurfaces = mSurfaces.Resize(mSurfaces.Length() + 1)
 		mSurfaces[mSurfaces.Length()-1] = surf
+		UpdateBounds()
 		surf.Rebuild()
 	End
 
@@ -421,6 +428,101 @@ Public
 		Next
 		Return -1
 	End
+	
+	Method Width:Float() Property
+		Return mMaxBounds.X - mMinBounds.X
+	End
+	
+	Method Height:Float() Property
+		Return mMaxBounds.Y - mMinBounds.Y
+	End
+	
+	Method Depth:Float() Property
+		Return mMaxBounds.Z - mMinBounds.Z
+	End
+	
+	Method UpdateBounds:Void()
+		If NumSurfaces > 0 And GetSurface(0).NumVertices > 0
+			'Init
+			mMinBounds.Set(GetSurface(0).GetVertexX(0), GetSurface(0).GetVertexY(0), GetSurface(0).GetVertexZ(0))
+			mMaxBounds.Set(mMinBounds)
+			
+			'Iterate through each geom
+			For Local surf:Surface = Eachin mSurfaces
+				For Local index:Int = 1 Until surf.NumVertices
+					Local vx:Float = surf.GetVertexX(index)
+					Local vy:Float = surf.GetVertexY(index)
+					Local vz:Float = surf.GetVertexZ(index)
+					If vx < mMinBounds.X Then mMinBounds.X = vx
+					If vy < mMinBounds.Y Then mMinBounds.Y = vy
+					If vz < mMinBounds.Z Then mMinBounds.Z = vz
+					If vx > mMaxBounds.X Then mMaxBounds.X = vx
+					If vy > mMaxBounds.Y Then mMaxBounds.Y = vy
+					If vz > mMaxBounds.Z Then mMaxBounds.Z = vz
+				Next
+			Next
+		Else
+			mMinBounds.Set(0, 0, 0)
+			mMaxBounds.Set(0, 0, 0)
+		End
+	End
+	
+	Method MinBoundX:Float() Property
+		Return mMinBounds.X
+	End
+	
+	Method MinBoundY:Float() Property
+		Return mMinBounds.Y
+	End
+	
+	Method MinBoundZ:Float() Property
+		Return mMinBounds.Z
+	End
+	
+	Method MaxBoundX:Float() Property
+		Return mMaxBounds.X
+	End
+	
+	Method MaxBoundY:Float() Property
+		Return mMaxBounds.Y
+	End
+	
+	Method MaxBoundZ:Float() Property
+		Return mMaxBounds.Z
+	End
+	
+	Method Translate:Void(x:Float, y:Float, z:Float)
+		For Local surf:Surface = Eachin mSurfaces
+			surf.Translate(x, y, z)
+		Next
+		UpdateBounds()
+	End
+
+	Method Rotate:Void(pitch:Float, yaw:Float, roll:Float)
+		For Local surf:Surface = Eachin mSurfaces
+			surf.Rotate(pitch, yaw, roll)
+		Next
+		UpdateBounds()
+	End
+
+	Method Scale:Void(x:Float, y:Float, z:Float)
+		For Local surf:Surface = Eachin mSurfaces
+			surf.Scale(x, y, z)
+		Next
+		UpdateBounds()
+	End
+
+	Method Flip:Void()
+		For Local surf:Surface = Eachin mSurfaces
+			surf.Flip()
+		Next
+	End
+
+	Method SetColor:Void(r:Float, g:Float, b:Float, a:Float)
+		For Local surf:Surface = Eachin mSurfaces
+			surf.SetColor(r, g, b, a)
+		Next
+	End
 Private
 	Method New()
 	End
@@ -429,5 +531,7 @@ Private
 	Field mSurfaces		: Surface[]
 	Field mBones		: Bone[]
 	Field mNumFrames	: Int
+	Field mMinBounds	: Vec3
+	Field mMaxBounds	: Vec3
 	Global mTempMatrix	: Mat4 = Mat4.Create()
 End

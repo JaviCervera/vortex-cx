@@ -7,10 +7,16 @@ Import vortex.src.renderer
 Import vortex.src.texture
 
 Public
+
+Interface IMaterialDelegate
+Method MaterialChanged:Void(mat:Material)
+End
+
 Class Material Final
 Public
-	Function Create:Material(diffuseTex:Texture = Null)
+	Function Create:Material(diffuseTex:Texture = Null, delegate:IMaterialDelegate = Null)
 		Local mat:Material = New Material
+		mat.mDelegate = delegate
 		mat.mDiffuseRed = 1
 		mat.mDiffuseGreen = 1
 		mat.mDiffuseBlue = 1
@@ -24,8 +30,8 @@ Public
 		Return mat
 	End
 	
-	Function Create:Material(other:Material)
-		Local mat:Material = Material.Create()
+	Function Create:Material(other:Material, delegate:IMaterialDelegate = Null)
+		Local mat:Material = Material.Create(Texture(Null), delegate)
 		mat.Set(other)
 		Return mat
 	End
@@ -63,16 +69,29 @@ Public
 		mBlendMode = other.mBlendMode
 		mCulling = other.mCulling
 		mDepthWrite = other.mDepthWrite
+		If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+	
+	Method Delegate:Void(delegate:IMaterialDelegate) Property
+		mDelegate = delegate
+	End
+	
+	Method Delegate:IMaterialDelegate() Property
+		Return mDelegate
 	End
 
 	Method SetDiffuseColor:Void(r:Float, g:Float, b:Float)
-		DiffuseRed = r
-		DiffuseGreen = g
-		DiffuseBlue = b
+		If DiffuseRed = r And DiffuseGreen = g And DiffuseBlue = b Then Return
+		mDiffuseRed = r
+		mDiffuseGreen = g
+		mDiffuseBlue = b
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
 	Method DiffuseRed:Void(red:Float) Property
+		If DiffuseRed = red Then Return
 		mDiffuseRed = Clamp(red, 0.0, 1.0)
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method DiffuseRed:Float() Property
@@ -80,7 +99,9 @@ Public
 	End
 	
 	Method DiffuseGreen:Void(green:Float) Property
+		If DiffuseGreen = green Then Return
 		mDiffuseGreen = Clamp(green, 0.0, 1.0)
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method DiffuseGreen:Float() Property
@@ -88,7 +109,9 @@ Public
 	End
 	
 	Method DiffuseBlue:Void(blue:Float) Property
+		If DiffuseBlue = blue Then Return
 		mDiffuseBlue = Clamp(blue, 0.0, 1.0)
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method DiffuseBlue:Float() Property
@@ -96,7 +119,9 @@ Public
 	End
 	
 	Method DiffuseTexture:Void(tex:Texture) Property
+		If mDiffuseTex = tex Then Return
 		mDiffuseTex = tex
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method DiffuseTexture:Texture() Property
@@ -104,7 +129,9 @@ Public
 	End
 	
 	Method NormalTexture:Void(tex:Texture) Property
+		If mNormalTex = tex Then Return
 		mNormalTex = tex
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
 	Method NormalTexture:Texture() Property
@@ -112,7 +139,9 @@ Public
 	End
 	
 	Method Lightmap:Void(tex:Texture) Property
+		If mLightmap = tex Then Return
 		mLightmap = tex
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
 	Method Lightmap:Texture() Property
@@ -120,7 +149,9 @@ Public
 	End
 	
 	Method ReflectionTexture:Void(tex:Texture) Property
+		If mReflectTex Then Return
 		mReflectTex = tex
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
 	Method ReflectionTexture:Texture() Property
@@ -128,7 +159,9 @@ Public
 	End
 	
 	Method RefractionTexture:Void(tex:Texture) Property
+		If mRefractTex = tex Then Return
 		mRefractTex = tex
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
 	Method RefractionTexture:Texture() Property
@@ -136,7 +169,9 @@ Public
 	End
 
 	Method Opacity:Void(opacity:Float) Property
+		If mOpacity = opacity Then Return
 		mOpacity = opacity
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method Opacity:Float() Property
@@ -144,7 +179,9 @@ Public
 	End
 
 	Method Shininess:Void(shininess:Float) Property
+		If mShininess = shininess Then Return
 		mShininess = Clamp(shininess, 0.0, 1.0)
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method Shininess:Float() Property
@@ -152,7 +189,9 @@ Public
 	End
 	
 	Method RefractionCoef:Void(coef:Float) Property
+		If mRefractCoef = coef Then Return
 		mRefractCoef = coef
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
 	Method RefractionCoef:Float() Property
@@ -160,7 +199,9 @@ Public
 	End
 
 	Method BlendMode:Void(mode:Int) Property
+		If mBlendMode = mode Then Return
 		mBlendMode = mode
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method BlendMode:Int() Property
@@ -168,7 +209,9 @@ Public
 	End
 
 	Method Culling:Void(enable:Bool) Property
+		If mCulling = enable Then Return
 		mCulling = enable
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method Culling:Bool() Property
@@ -176,10 +219,10 @@ Public
 	End
 
 	Method DepthWrite:Void(enable:Bool) Property
-		If enable <> mDepthWrite
-			mDepthWrite = enable
-			RenderList.Sort(Self)
-		End
+		If mDepthWrite = enable Then Return
+		mDepthWrite = enable
+		RenderList.Sort(Self)
+		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method DepthWrite:Bool() Property
@@ -212,6 +255,7 @@ Private
 	Method New()
 	End
 
+	Field mDelegate		: IMaterialDelegate
 	Field mDiffuseRed	: Float
 	Field mDiffuseGreen	: Float
 	Field mDiffuseBlue	: Float
