@@ -316,10 +316,10 @@ Public
 	End
 	
 	Function SetFog:Void(enable:Bool, minDist:Float, maxDist:Float, r:Float, g:Float, b:Float)
-		glUniform1i(mActiveProgram.mFogEnabledLoc, enable)
+		If mActiveProgram.mFogEnabledLoc <> -1 Then glUniform1i(mActiveProgram.mFogEnabledLoc, enable)
 		If enable
-			glUniform2f(mActiveProgram.mFogDistLoc, minDist, maxDist)
-			glUniform3f(mActiveProgram.mFogColorLoc, r, g, b)
+			If mActiveProgram.mFogDistLoc <> -1 Then glUniform2f(mActiveProgram.mFogDistLoc, minDist, maxDist)
+			If mActiveProgram.mFogDistLoc <> -1 Then glUniform3f(mActiveProgram.mFogColorLoc, r, g, b)
 		End
 	End
 
