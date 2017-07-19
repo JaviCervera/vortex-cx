@@ -9,7 +9,7 @@ void Notify(String title, String text, bool serious) {
 }
 
 int Proceed(String title, String text, bool serious) {
-  tinyfd_messageBox(title.ToCString<char>(), text.ToCString<char>(), "yesnocancel", serious ? "error" : "question", 0);
+  return tinyfd_messageBox(title.ToCString<char>(), text.ToCString<char>(), "yesnocancel", serious ? "error" : "question", 0);
 }
 
 int RequestColor(String title, int color) {
