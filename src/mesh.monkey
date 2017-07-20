@@ -30,11 +30,11 @@ Public
 		mesh.mFilename = other.mFilename
 		mesh.mSurfaces = New Surface[other.mSurfaces.Length()]
 		For Local i:Int = 0 Until other.mSurfaces.Length()
-			mesh.mSurfaces[i] = Surface.Create(other.mSurfaces[i])
+			mesh.mSurfaces[i] = surface.Surface.Create(other.mSurfaces[i])
 		Next
 		mesh.mBones	= New Bone[other.mBones.Length()]
 		For Local i:Int = 0 Until other.mBones.Length()
-			mesh.mBones[i] = Bone.Create(other.mBones[i])
+			mesh.mBones[i] = bone.Bone.Create(other.mBones[i])
 		Next
 		mesh.mNumFrames = other.mNumFrames
 		mesh.mMinBounds.Set(other.mMinBounds)
@@ -90,7 +90,7 @@ Public
 		'Surfaces
 		Local numSurfaces:Int = stream.ReadShort()
 		For Local s:Int = 0 Until numSurfaces
-			Local surf:Surface = Surface.Create()
+			Local surf:Surface = surface.Surface.Create()
 		
 			'Material
 			Local flags:Int = 0
@@ -285,7 +285,7 @@ Public
 			Next
 		
 			'Create and add bone
-			Local bone:Bone = Bone.Create(name, parentIndex)
+			Local bone:Bone = bone.Bone.Create(name, parentIndex)
 			bone.InversePoseMatrix = mTempMatrix
 			AddBone(bone)
 		Next
@@ -316,7 +316,7 @@ Public
 				Local x:Float = stream.ReadFloat()
 				Local y:Float = stream.ReadFloat()
 				Local z:Float = stream.ReadFloat()
-				GetBone(i).AddPositionKey(firstFrame + frame, x, y, z)
+				Bone(i).AddPositionKey(firstFrame + frame, x, y, z)
 			Next
 			
 			'Rotation keys
@@ -327,7 +327,7 @@ Public
 				Local x:Float = stream.ReadFloat()
 				Local y:Float = stream.ReadFloat()
 				Local z:Float = stream.ReadFloat()
-				GetBone(i).AddRotationKey(firstFrame + frame, w, x, y, z)
+				Bone(i).AddRotationKey(firstFrame + frame, w, x, y, z)
 			Next
 			
 			'Scale keys
@@ -337,7 +337,7 @@ Public
 				Local x:Float = stream.ReadFloat()
 				Local y:Float = stream.ReadFloat()
 				Local z:Float = stream.ReadFloat()
-				GetBone(i).AddScaleKey(firstFrame + frame, x, y, z)
+				Bone(i).AddScaleKey(firstFrame + frame, x, y, z)
 			Next
 		Next
 		
@@ -371,7 +371,7 @@ Public
 		Return mSurfaces.Length()
 	End
 
-	Method GetSurface:Surface(index:Int)
+	Method Surface:Surface(index:Int)
 		Return mSurfaces[index]
 	End
 
@@ -392,7 +392,7 @@ Public
 		Return mBones.Length()
 	End
 	
-	Method GetBone:Bone(index:Int)
+	Method Bone:Bone(index:Int)
 		If index = -1 Then Return Null
 		Return mBones[index]
 	End
@@ -405,24 +405,24 @@ Public
 			
 			'Calculate animation matrix for all bones
 			For Local i:Int = 0 Until NumBones
-				Local parentIndex:Int = GetBone(i).ParentIndex
+				Local parentIndex:Int = Bone(i).ParentIndex
 				If parentIndex > -1
 					animMatrices[i].Set(animMatrices[parentIndex])
-					GetBone(i).CalculateAnimMatrix(mTempMatrix, frame, firstFrame, lastFrame)
+					Bone(i).CalculateAnimMatrix(mTempMatrix, frame, firstFrame, lastFrame)
 					animMatrices[i].Mul(mTempMatrix)
 				Else
-					GetBone(i).CalculateAnimMatrix(animMatrices[i], frame, firstFrame, lastFrame)
+					Bone(i).CalculateAnimMatrix(animMatrices[i], frame, firstFrame, lastFrame)
 				End
 			Next
 			
 			'Multiply every animation matrix by the inverse of the pose matrix
 			For Local i:Int = 0 Until NumBones
-				animMatrices[i].Mul(GetBone(i).InversePoseMatrix)
+				animMatrices[i].Mul(Bone(i).InversePoseMatrix)
 			Next
 		End
 	End
 	
-	Method GetBoneIndex:Int(name:String)
+	Method BoneIndex:Int(name:String)
 		For Local i:Int = 0 Until mBones.Length()
 			If mBones[i].Name = name Then Return i
 		Next
@@ -442,17 +442,17 @@ Public
 	End
 	
 	Method UpdateBounds:Void()
-		If NumSurfaces > 0 And GetSurface(0).NumVertices > 0
+		If NumSurfaces > 0 And Surface(0).NumVertices > 0
 			'Init
-			mMinBounds.Set(GetSurface(0).GetVertexX(0), GetSurface(0).GetVertexY(0), GetSurface(0).GetVertexZ(0))
+			mMinBounds.Set(Surface(0).VertexX(0), Surface(0).VertexY(0), Surface(0).VertexZ(0))
 			mMaxBounds.Set(mMinBounds)
 			
 			'Iterate through each geom
 			For Local surf:Surface = Eachin mSurfaces
 				For Local index:Int = 1 Until surf.NumVertices
-					Local vx:Float = surf.GetVertexX(index)
-					Local vy:Float = surf.GetVertexY(index)
-					Local vz:Float = surf.GetVertexZ(index)
+					Local vx:Float = surf.VertexX(index)
+					Local vy:Float = surf.VertexY(index)
+					Local vz:Float = surf.VertexZ(index)
 					If vx < mMinBounds.X Then mMinBounds.X = vx
 					If vy < mMinBounds.Y Then mMinBounds.Y = vy
 					If vz < mMinBounds.Z Then mMinBounds.Z = vz

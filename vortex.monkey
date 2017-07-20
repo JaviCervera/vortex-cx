@@ -16,39 +16,38 @@ Class Vortex Final
 Public
 	Function Init:Bool(numLights:Int = 8, numBones:Int = 75)
 		If Renderer.Init(numLights, numBones)
-			'Cache.Push()
 			Return True
 		Else
 			Return False
 		End
 	End
 
-	Function GetShaderError:String()
-		Return Renderer.GetProgramError()
+	Function ShaderError:String()
+		Return Renderer.ProgramError()
 	End
 	
-	Function GetVendorName:String()
-		Return Renderer.GetVendorName()
+	Function VendorName:String()
+		Return Renderer.VendorName()
 	End
 	
-	Function GetRendererName:String()
-		Return Renderer.GetRendererName()
+	Function RendererName:String()
+		Return Renderer.RendererName()
 	End
 	
-	Function GetAPIVersionName:String()
-		Return Renderer.GetAPIVersionName()
+	Function APIVersionName:String()
+		Return Renderer.APIVersionName()
 	End
 	
-	Function GetShadingVersionName:String()
-		Return Renderer.GetShadingVersionName()
+	Function ShadingVersionName:String()
+		Return Renderer.ShadingVersionName()
 	End
 
-	Function GetAPIVersion:Float()
-		Return Renderer.GetAPIVersion()
+	Function APIVersion:Float()
+		Return Renderer.APIVersion()
 	End Function
 
-	Function GetShadingVersion:Float()
-		Return Renderer.GetShadingVersion()
+	Function ShadingVersion:Float()
+		Return Renderer.ShadingVersion()
 	End Function
 Private
 	Method New()

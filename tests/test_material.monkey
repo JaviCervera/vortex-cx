@@ -27,17 +27,17 @@ Public
 		'Init vortex
 		If Not Vortex.Init()
 #If TARGET="glfw" And HOST<>"linux"
-			Notify "Error", Vortex.GetShaderError(), True
+			Notify "Error", Vortex.ShaderError(), True
 #Else
-			Print "Error: " + Vortex.GetShaderError()
+			Print "Error: " + Vortex.ShaderError()
 #Endif
 			EndApp()
 		End
-		Print "Vendor name: " + Vortex.GetVendorName()
-		Print "Renderer name: " + Vortex.GetRendererName()
-		Print "API version name: " + Vortex.GetAPIVersionName()
-		Print "Shading version name: " + Vortex.GetShadingVersionName()
-		Print "Shader compilation: " + Vortex.GetShaderError()
+		Print "Vendor name: " + Vortex.VendorName()
+		Print "Renderer name: " + Vortex.RendererName()
+		Print "API version name: " + Vortex.APIVersionName()
+		Print "Shading version name: " + Vortex.ShadingVersionName()
+		Print "Shader compilation: " + Vortex.ShaderError()
 		
 		'Load font
 		mFont = Font.Load("system.fnt")
@@ -58,7 +58,7 @@ Public
 		
 		'Load box mesh
 		mMesh = Mesh.Load("cube.msh")
-		Local mat:Material = mMesh.GetSurface(0).Material
+		Local mat:Material = mMesh.Surface(0).Material
 		mat.Shininess = 1
 		'mat.DiffuseTexture = Null
 		'mat.ReflectionTexture = mTexture
@@ -67,7 +67,7 @@ Public
 		
 		'Create skybox
 		mSkybox = Mesh.Create(mMesh)
-		mat = mSkybox.GetSurface(0).Material
+		mat = mSkybox.Surface(0).Material
 		mat.Set(Material.Create(mTexture))
 		mat.DepthWrite = False
 		
@@ -96,10 +96,10 @@ Public
 		
 		'Update shininess
 		If KeyHit(KEY_SPACE)
-			If ( mMesh.GetSurface(0).Material.Shininess >= 1 )
-				mMesh.GetSurface(0).Material.Shininess = 0
+			If ( mMesh.Surface(0).Material.Shininess >= 1 )
+				mMesh.Surface(0).Material.Shininess = 0
 			Else
-				mMesh.GetSurface(0).Material.Shininess = Clamp(mMesh.GetSurface(0).Material.Shininess + 0.1, 0.0, 1.0)
+				mMesh.Surface(0).Material.Shininess = Clamp(mMesh.Surface(0).Material.Shininess + 0.1, 0.0, 1.0)
 			End
 		End
 		
@@ -146,7 +146,7 @@ Public
 		mFont.Draw(2, 18, text)
 		
 		'Draw shininess
-		text = "Shininess: " + String(mMesh.GetSurface(0).Material.Shininess)[..3]
+		text = "Shininess: " + String(mMesh.Surface(0).Material.Shininess)[..3]
 		mFont.Draw(2, 34, text)
 	
 		Return False

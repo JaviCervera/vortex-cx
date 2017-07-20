@@ -94,15 +94,15 @@ Public
 		mStatus |= STATUS_I_DIRTY
 	End
 
-	Method GetTriangleV0:Int(index:Int)
+	Method TriangleV0:Int(index:Int)
 		Return mIndices.PeekShort(index*6)
 	End
 
-	Method GetTriangleV1:Int(index:Int)
+	Method TriangleV1:Int(index:Int)
 		Return mIndices.PeekShort(index*6 + 2)
 	End
 
-	Method GetTriangleV2:Int(index:Int)
+	Method TriangleV2:Int(index:Int)
 		Return mIndices.PeekShort(index*6 + 4)
 	End
 
@@ -194,59 +194,59 @@ Public
 		mStatus |= STATUS_V_DIRTY
 	End
 
-	Method GetVertexX:Float(index:Int)
+	Method VertexX:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + POS_OFFSET)
 	End
 
-	Method GetVertexY:Float(index:Int)
+	Method VertexY:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + POS_OFFSET + 4)
 	End
 
-	Method GetVertexZ:Float(index:Int)
+	Method VertexZ:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + POS_OFFSET + 8)
 	End
 
-	Method GetVertexNX:Float(index:Int)
+	Method VertexNX:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + NORMAL_OFFSET)
 	End
 
-	Method GetVertexNY:Float(index:Int)
+	Method VertexNY:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + NORMAL_OFFSET + 4)
 	End
 
-	Method GetVertexNZ:Float(index:Int)
+	Method VertexNZ:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + NORMAL_OFFSET + 8)
 	End
 	
-	Method GetVertexTX:Float(index:Int)
+	Method VertexTX:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + TANGENT_OFFSET)
 	End
 	
-	Method GetVertexTY:Float(index:Int)
+	Method VertexTY:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + TANGENT_OFFSET + 4)
 	End
 	
-	Method GetVertexTZ:Float(index:Int)
+	Method VertexTZ:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + TANGENT_OFFSET + 8)
 	End
 
-	Method GetVertexRed:Float(index:Int)
+	Method VertexRed:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET)
 	End
 
-	Method GetVertexGreen:Float(index:Int)
+	Method VertexGreen:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 4)
 	End
 
-	Method GetVertexBlue:Float(index:Int)
+	Method VertexBlue:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 8)
 	End
 
-	Method GetVertexAlpha:Float(index:Int)
+	Method VertexAlpha:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 12)
 	End
 
-	Method GetVertexU:Float(index:Int, set:Int = 0)
+	Method VertexU:Float(index:Int, set:Int = 0)
 		If set = 0
 			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX0_OFFSET)
 		Else
@@ -254,7 +254,7 @@ Public
 		End
 	End
 
-	Method GetVertexV:Float(index:Int, set:Int = 0)
+	Method VertexV:Float(index:Int, set:Int = 0)
 		If set = 0
 			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX0_OFFSET + 4)
 		Else
@@ -262,17 +262,17 @@ Public
 		End
 	End
 	
-	Method GetVertexBoneIndex:Int(vertex:Int, index:Int)
+	Method VertexBoneIndex:Int(vertex:Int, index:Int)
 		Return mVertices.PeekFloat(vertex * VERTEX_SIZE + BONEINDICES_OFFSET + index * 4)
 	End
 	
-	Method GetVertexBoneWeight:Float(vertex:Int, index:Int)
+	Method VertexBoneWeight:Float(vertex:Int, index:Int)
 		Return mVertices.PeekFloat(vertex * VERTEX_SIZE + BONEWEIGHTS_OFFSET + index * 4)
 	End
 	
 	Method Translate:Void(x:Float, y:Float, z:Float, rebuild:Bool = True)
 		For Local i:Int = 0 Until NumVertices
-			SetVertexPosition(i, GetVertexX(i) + x, GetVertexY(i) + y, GetVertexZ(i) + z)
+			SetVertexPosition(i, VertexX(i) + x, VertexY(i) + y, VertexZ(i) + z)
 		Next
 		If rebuild Then Rebuild()
 	End
@@ -282,7 +282,7 @@ Public
 		mTempQuat.CalcAxis()
 		mTempMat.Rotate(mTempQuat.Angle(), mTempQuat.ResultVector())
 		For Local i:Int = 0 Until NumVertices
-			mTempMat.Mul(GetVertexX(i), GetVertexY(i), GetVertexZ(i), 1)
+			mTempMat.Mul(VertexX(i), VertexY(i), VertexZ(i), 1)
 			SetVertexPosition(i, mTempMat.ResultVector().X, mTempMat.ResultVector().Y, mTempMat.ResultVector().Z)
 			'TODO: Set normals
 			'mat.Mul(SurfaceVertexNX(surf, i), SurfaceVertexNY(surf, i), SurfaceVertexNZ(surf, i), 0)
@@ -293,7 +293,7 @@ Public
 
 	Method Scale:Void(x:Float, y:Float, z:Float, rebuild:Bool = True)
 		For Local i:Int = 0 Until NumVertices
-			SetVertexPosition(i, GetVertexX(i) * x, GetVertexY(i) * y, GetVertexZ(i) * z)
+			SetVertexPosition(i, VertexX(i) * x, VertexY(i) * y, VertexZ(i) * z)
 		Next
 		If rebuild Then Rebuild()
 	End
@@ -304,7 +304,7 @@ Public
 			'SetSurfaceVertexNormal(surf, i, -SurfaceVertexNX(surf, i), -SurfaceVertexNY(surf, i), -SurfaceVertexNZ(surf, i))
 		'Next
 		For Local i:Int = 0 Until NumVertices
-			SetTriangleVertices(i, GetTriangleV2( i), GetTriangleV1(i), GetTriangleV0(i))
+			SetTriangleVertices(i, TriangleV2( i), TriangleV1(i), TriangleV0(i))
 		Next
 		If rebuild Then Rebuild()
 	End

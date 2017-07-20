@@ -105,29 +105,29 @@ Public
 				If mSelMat = currentMesh.NumSurfaces Then mSelMat = 0
 			'Diffuse color
 			Elseif mDiffuseColorRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				If RequestColor("Select diffuse color", currentMesh.GetSurface(mSelMat).Material.DiffuseRed * 255, currentMesh.GetSurface(mSelMat).Material.DiffuseGreen * 255, currentMesh.GetSurface(mSelMat).Material.DiffuseBlue * 255)
-					currentMesh.GetSurface(mSelMat).Material.SetDiffuseColor(RequestedRed() / 255.0, RequestedGreen() / 255.0, RequestedBlue() / 255.0)
+				If RequestColor("Select diffuse color", currentMesh.Surface(mSelMat).Material.DiffuseRed * 255, currentMesh.Surface(mSelMat).Material.DiffuseGreen * 255, currentMesh.Surface(mSelMat).Material.DiffuseBlue * 255)
+					currentMesh.Surface(mSelMat).Material.SetDiffuseColor(RequestedRed() / 255.0, RequestedGreen() / 255.0, RequestedBlue() / 255.0)
 				End
 			'Diffuse texture
 			Elseif mDiffuseTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local filename:String = RequestFile("Select diffuse texture")
 				If filename <> ""
 					Local tex:Texture = Texture.Load(filename)
-					If tex Then currentMesh.GetSurface(mSelMat).Material.DiffuseTexture = tex
+					If tex Then currentMesh.Surface(mSelMat).Material.DiffuseTexture = tex
 				End
 			'Normal texture
 			Elseif mNormalTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local filename:String = RequestFile("Select normal texture")
 				If filename <> ""
 					Local tex:Texture = Texture.Load(filename)
-					If tex Then currentMesh.GetSurface(mSelMat).Material.NormalTexture = tex
+					If tex Then currentMesh.Surface(mSelMat).Material.NormalTexture = tex
 				End
 			'Lightmap
 			Elseif mLightmapRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local filename:String = RequestFile("Select lightmap")
 				If filename <> ""
 					Local tex:Texture = Texture.Load(filename)
-					If tex Then currentMesh.GetSurface(mSelMat).Material.Lightmap = tex
+					If tex Then currentMesh.Surface(mSelMat).Material.Lightmap = tex
 				End
 			#Rem
 			'Reflection texture
@@ -135,44 +135,44 @@ Public
 				Local filename:String = RequestFile("Select reflection texture")
 				If filename <> ""
 					Local tex:Texture = Texture.Load(filename)
-					If tex Then currentMesh.GetSurface(mSelMat).Material.ReflectionTexture = tex
+					If tex Then currentMesh.Surface(mSelMat).Material.ReflectionTexture = tex
 				End
 			'Refraction texture
 			Elseif mRefractionTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local filename:String = RequestFile("Select refraction texture")
 				If filename <> ""
 					Local tex:Texture = Texture.Load(filename)
-					If tex Then currentMesh.GetSurface(mSelMat).Material.RefractionTexture = tex
+					If tex Then currentMesh.Surface(mSelMat).Material.RefractionTexture = tex
 				End
 			#End
 			'Refraction coef
 			Elseif mRefractionCoefRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local iCoef:Int = Int(currentMesh.GetSurface(mSelMat).Material.RefractionCoef * 100)
+				Local iCoef:Int = Int(currentMesh.Surface(mSelMat).Material.RefractionCoef * 100)
 				iCoef += 10
 				If iCoef > 100 Then iCoef = 0
-				currentMesh.GetSurface(mSelMat).Material.RefractionCoef = iCoef / 100.0
+				currentMesh.Surface(mSelMat).Material.RefractionCoef = iCoef / 100.0
 			'Opacity
 			Elseif mOpacityRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local iOp:Int = Int(currentMesh.GetSurface(mSelMat).Material.Opacity * 100)
+				Local iOp:Int = Int(currentMesh.Surface(mSelMat).Material.Opacity * 100)
 				iOp += 10
 				If iOp > 100 Then iOp = 0
-				currentMesh.GetSurface(mSelMat).Material.Opacity = iOp / 100.0
+				currentMesh.Surface(mSelMat).Material.Opacity = iOp / 100.0
 			'Shininess
 			Elseif mShininessRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local iShininess:Int = Int(currentMesh.GetSurface(mSelMat).Material.Shininess * 100)
+				Local iShininess:Int = Int(currentMesh.Surface(mSelMat).Material.Shininess * 100)
 				iShininess += 10
 				If iShininess > 100 Then iShininess = 0
-				currentMesh.GetSurface(mSelMat).Material.Shininess = iShininess / 100.0
+				currentMesh.Surface(mSelMat).Material.Shininess = iShininess / 100.0
 			'Blend
 			Elseif mBlendModeRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				currentMesh.GetSurface(mSelMat).Material.BlendMode += 1
-				If currentMesh.GetSurface(mSelMat).Material.BlendMode > Renderer.BLEND_MUL Then currentMesh.GetSurface(mSelMat).Material.BlendMode = 0
+				currentMesh.Surface(mSelMat).Material.BlendMode += 1
+				If currentMesh.Surface(mSelMat).Material.BlendMode > Renderer.BLEND_MUL Then currentMesh.Surface(mSelMat).Material.BlendMode = 0
 			'Culling
 			Elseif mCullingRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				currentMesh.GetSurface(mSelMat).Material.Culling = Not currentMesh.GetSurface(mSelMat).Material.Culling
+				currentMesh.Surface(mSelMat).Material.Culling = Not currentMesh.Surface(mSelMat).Material.Culling
 			'Depth write
 			Elseif mDepthWriteRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				currentMesh.GetSurface(mSelMat).Material.DepthWrite = Not currentMesh.GetSurface(mSelMat).Material.DepthWrite
+				currentMesh.Surface(mSelMat).Material.DepthWrite = Not currentMesh.Surface(mSelMat).Material.DepthWrite
 			End
 		End
 		
@@ -222,53 +222,53 @@ Public
 			
 			DrawPanel(mMaterialRect)
 			DrawPanel(mMaterialRect.x + mSelMatRect.x, mMaterialRect.y + mSelMatRect.y, mSelMatRect.width, mSelMatRect.height, "Material #" + mSelMat, mFont)
-			DrawPanel(mMaterialRect.x + mDiffuseColorRect.x, mMaterialRect.y + mDiffuseColorRect.y, mDiffuseColorRect.width, mDiffuseColorRect.height, "Diffuse Color", mFont, currentMesh.GetSurface(mSelMat).Material.DiffuseRed, currentMesh.GetSurface(mSelMat).Material.DiffuseGreen, currentMesh.GetSurface(mSelMat).Material.DiffuseBlue)
+			DrawPanel(mMaterialRect.x + mDiffuseColorRect.x, mMaterialRect.y + mDiffuseColorRect.y, mDiffuseColorRect.width, mDiffuseColorRect.height, "Diffuse Color", mFont, currentMesh.Surface(mSelMat).Material.DiffuseRed, currentMesh.Surface(mSelMat).Material.DiffuseGreen, currentMesh.Surface(mSelMat).Material.DiffuseBlue)
 			
 			'Diffuse
-			If currentMesh.GetSurface(mSelMat).Material.DiffuseTexture
+			If currentMesh.Surface(mSelMat).Material.DiffuseTexture
 				Renderer.SetColor(1, 1, 1)
-				currentMesh.GetSurface(mSelMat).Material.DiffuseTexture.Draw(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
+				currentMesh.Surface(mSelMat).Material.DiffuseTexture.Draw(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
 			End
 			
 			'Normal
-			If currentMesh.GetSurface(mSelMat).Material.NormalTexture
+			If currentMesh.Surface(mSelMat).Material.NormalTexture
 				Renderer.SetColor(1, 1, 1)
-				currentMesh.GetSurface(mSelMat).Material.NormalTexture.Draw(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
+				currentMesh.Surface(mSelMat).Material.NormalTexture.Draw(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
 			End
 			
 			'Lightmap
-			If currentMesh.GetSurface(mSelMat).Material.Lightmap
+			If currentMesh.Surface(mSelMat).Material.Lightmap
 				Renderer.SetColor(1, 1, 1)
-				currentMesh.GetSurface(mSelMat).Material.Lightmap.Draw(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
+				currentMesh.Surface(mSelMat).Material.Lightmap.Draw(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
 			End
 			
 			'Reflection
-			If currentMesh.GetSurface(mSelMat).Material.ReflectionTexture
+			If currentMesh.Surface(mSelMat).Material.ReflectionTexture
 				Renderer.SetColor(1, 1, 1)
-				currentMesh.GetSurface(mSelMat).Material.ReflectionTexture.Draw(mMaterialRect.x + mReflectionTexRect.x, mMaterialRect.y + mReflectionTexRect.y, mReflectionTexRect.width, mReflectionTexRect.height)
+				currentMesh.Surface(mSelMat).Material.ReflectionTexture.Draw(mMaterialRect.x + mReflectionTexRect.x, mMaterialRect.y + mReflectionTexRect.y, mReflectionTexRect.width, mReflectionTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mReflectionTexRect.x, mMaterialRect.y + mReflectionTexRect.y, mReflectionTexRect.width, mReflectionTexRect.height)
 			End
 			
 			'Refraction
-			If currentMesh.GetSurface(mSelMat).Material.RefractionTexture
+			If currentMesh.Surface(mSelMat).Material.RefractionTexture
 				Renderer.SetColor(1, 1, 1)
-				currentMesh.GetSurface(mSelMat).Material.RefractionTexture.Draw(mMaterialRect.x + mRefractionTexRect.x, mMaterialRect.y + mRefractionTexRect.y, mRefractionTexRect.width, mRefractionTexRect.height)
+				currentMesh.Surface(mSelMat).Material.RefractionTexture.Draw(mMaterialRect.x + mRefractionTexRect.x, mMaterialRect.y + mRefractionTexRect.y, mRefractionTexRect.width, mRefractionTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mRefractionTexRect.x, mMaterialRect.y + mRefractionTexRect.y, mRefractionTexRect.width, mRefractionTexRect.height)
 			End
 	
-			DrawPanel(mMaterialRect.x + mRefractionCoefRect.x, mMaterialRect.y + mRefractionCoefRect.y, mRefractionCoefRect.width, mRefractionCoefRect.height, "Refr. Coef: " + String(currentMesh.GetSurface(mSelMat).Material.RefractionCoef)[..4], mFont)
-			DrawPanel(mMaterialRect.x + mOpacityRect.x, mMaterialRect.y + mOpacityRect.y, mOpacityRect.width, mOpacityRect.height, "Opacity: " + String(currentMesh.GetSurface(mSelMat).Material.Opacity)[..4], mFont)
-			DrawPanel(mMaterialRect.x + mShininessRect.x, mMaterialRect.y + mShininessRect.y, mShininessRect.width, mShininessRect.height, "Shininess: " + String(currentMesh.GetSurface(mSelMat).Material.Shininess)[..4], mFont)
+			DrawPanel(mMaterialRect.x + mRefractionCoefRect.x, mMaterialRect.y + mRefractionCoefRect.y, mRefractionCoefRect.width, mRefractionCoefRect.height, "Refr. Coef: " + String(currentMesh.Surface(mSelMat).Material.RefractionCoef)[..4], mFont)
+			DrawPanel(mMaterialRect.x + mOpacityRect.x, mMaterialRect.y + mOpacityRect.y, mOpacityRect.width, mOpacityRect.height, "Opacity: " + String(currentMesh.Surface(mSelMat).Material.Opacity)[..4], mFont)
+			DrawPanel(mMaterialRect.x + mShininessRect.x, mMaterialRect.y + mShininessRect.y, mShininessRect.width, mShininessRect.height, "Shininess: " + String(currentMesh.Surface(mSelMat).Material.Shininess)[..4], mFont)
 			Local blendStr:String = ""
-			Select currentMesh.GetSurface(mSelMat).Material.BlendMode
+			Select currentMesh.Surface(mSelMat).Material.BlendMode
 			Case Renderer.BLEND_ALPHA
 				blendStr = "Alpha"
 			Case Renderer.BLEND_ADD
@@ -277,8 +277,8 @@ Public
 				blendStr = "Mul"
 			End
 			DrawPanel(mMaterialRect.x + mBlendModeRect.x, mMaterialRect.y + mBlendModeRect.y, mBlendModeRect.width, mBlendModeRect.height, "Blend: " + blendStr, mFont)
-			DrawCheckbox(mMaterialRect.x + mCullingRect.x, mMaterialRect.y + mCullingRect.y, mCullingRect.width, mCullingRect.height, "Culling", mFont, currentMesh.GetSurface(mSelMat).Material.Culling)
-			DrawCheckbox(mMaterialRect.x + mDepthWriteRect.x, mMaterialRect.y + mDepthWriteRect.y, mDepthWriteRect.width, mDepthWriteRect.height, "Depth Write", mFont, currentMesh.GetSurface(mSelMat).Material.DepthWrite)
+			DrawCheckbox(mMaterialRect.x + mCullingRect.x, mMaterialRect.y + mCullingRect.y, mCullingRect.width, mCullingRect.height, "Culling", mFont, currentMesh.Surface(mSelMat).Material.Culling)
+			DrawCheckbox(mMaterialRect.x + mDepthWriteRect.x, mMaterialRect.y + mDepthWriteRect.y, mDepthWriteRect.width, mDepthWriteRect.height, "Depth Write", mFont, currentMesh.Surface(mSelMat).Material.DepthWrite)
 		End
 	End
 	

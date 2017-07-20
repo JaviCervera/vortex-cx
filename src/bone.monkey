@@ -84,19 +84,19 @@ Public
 		Return mPositionKeys.Length
 	End
 
-	Method GetPositionKeyFrame:Int(index:Int)
+	Method PositionKeyFrame:Int(index:Int)
 		Return mPositionKeys[index]
 	End
 
-	Method GetPositionKeyX:Float(index:Int)
+	Method PositionKeyX:Float(index:Int)
 		Return mPositions[index].X
 	End
 
-	Method GetPositionKeyY:Float(index:Int)
+	Method PositionKeyY:Float(index:Int)
 		Return mPositions[index].Y
 	End
 
-	Method GetPositionKeyZ:Float(index:Int)
+	Method PositionKeyZ:Float(index:Int)
 		Return mPositions[index].Z
 	End
 
@@ -104,23 +104,23 @@ Public
 		Return mRotationKeys.Length
 	End
 
-	Method GetRotationKeyFrame:Int(index:Int)
+	Method RotationKeyFrame:Int(index:Int)
 		Return mRotationKeys[index]
 	End
 
-	Method GetRotationKeyW:Float(index:Int)
+	Method RotationKeyW:Float(index:Int)
 		Return mRotations[index].W
 	End
 
-	Method GetRotationKeyX:Float(index:Int)
+	Method RotationKeyX:Float(index:Int)
 		Return mRotations[index].X
 	End
 
-	Method GetRotationKeyY:Float(index:Int)
+	Method RotationKeyY:Float(index:Int)
 		Return mRotations[index].Y
 	End
 
-	Method GetRotationKeyZ:Float(index:Int)
+	Method RotationKeyZ:Float(index:Int)
 		Return mRotations[index].Z
 	End
 
@@ -128,19 +128,19 @@ Public
 		Return mScaleKeys.Length
 	End
 
-	Method GetScaleKeyFrame:Int(index:Int)
+	Method ScaleKeyFrame:Int(index:Int)
 		Return mScaleKeys[index]
 	End
 
-	Method GetScaleKeyX:Float(index:Int)
+	Method ScaleKeyX:Float(index:Int)
 		Return mScales[index].X
 	End
 
-	Method GetScaleKeyY:Float(index:Int)
+	Method ScaleKeyY:Float(index:Int)
 		Return mScales[index].Y
 	End
 
-	Method GetScaleKeyZ:Float(index:Int)
+	Method ScaleKeyZ:Float(index:Int)
 		Return mScales[index].Z
 	End
 	

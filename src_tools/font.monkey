@@ -148,7 +148,7 @@ Function CreateFontData:DataBuffer(font:Font)
 	
 	'Glyphs
 	For Local i:Int = 0 Until font.NumGlyphs
-		WriteGlyphData(stream, font.GetGlyphData(i))
+		WriteGlyphData(stream, font.GlyphData(i))
 	Next
 	
 	Return stream.Data

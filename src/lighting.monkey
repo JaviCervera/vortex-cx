@@ -49,7 +49,7 @@ Public
 		If type = DIRECTIONAL Or type = POINT Then mLights[index].mW = type
 	End
 
-	Function GetLightType:Int(index:Int)
+	Function LightType:Int(index:Int)
 		InitLights()
 		Return mLights[index].mW
 	End
@@ -61,17 +61,17 @@ Public
 		mLights[index].mZ = z
 	End
 
-	Function GetLightX:Float(index:Int)
+	Function LightX:Float(index:Int)
 		InitLights()
 		Return mLights[index].mX
 	End
 
-	Function GetLightY:Float(index:Int)
+	Function LightY:Float(index:Int)
 		InitLights()
 		Return mLights[index].mY
 	End
 
-	Function GetLightZ:Float(index:Int)
+	Function LightZ:Float(index:Int)
 		InitLights()
 		Return mLights[index].mZ
 	End
@@ -83,17 +83,17 @@ Public
 		mLights[index].mBlue = b
 	End
 
-	Function GetLightRed:Float(index:Int)
+	Function LightRed:Float(index:Int)
 		InitLights()
 		Return mLights[index].mRed
 	End
 
-	Function GetLightGreen:Float(index:Int)
+	Function LightGreen:Float(index:Int)
 		InitLights()
 		Return mLights[index].mGreen
 	End
 
-	Function GetLightBlue:Float(index:Int)
+	Function LightBlue:Float(index:Int)
 		InitLights()
 		Return mLights[index].mBlue
 	End
@@ -103,7 +103,7 @@ Public
 		mLights[index].mRadius = radius
 	End
 
-	Function GetLightRadius:Float(index:Int)
+	Function LightRadius:Float(index:Int)
 		InitLights()
 		Return mLights[index].mRadius
 	End
@@ -114,13 +114,13 @@ Public
 		Renderer.SetAmbient(ambientRed, ambientGreen, ambientBlue)
 		For Local i:Int = 0 Until mLights.Length()
 			Local light:LightData = mLights[i]
-			Renderer.GetViewMatrix().Mul(light.mX, light.mY, light.mZ, light.mW)
+			Renderer.ViewMatrix().Mul(light.mX, light.mY, light.mZ, light.mW)
 			Renderer.SetLight(i, light.mEnabled, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, light.mW, light.mRed, light.mGreen, light.mBlue, light.mRadius)
 		Next
 		mGlobalPixelLighting = globalPixelLighting
 	End
 	
-	Function GetGlobalPixelLighting:Bool()
+	Function GlobalPixelLightingEnabled:Bool()
 		Return mGlobalPixelLighting
 	End
 Private
@@ -128,9 +128,9 @@ Private
 	End
 
 	Function InitLights:Void()
-		If mLights.Length() = 0 Then mLights = New LightData[Renderer.GetMaxLights()]
+		If mLights.Length() = 0 Then mLights = New LightData[Renderer.MaxLights()]
 		If mLights[0] = Null
-			For Local i:Int = 0 Until Renderer.GetMaxLights()
+			For Local i:Int = 0 Until Renderer.MaxLights()
 				mLights[i] = New LightData
 			Next
 		End

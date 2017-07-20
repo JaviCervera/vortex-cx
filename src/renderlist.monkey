@@ -127,19 +127,19 @@ Public
 	
 	Method AddMesh:Void(mesh:Mesh, transform:Mat4)
 		For Local i:Int = 0 Until mesh.NumSurfaces
-			AddSurface(mesh.GetSurface(i), transform)
+			AddSurface(mesh.Surface(i), transform)
 		Next
 	End
 	
 	Method AddMesh:Void(mesh:Mesh, transform:Mat4, animMatrices:Mat4[])
 		For Local i:Int = 0 Until mesh.NumSurfaces
-			AddSurface(mesh.GetSurface(i), transform, Null, animMatrices)
+			AddSurface(mesh.Surface(i), transform, Null, animMatrices)
 		Next
 	End
 	
 	Method RemoveMesh:Void(mesh:Mesh, transform:Mat4)
 		For Local i:Int = 0 Until mesh.NumSurfaces
-			RemoveSurface(mesh.GetSurface(i), transform)
+			RemoveSurface(mesh.Surface(i), transform)
 		Next
 	End
 	
@@ -219,7 +219,7 @@ Private
 	Method RenderGeomsForSurface:RenderGeom[](surface:Surface, material:Material, animMatrices:Mat4[])
 		Local geoms:RenderGeom[0]
 		For Local op:RenderOp = Eachin mOps
-			If material And Not material.IsEqual(op.mMaterial) Then Continue
+			'If material And Not material.IsEqual(op.mMaterial) Then Continue
 			For Local geom:RenderGeom = Eachin op.mGeoms
 				If geom.mSurface = surface
 					Local differ:Bool = False

@@ -247,7 +247,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 		If invPoseStr.Length <> 16 Then Return Null
 
 		'Create bone
-		Local bone:Bone = Bone.Create(nameStr, mesh.GetBoneIndex(parentStr))
+		Local bone:Bone = Bone.Create(nameStr, mesh.BoneIndex(parentStr))
 			
 		'Set inverse pose matrix
 		Local m:Float[] = New Float[16]
@@ -317,7 +317,7 @@ End
 
 Function NormalsSize:Int(surf:Surface)
 	For Local v:Int = 0 Until surf.NumVertices
-		If surf.GetVertexNX(v) <> 0 Or surf.GetVertexNY(v) <> 0 Or surf.GetVertexNZ(v) <> 0
+		If surf.VertexNX(v) <> 0 Or surf.VertexNY(v) <> 0 Or surf.VertexNZ(v) <> 0
 			Return surf.NumVertices * 3 * 4
 		End
 	Next
@@ -326,7 +326,7 @@ End
 
 Function TangentsSize:Int(surf:Surface)
 	For Local v:Int = 0 Until surf.NumVertices
-		If surf.GetVertexTX(v) <> 0 Or surf.GetVertexTY(v) <> 0 Or surf.GetVertexTZ(v) <> 0
+		If surf.VertexTX(v) <> 0 Or surf.VertexTY(v) <> 0 Or surf.VertexTZ(v) <> 0
 			Return surf.NumVertices * 3 * 4
 		End
 	Next
@@ -335,7 +335,7 @@ End
 
 Function ColorsSize:Int(surf:Surface)
 	For Local v:Int = 0 Until surf.NumVertices
-		If surf.GetVertexRed(v) <> 1 Or surf.GetVertexGreen(v) <> 1 Or surf.GetVertexBlue(v) <> 1 Or surf.GetVertexAlpha(v) <> 1
+		If surf.VertexRed(v) <> 1 Or surf.VertexGreen(v) <> 1 Or surf.VertexBlue(v) <> 1 Or surf.VertexAlpha(v) <> 1
 			Return surf.NumVertices * 4 * 4
 		End
 	Next
@@ -344,7 +344,7 @@ End
 
 Function Tex0Size:Int(surf:Surface)
 	For Local v:Int = 0 Until surf.NumVertices
-		If surf.GetVertexU(v) <> 0 Or surf.GetVertexV(v) <> 0
+		If surf.VertexU(v) <> 0 Or surf.VertexV(v) <> 0
 			Return surf.NumVertices * 2 * 4
 		End
 	Next
@@ -353,7 +353,7 @@ End
 
 Function Tex1Size:Int(surf:Surface)
 	For Local v:Int = 0 Until surf.NumVertices
-		If surf.GetVertexU(v, 1) <> surf.GetVertexU(v) Or surf.GetVertexV(v, 1) <> surf.GetVertexV(v)
+		If surf.VertexU(v, 1) <> surf.VertexU(v) Or surf.VertexV(v, 1) <> surf.VertexV(v)
 			Return surf.NumVertices * 2 * 4
 		End
 	Next
@@ -362,7 +362,7 @@ End
 
 Function WeightsSize:Int(surf:Surface)
 	For Local v:Int = 0 Until surf.NumVertices
-		If surf.GetVertexBoneIndex(v, 0) <> -1 Or surf.GetVertexBoneIndex(v, 1) <> -1 Or surf.GetVertexBoneIndex(v, 2) <> -1 Or surf.GetVertexBoneIndex(v, 3) <> -1
+		If surf.VertexBoneIndex(v, 0) <> -1 Or surf.VertexBoneIndex(v, 1) <> -1 Or surf.VertexBoneIndex(v, 2) <> -1 Or surf.VertexBoneIndex(v, 3) <> -1
 			Return (surf.NumVertices * 4 * 2) + (surf.NumVertices * 4 * 4)
 		End
 	Next
@@ -396,7 +396,7 @@ Function MeshSize:Int(mesh:Mesh, includeBones:Bool)
 	
 	'Surfaces
 	For Local i:Int = 0 Until mesh.NumSurfaces
-		size += SurfaceSize(mesh.GetSurface(i), includeBones)
+		size += SurfaceSize(mesh.Surface(i), includeBones)
 	Next
 	
 	Return size 
@@ -426,8 +426,8 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	
 	'Used textures
 	Local usedTexs:Int = 0	'1=Diffuse2D,2=DiffuseCube,4=Normal,8=Lightmap,16=Reflect,32=Refract
-	If mat.DiffuseTexture And Not mat.DiffuseTexture.Cubic Then usedTexs |= 1
-	If mat.DiffuseTexture And mat.DiffuseTexture.Cubic Then usedTexs |= 2
+	If mat.DiffuseTexture And Not mat.DiffuseTexture.IsCubic Then usedTexs |= 1
+	If mat.DiffuseTexture And mat.DiffuseTexture.IsCubic Then usedTexs |= 2
 	If mat.NormalTexture Then usedTexs |= 4
 	If mat.Lightmap Then usedTexs |= 8
 	If mat.ReflectionTexture Then usedTexs |= 16
@@ -463,55 +463,55 @@ Function WriteSurfaceData:Void(stream:DataStream, surf:Surface, includeBones:Boo
 	
 	'Indices
 	For Local t:Int = 0 Until surf.NumTriangles
-		stream.WriteShort(surf.GetTriangleV0(t))
-		stream.WriteShort(surf.GetTriangleV1(t))
-		stream.WriteShort(surf.GetTriangleV2(t))
+		stream.WriteShort(surf.TriangleV0(t))
+		stream.WriteShort(surf.TriangleV1(t))
+		stream.WriteShort(surf.TriangleV2(t))
 	Next
 	
 	'Vertices
 	For Local v:Int = 0 Until surf.NumVertices
-		stream.WriteFloat(surf.GetVertexX(v))
-		stream.WriteFloat(surf.GetVertexY(v))
-		stream.WriteFloat(surf.GetVertexZ(v))
+		stream.WriteFloat(surf.VertexX(v))
+		stream.WriteFloat(surf.VertexY(v))
+		stream.WriteFloat(surf.VertexZ(v))
 		
 		If vertexFlags & 1 = 1
-			stream.WriteFloat(surf.GetVertexNX(v))
-			stream.WriteFloat(surf.GetVertexNY(v))
-			stream.WriteFloat(surf.GetVertexNZ(v))
+			stream.WriteFloat(surf.VertexNX(v))
+			stream.WriteFloat(surf.VertexNY(v))
+			stream.WriteFloat(surf.VertexNZ(v))
 		End
 		
 		If vertexFlags & 2 = 2
-			stream.WriteFloat(surf.GetVertexTX(v))
-			stream.WriteFloat(surf.GetVertexTY(v))
-			stream.WriteFloat(surf.GetVertexTZ(v))
+			stream.WriteFloat(surf.VertexTX(v))
+			stream.WriteFloat(surf.VertexTY(v))
+			stream.WriteFloat(surf.VertexTZ(v))
 		End
 		
 		If vertexFlags & 4 = 4
-			stream.WriteFloat(surf.GetVertexRed(v))
-			stream.WriteFloat(surf.GetVertexGreen(v))
-			stream.WriteFloat(surf.GetVertexBlue(v))
-			stream.WriteFloat(surf.GetVertexAlpha(v))
+			stream.WriteFloat(surf.VertexRed(v))
+			stream.WriteFloat(surf.VertexGreen(v))
+			stream.WriteFloat(surf.VertexBlue(v))
+			stream.WriteFloat(surf.VertexAlpha(v))
 		End
 		
 		If vertexFlags & 8 = 8
-			stream.WriteFloat(surf.GetVertexU(v, 0))
-			stream.WriteFloat(surf.GetVertexV(v, 0))
+			stream.WriteFloat(surf.VertexU(v, 0))
+			stream.WriteFloat(surf.VertexV(v, 0))
 		End
 		
 		If vertexFlags & 16 = 16
-			stream.WriteFloat(surf.GetVertexU(v, 1))
-			stream.WriteFloat(surf.GetVertexV(v, 1))
+			stream.WriteFloat(surf.VertexU(v, 1))
+			stream.WriteFloat(surf.VertexV(v, 1))
 		End
 		
 		If vertexFlags & 32 = 32
-			stream.WriteShort(surf.GetVertexBoneIndex(v, 0))
-			stream.WriteShort(surf.GetVertexBoneIndex(v, 1))
-			stream.WriteShort(surf.GetVertexBoneIndex(v, 2))
-			stream.WriteShort(surf.GetVertexBoneIndex(v, 3))
-			stream.WriteFloat(surf.GetVertexBoneWeight(v, 0))
-			stream.WriteFloat(surf.GetVertexBoneWeight(v, 1))
-			stream.WriteFloat(surf.GetVertexBoneWeight(v, 2))
-			stream.WriteFloat(surf.GetVertexBoneWeight(v, 3))
+			stream.WriteShort(surf.VertexBoneIndex(v, 0))
+			stream.WriteShort(surf.VertexBoneIndex(v, 1))
+			stream.WriteShort(surf.VertexBoneIndex(v, 2))
+			stream.WriteShort(surf.VertexBoneIndex(v, 3))
+			stream.WriteFloat(surf.VertexBoneWeight(v, 0))
+			stream.WriteFloat(surf.VertexBoneWeight(v, 1))
+			stream.WriteFloat(surf.VertexBoneWeight(v, 2))
+			stream.WriteFloat(surf.VertexBoneWeight(v, 3))
 		End
 	Next
 End
@@ -530,7 +530,7 @@ Function CreateMeshData:DataBuffer(mesh:Mesh, includeBones:Bool)
 	
 	'Surfaces
 	For Local i:Int = 0 Until mesh.NumSurfaces
-		WriteSurfaceData(stream, mesh.GetSurface(i), includeBones)
+		WriteSurfaceData(stream, mesh.Surface(i), includeBones)
 	Next
 	
 	Return stream.Data
@@ -550,7 +550,7 @@ Function SkeletonSize:Int(mesh:Mesh)
 	
 	'Bones
 	For Local i:Int = 0 Until mesh.NumBones
-		size += BoneSize(mesh.GetBone(i))
+		size += BoneSize(mesh.Bone(i))
 	Next
 	
 	Return size 
@@ -584,7 +584,7 @@ Function CreateSkeletonData:DataBuffer(mesh:Mesh)
 	
 	'Bones
 	For Local b:Int = 0 Until mesh.NumBones
-		WriteBoneData(stream, mesh.GetBone(b))
+		WriteBoneData(stream, mesh.Bone(b))
 	Next
 	
 	Return stream.Data
@@ -617,7 +617,7 @@ Function AnimationSize:Int(mesh:Mesh)
 	
 	'Animations
 	For Local i:Int = 0 Until mesh.NumBones
-		size += BoneAnimationSize(mesh.GetBone(i))
+		size += BoneAnimationSize(mesh.Bone(i))
 	Next
 	
 	Return size
@@ -627,29 +627,29 @@ Function WriteAnimationData:Void(stream:DataStream, bone:Bone)
 	'Position keys
 	stream.WriteShort(bone.NumPositionKeys)
 	For Local i:Int = 0 Until bone.NumPositionKeys
-		stream.WriteShort(bone.GetPositionKeyFrame(i))
-		stream.WriteFloat(bone.GetPositionKeyX(i))
-		stream.WriteFloat(bone.GetPositionKeyY(i))
-		stream.WriteFloat(bone.GetPositionKeyZ(i))
+		stream.WriteShort(bone.PositionKeyFrame(i))
+		stream.WriteFloat(bone.PositionKeyX(i))
+		stream.WriteFloat(bone.PositionKeyY(i))
+		stream.WriteFloat(bone.PositionKeyZ(i))
 	Next
 	
 	'Rotation keys
 	stream.WriteShort(bone.NumRotationKeys)
 	For Local i:Int = 0 Until bone.NumRotationKeys
-		stream.WriteShort(bone.GetRotationKeyFrame(i))
-		stream.WriteFloat(bone.GetRotationKeyW(i))
-		stream.WriteFloat(bone.GetRotationKeyX(i))
-		stream.WriteFloat(bone.GetRotationKeyY(i))
-		stream.WriteFloat(bone.GetRotationKeyZ(i))
+		stream.WriteShort(bone.RotationKeyFrame(i))
+		stream.WriteFloat(bone.RotationKeyW(i))
+		stream.WriteFloat(bone.RotationKeyX(i))
+		stream.WriteFloat(bone.RotationKeyY(i))
+		stream.WriteFloat(bone.RotationKeyZ(i))
 	Next
 	
 	'Scale keys
 	stream.WriteShort(bone.NumScaleKeys)
 	For Local i:Int = 0 Until bone.NumScaleKeys
-		stream.WriteShort(bone.GetScaleKeyFrame(i))
-		stream.WriteFloat(bone.GetScaleKeyX(i))
-		stream.WriteFloat(bone.GetScaleKeyY(i))
-		stream.WriteFloat(bone.GetScaleKeyZ(i))
+		stream.WriteShort(bone.ScaleKeyFrame(i))
+		stream.WriteFloat(bone.ScaleKeyX(i))
+		stream.WriteFloat(bone.ScaleKeyY(i))
+		stream.WriteFloat(bone.ScaleKeyZ(i))
 	Next
 End
 
@@ -670,7 +670,7 @@ Function CreateAnimationData:DataBuffer(mesh:Mesh)
 	
 	'Animation data
 	For Local b:Int = 0 Until mesh.NumBones
-		WriteAnimationData(stream, mesh.GetBone(b))
+		WriteAnimationData(stream, mesh.Bone(b))
 	Next
 	
 	Return stream.Data
@@ -704,7 +704,7 @@ Function SaveMeshXML:Void(mesh:Mesh, filename:String, exportAnimations:Bool)
 	'Export materials
 	buffer += "~t<materials>~n"
 	For Local i:Int = 0 Until mesh.NumSurfaces
-		Local mat:Material = mesh.GetSurface(i).Material
+		Local mat:Material = mesh.Surface(i).Material
 		buffer += "~t~t<material>~n"
 		buffer += "~t~t~t<name>Material #" + i + "</name>~n"
 		buffer += "~t~t~t<blend>"
@@ -731,49 +731,49 @@ Function SaveMeshXML:Void(mesh:Mesh, filename:String, exportAnimations:Bool)
 	'Export surfaces
 	buffer += "~t<surfaces>~n"
 	For Local i:Int = 0 Until mesh.NumSurfaces
-		Local surf:Surface = mesh.GetSurface(i)
+		Local surf:Surface = mesh.Surface(i)
 		buffer += "~t~t<surface>~n"
 		buffer += "~t~t~t<material>Material #" + i + "</material>~n"
 		buffer += "~t~t~t<indices>"
 		For Local t:Int = 0 Until surf.NumTriangles
-			buffer += surf.GetTriangleV0(t) + "," + surf.GetTriangleV1(t) + "," + surf.GetTriangleV2(t)
+			buffer += surf.TriangleV0(t) + "," + surf.TriangleV1(t) + "," + surf.TriangleV2(t)
 			If t < surf.NumTriangles - 1 Then buffer += ","
 		Next
 		buffer += "</indices>~n"
 		buffer += "~t~t~t<coords>"
 		For Local v:Int = 0 Until surf.NumVertices
-			buffer += surf.GetVertexX(v) + "," + surf.GetVertexY(v) + "," + surf.GetVertexZ(v)
+			buffer += surf.VertexX(v) + "," + surf.VertexY(v) + "," + surf.VertexZ(v)
 			If v < surf.NumVertices - 1 Then buffer += ","
 		Next
 		buffer += "</coords>~n"
 		buffer += "~t~t~t<normals>"
 		For Local v:Int = 0 Until surf.NumVertices
-			buffer += surf.GetVertexNX(v) + "," + surf.GetVertexNY(v) + "," + surf.GetVertexNZ(v)
+			buffer += surf.VertexNX(v) + "," + surf.VertexNY(v) + "," + surf.VertexNZ(v)
 			If v < surf.NumVertices - 1 Then buffer += ","
 		Next
 		buffer += "</normals>~n"
 		buffer += "~t~t~t<texcoords>"
 		For Local v:Int = 0 Until surf.NumVertices
-			buffer += surf.GetVertexU(v) + "," + surf.GetVertexV(v)
+			buffer += surf.VertexU(v) + "," + surf.VertexV(v)
 			If v < surf.NumVertices - 1 Then buffer += ","
 		Next
 		buffer += "</texcoords>~n"
 		buffer += "~t~t~t<texcoords2>"
 		For Local v:Int = 0 Until surf.NumVertices
-			buffer += surf.GetVertexU(v, 1) + "," + surf.GetVertexV(v, 1)
+			buffer += surf.VertexU(v, 1) + "," + surf.VertexV(v, 1)
 			If v < surf.NumVertices - 1 Then buffer += ","
 		Next
 		buffer += "</texcoords2>~n"
 		If exportAnimations
 			buffer += "~t~t~t<bone_indices>"
 			For Local v:Int = 0 Until surf.NumVertices
-				buffer += surf.GetVertexBoneIndex(v, 0) + "," + surf.GetVertexBoneIndex(v, 1) + "," + surf.GetVertexBoneIndex(v, 2) + "," + surf.GetVertexBoneIndex(v, 3)
+				buffer += surf.VertexBoneIndex(v, 0) + "," + surf.VertexBoneIndex(v, 1) + "," + surf.VertexBoneIndex(v, 2) + "," + surf.VertexBoneIndex(v, 3)
 				If v < surf.NumVertices - 1 Then buffer += ","
 			Next
 			buffer += "</bone_indices>~n"
 			buffer += "~t~t~t<bone_weights>"
 			For Local v:Int = 0 Until surf.NumVertices
-				buffer += surf.GetVertexBoneWeight(v, 0) + "," + surf.GetVertexBoneWeight(v, 1) + "," + surf.GetVertexBoneWeight(v, 2) + "," + surf.GetVertexBoneWeight(v, 3)
+				buffer += surf.VertexBoneWeight(v, 0) + "," + surf.VertexBoneWeight(v, 1) + "," + surf.VertexBoneWeight(v, 2) + "," + surf.VertexBoneWeight(v, 3)
 				If v < surf.NumVertices - 1 Then buffer += ","
 			Next
 			buffer += "</bone_weights>~n"
@@ -789,10 +789,10 @@ Function SaveMeshXML:Void(mesh:Mesh, filename:String, exportAnimations:Bool)
 	If exportAnimations
 		buffer += "~t<bones>~n"
 		For Local i:Int = 0 Until mesh.NumBones
-			Local bone:Bone = mesh.GetBone(i)
+			Local bone:Bone = mesh.Bone(i)
 			buffer += "~t~t<bone>~n"
 			buffer += "~t~t~t<name>" + bone.Name + "</name>~n"
-			If bone.ParentIndex > -1 Then buffer += "~t~t~t<parent>" + mesh.GetBone(bone.ParentIndex).Name + "</parent>~n"
+			If bone.ParentIndex > -1 Then buffer += "~t~t~t<parent>" + mesh.Bone(bone.ParentIndex).Name + "</parent>~n"
 			buffer += "~t~t~t<inv_pose>"
 			For Local m:Int = 0 Until 16
 				buffer += bone.InversePoseMatrix.M[m]
@@ -802,7 +802,7 @@ Function SaveMeshXML:Void(mesh:Mesh, filename:String, exportAnimations:Bool)
 			If bone.NumPositionKeys > 0
 				buffer += "~t~t~t<positions>"
 				For Local j:Int = 0 Until bone.NumPositionKeys
-					buffer += bone.GetPositionKeyFrame(j) + "," + bone.GetPositionKeyX(j) + "," + bone.GetPositionKeyY(j) + "," + bone.GetPositionKeyZ(j)
+					buffer += bone.PositionKeyFrame(j) + "," + bone.PositionKeyX(j) + "," + bone.PositionKeyY(j) + "," + bone.PositionKeyZ(j)
 					If j < bone.NumPositionKeys - 1 Then buffer += ","
 				Next
 				buffer += "</positions>~n"
@@ -810,7 +810,7 @@ Function SaveMeshXML:Void(mesh:Mesh, filename:String, exportAnimations:Bool)
 			If bone.NumRotationKeys > 0
 				buffer += "~t~t~t<rotations>"
 				For Local j:Int = 0 Until bone.NumRotationKeys
-					buffer += bone.GetRotationKeyFrame(j) + "," + bone.GetRotationKeyW(j) + "," + bone.GetRotationKeyX(j) + "," + bone.GetRotationKeyY(j) + "," + bone.GetRotationKeyZ(j)
+					buffer += bone.RotationKeyFrame(j) + "," + bone.RotationKeyW(j) + "," + bone.RotationKeyX(j) + "," + bone.RotationKeyY(j) + "," + bone.RotationKeyZ(j)
 					If j < bone.NumRotationKeys - 1 Then buffer += ","
 				Next
 				buffer += "</rotations>~n"
@@ -818,7 +818,7 @@ Function SaveMeshXML:Void(mesh:Mesh, filename:String, exportAnimations:Bool)
 			If bone.NumScaleKeys > 0
 				buffer += "~t~t~t<scales>"
 				For Local j:Int = 0 Until bone.NumScaleKeys
-					buffer += bone.GetScaleKeyFrame(j) + "," + bone.GetScaleKeyX(j) + "," + bone.GetScaleKeyY(j) + "," + bone.GetScaleKeyZ(j)
+					buffer += bone.ScaleKeyFrame(j) + "," + bone.ScaleKeyX(j) + "," + bone.ScaleKeyY(j) + "," + bone.ScaleKeyZ(j)
 					If j < bone.NumScaleKeys - 1 Then buffer += ","
 				Next
 				buffer += "</scales>~n"
@@ -914,6 +914,7 @@ Function CreateCube:Mesh()
 	Return cube
 End
 
+#Rem
 Function RotateMesh:Void(mesh:Mesh, pitch:Float, yaw:Float, roll:Float)
 	'Get rotation quaternion
 	Local q:Quat = Quat.Create()
@@ -926,22 +927,22 @@ Function RotateMesh:Void(mesh:Mesh, pitch:Float, yaw:Float, roll:Float)
 	
 	'Rotate all surfaces
 	For Local i:Int = 0 Until mesh.NumSurfaces
-		RotateSurface(mesh.GetSurface(i), mat)
+		RotateSurface(mesh.Surface(i), mat)
 	Next
 	
 	'Rotate all bones
 	For Local i:Int = 0 Until mesh.NumBones
-		RotateBone(mesh.GetBone(i), mat, q)
+		RotateBone(mesh.Bone(i), mat, q)
 	Next
 End
 
 Function RotateSurface:Void(surf:Surface, mat:Mat4)	
 	For Local i:Int = 0 Until surf.NumVertices
-		mat.Mul(surf.GetVertexX(i), surf.GetVertexY(i), surf.GetVertexZ(i), 1)
+		mat.Mul(surf.VertexX(i), surf.VertexY(i), surf.VertexZ(i), 1)
 		surf.SetVertexPosition(i, mat.ResultVector().X, mat.ResultVector().Y, mat.ResultVector().Z)
-		mat.Mul(surf.GetVertexNX(i), surf.GetVertexNY(i), surf.GetVertexNZ(i), 1)
+		mat.Mul(surf.VertexNX(i), surf.VertexNY(i), surf.VertexNZ(i), 1)
 		surf.SetVertexNormal(i, mat.ResultVector().X, mat.ResultVector().Y, mat.ResultVector().Z)
-		mat.Mul(surf.GetVertexTX(i), surf.GetVertexTY(i), surf.GetVertexTZ(i), 1)
+		mat.Mul(surf.VertexTX(i), surf.VertexTY(i), surf.VertexTZ(i), 1)
 		surf.SetVertexTangent(i, mat.ResultVector().X, mat.ResultVector().Y, mat.ResultVector().Z)
 	Next
 	
@@ -951,3 +952,4 @@ End
 Function RotateBone:Void(bone:Bone, mat:Mat4, q:Quat)
 	'TODO
 End
+#End

@@ -27,17 +27,17 @@ Public
 		'Init vortex
 		If Not Vortex.Init()
 #If TARGET="glfw" And HOST<>"linux"
-			Notify "Error", Vortex.GetShaderError(), True
+			Notify "Error", Vortex.ShaderError(), True
 #Else
-			Print "Error: " + Vortex.GetShaderError()
+			Print "Error: " + Vortex.ShaderError()
 #Endif
 			EndApp()
 		End
-		Print "Vendor name: " + Vortex.GetVendorName()
-		Print "Renderer name: " + Vortex.GetRendererName()
-		Print "API version name: " + Vortex.GetAPIVersionName()
-		Print "Shading version name: " + Vortex.GetShadingVersionName()
-		Print "Shader compilation: " + Vortex.GetShaderError()
+		Print "Vendor name: " + Vortex.VendorName()
+		Print "Renderer name: " + Vortex.RendererName()
+		Print "API version name: " + Vortex.APIVersionName()
+		Print "Shading version name: " + Vortex.ShadingVersionName()
+		Print "Shader compilation: " + Vortex.ShaderError()
 		
 		'Load font
 		mFont = Font.Load("system.fnt")

@@ -199,7 +199,7 @@ Public
 		mProjectionMatrix.Set(m)
 	End
 
-	Function GetProjectionMatrix:Mat4()
+	Function ProjectionMatrix:Mat4()
 		Return mProjectionMatrix
 	End
 
@@ -209,7 +209,7 @@ Public
 		mInvViewMatrix.Invert()
 	End
 
-	Function GetViewMatrix:Mat4()
+	Function ViewMatrix:Mat4()
 		Return mViewMatrix
 	End
 
@@ -249,7 +249,7 @@ Public
 		End
 	End
 
-	Function GetModelMatrix:Mat4()
+	Function ModelMatrix:Mat4()
 		Return mModelMatrix
 	End
 	
@@ -352,7 +352,7 @@ Public
 		End
 	End
 	
-	Function GetMaxLights:Int()
+	Function MaxLights:Int()
 		Return mMaxLights
 	End
 
@@ -448,8 +448,8 @@ Public
 	Function CreateTexture:Int(buffer:DataBuffer, width:Int, height:Int, filter:Int)
 		Local texture:Int = glCreateTexture()
 		glBindTexture(GL_TEXTURE_2D, texture)
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, MagFilter(filter))
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, MinFilter(filter))
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer)
 '#If TARGET<>"html5"
 		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
@@ -478,8 +478,8 @@ Public
 		
 		Local texture:Int = glCreateTexture()
 		glBindTexture(GL_TEXTURE_2D, texture)
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter))
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, MagFilter(filter))
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, MinFilter(filter))
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, filename)
 '#If TARGET<>"html5"
 		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
@@ -516,8 +516,8 @@ Public
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texture)
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GetMagFilter(filter))
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GetMinFilter(filter, True))
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, MagFilter(filter))
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, MinFilter(filter, True))
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, left)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, right)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, back)
@@ -745,35 +745,35 @@ Public
 		mActiveProgram = program
 	End
 
-	Function GetProgramError:String()
+	Function ProgramError:String()
 		Return mProgramError
 	End
 	
-	Function GetVendorName:String()
+	Function VendorName:String()
 		Return mVendor
 	End
 	
-	Function GetRendererName:String()
+	Function RendererName:String()
 		Return mRenderer
 	End
 	
-	Function GetAPIVersionName:String()
+	Function APIVersionName:String()
 		Return mVersionStr
 	End
 	
-	Function GetShadingVersionName:String()
+	Function ShadingVersionName:String()
 		Return mShadingVersionStr
 	End
 
-	Function GetAPIVersion:Float()
+	Function APIVersion:Float()
 		Return mVersion
 	End Function
 
-	Function GetShadingVersion:Float()
+	Function ShadingVersion:Float()
 		Return mShadingVersion
 	End Function
 	
-	Function GetErrorString:String()
+	Function ErrorString:String()
 		Local err:Int = glGetError()
 		Select err
 		Case GL_NO_ERROR
@@ -796,7 +796,7 @@ Private
 	Method New()
 	End
 
-	Function GetMagFilter:Int(filtering:Int)
+	Function MagFilter:Int(filtering:Int)
 		Select filtering
 		Case FILTER_NONE
 			Return GL_NEAREST
@@ -811,7 +811,7 @@ Private
 		End
 	End
 
-	Function GetMinFilter:Int(filtering:Int, isCubeMap:Bool = False)
+	Function MinFilter:Int(filtering:Int, isCubeMap:Bool = False)
 		Select filtering
 		Case FILTER_NONE
 			Return GL_NEAREST

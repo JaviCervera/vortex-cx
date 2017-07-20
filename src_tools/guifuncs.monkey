@@ -52,7 +52,7 @@ Function DrawPanel:Void(x:Float, y:Float, width:Float, height:Float, text:String
 	DrawRectOutline(x, y, width, height)
 	If text <> "" And font <> Null
 		Renderer.SetColor(red * 0.3, green * 0.3, blue * 0.3)
-		font.Draw(x + width/2 - font.GetTextWidth(text)/2, y + height/2 - font.GetTextHeight(text)/2, text)
+		font.Draw(x + width/2 - font.TextWidth(text)/2, y + height/2 - font.TextHeight(text)/2, text)
 	End
 End
 
@@ -68,5 +68,5 @@ Function DrawCheckbox:Void(x:Float, y:Float, width:Float, height:Float, text:Str
 		Renderer.DrawLine(x + 4, y + 20, x + 20, y + 4)
 	End
 	Renderer.SetColor(0.25, 0.25, 0.25)
-	font.Draw(x + 24, y + height/2 - font.GetTextHeight(text)/2, text)
+	font.Draw(x + 24, y + height/2 - font.TextHeight(text)/2, text)
 End

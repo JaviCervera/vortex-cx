@@ -110,7 +110,7 @@ Public
 		Return mTexture
 	End
 
-	Method GetTextWidth:Float(text:String)
+	Method TextWidth:Float(text:String)
 		Local width# = 0
 		For Local i% = 0 Until text.Length()
 			'If String.FromChar(text[i]) = " " Then
@@ -122,7 +122,7 @@ Public
 		Return width
 	End
 
-	Method GetTextHeight:Float(text:String)
+	Method TextHeight:Float(text:String)
 		#Rem
 		Local height# = 0
 		For Local i% = 0 Until text.Length()
@@ -159,7 +159,7 @@ Public
 		If h > mMaxHeight Then mMaxHeight = h
 	End
 	
-	Method GetGlyphData:Glyph(index:Int)
+	Method GlyphData:Glyph(index:Int)
 		Return mGlyphs[index]
 	End
 Private

@@ -34,14 +34,14 @@ Public
 	
 		'Init vortex
 		If Not Vortex.Init()
-			Notify "Error", Vortex.GetShaderError(), True
+			Notify "Error", Vortex.ShaderError(), True
 			EndApp()
 		End
-		Print "Vendor name: " + Vortex.GetVendorName()
-		Print "Renderer name: " + Vortex.GetRendererName()
-		Print "API version name: " + Vortex.GetAPIVersionName()
-		Print "Shading version name: " + Vortex.GetShadingVersionName()
-		Print "Shader compilation: " + Vortex.GetShaderError()
+		Print "Vendor name: " + Vortex.VendorName()
+		Print "Renderer name: " + Vortex.RendererName()
+		Print "API version name: " + Vortex.APIVersionName()
+		Print "Shading version name: " + Vortex.ShadingVersionName()
+		Print "Shader compilation: " + Vortex.ShaderError()
 		
 		'Create gui
 		mGui = New Gui
