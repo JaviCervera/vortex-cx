@@ -114,6 +114,8 @@ Public
 				If filename <> ""
 					Local tex:Texture = Texture.Load(filename)
 					If tex Then currentMesh.Surface(mSelMat).Material.DiffuseTexture = tex
+				Else
+					currentMesh.Surface(mSelMat).Material.DiffuseTexture = Null
 				End
 			'Normal texture
 			Elseif mNormalTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
@@ -121,6 +123,8 @@ Public
 				If filename <> ""
 					Local tex:Texture = Texture.Load(filename)
 					If tex Then currentMesh.Surface(mSelMat).Material.NormalTexture = tex
+				Else
+					currentMesh.Surface(mSelMat).Material.NormalTexture = Null
 				End
 			'Lightmap
 			Elseif mLightmapRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
@@ -128,6 +132,8 @@ Public
 				If filename <> ""
 					Local tex:Texture = Texture.Load(filename)
 					If tex Then currentMesh.Surface(mSelMat).Material.Lightmap = tex
+				Else
+					currentMesh.Surface(mSelMat).Material.Lightmap = Null
 				End
 			#Rem
 			'Reflection texture

@@ -9,7 +9,7 @@ Import vortex.src.texture
 Public
 
 Interface IMaterialDelegate
-Method MaterialChanged:Void(mat:Material)
+	Method MaterialChanged:Void(mat:Material)
 End
 
 Class Material Final

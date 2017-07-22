@@ -12,6 +12,12 @@ Import vortex.src.surface
 Import vortex.src.texture
 
 Public
+
+Interface IMeshLoaderDelegate
+	Method LoadTexture:Texture(filename:String, filter:Int)
+	Method LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int)
+End
+
 Class Mesh Final
 Public
 	Function Create:Mesh()
@@ -42,7 +48,7 @@ Public
 		Return mesh
 	End
 	
-	Function Load:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
+	Function Load:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR, delegate:IMeshLoaderDelegate = Null)
 		'Fix filenames
 		Local fixedFilename:String = filename
 		Local fixedSkeletonFilename:String = skeletonFilename
@@ -54,7 +60,7 @@ Public
 		'Load mesh data
 		Local data:DataBuffer = DataBuffer.Load(fixedFilename)
 		If Not data Then Return Null
-		Local mesh:Mesh = Mesh.LoadData(data, filename, texFilter)
+		Local mesh:Mesh = Mesh.LoadData(data, filename, texFilter, delegate)
 		data.Discard()
 		
 		'Load skeleton data
@@ -74,7 +80,7 @@ Public
 		Return mesh
 	End
 	
-	Function LoadData:Mesh(data:DataBuffer, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
+	Function LoadData:Mesh(data:DataBuffer, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR, delegate:IMeshLoaderDelegate = Null)
 		Local stream:DataStream = New DataStream(data)
 		Local meshPath:String = ExtractDir(filename)
 		If meshPath <> "" Then meshPath += "/"
@@ -112,7 +118,10 @@ Public
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
-				surf.Material.DiffuseTexture = Texture.Load(str, texFilter)
+				Local tex:Texture = Null
+				If delegate Then tex = delegate.LoadTexture(str, texFilter)
+				If tex = Null Then tex = Texture.Load(str, texFilter)
+				surf.Material.DiffuseTexture =tex
 			End
 			If usedTexs & 2
 				Local strLen:Int = stream.ReadInt()
@@ -120,19 +129,28 @@ Public
 				For Local t:Int = 0 Until cubeTexs.Length
 					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
 				Next
-				surf.Material.DiffuseTexture = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				Local tex:Texture = Null
+				If delegate Then tex = delegate.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				If tex = Null Then tex = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				surf.Material.DiffuseTexture = tex
 			End
 			If usedTexs & 4
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
-				surf.Material.NormalTexture = Texture.Load(str, texFilter)
+				Local tex:Texture = Null
+				If delegate Then tex = delegate.LoadTexture(str, texFilter)
+				If tex = Null Then tex = Texture.Load(str, texFilter)
+				surf.Material.NormalTexture = tex
 			End
 			If usedTexs & 8
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
-				surf.Material.Lightmap = Texture.Load(str, texFilter)
+				Local tex:Texture = Null
+				If delegate Then tex = delegate.LoadTexture(str, texFilter)
+				If tex = Null Then tex = Texture.Load(str, texFilter)
+				surf.Material.Lightmap = tex
 			End
 			If usedTexs & 16
 				Local strLen:Int = stream.ReadInt()
@@ -140,7 +158,10 @@ Public
 				For Local t:Int = 0 Until cubeTexs.Length
 					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
 				Next
-				surf.Material.ReflectionTexture = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				Local tex:Texture = Null
+				If delegate Then tex = delegate.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				If tex = Null Then tex = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				surf.Material.ReflectionTexture = tex
 			End
 			If usedTexs & 32
 				Local strLen:Int = stream.ReadInt()
@@ -148,7 +169,10 @@ Public
 				For Local t:Int = 0 Until cubeTexs.Length
 					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
 				Next
-				surf.Material.RefractionTexture = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				Local tex:Texture = Null
+				If delegate Then tex = delegate.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				If tex = Null Then tex = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				surf.Material.RefractionTexture = tex
 			End
 			
 			'Number of indices and vertices
