@@ -53,9 +53,9 @@ Public
 		Local fixedFilename:String = filename
 		Local fixedSkeletonFilename:String = skeletonFilename
 		Local fixedAnimationFilename:String = animationFilename
-		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then fixedFilename = "monkey://data/" + filename
-		If skeletonFilename.Length > 2 And String.FromChar(skeletonFilename[0]) <> "/" And String.FromChar(skeletonFilename[1]) <> ":" Then fixedSkeletonFilename = "monkey://data/" + skeletonFilename
-		If animationFilename.Length > 2 And String.FromChar(animationFilename[0]) <> "/" And String.FromChar(animationFilename[1]) <> ":" Then fixedAnimationFilename = "monkey://data/" + animationFilename
+		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then fixedFilename = "cerberus://data/" + filename
+		If skeletonFilename.Length > 2 And String.FromChar(skeletonFilename[0]) <> "/" And String.FromChar(skeletonFilename[1]) <> ":" Then fixedSkeletonFilename = "cerberus://data/" + skeletonFilename
+		If animationFilename.Length > 2 And String.FromChar(animationFilename[0]) <> "/" And String.FromChar(animationFilename[1]) <> ":" Then fixedAnimationFilename = "cerberus://data/" + animationFilename
 		
 		'Load mesh data
 		Local data:DataBuffer = DataBuffer.Load(fixedFilename)

@@ -135,8 +135,8 @@
 ' - first release
 Strict
 
-Import monkey.list
-Import monkey.map
+Import cerberus.list
+Import cerberus.map
 
 Const XML_STRIP_WHITESPACE:= 1'this will remove whitespace characters from NON attribute data
 Const XML_STRIP_NEWLINE:= 2'this will remove new line characters from NON attribute data

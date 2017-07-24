@@ -474,7 +474,7 @@ Public
 		End
 		
 		'Fix filename
-		If String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then filename = "monkey://data/" + filename
+		If String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then filename = "cerberus://data/" + filename
 		
 		Local texture:Int = glCreateTexture()
 		glBindTexture(GL_TEXTURE_2D, texture)
@@ -505,12 +505,12 @@ Public
 		End
 		
 		'Fix filenames
-		If String.FromChar(left[0]) <> "/" And String.FromChar(left[1]) <> ":" Then left = "monkey://data/" + left
-		If String.FromChar(right[0]) <> "/" And String.FromChar(right[1]) <> ":" Then right = "monkey://data/" + right
-		If String.FromChar(front[0]) <> "/" And String.FromChar(front[1]) <> ":" Then front = "monkey://data/" + front
-		If String.FromChar(back[0]) <> "/" And String.FromChar(back[1]) <> ":" Then back = "monkey://data/" + back
-		If String.FromChar(top[0]) <> "/" And String.FromChar(top[1]) <> ":" Then top = "monkey://data/" + top
-		If String.FromChar(bottom[0]) <> "/" And String.FromChar(bottom[1]) <> ":" Then bottom = "monkey://data/" + bottom
+		If String.FromChar(left[0]) <> "/" And String.FromChar(left[1]) <> ":" Then left = "cerberus://data/" + left
+		If String.FromChar(right[0]) <> "/" And String.FromChar(right[1]) <> ":" Then right = "cerberus://data/" + right
+		If String.FromChar(front[0]) <> "/" And String.FromChar(front[1]) <> ":" Then front = "cerberus://data/" + front
+		If String.FromChar(back[0]) <> "/" And String.FromChar(back[1]) <> ":" Then back = "cerberus://data/" + back
+		If String.FromChar(top[0]) <> "/" And String.FromChar(top[1]) <> ":" Then top = "cerberus://data/" + top
+		If String.FromChar(bottom[0]) <> "/" And String.FromChar(bottom[1]) <> ":" Then bottom = "cerberus://data/" + bottom
 		
 		Local texture:Int = glCreateTexture()
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texture)

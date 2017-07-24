@@ -34,7 +34,7 @@ Public
 
 	Function Load:Font(filename:String)
 		'Fix filename
-		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then filename = "monkey://data/" + filename
+		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then filename = "cerberus://data/" + filename
 		
 		'Load font data
 		Local data:DataBuffer = DataBuffer.Load(filename)
