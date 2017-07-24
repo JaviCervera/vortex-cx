@@ -9,7 +9,7 @@ Import mojo.app
 Import mojo.input
 
 Public
-Class Gui
+Class Gui Final
 Public
 	Method New()
 		'Load resources
@@ -115,7 +115,38 @@ Public
 					Local tex:Texture = Texture.Load(filename)
 					If tex Then currentMesh.Surface(mSelMat).Material.DiffuseTexture = tex
 				Else
-					currentMesh.Surface(mSelMat).Material.DiffuseTexture = Null
+					Local leftTex:String = RequestFile("Select left diffuse texture")
+					If leftTex = ""
+						currentMesh.Surface(mSelMat).Material.DiffuseTexture = Null
+					Else
+						Local rightTex:String = RequestFile("Select right diffuse texture")
+						If rightTex = ""
+							currentMesh.Surface(mSelMat).Material.DiffuseTexture = Null
+						Else
+							Local frontTex:String = RequestFile("Select front diffuse texture")
+							If frontTex = ""
+								currentMesh.Surface(mSelMat).Material.DiffuseTexture = Null
+							Else
+								Local backTex:String = RequestFile("Select back diffuse texture")
+								If backTex = ""
+									currentMesh.Surface(mSelMat).Material.DiffuseTexture = Null
+								Else
+									Local topTex:String = RequestFile("Select top diffuse texture")
+									If topTex = ""
+										currentMesh.Surface(mSelMat).Material.DiffuseTexture = Null
+									Else
+										Local bottomTex:String = RequestFile("Select bottom diffuse texture")
+										If bottomTex = ""
+											currentMesh.Surface(mSelMat).Material.DiffuseTexture = Null
+										Else
+											Local tex:Texture = Texture.Load(leftTex, rightTex, frontTex, backTex, topTex, bottomTex)
+											If tex Then currentMesh.Surface(mSelMat).Material.DiffuseTexture = tex
+										End
+									End
+								End
+							End
+						End
+					End
 				End
 			'Normal texture
 			Elseif mNormalTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
@@ -135,22 +166,74 @@ Public
 				Else
 					currentMesh.Surface(mSelMat).Material.Lightmap = Null
 				End
-			#Rem
 			'Reflection texture
 			Elseif mReflectionTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local filename:String = RequestFile("Select reflection texture")
-				If filename <> ""
-					Local tex:Texture = Texture.Load(filename)
-					If tex Then currentMesh.Surface(mSelMat).Material.ReflectionTexture = tex
+				Local leftTex:String = RequestFile("Select left reflection texture")
+				If leftTex = ""
+					currentMesh.Surface(mSelMat).Material.ReflectionTexture = Null
+				Else
+					Local rightTex:String = RequestFile("Select right reflection texture")
+					If rightTex = ""
+						currentMesh.Surface(mSelMat).Material.ReflectionTexture = Null
+					Else
+						Local frontTex:String = RequestFile("Select front reflection texture")
+						If frontTex = ""
+							currentMesh.Surface(mSelMat).Material.ReflectionTexture = Null
+						Else
+							Local backTex:String = RequestFile("Select back reflection texture")
+							If backTex = ""
+								currentMesh.Surface(mSelMat).Material.ReflectionTexture = Null
+							Else
+								Local topTex:String = RequestFile("Select top reflection texture")
+								If topTex = ""
+									currentMesh.Surface(mSelMat).Material.ReflectionTexture = Null
+								Else
+									Local bottomTex:String = RequestFile("Select bottom reflection texture")
+									If bottomTex = ""
+										currentMesh.Surface(mSelMat).Material.ReflectionTexture = Null
+									Else
+										Local tex:Texture = Texture.Load(leftTex, rightTex, frontTex, backTex, topTex, bottomTex)
+										If tex Then currentMesh.Surface(mSelMat).Material.ReflectionTexture = tex
+									End
+								End
+							End
+						End
+					End
 				End
 			'Refraction texture
 			Elseif mRefractionTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local filename:String = RequestFile("Select refraction texture")
-				If filename <> ""
-					Local tex:Texture = Texture.Load(filename)
-					If tex Then currentMesh.Surface(mSelMat).Material.RefractionTexture = tex
+				Local leftTex:String = RequestFile("Select left refraction texture")
+				If leftTex = ""
+					currentMesh.Surface(mSelMat).Material.RefractionTexture = Null
+				Else
+					Local rightTex:String = RequestFile("Select right refraction texture")
+					If rightTex = ""
+						currentMesh.Surface(mSelMat).Material.RefractionTexture = Null
+					Else
+						Local frontTex:String = RequestFile("Select front refraction texture")
+						If frontTex = ""
+							currentMesh.Surface(mSelMat).Material.RefractionTexture = Null
+						Else
+							Local backTex:String = RequestFile("Select back refraction texture")
+							If backTex = ""
+								currentMesh.Surface(mSelMat).Material.RefractionTexture = Null
+							Else
+								Local topTex:String = RequestFile("Select top refraction texture")
+								If topTex = ""
+									currentMesh.Surface(mSelMat).Material.RefractionTexture = Null
+								Else
+									Local bottomTex:String = RequestFile("Select bottom refraction texture")
+									If bottomTex = ""
+										currentMesh.Surface(mSelMat).Material.RefractionTexture = Null
+									Else
+										Local tex:Texture = Texture.Load(leftTex, rightTex, frontTex, backTex, topTex, bottomTex)
+										If tex Then currentMesh.Surface(mSelMat).Material.RefractionTexture = tex
+									End
+								End
+							End
+						End
+					End
 				End
-			#End
 			'Refraction coef
 			Elseif mRefractionCoefRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local iCoef:Int = Int(currentMesh.Surface(mSelMat).Material.RefractionCoef * 100)

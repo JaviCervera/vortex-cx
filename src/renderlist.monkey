@@ -98,7 +98,7 @@ Public
 		RenderGeomForSurface(surface, overrideMaterial, mTempArray).AddTransform(transform)
 	End
 	
-	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material, animMatrices:Mat4[])
+	Method AddSurface:Void(surface:Surface, transform:Mat4, animMatrices:Mat4[], overrideMaterial:Material = Null)
 		If overrideMaterial = Null Then overrideMaterial = surface.Material
 		RenderGeomForSurface(surface, overrideMaterial, animMatrices).AddTransform(transform)
 	End
@@ -114,7 +114,7 @@ Public
 		End
 	End
 	
-	Method RemoveSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material, animMatrices:Mat4[])
+	Method RemoveSurface:Void(surface:Surface, transform:Mat4, animMatrices:Mat4[], overrideMaterial:Material = Null)
 		Local geoms:RenderGeom[] = RenderGeomsForSurface(surface, overrideMaterial, animMatrices)
 		For Local geom:RenderGeom = Eachin geoms
 			geom.RemoveTransform(transform)
@@ -133,7 +133,7 @@ Public
 	
 	Method AddMesh:Void(mesh:Mesh, transform:Mat4, animMatrices:Mat4[])
 		For Local i:Int = 0 Until mesh.NumSurfaces
-			AddSurface(mesh.Surface(i), transform, Null, animMatrices)
+			AddSurface(mesh.Surface(i), transform, animMatrices, Null)
 		Next
 	End
 	

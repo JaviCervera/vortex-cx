@@ -24,7 +24,7 @@ Import src_tools.dialog
 Import src_tools.meshtool_gui
 Import vortex
 
-Class MeshToolApp Extends App Final
+Class MeshToolApp Extends App Implements IMaterialDelegate Final
 Public
 	Method OnCreate:Int()
 		'Setup update rate and swap to maximum FPS, and init random seed
@@ -80,6 +80,11 @@ Public
 		If newMesh <> Null
 			If mMesh Then mRenderList.RemoveMesh(mMesh, mModel)
 			mMesh = newMesh
+			
+			'Set material delegate
+			For Local s:Int = 0 Until mMesh.NumSurfaces
+				mMesh.Surface(s).Material.Delegate = Self
+			Next
 			
 			'Add animation matrices
 			mAnimMatrices = New Mat4[mMesh.NumBones]
@@ -177,6 +182,11 @@ Public
 		mGui.Render(mMesh)
 	
 		Return False
+	End
+	
+	Method MaterialChanged:Void(mat:Material)
+		mRenderList.RemoveMesh(mMesh, mModel)
+		mRenderList.AddMesh(mMesh, mModel, mAnimMatrices)
 	End
 Private
 	Global mLastMillisecs	: Int

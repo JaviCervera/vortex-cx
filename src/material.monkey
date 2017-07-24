@@ -149,7 +149,7 @@ Public
 	End
 	
 	Method ReflectionTexture:Void(tex:Texture) Property
-		If mReflectTex Then Return
+		If mReflectTex = tex Then Return
 		mReflectTex = tex
 		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
