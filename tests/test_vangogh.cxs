@@ -1,0 +1,151 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Van Gogh"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+#OPENGL_DEPTH_BUFFER_ENABLED=True
+#BINARY_FILES+="*.msh|*.skl|*.anm|*.fnt"
+
+#If TARGET="glfw" And HOST<>"linux"
+Import brl.requesters
+#Endif
+Import mojo.app
+Import mojo.input
+Import vortex
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup update rate and swap to maximum FPS, and init random seed
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+		mLastMillisecs = Millisecs()
+	
+		'Init vortex
+		If Not Vortex.Init()
+#If TARGET="glfw" And HOST<>"linux"
+			Notify "Error", Vortex.ShaderError(), True
+#Else
+			Print "Error: " + Vortex.ShaderError()
+#Endif
+			EndApp()
+		End
+		Print "Vendor name: " + Vortex.VendorName()
+		Print "Renderer name: " + Vortex.RendererName()
+		Print "API version name: " + Vortex.APIVersionName()
+		Print "Shading version name: " + Vortex.ShadingVersionName()
+		Print "Shader compilation: " + Vortex.ShaderError()
+		
+		'Load font
+		mFont = Font.Load("system.fnt")
+		
+		'Create matrices
+		mProj = Mat4.Create()
+		mView = Mat4.Create()
+		mModel = Mat4.Create()
+		mModel.SetTransform(0, 0, 0, 0, 180, 0, 1, 1, 1)
+		
+		'Create quat
+		mQuat = Quat.Create()
+		
+		'Create RenderList
+		mRenderList = RenderList.Create()
+		
+		'Load level
+		mLevel = Mesh.Load("vangogh.msh")
+		mRenderList.AddMesh(mLevel, mModel)
+		
+		Return False
+	End
+	
+	Method OnUpdate:Int()
+		'Update delta time
+		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
+		mLastMillisecs = Millisecs()
+	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		mValue += 0.5 * mDeltaTime
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Update FPS
+		mFpsCounter += 1
+		mFpsAccum += mDeltaTime
+		If mFpsAccum >= 1
+			mCurrentFPS = mFpsCounter
+			mFpsCounter = 0
+			mFpsAccum = 0
+		End
+		
+		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10000)
+		
+		mQuat.SetEuler(0.0, -30 * Cosr(mValue), 0.0)
+		mQuat.CalcAxis()
+		
+		'mView.LookAtLH(0, 2, -6, 0, 2, 0, 0, 1, 0)
+		mView.SetIdentity()
+		mView.Rotate(mQuat.Angle(), mQuat.ResultVector().X, mQuat.ResultVector().Y, mQuat.ResultVector().Z)
+		mView.Translate(0, -1.5, 6)
+		
+		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
+		Renderer.SetProjectionMatrix(mProj)
+		Renderer.SetViewMatrix(mView)
+		Renderer.SetModelMatrix(mModel)
+		'Renderer.ClearColorBuffer(0, 0, 0)
+		Renderer.ClearDepthBuffer()
+		'Renderer.SetFog(True, 600, 1000, 0, 0, 0)
+		mNumRenderCalls = mRenderList.Render()
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw
+		Local text:String = "Van Gogh Room by ruslans3d is licensed under CC Attribution"
+		Renderer.SetColor(0.05, 0.05, 0.05, 0.8)
+		Renderer.DrawRect(0, 8, DeviceWidth(), 20)
+		Renderer.SetColor(0.4, 0.47, 0.6)
+		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 8, text)
+		
+		'Draw FPS
+		'Renderer.SetColor(1, 1, 0)
+		'Local text$ = mCurrentFPS + " FPS"
+		'mFont.Draw(2, 2, text)
+		
+		'Draw RenderCalls
+		'text = "Render calls: " + mNumRenderCalls
+		'mFont.Draw(2, 18, text)
+	
+		Return False
+	End
+Private
+	Global mLastMillisecs	: Int
+	Global mDeltaTime		: Float
+	Global mCurrentFPS		: Int
+	Global mFpsCounter		: Int
+	Global mFpsAccum		: Float
+	
+	Field mNumRenderCalls	: Int
+	Field mFont				: Font
+	
+	Field mProj				: Mat4
+	Field mView				: Mat4
+	Field mModel			: Mat4
+	Field mLevel			: Mesh
+	Field mRenderList		: RenderList
+	Field mValue			: Float
+	Field mQuat				: Quat
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
+End
