@@ -1,3 +1,11 @@
+'TODO:
+'- Fix Texture.Draw for cubemaps
+'- Add material delegate test
+'- Add tangents export in meshtool
+'- Add texture matrix in Material
+'- Write Assimp mesh loader
+'- Update docs (talk about RenderList and update classes and methods)
+
 Strict
 
 Import vortex.src.bone

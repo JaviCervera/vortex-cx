@@ -7,7 +7,7 @@ The Win32 - Release - fast math - static target has been used.
 It links correctly with TDM-GCC-64 v5.1.0, which is what I use
 to build the dlls used in the tools.
 
-On macOS, architecture has been changed to Universal()32/64-bit Intel.
+On macOS, architecture has been changed to Universal(32/64-bit Intel).
 On macOS Deployment Target, it has been set to 10.6
 On the top of the file CIrrDeviceMacOSX.mm, the following needed to be added:
 

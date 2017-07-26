@@ -36,10 +36,11 @@ Function LoadMesh:Mesh(filename:String)
 		Process.Execute("chmod +x ~q" + path + "~q")
 	End
 	Local command:String = "~q" + path + "~q ~q" + filename + "~q"
-	Local output:String = Process.Execute(command).Trim()
-	Local findIndex:Int = output.Find("<mesh>")
-	If findIndex > -1 Then output = output[findIndex ..]
-	Return LoadXMLMeshString(output, filename)
+	Process.Execute(command)
+	Local meshString:String = LoadString(StripExt(filename) + ".msh.xml")
+	DeleteFile(StripExt(filename) + ".msh.xml")
+	If meshString = "" Then Return Null
+	Return LoadXMLMeshString(meshString, filename)
 End
 
 Function LoadXMLMesh:Mesh(filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)

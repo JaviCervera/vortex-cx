@@ -36,10 +36,11 @@ Function LoadFont:Font(filename:String, size:Int)
 		Process.Execute("chmod +x ~q" + path + "~q")
 	End
 	Local command:String = "~q" + path + "~q ~q" + filename + "~q " + size
-	Local output:String = Process.Execute(command).Trim()
-	Local findIndex:Int = output.Find("<font>")
-	If findIndex > -1 Then output = output[findIndex ..]
-	Return LoadXMLFontString(output, filename)
+	Process.Execute(command)
+	Local fontString:String = LoadString(StripExt(filename) + ".fnt.xml")
+	DeleteFile(StripExt(filename) + ".fnt.xml")
+	If fontString = "" Then Return Null
+	Return LoadXMLFontString(fontString, filename)
 End
 
 Function LoadXMLFont:Font(filename:String)
@@ -54,23 +55,13 @@ Function LoadXMLFontString:Font(buffer:String, filename:String)
 	If (doc = Null And err.error) Or doc.name <> "font" Then Return Null
 
 	'Get data
-	Local alphas:String[] = doc.GetChild("alphas").value.Split(",")
+	Local image:String = doc.GetChild("image").value
 	Local bufferWidth:Int = Int(doc.GetChild("buffer_width").value)
 	Local fontSize:Int = Int(doc.GetChild("font_size").value)
 	Local glyphNodes:List<XMLNode> = doc.GetChild("glyphs").GetChildren("glyph")
-	If alphas.Length = 0 Or bufferWidth = 0 Or fontSize = 0 Or glyphNodes.IsEmpty() Then Return Null
+	If image = "" Or bufferWidth = 0 Or fontSize = 0 Or glyphNodes.IsEmpty() Then Return Null
 	
-	'Gen texture
-	Local texData:DataBuffer = New DataBuffer(alphas.Length*4)
-	For Local i:Int = 0 Until alphas.Length
-		texData.PokeByte(i*4 + 0, 255)
-		texData.PokeByte(i*4 + 1, 255)
-		texData.PokeByte(i*4 + 2, 255)
-		texData.PokeByte(i*4 + 3, Int(alphas[i]))
-	Next
-	Local tex:Texture = Texture.Create(texData, bufferWidth, bufferWidth, Renderer.FILTER_NONE)
-	tex.Filename = StripDir(StripExt(filename)) + ".png"
-	texData.Discard()
+	Local tex:Texture = Texture.Load(image, Renderer.FILTER_NONE)
 
 	'Create font
 	Local font:Font = Font.Create(filename, fontSize, tex)
@@ -159,21 +150,4 @@ Function SaveFont:Void(font:Font, filename:String)
 	Local fileStream:FileStream = New FileStream(filename, "w")
 	fileStream.WriteAll(fontData, 0, fontData.Length)
 	fileStream.Close()
-End
-
-Function SaveFontTexture:Void(font:Font, filename:String)
-#If HOST="winnt"
-	Local ext:String = ".exe"
-#Else
-	Local ext:String = ".bin"
-#End
-	Local path:String = CurrentDir() + "/data/savefonttexture" + ext
-	If FileType(path) <> FILETYPE_FILE
-		path = CurrentDir() + "/fonttool.data/savefonttexture" + ext
-	Else
-		'Make sure that file is given execution permissions on Linux
-		Process.Execute("chmod +x ~q" + path + "~q")
-	End
-	Local command:String = "~q" + path + "~q ~q" + font.Filename + "~q " + font.Height + " ~q" + filename + "~q"
-	Process.Execute(command).Trim()
 End

@@ -14,15 +14,12 @@ Public
 	Method New()
 		'Load resources
 		mFont = Font.Load("system.fnt")
-		mOpenTex = Texture.Load("folder.png", Renderer.FILTER_NONE)
-		mSaveTex = Texture.Load("disk.png", Renderer.FILTER_NONE)
 	
-		mPanelRect = New Rect(8, 8, 48, 24)
-		mOpenRect = New Rect(8 + 4, 8 + 4, 16, 16)
-		mSaveRect = New Rect(8 + 24, 8 + 4, 16, 16)
-		mSizeRect = New Rect(60, 8, 100, 24)
+		mFontRect = New Rect(8, 8, 300, 24)
+		mSizeRect = New Rect(312, 8, 100, 24)
+		mCustomSizeRect = New Rect(416, 8, 24, 24)
 		
-		mFontSizes = [8, 16, 32]
+		mFontSizes = [8, 16, 32, 64, 128]
 		mSelSize = 1
 		mDisplayText = "The quick brown fox jumps over the lazy dog"
 	End
@@ -31,41 +28,37 @@ Public
 		'Update GUI controls
 		If MouseHit(MOUSE_LEFT)
 			'Load font
-			If mOpenRect.IsPointInside(MouseX(), MouseY())
+			If mFontRect.IsPointInside(MouseX(), MouseY())
 				Local filename:String = RequestFile("Load font")
 				If filename <> ""
 					filename = filename.Replace("\", "/")
 					Local font:Font = LoadFont(filename, mFontSizes[mSelSize])
 					If font <> Null
+						If ExtractExt(filename).ToLower() <> "fnt" Then SaveFont(font, StripExt(filename) + ".fnt")
 						Return font
 					Else
 						Notify "Error", "Could not load font '" + filename + "'", True
 					End
 				End
-			'Save font
-			Elseif mSaveRect.IsPointInside(MouseX(), MouseY())
-				Local filename:String = currentFont.Filename
-				If filename = ""
-					filename = RequestFile("Save font", "Font Files:fnt;All Files:*", True)
-					currentFont.Filename = filename
-				Else
-					filename = StripExt(filename) + ".fnt"
-				End
-				If filename <> ""
-					'Save font
-					SaveFont(currentFont, filename)
-					
-					'Save texture
-					SaveFontTexture(currentFont, StripExt(filename) + ".png")
-				End
 			'Size
-			Elseif mSizeRect.IsPointInside(MouseX(), MouseY())
+			Elseif mSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "fnt" And ExtractExt(currentFont.Filename).ToLower() <> "xml"
 				mSelSize += 1
 				If mSelSize = mFontSizes.Length Then mSelSize = 0
-				
-				If currentFont And ExtractExt(currentFont.Filename).ToLower() <> "xml" And ExtractExt(currentFont.Filename).ToLower() <> "fnt"
-					Local font:Font = LoadFont(currentFont.Filename, mFontSizes[mSelSize])
-					If font <> Null Then Return font
+				Local font:Font = LoadFont(currentFont.Filename, mFontSizes[mSelSize])
+				If font <> Null
+					SaveFont(font, StripExt(currentFont.Filename) + ".fnt")
+					Return font
+				End
+			'Custom size
+			Elseif mCustomSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "fnt" And ExtractExt(currentFont.Filename).ToLower() <> "xml"
+				Local sizeStr:String = RequestInput("Font size", "Enter custom font size", Int(currentFont.Height))
+				Local newSize:Int = Int(sizeStr)
+				If newSize <> 0 And newSize <> currentFont.Height
+					Local font:Font = LoadFont(currentFont.Filename, newSize)
+					If font <> Null
+						SaveFont(font, StripExt(currentFont.Filename) + ".fnt")
+						Return font
+					End
 				End
 			End
 		End
@@ -77,32 +70,41 @@ Public
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetBlendMode(Renderer.BLEND_ALPHA)
 		Renderer.ClearColorBuffer(0.2, 0.2, 0.2)
-		DrawPanel(mPanelRect)
-		Renderer.SetColor(1, 1, 1)
-		mOpenTex.Draw(mOpenRect.x, mOpenRect.y)
-		mSaveTex.Draw(mSaveRect.x, mSaveRect.y)
-		DrawPanel(mSizeRect, "Size: " + mFontSizes[mSelSize], mFont)
+		If currentFont
+			DrawPanel(mFontRect, "Font: " + StripDir(StripExt(currentFont.Filename)), mFont)
+		Else
+			DrawPanel(mFontRect, "Load Font", mFont)
+		End
 		
 		If currentFont
+			DrawPanel(mSizeRect, "Size: " + currentFont.Height, mFont)
+			If ExtractExt(currentFont.Filename).ToLower() <> "fnt" And ExtractExt(currentFont.Filename).ToLower() <> "xml" Then DrawPanel(mCustomSizeRect, "...", mFont)
+		End
+		
+		If currentFont
+			Local rectWidth:Int = Min(currentFont.Texture.Width, 512)
+			Local rectHeight:Int = Min(currentFont.Texture.Height, 512)
+		
 			Renderer.SetColor(1, 1, 1)
-			currentFont.Texture.Draw((DeviceWidth() - currentFont.Texture.Width)/2, (DeviceHeight() - currentFont.Texture.Height)/2)
+			currentFont.Texture.Draw((DeviceWidth() - rectWidth)/2, (DeviceHeight() - rectHeight)/2, rectWidth, rectHeight)
+			
+			Renderer.SetColor(0.1, 0.1, 0.1)
+			Renderer.DrawRect(4, 40, DeviceWidth() - 8, currentFont.TextHeight(mDisplayText) * 2)
+			Renderer.SetColor(1, 1, 1)
 			currentFont.Draw(8, 40, mDisplayText)
 		End
 	End
 Private
 	'Resources
-	Field mFont					: Font
-	Field mOpenTex				: Texture
-	Field mSaveTex				: Texture
+	Field mFont				: Font
 	
 	'Widgets
-	Field mPanelRect			: Rect
-	Field mOpenRect				: Rect
-	Field mSaveRect				: Rect
-	Field mSizeRect				: Rect
+	Field mFontRect			: Rect
+	Field mSizeRect			: Rect
+	Field mCustomSizeRect	: Rect
 	
 	'Misc
-	Field mFontSizes			: Int[]
-	Field mSelSize				: Int
-	Field mDisplayText			: String
+	Field mFontSizes		: Int[]
+	Field mSelSize			: Int
+	Field mDisplayText		: String
 End
