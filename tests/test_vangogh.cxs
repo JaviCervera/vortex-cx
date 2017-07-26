@@ -7,6 +7,7 @@ Strict
 #GLFW_WINDOW_SAMPLES=2
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 #BINARY_FILES+="*.msh|*.skl|*.anm|*.fnt"
+'#GLFW_GCC_MSIZE_WINNT="32"
 
 #If TARGET="glfw" And HOST<>"linux"
 Import brl.requesters
@@ -88,10 +89,9 @@ Public
 		
 		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10000)
 		
-		mQuat.SetEuler(0.0, -30 * Cosr(mValue), 0.0)
+		mQuat.SetEuler(0.0, -30 * Sinr(mValue), 0.0)
 		mQuat.CalcAxis()
 		
-		'mView.LookAtLH(0, 2, -6, 0, 2, 0, 0, 1, 0)
 		mView.SetIdentity()
 		mView.Rotate(mQuat.Angle(), mQuat.ResultVector().X, mQuat.ResultVector().Y, mQuat.ResultVector().Z)
 		mView.Translate(0, -1.5, 6)
@@ -100,9 +100,7 @@ Public
 		Renderer.SetProjectionMatrix(mProj)
 		Renderer.SetViewMatrix(mView)
 		Renderer.SetModelMatrix(mModel)
-		'Renderer.ClearColorBuffer(0, 0, 0)
 		Renderer.ClearDepthBuffer()
-		'Renderer.SetFog(True, 600, 1000, 0, 0, 0)
 		mNumRenderCalls = mRenderList.Render()
 		
 		'Setup renderer for 2D graphics
