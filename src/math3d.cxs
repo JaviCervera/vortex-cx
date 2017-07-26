@@ -632,6 +632,32 @@ Public
 		Scale(width, height, 1)
 	End
 	
+	Method SetCameraTransform:Void(position:Vec3, rotation:Quat)
+		SetCameraTransform(position.X, position.Y, position.Z, rotation.W, rotation.X, rotation.Y, rotation.Z)
+	End
+	
+	Method SetCameraTransform:Void(x:Float, y:Float, z:Float, rw:Float, rx:Float, ry:Float, rz:Float)
+		q1.Set(rw, rx, ry, rz)
+		q1.CalcAxis()
+		
+		SetIdentity()
+		Rotate(-q1.Angle(), q1.ResultVector().X, q1.ResultVector().Y, q1.ResultVector().Z)
+		Translate(-x, -y, -z)
+	End
+	
+	Method SetCameraTransform:Void(position:Vec3, rotation:Vec3)
+		SetCameraTransform(position.X, position.Y, position.Z, rotation.X, rotation.Y, rotation.Z)
+	End
+	
+	Method SetCameraTransform:Void(x:Float, y:Float, z:Float, rx:Float, ry:Float, rz:Float)
+		q1.SetEuler(rx, ry, rz)
+		q1.CalcAxis()
+		
+		SetIdentity()
+		Rotate(-q1.Angle(), q1.ResultVector().X, q1.ResultVector().Y, q1.ResultVector().Z)
+		Translate(-x, -y, -z)
+	End
+	
 	Function ResultVector:Vec3()
 		Return tv1
 	End

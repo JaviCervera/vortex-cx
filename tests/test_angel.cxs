@@ -1,6 +1,6 @@
 Strict
 
-#GLFW_WINDOW_TITLE="Vortex2 Van Gogh"
+#GLFW_WINDOW_TITLE="Vortex2 Angel"
 #GLFW_WINDOW_WIDTH=800
 #GLFW_WINDOW_HEIGHT=600
 #GLFW_WINDOW_RESIZABLE=True
@@ -53,8 +53,33 @@ Public
 		mRenderList = RenderList.Create()
 		
 		'Load level
-		mLevel = Mesh.Load("vangogh.msh")
+		mLevel = Mesh.Load("angel.msh")
 		mRenderList.AddMesh(mLevel, mModel)
+		
+		'Prepare lights
+		Lighting.SetLightEnabled(0, True)
+		Lighting.SetLightEnabled(1, True)
+		Lighting.SetLightEnabled(2, True)
+		Lighting.SetLightEnabled(3, True)
+		Lighting.SetLightEnabled(4, True)
+		Lighting.SetLightType(0, Lighting.DIRECTIONAL)
+		Lighting.SetLightType(1, Lighting.POINT)
+		Lighting.SetLightType(2, Lighting.POINT)
+		Lighting.SetLightType(3, Lighting.POINT)
+		Lighting.SetLightType(4, Lighting.POINT)
+		Lighting.SetLightPosition(0, 1, 1, -1)
+		Lighting.SetLightPosition(1, 0, 0, -2)
+		Lighting.SetLightPosition(2, 2, 0, 0)
+		Lighting.SetLightPosition(3, 0, 0, 2)
+		Lighting.SetLightPosition(4, -2, 0, 0)
+		Lighting.SetLightColor(0, 0.6, 0.6, 0.6)
+		Lighting.SetLightColor(1, 0.5, 1, 0.7)
+		Lighting.SetLightColor(2, 1, 0.7, 0.2)
+		Lighting.SetLightColor(3, 1, 0.5, 0.7)
+		Lighting.SetLightColor(4, 0.2, 0.7, 1)
+		'Lighting.SetLightRadius(0, 48)
+		'Lighting.SetLightRadius(1, 48)
+		'Lighting.SetLightRadius(2, 48)
 		
 		Return False
 	End
@@ -69,7 +94,14 @@ Public
 		If KeyHit(KEY_ESCAPE) Then EndApp()
 		#End
 		
-		mValue += 0.5 * mDeltaTime
+		'Update lighting
+		mValue += mDeltaTime
+		Local sinVal:Float = 0.5 + Abs(Sinr(mValue)) * 0.5
+		Local cosVal:Float = 0.5 + Abs(Cosr(mValue)) * 0.5
+		Lighting.SetLightRadius(1, 2 * sinVal)
+		Lighting.SetLightRadius(2, 2 * cosVal)
+		Lighting.SetLightRadius(3, 2 * cosVal)
+		Lighting.SetLightRadius(4, 2 * sinVal)
 		
 		Return False
 	End
@@ -86,12 +118,16 @@ Public
 		
 		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10000)
 		
-		mView.SetCameraTransform(0, 1.5, -6, 0, 30 * Sinr(mValue), 0)
+		mView.LookAtLH(7, 7, -7, 0, 0, 0, 0, 1, 0)
+		
+		mModel.SetTransform(0, 0, 0, 0, 180 + mValue * 14.3239, 0, 1, 1, 1)
 		
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetProjectionMatrix(mProj)
 		Renderer.SetViewMatrix(mView)
 		Renderer.SetModelMatrix(mModel)
+		Lighting.Prepare(0.3, 0.3, 0.3, True)
+		Renderer.ClearColorBuffer(0.05, 0.05, 0.05)
 		Renderer.ClearDepthBuffer()
 		mNumRenderCalls = mRenderList.Render()
 		
@@ -99,20 +135,9 @@ Public
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw
-		Local text:String = "Van Gogh Room by ruslans3d is licensed under CC Attribution"
-		Renderer.SetColor(0.05, 0.05, 0.05, 0.8)
-		Renderer.DrawRect(0, 8, DeviceWidth(), 20)
-		Renderer.SetColor(0.4, 0.47, 0.6)
+		Local text:String = "Frank by misterdevious is licensed under CC Attribution-NonCommercial-ShareAlike"
+		Renderer.SetColor(0.95, 0.95, 0.95)
 		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 8, text)
-		
-		'Draw FPS
-		'Renderer.SetColor(1, 1, 0)
-		'Local text$ = mCurrentFPS + " FPS"
-		'mFont.Draw(2, 2, text)
-		
-		'Draw RenderCalls
-		'text = "Render calls: " + mNumRenderCalls
-		'mFont.Draw(2, 18, text)
 	
 		Return False
 	End

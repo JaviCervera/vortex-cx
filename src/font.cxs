@@ -26,7 +26,7 @@ Public
 		f.mFilename = filename
 		f.mHeight = height
 		f.mTexture = tex
-		For Local i% = 0 Until f.mGlyphs.Length()
+		For Local i:Int = 0 Until f.mGlyphs.Length()
 			f.mGlyphs[i] = New Glyph
 		Next
 		Return f
@@ -111,8 +111,8 @@ Public
 	End
 
 	Method TextWidth:Float(text:String)
-		Local width# = 0
-		For Local i% = 0 Until text.Length()
+		Local width:Float = 0
+		For Local i:Int = 0 Until text.Length()
 			'If String.FromChar(text[i]) = " " Then
 			'	width += mMaxWidth
 			'Else
@@ -124,9 +124,9 @@ Public
 
 	Method TextHeight:Float(text:String)
 		#Rem
-		Local height# = 0
-		For Local i% = 0 Until text.Length()
-			Local charHeight# = mGlyphs[text[i]-32].mHeight + mGlyphs[text[i]-32].mYOffset
+		Local height:Float = 0
+		For Local i:Int = 0 Until text.Length()
+			Local charHeight:Float = mGlyphs[text[i]-32].mHeight + mGlyphs[text[i]-32].mYOffset
 			If charHeight > height Then height = charHeight
 		Next
 		Return height
@@ -135,8 +135,8 @@ Public
 	End
 
 	Method Draw:Void(x:Float, y:Float, text:String)
-		Local textHeight# = mMaxHeight
-		For Local i% = 0 Until text.Length()
+		Local textHeight:Float = mMaxHeight
+		For Local i:Int = 0 Until text.Length()
 			Local glyph:Glyph = mGlyphs[text[i]-32]
 			If text[i]-32 <> 0 And glyph.mWidth <> 0 And glyph.mHeight <> 0
 				mTexture.Draw(x, y + (textHeight - glyph.mHeight) + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
