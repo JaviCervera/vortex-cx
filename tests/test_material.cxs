@@ -18,11 +18,10 @@ Import vortex
 Class TestApp Extends App Final
 Public
 	Method OnCreate:Int()
-		'Setup update rate and swap to maximum FPS, and init random seed
+		'Setup
 		SetUpdateRate(0)
 		SetSwapInterval(0)
 		Seed = Millisecs()
-		mLastMillisecs = Millisecs()
 	
 		'Init vortex
 		If Not Vortex.Init()
@@ -84,15 +83,14 @@ Public
 		Return False
 	End
 	
-	Method OnUpdate:Int()
-		'Update delta time
-		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
-		mLastMillisecs = Millisecs()
-	
+	Method OnUpdate:Int()	
 		'End with escape key
 		#If TARGET<>"html5"
 		If KeyHit(KEY_ESCAPE) Then EndApp()
 		#End
+		
+		'Update delta time
+		Stats.UpdateDeltaTime()
 		
 		'Update shininess
 		If KeyHit(KEY_SPACE)
@@ -103,23 +101,17 @@ Public
 			End
 		End
 		
-		mEulerY += 32 * mDeltaTime
+		mYaw += 32 * Stats.DeltaTime()
 
 		Return False
 	End
 	
 	Method OnRender:Int()
 		'Update FPS
-		mFpsCounter += 1
-		mFpsAccum += mDeltaTime
-		If mFpsAccum >= 1
-			mCurrentFPS = mFpsCounter
-			mFpsCounter = 0
-			mFpsAccum = 0
-		End
+		Stats.UpdateFPS()
 		
-		Local posX:Float = Cos(mEulerY) * 2
-		Local posZ:Float = -Sin(mEulerY) * 2
+		Local posX:Float = Cos(mYaw) * 2
+		Local posZ:Float = -Sin(mYaw) * 2
 	
 		mProj.SetPerspectiveLH(75, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
 		mView.LookAtLH(posX, 0, posZ, 0, 0, 0, 0, 1, 0)
@@ -138,7 +130,7 @@ Public
 		Renderer.SetColor(1, 1, 1)
 		
 		'Draw FPS
-		Local text$ = mCurrentFPS + " FPS"
+		Local text$ = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
@@ -152,12 +144,6 @@ Public
 		Return False
 	End
 Private
-	Global mLastMillisecs	: Int
-	Global mDeltaTime		: Float
-	Global mCurrentFPS		: Int
-	Global mFpsCounter		: Int
-	Global mFpsAccum		: Float
-	
 	Field mNumRenderCalls	: Int
 	Field mFont				: Font
 	
@@ -170,7 +156,7 @@ Private
 	Field mTexture			: Texture
 	Field mNormalTex		: Texture
 	Field mRenderList		: RenderList
-	Field mEulerY			: Float
+	Field mYaw				: Float
 End
 
 Function Main:Int()

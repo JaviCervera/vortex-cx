@@ -491,43 +491,6 @@ Calculates animation data for the specified frame in the mesh and updates the ma
 
 
 
-# Class RenderList
-
-The `RenderList` provides an efficient way of rendering geometry, since it groups the geometry to reduce the number of render calls needed. 3D geometry is rendered in Vortex through a `RenderList`. You can add meshes and single surfaces to the batch, together with a transformation matrix that indicates where to draw. The same object can be added multiple times to a list, in case you want that object to appear at several places in your scene.
-
-# Function Create:RenderList()
-Creates and returns a new render list.
-
-# Method Free:Void()
-When you don't need a render list anymore, you should call this method.
-
-# Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
-Adds a surface to the list, providing a transformation and an optional material that will be used for rendering instead of the one defined in the surface.
-
-# Method AddSurface:Void(surface:Surface, transform:Mat4, animMatrices:Mat4[], overrideMaterial:Material = Null)
-Adds an animated surface to the list, providing a transformation, an optional material that will be used for rendering instead of the one defined in the surface, and a set of matrices with the bone transformations. You don't normally need to use this function.
-
-# Method RemoveSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
-Removes from the list the instance of the surface that was being rendered with the specified transformation matrix.
-
-# Method RemoveSurface:Void(surface:Surface, transform:Mat4, animMatrices:Mat4[], overrideMaterial:Material = Null)
-Removes from the list the instance of the surface that was being rendered with the specified transformation and animation matrices. You don't normally need to use this function.
-
-# Method AddMesh:Void(mesh:Mesh, transform:Mat4)
-Adds a static mesh to the list, providing a transformation.
-
-# Method AddMesh:Void(mesh:Mesh, transform:Mat4, animMatrices:Mat4[])
-Adds an animated mesh to the list, providing a transformation and a set of matrices with the animation data.
-
-# Method RemoveMesh:Void(mesh:Mesh, transform:Mat4)
-Removes from the list the instance of the mesh that was being rendered with the specified transformation matrix.
-
-# Method Render:Int()
-Renders all the geometry added to this list, with all the specified transformations.
-
-
-
-
 # Class Renderer
 
 The Renderer is the class used to draw graphics on the screen in immediate mode, and the direct link with the underlying rendering API (OpenGL). For most stuff, you do not need to deal with this class directly, but for example if you want to draw your 2D graphics above the 3D scene, after drawing all your 3D geometry, you must call `Renderer.Setup2D` to setup the context for 2D drawing, and then perform your drawing operations.
@@ -583,6 +546,62 @@ Draws a filled rectangle at the specified coordinates, with the given width and 
 
 # Function DrawEllipse:Void(x:Float, y:Float, z:Float, width:Float, height:Float)
 Draw a filled ellipse at the specified coordinates, with the given width and height. For 2D graphics, `z` should be 0.
+
+
+
+
+# Class RenderList
+
+The `RenderList` provides an efficient way of rendering geometry, since it groups the geometry to reduce the number of render calls needed. 3D geometry is rendered in Vortex through a `RenderList`. You can add meshes and single surfaces to the batch, together with a transformation matrix that indicates where to draw. The same object can be added multiple times to a list, in case you want that object to appear at several places in your scene.
+
+# Function Create:RenderList()
+Creates and returns a new render list.
+
+# Method Free:Void()
+When you don't need a render list anymore, you should call this method.
+
+# Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
+Adds a surface to the list, providing a transformation and an optional material that will be used for rendering instead of the one defined in the surface.
+
+# Method AddSurface:Void(surface:Surface, transform:Mat4, animMatrices:Mat4[], overrideMaterial:Material = Null)
+Adds an animated surface to the list, providing a transformation, an optional material that will be used for rendering instead of the one defined in the surface, and a set of matrices with the bone transformations. You don't normally need to use this function.
+
+# Method RemoveSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
+Removes from the list the instance of the surface that was being rendered with the specified transformation matrix.
+
+# Method RemoveSurface:Void(surface:Surface, transform:Mat4, animMatrices:Mat4[], overrideMaterial:Material = Null)
+Removes from the list the instance of the surface that was being rendered with the specified transformation and animation matrices. You don't normally need to use this function.
+
+# Method AddMesh:Void(mesh:Mesh, transform:Mat4)
+Adds a static mesh to the list, providing a transformation.
+
+# Method AddMesh:Void(mesh:Mesh, transform:Mat4, animMatrices:Mat4[])
+Adds an animated mesh to the list, providing a transformation and a set of matrices with the animation data.
+
+# Method RemoveMesh:Void(mesh:Mesh, transform:Mat4)
+Removes from the list the instance of the mesh that was being rendered with the specified transformation matrix.
+
+# Method Render:Int()
+Renders all the geometry added to this list, with all the specified transformations.
+
+
+
+
+# Class Stats
+
+This class stores some statistics like the elapsed time since the last update and the screen FPS.
+
+# Function UpdateDeltaTime:Void()
+This function should be called at the beginning of your app's `OnCreate` method.
+
+# Function UpdateFPS:Void()
+This function should be called at the beginning of your app's `OnRender` method.
+
+# Function DeltaTime:Float()
+Returns the elapsed time since the last update.
+
+# Function FPS:Int()
+Returns the current screen FPS.
 
 
 

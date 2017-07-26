@@ -18,11 +18,10 @@ Import vortex
 Class TestApp Extends App Final
 Public
 	Method OnCreate:Int()
-		'Setup update rate and swap to maximum FPS, and init random seed
+		'Setup
 		SetUpdateRate(0)
 		SetSwapInterval(0)
 		Seed = Millisecs()
-		mLastMillisecs = Millisecs()
 	
 		'Init vortex
 		If Not Vortex.Init()
@@ -72,21 +71,20 @@ Public
 		Return False
 	End
 	
-	Method OnUpdate:Int()
-		'Update delta time
-		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
-		mLastMillisecs = Millisecs()
-	
+	Method OnUpdate:Int()	
 		'End with escape key
 		#If TARGET<>"html5"
 		If KeyHit(KEY_ESCAPE) Then EndApp()
 		#End
 		
-		mSwatCurrentFrame += 16 * mDeltaTime
+		'Update delta time
+		Stats.UpdateDeltaTime()
+		
+		mSwatCurrentFrame += 16 * Stats.DeltaTime()
 		If mSwatCurrentFrame >= mSwatMesh.NumFrames Then mSwatCurrentFrame = mSwatCurrentFrame - Int(mSwatCurrentFrame)
 		mSwatMesh.Animate(mSwatAnimMatrices, mSwatCurrentFrame)
 	
-		mDwarfCurrentFrame += 16 * mDeltaTime
+		mDwarfCurrentFrame += 16 * Stats.DeltaTime()
 		If mDwarfCurrentFrame >= mDwarfMesh.NumFrames Then mDwarfCurrentFrame = mDwarfCurrentFrame - Int(mDwarfCurrentFrame)
 		mDwarfMesh.Animate(mDwarfAnimMatrices, mDwarfCurrentFrame)
 		
@@ -95,13 +93,7 @@ Public
 	
 	Method OnRender:Int()
 		'Update FPS
-		mFpsCounter += 1
-		mFpsAccum += mDeltaTime
-		If mFpsAccum >= 1
-			mCurrentFPS = mFpsCounter
-			mFpsCounter = 0
-			mFpsAccum = 0
-		End
+		Stats.UpdateFPS()
 		
 		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
 		mView.LookAtLH(0, 64, -128, 0, 32, 0, 0, 1, 0)
@@ -120,7 +112,7 @@ Public
 		
 		'Draw FPS
 		Renderer.SetColor(0, 0, 0)
-		Local text$ = mCurrentFPS + " FPS"
+		Local text$ = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
@@ -129,13 +121,7 @@ Public
 	
 		Return False
 	End
-Private
-	Global mLastMillisecs	: Int
-	Global mDeltaTime		: Float
-	Global mCurrentFPS		: Int
-	Global mFpsCounter		: Int
-	Global mFpsAccum		: Float
-	
+Private	
 	Field mNumRenderCalls	: Int
 	Field mFont				: Font
 

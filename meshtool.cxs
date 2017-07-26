@@ -27,11 +27,10 @@ Import vortex
 Class MeshToolApp Extends App Implements IMaterialDelegate Final
 Public
 	Method OnCreate:Int()
-		'Setup update rate and swap to maximum FPS, and init random seed
+		'Setup
 		SetUpdateRate(30)
 		SetSwapInterval(1)
 		Seed = Millisecs()
-		mLastMillisecs = Millisecs()
 	
 		'Init vortex
 		If Not Vortex.Init()
@@ -72,8 +71,7 @@ Public
 	
 	Method OnUpdate:Int()
 		'Update delta time
-		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
-		mLastMillisecs = Millisecs()
+		Stats.UpdateDeltaTime()
 		
 		'Update GUI
 		Local newMesh:Mesh = mGui.Update(mMesh)
@@ -107,25 +105,25 @@ Public
 			'If mFreeLook Then HideMouse() Else ShowMouse()
 		End
 		If mFreeLook
-			mCamRot.X += (MouseY() - mLastMouseY) * 90 * mDeltaTime
-			mCamRot.Y += (MouseX() - mLastMouseX) * 90 * mDeltaTime
+			mCamRot.X += (MouseY() - mLastMouseY) * 90 * Stats.DeltaTime()
+			mCamRot.Y += (MouseX() - mLastMouseX) * 90 * Stats.DeltaTime()
 			If mCamRot.X > 89 Then mCamRot.X = 89
 			If mCamRot.X < -89 Then mCamRot.X = -89
 			mTempQuat.SetEuler(mCamRot.X, mCamRot.Y, mCamRot.Z)
 			If KeyDown(KEY_W)
-				mTempQuat.Mul(0, 0, 32 * mDeltaTime)
+				mTempQuat.Mul(0, 0, 32 * Stats.DeltaTime())
 				mCamPos.Sum(mTempQuat.ResultVector())
 			End
 			If KeyDown(KEY_S)
-				mTempQuat.Mul(0, 0, -32 * mDeltaTime)
+				mTempQuat.Mul(0, 0, -32 * Stats.DeltaTime())
 				mCamPos.Sum(mTempQuat.ResultVector())
 			End
 			If KeyDown(KEY_A)
-				mTempQuat.Mul(-32 * mDeltaTime, 0, 0)
+				mTempQuat.Mul(-32 * Stats.DeltaTime(), 0, 0)
 				mCamPos.Sum(mTempQuat.ResultVector())
 			End
 			If KeyDown(KEY_D)
-				mTempQuat.Mul(32 * mDeltaTime, 0, 0)
+				mTempQuat.Mul(32 * Stats.DeltaTime(), 0, 0)
 				mCamPos.Sum(mTempQuat.ResultVector())
 			End
 		End
@@ -151,7 +149,7 @@ Public
 		
 		'Update animations
 		If mMesh And mMesh.NumFrames > 0
-			mAnimFrame += 16 * mDeltaTime
+			mAnimFrame += 16 * Stats.DeltaTime()
 			If mAnimFrame >= mMesh.NumFrames Then mAnimFrame -= Int(mAnimFrame)
 			mMesh.Animate(mAnimMatrices, mAnimFrame)
 		End
@@ -161,13 +159,7 @@ Public
 	
 	Method OnRender:Int()
 		'Update FPS
-		mFpsCounter += 1
-		mFpsAccum += mDeltaTime
-		If mFpsAccum >= 1
-			mCurrentFPS = mFpsCounter
-			mFpsCounter = 0
-			mFpsAccum = 0
-		End
+		Stats.UpdateFPS()
 		
 		'Render world
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
@@ -189,12 +181,6 @@ Public
 		mRenderList.AddMesh(mMesh, mModel, mAnimMatrices)
 	End
 Private
-	Global mLastMillisecs	: Int
-	Global mDeltaTime		: Float
-	Global mCurrentFPS		: Int
-	Global mFpsCounter		: Int
-	Global mFpsAccum		: Float
-	
 	'Resources
 	Field mMesh				: Mesh
 	

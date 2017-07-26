@@ -18,11 +18,10 @@ Import vortex
 Class TestApp Extends App Final
 Public
 	Method OnCreate:Int()
-		'Setup update rate and swap to maximum FPS, and init random seed
+		'Setup
 		SetUpdateRate(0)
 		SetSwapInterval(0)
 		Seed = Millisecs()
-		mLastMillisecs = Millisecs()
 	
 		'Init vortex
 		If Not Vortex.Init()
@@ -57,34 +56,27 @@ Public
 		Return False
 	End
 	
-	Method OnUpdate:Int()
-		'Update delta time
-		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
-		mLastMillisecs = Millisecs()
-	
+	Method OnUpdate:Int()	
 		'End with escape key
 		#If TARGET<>"html5"
 		If KeyHit(KEY_ESCAPE) Then EndApp()
 		#End
 		
-		mEulerY -= 32 * mDeltaTime
+		'Update delta time
+		Stats.UpdateDeltaTime()
+		
+		mYaw -= 32 * Stats.DeltaTime()
 		
 		Return False
 	End
 	
 	Method OnRender:Int()
 		'Update FPS
-		mFpsCounter += 1
-		mFpsAccum += mDeltaTime
-		If mFpsAccum >= 1
-			mCurrentFPS = mFpsCounter
-			mFpsCounter = 0
-			mFpsAccum = 0
-		End
+		Stats.UpdateFPS()
 		
 		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10000)
 		mView.LookAtLH(0, 150, -250, 0, 0, 0, 0, 1, 0)
-		mModel.SetTransform(0, 0, 0, 0, mEulerY, 0, 1, 1, 1)
+		mModel.SetTransform(0, 0, 0, 0, mYaw, 0, 1, 1, 1)
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetProjectionMatrix(mProj)
 		Renderer.SetViewMatrix(mView)
@@ -99,7 +91,7 @@ Public
 		
 		'Draw FPS
 		Renderer.SetColor(1, 1, 0)
-		Local text$ = mCurrentFPS + " FPS"
+		Local text$ = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
@@ -109,12 +101,6 @@ Public
 		Return False
 	End
 Private
-	Global mLastMillisecs	: Int
-	Global mDeltaTime		: Float
-	Global mCurrentFPS		: Int
-	Global mFpsCounter		: Int
-	Global mFpsAccum		: Float
-	
 	Field mNumRenderCalls	: Int
 	Field mFont				: Font
 	
@@ -123,7 +109,7 @@ Private
 	Field mModel			: Mat4
 	Field mLevel			: Mesh
 	Field mRenderList		: RenderList
-	Field mEulerY			: Float
+	Field mYaw				: Float
 End
 
 Function Main:Int()

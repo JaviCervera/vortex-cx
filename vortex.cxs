@@ -1,10 +1,11 @@
 'TODO v2.0:
+'- Comment tests better
 '- Document IMaterialDelegate class
 '- Document IMeshLoadDelegate class
 '- Document mesh and surface modification functions
+'TODO v2.1:
 '- Add tangent import in meshtool
 '- Add texture matrix in Material
-'TODO v2.1:
 '- Write Assimp mesh loader
 
 Strict
@@ -18,6 +19,7 @@ Import vortex.src.math3d
 Import vortex.src.mesh
 Import vortex.src.renderer
 Import vortex.src.renderlist
+Import vortex.src.stats
 Import vortex.src.surface
 Import vortex.src.texture
 
@@ -25,6 +27,7 @@ Class Vortex Final
 Public
 	Function Init:Bool(numLights:Int = 8, numBones:Int = 75)
 		If Renderer.Init(numLights, numBones)
+			Stats.Init()
 			Return True
 		Else
 			Return False

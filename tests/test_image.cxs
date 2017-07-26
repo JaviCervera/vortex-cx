@@ -15,10 +15,10 @@ Import mojo.app
 Import mojo.input
 Import vortex
 
-Const PRIM_POINT% = 0
-Const PRIM_LINE% = 1
-Const PRIM_RECT% = 2
-Const PRIM_ELLIPSE% = 3
+Const PRIM_POINT:Int	= 0
+Const PRIM_LINE:Int		= 1
+Const PRIM_RECT:Int		= 2
+Const PRIM_ELLIPSE:Int	= 3
 
 Class Prim Final
 	Field type%
@@ -29,11 +29,10 @@ End
 Class TestApp Extends App Final
 Public
 	Method OnCreate:Int()
-		'Setup update rate and swap to maximum FPS, and init random seed
+		'Setup
 		SetUpdateRate(0)
 		SetSwapInterval(0)
 		Seed = Millisecs()
-		mLastMillisecs = Millisecs()
 	
 		'Init vortex
 		If Not Vortex.Init()
@@ -59,28 +58,21 @@ Public
 		Return False
 	End
 	
-	Method OnUpdate:Int()
-		'Update delta time
-		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
-		mLastMillisecs = Millisecs()
-	
+	Method OnUpdate:Int()	
 		'End with escape key
 		#If TARGET<>"html5"
 		If KeyHit(KEY_ESCAPE) Then EndApp()
 		#End
+		
+		'Update delta time
+		Stats.UpdateDeltaTime()
 		
 		Return False
 	End
 	
 	Method OnRender:Int()
 		'Update FPS
-		mFpsCounter += 1
-		mFpsAccum += mDeltaTime
-		If mFpsAccum >= 1
-			mCurrentFPS = mFpsCounter
-			mFpsCounter = 0
-			mFpsAccum = 0
-		End
+		Stats.UpdateFPS()
 		
 		'Draw image
 		mNumRenderCalls = 1
@@ -90,7 +82,7 @@ Public
 		
 		'Draw FPS
 		Renderer.SetColor(1, 1, 1)
-		Local text$ = mCurrentFPS + " FPS"
+		Local text$ = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
@@ -100,12 +92,6 @@ Public
 		Return False
 	End
 Private
-	Global mLastMillisecs	: Int
-	Global mDeltaTime		: Float
-	Global mCurrentFPS		: Int
-	Global mFpsCounter		: Int
-	Global mFpsAccum		: Float
-	
 	Field mNumRenderCalls	: Int
 	Field mFont				: Font
 	

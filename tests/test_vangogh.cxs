@@ -19,11 +19,10 @@ Import vortex
 Class TestApp Extends App Final
 Public
 	Method OnCreate:Int()
-		'Setup update rate and swap to maximum FPS, and init random seed
+		'Setup
 		SetUpdateRate(0)
 		SetSwapInterval(0)
 		Seed = Millisecs()
-		mLastMillisecs = Millisecs()
 	
 		'Init vortex
 		If Not Vortex.Init()
@@ -59,30 +58,23 @@ Public
 		Return False
 	End
 	
-	Method OnUpdate:Int()
-		'Update delta time
-		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
-		mLastMillisecs = Millisecs()
-	
+	Method OnUpdate:Int()	
 		'End with escape key
 		#If TARGET<>"html5"
 		If KeyHit(KEY_ESCAPE) Then EndApp()
 		#End
 		
-		mValue += 0.5 * mDeltaTime
+		'Update delta time
+		Stats.UpdateDeltaTime()
+		
+		mValue += 0.5 * Stats.DeltaTime()
 		
 		Return False
 	End
 	
 	Method OnRender:Int()
 		'Update FPS
-		mFpsCounter += 1
-		mFpsAccum += mDeltaTime
-		If mFpsAccum >= 1
-			mCurrentFPS = mFpsCounter
-			mFpsCounter = 0
-			mFpsAccum = 0
-		End
+		Stats.UpdateFPS()
 		
 		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10000)
 		
@@ -116,13 +108,7 @@ Public
 	
 		Return False
 	End
-Private
-	Global mLastMillisecs	: Int
-	Global mDeltaTime		: Float
-	Global mCurrentFPS		: Int
-	Global mFpsCounter		: Int
-	Global mFpsAccum		: Float
-	
+Private	
 	Field mNumRenderCalls	: Int
 	Field mFont				: Font
 	

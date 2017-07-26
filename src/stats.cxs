@@ -1,0 +1,47 @@
+Strict
+
+Private
+Import mojo.app
+
+Public
+Class Stats Final
+Public
+	Function Init:Void()
+		mLastMillisecs = Millisecs()
+		mFpsCounter = 0
+		mFpsAccum = 0
+	End
+	
+	Function UpdateDeltaTime:Void()
+		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
+		mLastMillisecs = Millisecs()
+	End
+	
+	Function UpdateFPS:Void()
+		mFpsCounter += 1
+		mFpsAccum += mDeltaTime
+		If mFpsAccum >= 1
+			mFps = mFpsCounter
+			mFpsCounter = 0
+			mFpsAccum = 0
+		End
+	End
+	
+	Function DeltaTime:Float()
+		Return mDeltaTime
+	End
+	
+	Function FPS:Int()
+		Return mFps
+	End
+Private
+	Global mLastMillisecs	: Int
+	Global mDeltaTime		: Float
+	Global mFpsCounter		: Int
+	Global mFpsAccum		: Float
+	Global mFps				: Int
+	
+	'Hide default constructor
+	Method New()
+	End
+End

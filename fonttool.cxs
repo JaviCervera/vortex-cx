@@ -27,7 +27,7 @@ Import vortex
 Class FontToolApp Extends App Final
 Public
 	Method OnCreate:Int()
-		'Setup update rate and swap to maximum FPS, and init random seed
+		'Setup
 		SetUpdateRate(30)
 		SetSwapInterval(1)
 		Seed = Millisecs()
@@ -50,6 +50,8 @@ Public
 	End
 	
 	Method OnUpdate:Int()
+		Stats.UpdateDeltaTime()
+	
 		'Update GUI
 		Local newFont:Font = mGui.Update(mFont)
 		If newFont <> Null
@@ -60,6 +62,7 @@ Public
 	End
 	
 	Method OnRender:Int()
+		Stats.UpdateFPS()
 		mGui.Render(mFont)
 		Return False
 	End
