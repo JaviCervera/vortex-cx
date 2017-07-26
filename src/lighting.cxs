@@ -39,7 +39,7 @@ Public
 		mLights[index].mEnabled = enabled
 	End
 
-	Function IsLightEnabled:Bool(index:Int)
+	Function LightEnabled:Bool(index:Int)
 		InitLights()
 		Return mLights[index].mEnabled
 	End

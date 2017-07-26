@@ -86,7 +86,7 @@ Public
 		
 		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10000)
 		
-		mView.SetCameraTransform(0, 1.5, -6, 0, 30 * Sinr(mValue), 0)
+		mView.SetViewerTransform(0, 1.5, -6, 0, 30 * Sinr(mValue), 0)
 		
 		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetProjectionMatrix(mProj)

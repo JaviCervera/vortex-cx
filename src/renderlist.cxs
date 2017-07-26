@@ -90,7 +90,7 @@ Public
 	End
 	
 	Method Free:Void()
-		mRendeLists.RemoveFirst(Self)
+		mRenderLists.RemoveFirst(Self)
 	End
 
 	Method AddSurface:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)

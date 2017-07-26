@@ -13,7 +13,7 @@ Import vortex.src.texture
 
 Public
 
-Interface IMeshLoaderDelegate
+Interface IMeshLoadDelegate
 	Method LoadTexture:Texture(filename:String, filter:Int)
 	Method LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int)
 End
@@ -48,7 +48,7 @@ Public
 		Return mesh
 	End
 	
-	Function Load:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR, delegate:IMeshLoaderDelegate = Null)
+	Function Load:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR, delegate:IMeshLoadDelegate = Null)
 		'Fix filenames
 		Local fixedFilename:String = filename
 		Local fixedSkeletonFilename:String = skeletonFilename
@@ -80,7 +80,7 @@ Public
 		Return mesh
 	End
 	
-	Function LoadData:Mesh(data:DataBuffer, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR, delegate:IMeshLoaderDelegate = Null)
+	Function LoadData:Mesh(data:DataBuffer, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR, delegate:IMeshLoadDelegate = Null)
 		Local stream:DataStream = New DataStream(data)
 		Local meshPath:String = ExtractDir(filename)
 		If meshPath <> "" Then meshPath += "/"
@@ -370,7 +370,7 @@ Public
 		Return True
 	End
 
-	Method Free:Void(freeTextures:Bool = False)
+	Method Free:Void(freeTextures:Bool = True)
 		For Local surf:Surface = Eachin mSurfaces
 			surf.Free(freeTextures)
 		Next

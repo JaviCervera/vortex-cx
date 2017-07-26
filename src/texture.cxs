@@ -16,7 +16,7 @@ Public
 		Return tex
 	End
 
-	Function Create:Texture(buffer:DataBuffer, width:Int, height:Int, filter:Int = Renderer.FILTER_NONE)
+	Function Create:Texture(buffer:DataBuffer, width:Int, height:Int, filter:Int = Renderer.FILTER_TRILINEAR)
 		Local tex:Texture = New Texture
 		tex.mHandle = Renderer.CreateTexture(buffer, width, height, filter)
 		tex.mWidth = width
@@ -104,7 +104,7 @@ Public
 		Local v1:Float = (recty + rectheight) / Height * Sgn(height)
 
 		'Render
-		Renderer.SetTextures(mHandle, 0, 0, 0, 0, False)
+		Renderer.SetTextures(mHandle, 0, 0, 0, 0, mIsCubic)
 		Renderer.DrawRectEx(x, y, Abs(width), Abs(height), u0, v0, u1, v1)
 		Renderer.SetTextures(0, 0, 0, 0, 0, False)
 	End

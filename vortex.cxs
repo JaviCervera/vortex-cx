@@ -1,10 +1,11 @@
-'TODO:
-'- Fix Texture.Draw for cubemaps
-'- Add material delegate test
-'- Add tangents export in meshtool
+'TODO v2.0:
+'- Document IMaterialDelegate class
+'- Document IMeshLoadDelegate class
+'- Document mesh and surface modification functions
+'- Add tangent import in meshtool
 '- Add texture matrix in Material
+'TODO v2.1:
 '- Write Assimp mesh loader
-'- Update docs (talk about RenderList and update classes and methods)
 
 Strict
 

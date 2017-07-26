@@ -289,9 +289,11 @@ Const _2D_VERTEX_SHADER:String = SHADER_VAR_PRECISION +
 Const _2D_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION +
 "uniform int baseTexMode;" +
 "uniform sampler2D baseTexSampler;" +
+"uniform samplerCube baseCubeSampler;" +
 "uniform vec4 baseColor;" +
 "varying vec2 ftex;" +
 "void main() {" +
 "	gl_FragColor = baseColor;" +
-"	if ( baseTexMode == 1 ) gl_FragColor *= texture2D(baseTexSampler, vec2(ftex.x, ftex.y));" +
+"	if ( baseTexMode == 1 ) gl_FragColor *= texture2D(baseTexSampler, ftex);" +
+"	else if ( baseTexMode == 2 ) gl_FragColor *= textureCube(baseCubeSampler, vec3(ftex.x, -ftex.y, 1));" +
 "}"
