@@ -151,6 +151,10 @@ Public
 		Return numRenderCalls
 	End
 	
+	Method Clear:Void()
+		mOps.Clear()
+	End
+	
 	Function Sort:Void(mat:Material)
 		For Local renderList:RenderList = Eachin mRenderLists
 			Local op:RenderOp = renderList.RenderOpForMaterial(mat)

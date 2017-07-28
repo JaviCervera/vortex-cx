@@ -584,6 +584,11 @@ Removes from the list the instance of the mesh that was being rendered with the 
 # Method Render:Int()
 Renders all the geometry added to this list, with all the specified transformations.
 
+# Method Clear:Void()
+Removes all elements from the render list. This is useful if you want to repopulate the list every frame, to make sure that all elements are correctly sorted at all times. If you don't do this, you could get into this situation: several objects share the same material, so the material properties are set once by the render list and then all objects are rendered. If one of the objects changes the material that it uses, this would not be acknowledged by the render list, so it will be rendered in the same pass as the others and not show the updated material. If you add all elements every frame, they will always be correctly rendered.
+
+A more efficient way to achieve this would be to define a class which implements the `IMaterialDelegate` interface, so any changes in a material would be catched on the `MaterialChanged` method, and you can remove the surface whose material has been changed from the list and add it again.
+
 
 
 
