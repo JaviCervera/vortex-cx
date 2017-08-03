@@ -352,6 +352,13 @@ Public
 			Else
 				DrawPanel(mMaterialRect.x + mRefractionTexRect.x, mMaterialRect.y + mRefractionTexRect.y, mRefractionTexRect.width, mRefractionTexRect.height)
 			End
+			
+			Renderer.SetColor(1, 1, 1)
+			mFont.Draw(mMaterialRect.x + mDiffuseTexRect.x + 2, mMaterialRect.y + mDiffuseTexRect.y, "Diffuse")
+			mFont.Draw(mMaterialRect.x + mNormalTexRect.x + 2, mMaterialRect.y + mNormalTexRect.y, "Normal")
+			mFont.Draw(mMaterialRect.x + mLightmapRect.x + 2, mMaterialRect.y + mLightmapRect.y, "Lightmap")
+			mFont.Draw(mMaterialRect.x + mReflectionTexRect.x + 2, mMaterialRect.y + mReflectionTexRect.y, "Reflection")
+			mFont.Draw(mMaterialRect.x + mRefractionTexRect.x + 2, mMaterialRect.y + mRefractionTexRect.y, "Refraction")
 	
 			DrawPanel(mMaterialRect.x + mRefractionCoefRect.x, mMaterialRect.y + mRefractionCoefRect.y, mRefractionCoefRect.width, mRefractionCoefRect.height, "Refr. Coef: " + String(currentMesh.Surface(mSelMat).Material.RefractionCoef)[..4], mFont)
 			DrawPanel(mMaterialRect.x + mOpacityRect.x, mMaterialRect.y + mOpacityRect.y, mOpacityRect.width, mOpacityRect.height, "Opacity: " + String(currentMesh.Surface(mSelMat).Material.Opacity)[..4], mFont)
