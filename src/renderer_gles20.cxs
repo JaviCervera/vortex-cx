@@ -311,8 +311,8 @@ Public
 		If mActiveProgram.mAmbientLoc <> -1 Then glUniform3f(mActiveProgram.mAmbientLoc, r, g, b)
 	End
 
-	Function SetShininess:Void(shininess:Int)
-		If mActiveProgram.mShininessLoc <> -1 Then glUniform1i(mActiveProgram.mShininessLoc, shininess)
+	Function SetShininess:Void(shininess:Float)
+		If mActiveProgram.mShininessLoc <> -1 Then glUniform1f(mActiveProgram.mShininessLoc, shininess)
 	End
 	
 	Function SetFog:Void(enable:Bool, minDist:Float, maxDist:Float, r:Float, g:Float, b:Float)

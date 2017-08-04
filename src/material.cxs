@@ -235,10 +235,10 @@ Public
 		Local lightmapHandle:Int = 0
 		Local reflectHandle:Int = 0
 		Local refractHandle:Int = 0
-		Local shininess:Int = 0
-		If mShininess > 0 Then shininess = Int(mShininess * 128)
+		'Local shininess:Int = 0
+		'If mShininess > 0 Then shininess = Int(mShininess * 128)
 		Renderer.SetColor(mDiffuseRed, mDiffuseGreen, mDiffuseBlue, mOpacity)
-		Renderer.SetShininess(shininess)
+		Renderer.SetShininess(mShininess)
 		Renderer.SetRefractCoef(mRefractCoef)
 		Renderer.SetBlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)

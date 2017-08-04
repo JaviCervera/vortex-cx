@@ -39,7 +39,7 @@ Const STD_VERTEX_VARS:String = "" +
 "uniform float lightRadius[MAX_LIGHTS];" +
 "uniform vec4 baseColor;" +
 "uniform vec3 ambient;" +
-"uniform int shininess;" +
+"uniform float shininess;" +
 "uniform float refractCoef;" +
 "uniform bool fogEnabled;" +
 "uniform vec2 fogDist;" +
@@ -75,7 +75,7 @@ Const STD_FRAGMENT_VARS:String = "" +
 "uniform vec3 lightColor[MAX_LIGHTS];" +
 "uniform float lightRadius[MAX_LIGHTS];" +
 "uniform vec3 ambient;" +
-"uniform int shininess;" +
+"uniform float shininess;" +
 "uniform bool fogEnabled;" +
 "uniform vec3 fogColor;" +
 "uniform bool shadowsEnabled;" +
@@ -85,12 +85,12 @@ STD_VARYING_VARS
 Const SHADER_CALC_LIGHTING:String = "" +
 "struct LightingResult { vec3 combinedDiffuse; vec3 combinedSpecular; };" +
 "LightingResult CalcLighting(vec3 V, vec3 NV, vec3 N) {" +
-"	float normShininess = float(shininess) / 256.0;" +
+"	float normShininess = float(shininess) / 10240.0;" +
 "	LightingResult lighting;" +
 "	lighting.combinedDiffuse = ambient;" +
 "	lighting.combinedSpecular = vec3(0.0, 0.0, 0.0);" +
 
-'Compute all lights
+	'Compute all lights
 "	for ( int i = 0; i < MAX_LIGHTS; i++ ) {" +
 "		if ( lightEnabled[i] ) {" +
 "   		vec3 L = vec3(lightPos[i]);" +
@@ -109,10 +109,10 @@ Const SHADER_CALC_LIGHTING:String = "" +
 "			lighting.combinedDiffuse += NdotL * lightColor[i] * att;" +
 
 			'Specular
-"			if ( shininess > 0 && NdotL > 0.0 ) {" +
+"			if ( shininess > 0.0 && NdotL > 0.0 ) {" +
 "				vec3 H = normalize(L - NV);" +
 "				float NdotH = max(dot(N, H), 0.0);" +
-"				lighting.combinedSpecular += pow(NdotH, float(shininess)) * normShininess * att;" +
+"				lighting.combinedSpecular += pow(NdotH, shininess * 32.0) * lightColor[i] * shininess * 0.5 * att;" +
 "			}~n" +
 "		}~n" +
 "	}~n" +

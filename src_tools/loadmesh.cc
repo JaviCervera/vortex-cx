@@ -29,6 +29,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
   if ( anim_mesh ) {
     scene::ISkinnedMesh* skinned_mesh = ( anim_mesh->getMeshType() == scene::EAMT_SKINNED && anim_mesh->getFrameCount() > 1 ) ? static_cast<scene::ISkinnedMesh*>(anim_mesh) : 0;
     scene::IMesh* irr_mesh = anim_mesh->getMesh(0);
+    scene::IMesh* tangent_mesh = device->getVideoDriver()->getMeshManipulator()->createMeshWithTangents(irr_mesh);
 
     mesh = new mesh_t;
 
@@ -58,6 +59,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
 
       // vertices
       video::S3DVertex2TCoords* vertices2t = mesh_buffer->getVertexType() == video::EVT_2TCOORDS ? static_cast<video::S3DVertex2TCoords*>(mesh_buffer->getVertices()) : 0;
+      video::S3DVertexTangents* verticesTangents = tangent_mesh->getMeshBuffer(i)->getVertexType() == video::EVT_TANGENTS ? static_cast<video::S3DVertexTangents*>(tangent_mesh->getMeshBuffer(i)->getVertices()) : 0;
       for ( size_t v = 0; v < mesh_buffer->getVertexCount(); ++v ) {
         float x = mesh_buffer->getPosition(v).X;
         float y = mesh_buffer->getPosition(v).Y;
@@ -69,7 +71,13 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
         float v0 = mesh_buffer->getTCoords(v).Y;
         float u1 = vertices2t ? vertices2t[v].TCoords2.X : u0;
         float v1 = vertices2t ? vertices2t[v].TCoords2.Y : v0;
+        float tx = verticesTangents ? verticesTangents[v].Tangent.X : 0;
+        float ty = verticesTangents ? verticesTangents[v].Tangent.Y : 0;
+        float tz = verticesTangents ? verticesTangents[v].Tangent.Z : 0;
         surf.vertices.push_back(vertex_t(x, y, z, nx, ny, nz, u0, v0, u1, v1));
+        surf.vertices.back().tx = tx;
+        surf.vertices.back().ty = ty;
+        surf.vertices.back().tz = tz;
       }
 
       // bone indices and weights

@@ -59,6 +59,12 @@ std::string GenXML(const mesh_t* mesh) {
       if ( j < surf.vertices.size() - 1 ) buffer += ",";
     }
     buffer += "</normals>\n";
+    buffer += "\t\t\t<tangents>";
+    for ( size_t j = 0; j < surf.vertices.size(); ++j ) {
+      buffer += StringFromNumber(surf.vertices[j].tx) + "," + StringFromNumber(surf.vertices[j].ty) + "," + StringFromNumber(surf.vertices[j].tz);
+      if ( j < surf.vertices.size() - 1 ) buffer += ",";
+    }
+    buffer += "</tangents>\n";
     buffer += "\t\t\t<texcoords>";
     for ( size_t j = 0; j < surf.vertices.size(); ++j ) {
       buffer += StringFromNumber(surf.vertices[j].u0) + "," + StringFromNumber(surf.vertices[j].v0);

@@ -156,7 +156,7 @@ Public
 
 		'If there are keyframes in the sequence, interpolate
 		If keyInRange
-			Local px#, py#, pz#, sx#, sy#, sz#
+			Local px#, py#, pz#, ra#, rx#, ry#, rz#, sx#, sy#, sz#
 
 			'Calculate interpolated position
 			CalcPosition(frame, firstFrame, lastFrame)
@@ -167,6 +167,10 @@ Public
 			'Calculate interpolated rotation
 			CalcRotation(frame, firstFrame, lastFrame)
 			mTempQuat.CalcAxis()
+			ra = mTempQuat.Angle()
+			rx = mTempQuat.ResultVector().X
+			ry = mTempQuat.ResultVector().Y
+			rz = mTempQuat.ResultVector().Z
 
 			'Calculate interpolated scale
 			CalcScale(frame, firstFrame, lastFrame)
@@ -177,8 +181,8 @@ Public
 			'Set matrix
 			animMatrix.SetIdentity()
 			animMatrix.Translate(px, py, pz)
-			animMatrix.Rotate(mTempQuat.Angle(), mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z)
-			animMatrix.Scale(sx, sy, sz)
+			animMatrix.Rotate(ra, rx, ry, rz)
+			'animMatrix.Scale(sx, sy, sz)	'Currently, scaling is ignored, since it seems to cause a bug
 		'If not, define default transform
 		Else
 			'animMatrix.Set(mPoseMatrix)

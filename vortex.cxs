@@ -1,12 +1,12 @@
 'TODO v2.0:
-'- Replace number of frames with animation duration
-'- Add tangent import in meshtool
-'- Add vortex.engine module
-'- Add engine tests
+'- Add high level Entity, World, etc functions
+'- Add new tests
 '- Document mesh and surface modification functions
 '- Document engine and tools
+'- Replace number of frames with animation duration?
 'TODO v2.1:
 '- Add texture matrix in Material
+'- Add several shaders: unlit, vlit, flit, with static and skinned modes
 '- Integrate with Mojo
 '- Write Assimp mesh loader
 '- Document IMaterialDelegate class
