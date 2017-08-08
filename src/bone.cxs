@@ -1,9 +1,9 @@
 Strict
 
 Private
-Import vortex.src.math3d
-Import vortex.src.renderer
-Import vortex.src.surface
+Import math3d
+Import renderer
+Import surface
 
 Public
 Class Bone Final

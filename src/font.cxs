@@ -4,9 +4,10 @@ Private
 Import brl.databuffer
 Import brl.datastream
 Import brl.filepath
+Import cache
 Import mojo.app
-Import vortex.src.renderer
-Import vortex.src.texture
+Import renderer
+Import texture
 
 Public
 
@@ -30,64 +31,6 @@ Public
 			f.mGlyphs[i] = New Glyph
 		Next
 		Return f
-	End
-
-	Function Load:Font(filename:String)
-		'Fix filename
-		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then filename = "cerberus://data/" + filename
-		
-		'Load font data
-		Local data:DataBuffer = DataBuffer.Load(filename)
-		If Not data Then Return Null
-		Local font:Font = Font.LoadData(data, filename)
-		data.Discard()
-	
-		Return font
-	End
-	
-	Function LoadData:Font(data:DataBuffer, filename:String)
-		Local stream:DataStream = New DataStream(data)
-		
-		'Id
-		Local id:String = stream.ReadString(4)
-		If id <> "FN01" Then Return Null
-		
-		'Texture name
-		Local texLen:Int = stream.ReadInt()
-		Local texName:String = stream.ReadString(texLen)
-		
-		'Font height
-		Local height:Int = stream.ReadShort()
-		
-		'Num glyphs
-		Local numGlyphs:Int = stream.ReadInt()
-		
-		'First char
-		Local firstChar:Int = stream.ReadInt()
-		
-		'Load texture
-		Local tex:Texture = texture.Texture.Load(texName, Renderer.FILTER_NONE)
-		
-		'Create font
-		Local font:Font = Font.Create(filename, height, tex)
-		
-		'Add glyphs
-		For Local i:Int = 0 Until numGlyphs
-			'Get glyph data
-			Local x:Float = stream.ReadFloat()
-			Local y:Float = stream.ReadFloat()
-			Local width:Float = stream.ReadFloat()
-			Local height:Float = stream.ReadFloat()
-			Local xoffset:Float = stream.ReadFloat()
-			Local yoffset:Float = stream.ReadFloat()
-			
-			'Add glyph data
-			font.SetGlyphData(i, x, y, width, height, yoffset)
-		Next
-		
-		stream.Close()
-		
-		Return font
 	End
 
 	Method Free:Void()
@@ -161,6 +104,64 @@ Public
 	
 	Method GlyphData:Glyph(index:Int)
 		Return mGlyphs[index]
+	End
+	
+	Function _Load:Font(filename:String)
+		'Fix filename
+		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then filename = "cerberus://data/" + filename
+		
+		'Load font data
+		Local data:DataBuffer = DataBuffer.Load(filename)
+		If Not data Then Return Null
+		Local font:Font = Font._LoadData(data, filename)
+		data.Discard()
+	
+		Return font
+	End
+	
+	Function _LoadData:Font(data:DataBuffer, filename:String)
+		Local stream:DataStream = New DataStream(data)
+		
+		'Id
+		Local id:String = stream.ReadString(4)
+		If id <> "FN01" Then Return Null
+		
+		'Texture name
+		Local texLen:Int = stream.ReadInt()
+		Local texName:String = stream.ReadString(texLen)
+		
+		'Font height
+		Local height:Int = stream.ReadShort()
+		
+		'Num glyphs
+		Local numGlyphs:Int = stream.ReadInt()
+		
+		'First char
+		Local firstChar:Int = stream.ReadInt()
+		
+		'Load texture
+		Local tex:Texture = Cache.LoadTexture(texName, Renderer.FILTER_NONE)
+		
+		'Create font
+		Local font:Font = Font.Create(filename, height, tex)
+		
+		'Add glyphs
+		For Local i:Int = 0 Until numGlyphs
+			'Get glyph data
+			Local x:Float = stream.ReadFloat()
+			Local y:Float = stream.ReadFloat()
+			Local width:Float = stream.ReadFloat()
+			Local height:Float = stream.ReadFloat()
+			Local xoffset:Float = stream.ReadFloat()
+			Local yoffset:Float = stream.ReadFloat()
+			
+			'Add glyph data
+			font.SetGlyphData(i, x, y, width, height, yoffset)
+		Next
+		
+		stream.Close()
+		
+		Return font
 	End
 Private
 	Method New()

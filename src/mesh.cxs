@@ -1,23 +1,19 @@
 Strict
 
 Private
+Import bone
 Import brl.datastream
 Import brl.filepath
+Import cache
+Import color
+Import material
+Import math3d
 Import mojo.app
-Import vortex.src.bone
-Import vortex.src.material
-Import vortex.src.math3d
-Import vortex.src.renderer
-Import vortex.src.surface
-Import vortex.src.texture
+Import renderer
+Import surface
+Import texture
 
 Public
-
-Interface IMeshLoadDelegate
-	Method LoadTexture:Texture(filename:String, filter:Int)
-	Method LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int)
-End
-
 Class Mesh Final
 Public
 	Function Create:Mesh()
@@ -45,242 +41,6 @@ Public
 		mesh.mNumFrames = other.mNumFrames
 		mesh.mMinBounds.Set(other.mMinBounds)
 		mesh.mMaxBounds.Set(other.mMaxBounds)
-		Return mesh
-	End
-	
-	Function Load:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR, delegate:IMeshLoadDelegate = Null)
-		'Fix filenames
-		Local fixedFilename:String = filename
-		Local fixedSkeletonFilename:String = skeletonFilename
-		Local fixedAnimationFilename:String = animationFilename
-		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then fixedFilename = "cerberus://data/" + filename
-		If skeletonFilename.Length > 2 And String.FromChar(skeletonFilename[0]) <> "/" And String.FromChar(skeletonFilename[1]) <> ":" Then fixedSkeletonFilename = "cerberus://data/" + skeletonFilename
-		If animationFilename.Length > 2 And String.FromChar(animationFilename[0]) <> "/" And String.FromChar(animationFilename[1]) <> ":" Then fixedAnimationFilename = "cerberus://data/" + animationFilename
-		
-		'Load mesh data
-		Local data:DataBuffer = DataBuffer.Load(fixedFilename)
-		If Not data Then Return Null
-		Local mesh:Mesh = Mesh.LoadData(data, filename, texFilter, delegate)
-		data.Discard()
-		
-		'Load skeleton data
-		data = DataBuffer.Load(fixedSkeletonFilename)
-		If data
-			mesh.LoadSkeletonData(data)
-			data.Discard()
-		End
-		
-		'Load animation data
-		data = DataBuffer.Load(fixedAnimationFilename)
-		If data
-			mesh.LoadAnimationData(data)
-			data.Discard()
-		End
-		
-		Return mesh
-	End
-	
-	Function LoadData:Mesh(data:DataBuffer, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR, delegate:IMeshLoadDelegate = Null)
-		Local stream:DataStream = New DataStream(data)
-		Local meshPath:String = ExtractDir(filename)
-		If meshPath <> "" Then meshPath += "/"
-		
-		'Id
-		Local id:String = stream.ReadString(4)
-		If id <> "ME01" Then Return Null
-		
-		'Create mesh
-		Local mesh:Mesh = Mesh.Create()
-		mesh.Filename = filename
-		
-		'Surfaces
-		Local numSurfaces:Int = stream.ReadShort()
-		For Local s:Int = 0 Until numSurfaces
-			Local surf:Surface = surface.Surface.Create()
-		
-			'Material
-			Local flags:Int = 0
-			surf.Material.DiffuseRed = stream.ReadFloat()
-			surf.Material.DiffuseGreen = stream.ReadFloat()
-			surf.Material.DiffuseBlue = stream.ReadFloat()
-			surf.Material.Opacity = stream.ReadFloat()
-			surf.Material.BlendMode = stream.ReadByte()
-			flags = stream.ReadByte()
-			If flags & 1 Then surf.Material.Culling = True Else surf.Material.Culling = False
-			If flags & 2 Then surf.Material.DepthWrite = True Else surf.Material.DepthWrite = False
-			surf.Material.Shininess = stream.ReadFloat()
-			surf.Material.RefractionCoef = stream.ReadFloat()
-			
-			'Material textures
-			Local usedTexs:Int = 0
-			usedTexs = stream.ReadByte()
-			If usedTexs & 1
-				Local strLen:Int = stream.ReadInt()
-				Local str:String = stream.ReadString(strLen)
-				If str <> "" Then str = meshPath + str
-				Local tex:Texture = Null
-				If delegate Then tex = delegate.LoadTexture(str, texFilter)
-				If tex = Null Then tex = Texture.Load(str, texFilter)
-				surf.Material.DiffuseTexture =tex
-			End
-			If usedTexs & 2
-				Local strLen:Int = stream.ReadInt()
-				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
-				For Local t:Int = 0 Until cubeTexs.Length
-					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
-				Next
-				Local tex:Texture = Null
-				If delegate Then tex = delegate.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
-				If tex = Null Then tex = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
-				surf.Material.DiffuseTexture = tex
-			End
-			If usedTexs & 4
-				Local strLen:Int = stream.ReadInt()
-				Local str:String = stream.ReadString(strLen)
-				If str <> "" Then str = meshPath + str
-				Local tex:Texture = Null
-				If delegate Then tex = delegate.LoadTexture(str, texFilter)
-				If tex = Null Then tex = Texture.Load(str, texFilter)
-				surf.Material.NormalTexture = tex
-			End
-			If usedTexs & 8
-				Local strLen:Int = stream.ReadInt()
-				Local str:String = stream.ReadString(strLen)
-				If str <> "" Then str = meshPath + str
-				Local tex:Texture = Null
-				If delegate Then tex = delegate.LoadTexture(str, texFilter)
-				If tex = Null Then tex = Texture.Load(str, texFilter)
-				surf.Material.Lightmap = tex
-			End
-			If usedTexs & 16
-				Local strLen:Int = stream.ReadInt()
-				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
-				For Local t:Int = 0 Until cubeTexs.Length
-					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
-				Next
-				Local tex:Texture = Null
-				If delegate Then tex = delegate.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
-				If tex = Null Then tex = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
-				surf.Material.ReflectionTexture = tex
-			End
-			If usedTexs & 32
-				Local strLen:Int = stream.ReadInt()
-				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
-				For Local t:Int = 0 Until cubeTexs.Length
-					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
-				Next
-				Local tex:Texture = Null
-				If delegate Then tex = delegate.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
-				If tex = Null Then tex = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
-				surf.Material.RefractionTexture = tex
-			End
-			
-			'Number of indices and vertices
-			Local numIndices:Int = stream.ReadInt()
-			Local numVertices:Int = stream.ReadShort()
-			
-			'Vertex flags
-			Local vertexFlags:Int = stream.ReadByte()
-			
-			'Indices
-			For Local i:Int = 0 Until numIndices Step 3
-				Local v0:Int = stream.ReadShort()
-				Local v1:Int = stream.ReadShort()
-				Local v2:Int = stream.ReadShort()
-				surf.AddTriangle(v0, v1, v2)
-			Next
-			
-			'Vertices
-			For Local v:Int = 0 Until numVertices
-				'Load vertices
-				Local x:Float = stream.ReadFloat()
-				Local y:Float = stream.ReadFloat()
-				Local z:Float = stream.ReadFloat()
-				
-				'Load normals if present
-				Local nx:Float = 0
-				Local ny:Float = 0
-				Local nz:Float = 0
-				If vertexFlags & 1 = 1
-					nx = stream.ReadFloat()
-					ny = stream.ReadFloat()
-					nz = stream.ReadFloat()
-				End
-				
-				'Load tangents if present
-				Local tx:Float = 0
-				Local ty:Float = 0
-				Local tz:Float = 0
-				If vertexFlags & 2 = 2
-					tx = stream.ReadFloat()
-					ty = stream.ReadFloat()
-					tz = stream.ReadFloat()
-				End
-				
-				'Load colors if present
-				Local r:Float = 1
-				Local g:Float = 1
-				Local b:Float = 1
-				Local a:Float = 1
-				If vertexFlags & 4 = 4
-					r = stream.ReadFloat()
-					g = stream.ReadFloat()
-					b = stream.ReadFloat()
-					a = stream.ReadFloat()
-				End
-				
-				'Load texcoords0 if present
-				Local u0:Float = 0
-				Local v0:Float = 0
-				If vertexFlags & 8 = 8
-					u0 = stream.ReadFloat()
-					v0 = stream.ReadFloat()
-				End
-				
-				'Load texcoords1 if present
-				Local u1:Float = u0
-				Local v1:Float = v0
-				If vertexFlags & 16 = 16
-					u1 = stream.ReadFloat()
-					v1 = stream.ReadFloat()
-				End
-				
-				'Load bones if present
-				Local b0:Int = -1
-				Local b1:Int = -1
-				Local b2:Int = -1
-				Local b3:Int = -1
-				Local w0:Float = 0
-				Local w1:Float = 0
-				Local w2:Float = 0
-				Local w3:Float = 0
-				If vertexFlags & 32 = 32
-					b0 = stream.ReadShort()
-					b1 = stream.ReadShort()
-					b2 = stream.ReadShort()
-					b3 = stream.ReadShort()
-					w0 = stream.ReadFloat()
-					w1 = stream.ReadFloat()
-					w2 = stream.ReadFloat()
-					w3 = stream.ReadFloat()
-				End
-				
-				surf.AddVertex(x, y, z, nx, ny, nz, r, g, b, a, u0, v0)
-				surf.SetVertexTangent(v, tx, ty, tz)
-				surf.SetVertexTexCoords(v, u1, v1, 1)
-				surf.SetVertexBone(v, 0, b0, w0)
-				surf.SetVertexBone(v, 1, b1, w1)
-				surf.SetVertexBone(v, 2, b2, w2)
-				surf.SetVertexBone(v, 3, b3, w3)
-			Next
-			
-			mesh.AddSurface(surf)
-		Next
-		
-		stream.Close()
-		
-		mesh.UpdateBounds()
-		
 		Return mesh
 	End
 	
@@ -542,10 +302,229 @@ Public
 		Next
 	End
 
-	Method SetColor:Void(r:Float, g:Float, b:Float, a:Float)
+	Method SetColor:Void(color:Int)
 		For Local surf:Surface = Eachin mSurfaces
-			surf.SetColor(r, g, b, a)
+			surf.SetColor(color)
 		Next
+	End
+	
+	Function _Load:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
+		'Fix filenames
+		Local fixedFilename:String = filename
+		Local fixedSkeletonFilename:String = skeletonFilename
+		Local fixedAnimationFilename:String = animationFilename
+		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then fixedFilename = "cerberus://data/" + filename
+		If skeletonFilename.Length > 2 And String.FromChar(skeletonFilename[0]) <> "/" And String.FromChar(skeletonFilename[1]) <> ":" Then fixedSkeletonFilename = "cerberus://data/" + skeletonFilename
+		If animationFilename.Length > 2 And String.FromChar(animationFilename[0]) <> "/" And String.FromChar(animationFilename[1]) <> ":" Then fixedAnimationFilename = "cerberus://data/" + animationFilename
+		
+		'Load mesh data
+		Local data:DataBuffer = DataBuffer.Load(fixedFilename)
+		If Not data Then Return Null
+		Local mesh:Mesh = Mesh._LoadData(data, filename, texFilter)
+		data.Discard()
+		
+		'Load skeleton data
+		data = DataBuffer.Load(fixedSkeletonFilename)
+		If data
+			mesh.LoadSkeletonData(data)
+			data.Discard()
+		End
+		
+		'Load animation data
+		data = DataBuffer.Load(fixedAnimationFilename)
+		If data
+			mesh.LoadAnimationData(data)
+			data.Discard()
+		End
+		
+		Return mesh
+	End
+	
+	Function _LoadData:Mesh(data:DataBuffer, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
+		Local stream:DataStream = New DataStream(data)
+		Local meshPath:String = ExtractDir(filename)
+		If meshPath <> "" Then meshPath += "/"
+		
+		'Id
+		Local id:String = stream.ReadString(4)
+		If id <> "ME01" Then Return Null
+		
+		'Create mesh
+		Local mesh:Mesh = Mesh.Create()
+		mesh.Filename = filename
+		
+		'Surfaces
+		Local numSurfaces:Int = stream.ReadShort()
+		For Local s:Int = 0 Until numSurfaces
+			Local surf:Surface = surface.Surface.Create()
+		
+			'Material
+			Local flags:Int = 0
+			Local red:Float = stream.ReadFloat()
+			Local green:Float = stream.ReadFloat()
+			Local blue:Float = stream.ReadFloat()
+			Local alpha:Float = stream.ReadFloat()
+			surf.Material.Color = Color.RGBF(red, green, blue, alpha)
+			surf.Material.BlendMode = stream.ReadByte()
+			flags = stream.ReadByte()
+			If flags & 1 Then surf.Material.Culling = True Else surf.Material.Culling = False
+			If flags & 2 Then surf.Material.DepthWrite = True Else surf.Material.DepthWrite = False
+			surf.Material.Shininess = stream.ReadFloat()
+			surf.Material.RefractionCoef = stream.ReadFloat()
+			
+			'Material textures
+			Local usedTexs:Int = 0
+			usedTexs = stream.ReadByte()
+			If usedTexs & 1
+				Local strLen:Int = stream.ReadInt()
+				Local str:String = stream.ReadString(strLen)
+				If str <> "" Then str = meshPath + str
+				surf.Material.BaseTexture = Cache.LoadTexture(str, texFilter)
+			End
+			If usedTexs & 2
+				Local strLen:Int = stream.ReadInt()
+				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
+				For Local t:Int = 0 Until cubeTexs.Length
+					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
+				Next
+				surf.Material.BaseTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+			End
+			If usedTexs & 4
+				Local strLen:Int = stream.ReadInt()
+				Local str:String = stream.ReadString(strLen)
+				If str <> "" Then str = meshPath + str
+				surf.Material.NormalTexture = Cache.LoadTexture(str, texFilter)
+			End
+			If usedTexs & 8
+				Local strLen:Int = stream.ReadInt()
+				Local str:String = stream.ReadString(strLen)
+				If str <> "" Then str = meshPath + str
+				surf.Material.LightTexture = Cache.LoadTexture(str, texFilter)
+			End
+			If usedTexs & 16
+				Local strLen:Int = stream.ReadInt()
+				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
+				For Local t:Int = 0 Until cubeTexs.Length
+					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
+				Next
+				surf.Material.ReflectionTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+			End
+			If usedTexs & 32
+				Local strLen:Int = stream.ReadInt()
+				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
+				For Local t:Int = 0 Until cubeTexs.Length
+					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
+				Next
+				surf.Material.RefractionTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+			End
+			
+			'Number of indices and vertices
+			Local numIndices:Int = stream.ReadInt()
+			Local numVertices:Int = stream.ReadShort()
+			
+			'Vertex flags
+			Local vertexFlags:Int = stream.ReadByte()
+			
+			'Indices
+			For Local i:Int = 0 Until numIndices Step 3
+				Local v0:Int = stream.ReadShort()
+				Local v1:Int = stream.ReadShort()
+				Local v2:Int = stream.ReadShort()
+				surf.AddTriangle(v0, v1, v2)
+			Next
+			
+			'Vertices
+			For Local v:Int = 0 Until numVertices
+				'Load vertices
+				Local x:Float = stream.ReadFloat()
+				Local y:Float = stream.ReadFloat()
+				Local z:Float = stream.ReadFloat()
+				
+				'Load normals if present
+				Local nx:Float = 0
+				Local ny:Float = 0
+				Local nz:Float = 0
+				If vertexFlags & 1 = 1
+					nx = stream.ReadFloat()
+					ny = stream.ReadFloat()
+					nz = stream.ReadFloat()
+				End
+				
+				'Load tangents if present
+				Local tx:Float = 0
+				Local ty:Float = 0
+				Local tz:Float = 0
+				If vertexFlags & 2 = 2
+					tx = stream.ReadFloat()
+					ty = stream.ReadFloat()
+					tz = stream.ReadFloat()
+				End
+				
+				'Load colors if present
+				Local r:Float = 1
+				Local g:Float = 1
+				Local b:Float = 1
+				Local a:Float = 1
+				If vertexFlags & 4 = 4
+					r = stream.ReadFloat()
+					g = stream.ReadFloat()
+					b = stream.ReadFloat()
+					a = stream.ReadFloat()
+				End
+				
+				'Load texcoords0 if present
+				Local u0:Float = 0
+				Local v0:Float = 0
+				If vertexFlags & 8 = 8
+					u0 = stream.ReadFloat()
+					v0 = stream.ReadFloat()
+				End
+				
+				'Load texcoords1 if present
+				Local u1:Float = u0
+				Local v1:Float = v0
+				If vertexFlags & 16 = 16
+					u1 = stream.ReadFloat()
+					v1 = stream.ReadFloat()
+				End
+				
+				'Load bones if present
+				Local b0:Int = -1
+				Local b1:Int = -1
+				Local b2:Int = -1
+				Local b3:Int = -1
+				Local w0:Float = 0
+				Local w1:Float = 0
+				Local w2:Float = 0
+				Local w3:Float = 0
+				If vertexFlags & 32 = 32
+					b0 = stream.ReadShort()
+					b1 = stream.ReadShort()
+					b2 = stream.ReadShort()
+					b3 = stream.ReadShort()
+					w0 = stream.ReadFloat()
+					w1 = stream.ReadFloat()
+					w2 = stream.ReadFloat()
+					w3 = stream.ReadFloat()
+				End
+				
+				surf.AddVertex(x, y, z, nx, ny, nz, Color.RGBF(r, g, b, a), u0, v0)
+				surf.SetVertexTangent(v, tx, ty, tz)
+				surf.SetVertexTexCoords(v, u1, v1, 1)
+				surf.SetVertexBone(v, 0, b0, w0)
+				surf.SetVertexBone(v, 1, b1, w1)
+				surf.SetVertexBone(v, 2, b2, w2)
+				surf.SetVertexBone(v, 3, b3, w3)
+			Next
+			
+			mesh.AddSurface(surf)
+		Next
+		
+		stream.Close()
+		
+		mesh.UpdateBounds()
+		
+		Return mesh
 	End
 Private
 	Method New()

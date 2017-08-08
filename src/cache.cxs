@@ -1,0 +1,107 @@
+Strict
+
+Private
+Import brl.databuffer
+Import font
+Import mesh
+Import mojo.audio
+Import renderer
+Import texture
+
+Public
+Class Cache Final
+Public
+	Function Push:Void()
+		mStack = mStack.Resize(mStack.Length() + 1)
+		mStack[mStack.Length() - 1] = New Cache
+	End
+
+	Function Pop:Void()
+		mStack[mStack.Length() - 1].Clear()
+		mStack = mStack.Resize(mStack.Length() - 1)
+	End
+
+	Function LoadFont:Font(filename:String)
+		'Search for the font in all allocated caches
+		For Local i:Int = mStack.Length()-1 To 0 Step -1
+			If mStack[i].mFonts.Contains(filename)
+				Return mStack[i].mFonts.Get(filename)
+			End
+		Next
+
+		'If it was not found, load it
+		Local font:Font = Font._Load(filename)
+		If font <> Null Then mStack[mStack.Length() -1].mFonts.Set(filename, font)
+		Return font
+	End
+
+	Function LoadMesh:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
+		'Search for the mesh in all allocated caches
+		For Local i:Int = mStack.Length()-1 To 0 Step -1
+			If mStack[i].mMeshes.Contains(filename)
+				Return mStack[i].mMeshes.Get(filename)
+			End
+		Next
+
+		'If it was not found, load it
+		Local mesh:Mesh = Mesh._Load(filename, skeletonFilename, animationFilename, texFilter)
+		If mesh <> Null Then mStack[mStack.Length() -1].mMeshes.Set(filename, mesh)
+		Return mesh
+	End
+
+	Function LoadTexture:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
+		'Search for the texture in all allocated caches
+		For Local i:Int = mStack.Length()-1 To 0 Step -1
+			If mStack[i].mTextures.Contains(filename)
+				Return mStack[i].mTextures.Get(filename)
+			End
+		Next
+
+		'If it was not found, load it
+		Local tex:Texture = Texture._Load(filename, filter)
+		If tex <> Null Then mStack[mStack.Length() - 1].mTextures.Set(filename, tex)
+		Return tex
+	End
+	
+	Function LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
+		Local filename:String = left + "," + right + "," + front + "," + back + "," + top + "," + bottom
+		
+		'Search for the texture in all allocated caches
+		For Local i:Int = mStack.Length()-1 To 0 Step -1
+			If mStack[i].mTextures.Contains(filename)
+				Return mStack[i].mTextures.Get(filename)
+			End
+		Next
+
+		'If it was not found, load it
+		Local tex:Texture = Texture._Load(left, right, front, back, top, bottom, filter)
+		If tex <> Null Then mStack[mStack.Length() - 1].mTextures.Set(filename, tex)
+		Return tex
+	End
+Private
+	Method New()
+		mFonts = New StringMap<Font>
+		mMeshes = New StringMap<Mesh>
+		mTextures = New StringMap<Texture>
+	End
+
+	Method Clear:Void()
+		For Local font:Font = Eachin mFonts.Values()
+			font.Free()
+		Next
+		For Local mesh:Mesh = Eachin mMeshes.Values()
+			mesh.Free()
+		Next
+		For Local tex:Texture = Eachin mTextures.Values()
+			tex.Free()
+		Next
+		mFonts.Clear()
+		mMeshes.Clear()
+		mTextures.Clear()
+	End
+
+	Global mStack	: Cache[0]
+	Field mFonts	: StringMap<Font>
+	Field mMeshes	: StringMap<Mesh>
+	Field mTextures	: StringMap<Texture>
+End

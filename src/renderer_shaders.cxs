@@ -32,8 +32,7 @@ Const STD_VERTEX_VARS:String = "" +
 "uniform bool useReflectTex;" +
 "uniform bool useRefractTex;" +
 "uniform bool usePixelLighting;" +
-"uniform bool lightingEnabled;" +
-"uniform bool lightEnabled[MAX_LIGHTS];" +
+"uniform int numLights;" +
 "uniform vec4 lightPos[MAX_LIGHTS];" + 'In viewer space !!!
 "uniform vec3 lightColor[MAX_LIGHTS];" +
 "uniform float lightRadius[MAX_LIGHTS];" +
@@ -69,8 +68,7 @@ Const STD_FRAGMENT_VARS:String = "" +
 "uniform samplerCube reflectCubeSampler;" +
 "uniform samplerCube refractCubeSampler;" +
 "uniform bool usePixelLighting;" +
-"uniform bool lightingEnabled;" +
-"uniform bool lightEnabled[MAX_LIGHTS];" +
+"uniform int numLights;" +
 "uniform vec4 lightPos[MAX_LIGHTS];" +	'In viewer space !!!
 "uniform vec3 lightColor[MAX_LIGHTS];" +
 "uniform float lightRadius[MAX_LIGHTS];" +
@@ -91,29 +89,27 @@ Const SHADER_CALC_LIGHTING:String = "" +
 "	lighting.combinedSpecular = vec3(0.0, 0.0, 0.0);" +
 
 	'Compute all lights
-"	for ( int i = 0; i < MAX_LIGHTS; i++ ) {" +
-"		if ( lightEnabled[i] ) {" +
-"   		vec3 L = vec3(lightPos[i]);" +
-"   		float att = 1.0;" +
+"	for ( int i = 0; i < numLights; i++ ) {" +
+"   	vec3 L = vec3(lightPos[i]);" +
+"   	float att = 1.0;" +
 
-			'Point light
-"			if ( lightPos[i].w == 1.0 ) {" +
-"				L -= V;" +
-"				att = 1.0 - clamp(length(L) / lightRadius[i], 0.0, 1.0);" +
-"			}" +
+		'Point light
+"		if ( lightPos[i].w == 1.0 ) {" +
+"			L -= V;" +
+"			att = 1.0 - clamp(length(L) / lightRadius[i], 0.0, 1.0);" +
+"		}" +
 
-"			L = normalize(L);" +
-"			float NdotL = max(dot(N, L), 0.0);" +
+"		L = normalize(L);" +
+"		float NdotL = max(dot(N, L), 0.0);" +
 
-			'Diffuse
-"			lighting.combinedDiffuse += NdotL * lightColor[i] * att;" +
+		'Diffuse
+"		lighting.combinedDiffuse += NdotL * lightColor[i] * att;" +
 
-			'Specular
-"			if ( shininess > 0.0 && NdotL > 0.0 ) {" +
-"				vec3 H = normalize(L - NV);" +
-"				float NdotH = max(dot(N, H), 0.0);" +
-"				lighting.combinedSpecular += pow(NdotH, shininess * 32.0) * lightColor[i] * shininess * 0.5 * att;" +
-"			}~n" +
+		'Specular
+"		if ( shininess > 0.0 && NdotL > 0.0 ) {" +
+"			vec3 H = normalize(L - NV);" +
+"			float NdotH = max(dot(N, H), 0.0);" +
+"			lighting.combinedSpecular += pow(NdotH, shininess * 128.0) * lightColor[i] * shininess * 0.5 * att;" +
 "		}~n" +
 "	}~n" +
 
@@ -153,11 +149,11 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 "	vec3 V;" +
 "	vec3 NV;" +
 "	vec3 N;" +
-"	if ( lightingEnabled || baseTexMode == 2 || useNormalTex || useReflectTex || useRefractTex || fogEnabled ) {" +
+"	if ( numLights > 0 || baseTexMode == 2 || useNormalTex || useReflectTex || useRefractTex || fogEnabled ) {" +
 		'Calculate vertex in viewer space~n" +
 " 		V = vec3(modelView * vpos4);" +
 
-"		if ( lightingEnabled || baseTexMode == 2 || useNormalTex || useReflectTex || useRefractTex ) {" +
+"		if ( numLights > 0 || baseTexMode == 2 || useNormalTex || useReflectTex || useRefractTex ) {" +
 			'Calculate normalized vertex coordinates
 "			NV = normalize(V);" +
 
@@ -167,7 +163,7 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 "	}~n" +
 
 	'Lighting
-"	if ( lightingEnabled ) {" +
+"	if ( numLights > 0 ) {" +
 "		if ( !usePixelLighting && !useNormalTex ) {" +
 			'Calculate lighting
 "			LightingResult lighting = CalcLighting(V, NV, N);" +
@@ -191,7 +187,7 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 "	}" +
 
 	'Calculate TBN matrix
-"	if ( lightingEnabled && useNormalTex ) {" +
+"	if ( numLights > 0 && useNormalTex ) {" +
 " 		vec3 eyeTangent = normalize(vec3(normalMatrix * vec4(vtangent, 0)));" +
 "		vec3 eyeBitangent = cross(eyeTangent, N);" +
 "		tbnMatrix = mat3(eyeTangent, eyeBitangent, N);" +
@@ -206,7 +202,7 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 
 	'Lighting
 "	combinedColor = fcolor;" +
-"	if ( lightingEnabled && (usePixelLighting || useNormalTex) ) {" +
+"	if ( numLights > 0 && (usePixelLighting || useNormalTex) ) {" +
 		'Get fragment normal or compute from normal map
 "		vec3 normal = fnormal;" +
 "		if ( useNormalTex ) {" +
@@ -222,7 +218,7 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 
 	'Lightmap
 "	if ( useLightmap ) {" +
-"		if ( lightingEnabled ) combinedColor += vec4(vec3(texture2D(lightmapSampler, ftex2)), 0.0);" +
+"		if ( numLights > 0 ) combinedColor += vec4(vec3(texture2D(lightmapSampler, ftex2)), 0.0);" +
 "		else combinedColor *= texture2D(lightmapSampler, ftex2);" +
 "	}" +
 
@@ -244,7 +240,7 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 "	}" +
 
 	'Add specular
-"	if ( lightingEnabled ) {" +
+"	if ( numLights > 0 ) {" +
 "		if ( usePixelLighting || useNormalTex ) combinedColor += vec4(combinedSpecular, 0.0);" +
 "		else combinedColor += vec4(fcombinedSpecular, 0.0);" +
 "		combinedColor = clamp(combinedColor, 0.0, 1.0);" +

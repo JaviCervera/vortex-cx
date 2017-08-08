@@ -24,59 +24,54 @@ Public
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not Vortex.Init()
+		If Not World.Init()
 #If TARGET="glfw" And HOST<>"linux"
-			Notify "Error", Vortex.ShaderError(), True
+			Notify "Error", Stats.ShaderError(), True
 #Else
-			Print "Error: " + Vortex.ShaderError()
+			Print "Error: " + Stats.ShaderError()
 #Endif
 			EndApp()
 		End
-		Print "Vendor name: " + Vortex.VendorName()
-		Print "Renderer name: " + Vortex.RendererName()
-		Print "API version name: " + Vortex.APIVersionName()
-		Print "Shading version name: " + Vortex.ShadingVersionName()
-		Print "Shader compilation: " + Vortex.ShaderError()
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
+		World.SetAmbient(Color.Black())
 		
 		'Load font
-		mFont = Font.Load("system.fnt")
-		
-		'Create projection and view matrices
-		mProj = Mat4.Create()
-		mView = Mat4.Create()
-		
-		'Create RenderList
-		mRenderList = RenderList.Create()
+		mFont = Cache.LoadFont("system.fnt")
 		
 		'Load sphere mesh
-		mMesh = Mesh.Load("sphere.msh")
+		Local mesh:Mesh = Cache.LoadMesh("sphere.msh")
 		
-		'Create sphere model matrices and add to RenderList
-		mModels = New Mat4[81]
+		'Create camera
+		mCam = Camera.Create()
+		mCam.ClearColor = Color.Black()
+		mCam.SetPosition(0, 32, -90)
+		mCam.SetRotation(16, 0, 0)
+		
+		'Create sphere models
 		Local x:Int = -32, z:Int = -32
-		For Local i:Int = 0 Until mModels.Length()
-			mModels[i] = Mat4.Create()
-			mModels[i].SetTransform(x, 0, z, 0, 0, 0, 1, 1, 1)
+		For Local i:Int = 0 Until 81
+			Local model:Model = Model.Create(mesh)
+			model.SetPosition(x, 0, z)
 			x += 8; If x > 32 Then x = -32; z += 8
-			mRenderList.AddMesh(mMesh, mModels[i])
 		Next
 		
-		'Prepare lights
-		Lighting.SetLightEnabled(0, True)
-		Lighting.SetLightEnabled(1, True)
-		Lighting.SetLightEnabled(2, True)
-		Lighting.SetLightType(0, Lighting.POINT)
-		Lighting.SetLightType(1, Lighting.POINT)
-		Lighting.SetLightType(2, Lighting.POINT)
-		Lighting.SetLightRadius(0, 48)
-		Lighting.SetLightRadius(1, 48)
-		Lighting.SetLightRadius(2, 48)
-		Lighting.SetLightColor(0, 1, 0, 0)
-		Lighting.SetLightColor(1, 0, 1, 0)
-		Lighting.SetLightColor(2, 0, 0, 1)
-		mLightsEulerY[0] = 0
-		mLightsEulerY[1] = 120
-		mLightsEulerY[2] = 240
+		'Create lights
+		mLights[0] = Light.Create(Light.TYPE_POINT)
+		mLights[1] = Light.Create(Light.TYPE_POINT)
+		mLights[2] = Light.Create(Light.TYPE_POINT)
+		mLights[0].Radius = 48
+		mLights[1].Radius = 48
+		mLights[2].Radius = 48
+		mLights[0].Color = Color.Red()
+		mLights[1].Color = Color.Green()
+		mLights[2].Color = Color.Blue()
+		mLights[0].Yaw = 0
+		mLights[1].Yaw = 120
+		mLights[2].Yaw = 240
 		
 		Return False
 	End
@@ -87,57 +82,46 @@ Public
 		If KeyHit(KEY_ESCAPE) Then EndApp()
 		#End
 		
-		'Update delta time
-		Stats.UpdateDeltaTime()
+		'Update world
+		World.Update()
 		
-		For Local i:Int = 0 Until mLightsEulerY.Length()
-			mLightsEulerY[i] += 32 * Stats.DeltaTime()
-			Lighting.SetLightPosition(i, 48 * Cos(mLightsEulerY[i]), 0, 48 * Sin(mLightsEulerY[i]))
+		'Update camera
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		'Update lights
+		For Local i:Int = 0 Until 3
+			mLights[i].Yaw -= 32 * Stats.DeltaTime()
+			mLights[i].SetPosition(0, 0, 0)
+			mLights[i].Move(0, 0, -48)
 		Next
 		
 		Return False
 	End
 	
 	Method OnRender:Int()
-		'Update FPS
-		Stats.UpdateFPS()
-		
-		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
-		mView.LookAtLH(0, 32, -90, 0, 0, 0, 0, 1, 0)
-		
-		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.SetProjectionMatrix(mProj)
-		Renderer.SetViewMatrix(mView)
-		Lighting.Prepare(0, 0, 0)
-		Renderer.ClearColorBuffer(0, 0, 0)
-		Renderer.ClearDepthBuffer()
-	
-		mNumRenderCalls = mRenderList.Render()
+		'Render world
+		World.Render()
 		
 		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Renderer.SetColor(1, 1, 1)
+		Renderer.SetColor(Color.White())
 		Local text$ = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
-		text = "Render calls: " + mNumRenderCalls
+		text = "Render calls: " + Stats.RenderCalls()
 		mFont.Draw(2, 18, text)
 	
 		Return False
 	End
 Private
-	Field mNumRenderCalls	: Int
-	Field mFont				: Font
-	
-	Field mProj				: Mat4
-	Field mView				: Mat4
-	Field mModels			: Mat4[]
-	Field mMesh				: Mesh
-	Field mRenderList		: RenderList
-	Field mLightsEulerY		: Float[3]
+	Field mFont		: Font
+	Field mCam		: Camera
+	Field mLights	: Light[3]
 End
 
 Function Main:Int()

@@ -2,8 +2,9 @@ Strict
 
 Private
 Import brl.databuffer
-Import vortex.src.material
-Import vortex.src.renderer
+Import color
+Import material
+Import renderer
 
 Public
 Class Surface Final
@@ -106,7 +107,7 @@ Public
 		Return mIndices.PeekShort(index*6 + 4)
 	End
 
-	Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, r:Float, g:Float, b:Float, a:Float, u0:Float, v0:Float)
+	Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, color:Int, u0:Float, v0:Float)
 		'Create new buffer if current is too short
 		If mVertices.Length() < (NumVertices + 1) * VERTEX_SIZE
 			'Copy old buffer into new one
@@ -126,10 +127,10 @@ Public
 		'mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 24, 1)
 		'mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 28, 0)
 		'mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 32, 0)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 36, r)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 40, g)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 44, b)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 48, a)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 36, Color.RF(color))
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 40, Color.GF(color))
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 44, Color.BF(color))
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 48, Color.AF(color))
 		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 52, u0)
 		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 56, v0)
 		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 60, u0)
@@ -167,11 +168,11 @@ Public
 		mStatus |= STATUS_V_DIRTY
 	End
 
-	Method SetVertexColor:Void(index:Int, r:Float, g:Float, b:Float, a:Float)
-		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET, r)
-		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 4, g)
-		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 8, b)
-		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 12, a)
+	Method SetVertexColor:Void(index:Int, color:Int)
+		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET, RedF(color))
+		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 4, GreenF(color))
+		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 8, BlueF(color))
+		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 12, AlphaF(color))
 		mStatus |= STATUS_V_DIRTY
 	End
 
@@ -229,21 +230,13 @@ Public
 	Method VertexTZ:Float(index:Int)
 		Return mVertices.PeekFloat(index*VERTEX_SIZE + TANGENT_OFFSET + 8)
 	End
-
-	Method VertexRed:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET)
-	End
-
-	Method VertexGreen:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 4)
-	End
-
-	Method VertexBlue:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 8)
-	End
-
-	Method VertexAlpha:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 12)
+	
+	Method VertexColor:Int(index:Int)
+		Local r:Float = mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET)
+		Local g:Float = mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 4)
+		Local b:Float = mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 8)
+		Local a:Float = mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 12)
+		Return Color.RGBF(r, g, b, a)
 	End
 
 	Method VertexU:Float(index:Int, set:Int = 0)
@@ -309,9 +302,9 @@ Public
 		If rebuild Then Rebuild()
 	End
 
-	Method SetColor:Void(r:Float, g:Float, b:Float, a:Float, rebuild:Bool = True)
+	Method SetColor:Void(color:Int, rebuild:Bool = True)
 		For Local i:Int = 0 Until NumVertices
-			SetVertexColor(i, r, g, b, a)
+			SetVertexColor(i, color)
 		Next
 		If rebuild Then Rebuild()
 	End

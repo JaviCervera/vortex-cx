@@ -42,16 +42,16 @@ Function DrawRectOutline:Void(x:Float, y:Float, width:Float, height:Float)
 	Renderer.DrawLine(x+width, y, x+width, y+height)
 End
 
-Function DrawPanel:Void(r:Rect, text:String = "", font:Font = Null, red:Float = 0.8, green:Float = 0.8, blue:Float = 0.8)
-	DrawPanel(r.x, r.y, r.width, r.height, text, font, red, green, blue)
+Function DrawPanel:Void(r:Rect, text:String = "", font:Font = Null, color:Int = Color.LightGray())
+	DrawPanel(r.x, r.y, r.width, r.height, text, font, color)
 End
 
-Function DrawPanel:Void(x:Float, y:Float, width:Float, height:Float, text:String = "", font:Font = Null, red:Float = 0.8, green:Float = 0.8, blue:Float = 0.8)
-	Renderer.SetColor(red, green, blue)
+Function DrawPanel:Void(x:Float, y:Float, width:Float, height:Float, text:String = "", font:Font = Null, color:Int = Color.LightGray())
+	Renderer.SetColor(color)
 	Renderer.DrawRect(x, y, width, height)
 	DrawRectOutline(x, y, width, height)
 	If text <> "" And font <> Null
-		Renderer.SetColor(red * 0.3, green * 0.3, blue * 0.3)
+		Renderer.SetColor(Color.RF(color) * 0.3, Color.GF(color) * 0.3, Color.BF(color) * 0.3)
 		font.Draw(x + width/2 - font.TextWidth(text)/2, y + height/2 - font.TextHeight(text)/2, text)
 	End
 End

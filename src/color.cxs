@@ -1,0 +1,99 @@
+Strict
+
+Class Color
+Public
+	Function RGB:Int(r:Int, g:Int, b:Int, a:Int = 255)
+		Return (a Shl 24) | (r Shl 16) | (g Shl 8) | b
+	End
+
+	Function RGBF:Int(r:Float, g:Float, b:Float, a:Float = 1.0)
+		Return RGB(Int(r * 255), Int(g * 255), Int(b * 255), Int(a * 255))
+	End
+
+	Function R:Int(color:Int)
+		Return (color Shr 16) & $FF
+	End
+
+	Function G:Int(color:Int)
+		Return (color Shr 8) & $FF
+	End
+
+	Function B:Int(color:Int)
+		Return color & $FF
+	End
+
+	Function A:Int(color:Int)
+		Return (color Shr 24) & $FF
+	End
+
+	Function RF:Float(color:Int)
+		Return R(color) / 255.0
+	End
+
+	Function GF:Float(color:Int)
+		Return G(color) / 255.0
+	End
+
+	Function BF:Float(color:Int)
+		Return B(color) / 255.0
+	End
+
+	Function AF:Float(color:Int)
+		Return A(color) / 255.0
+	End
+
+	Function Red:Int()
+		Return RGB(255, 0, 0)
+	End
+
+	Function Green:Int()
+		Return RGB(0, 255, 0)
+	End
+
+	Function Blue:Int()
+		Return RGB(0, 0, 255)
+	End
+
+	Function Cyan:Int()
+		Return RGB(0, 255, 255)
+	End
+
+	Function Magenta:Int()
+		Return RGB(255, 0, 255)
+	End
+
+	Function Yellow:Int()
+		Return RGB(255, 255, 0)
+	End
+
+	Function Black:Int()
+		Return RGB(0, 0, 0)
+	End
+
+	Function White:Int()
+		Return RGB(255, 255, 255)
+	End
+
+	Function Gray:Int()
+		Return RGB(128, 128, 128)
+	End
+
+	Function LightGray:Int()
+		Return RGB(191, 191, 191)
+	End
+
+	Function DarkGray:Int()
+		Return RGB(64, 64, 64)
+	End
+
+	Function Orange:Int()
+		Return RGB(255, 165, 0)
+	End
+
+	Function Brown:Int()
+		Return RGB(139, 69, 19)
+	End
+Private
+	Method New()
+	End
+End

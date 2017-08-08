@@ -24,34 +24,31 @@ Public
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not Vortex.Init()
+		If Not World.Init()
 #If TARGET="glfw" And HOST<>"linux"
-			Notify "Error", Vortex.ShaderError(), True
+			Notify "Error", Stats.ShaderError(), True
 #Else
-			Print "Error: " + Vortex.ShaderError()
+			Print "Error: " + Stats.ShaderError()
 #Endif
 			EndApp()
 		End
-		Print "Vendor name: " + Vortex.VendorName()
-		Print "Renderer name: " + Vortex.RendererName()
-		Print "API version name: " + Vortex.APIVersionName()
-		Print "Shading version name: " + Vortex.ShadingVersionName()
-		Print "Shader compilation: " + Vortex.ShaderError()
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Font.Load("system.fnt")
+		mFont = Cache.LoadFont("system.fnt")
 		
-		'Create matrices
-		mProj = Mat4.Create()
-		mView = Mat4.Create()
-		mModel = Mat4.Create()
+		'Create camera
+		mCam = Camera.Create()
+		mCam.ClearColor = Color.Black()
+		mCam.SetPosition(0, 150, -250)
+		mCam.SetRotation(30, 0, 0)
 		
-		'Create RenderList
-		mRenderList = RenderList.Create()
-		
-		'Load level
-		mLevel = Mesh.Load("ruin.msh")
-		mRenderList.AddMesh(mLevel, mModel)
+		'Create model
+		mModel = Model.Create(Cache.LoadMesh("ruin.msh"))
 		
 		Return False
 	End
@@ -62,54 +59,42 @@ Public
 		If KeyHit(KEY_ESCAPE) Then EndApp()
 		#End
 		
-		'Update delta time
-		Stats.UpdateDeltaTime()
+		'Update world
+		World.Update()
 		
-		mYaw -= 32 * Stats.DeltaTime()
+		'Update camera
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		'Update rotation
+		mModel.Yaw -= 32 * Stats.DeltaTime()
 		
 		Return False
 	End
 	
 	Method OnRender:Int()
-		'Update FPS
-		Stats.UpdateFPS()
-		
-		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 10000)
-		mView.LookAtLH(0, 150, -250, 0, 0, 0, 0, 1, 0)
-		mModel.SetTransform(0, 0, 0, 0, mYaw, 0, 1, 1, 1)
-		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.SetProjectionMatrix(mProj)
-		Renderer.SetViewMatrix(mView)
-		Renderer.SetModelMatrix(mModel)
-		Renderer.ClearColorBuffer(0, 0, 0)
-		Renderer.ClearDepthBuffer()
-		'Renderer.SetFog(True, 600, 1000, 0, 0, 0)
-		mNumRenderCalls = mRenderList.Render()
+		'Render world
+		World.Render()
 		
 		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Renderer.SetColor(1, 1, 0)
+		Renderer.SetColor(Color.White())
 		Local text$ = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
-		text = "Render calls: " + mNumRenderCalls
+		text = "Render calls: " + Stats.RenderCalls()
 		mFont.Draw(2, 18, text)
 	
 		Return False
 	End
 Private
-	Field mNumRenderCalls	: Int
-	Field mFont				: Font
-	
-	Field mProj				: Mat4
-	Field mView				: Mat4
-	Field mModel			: Mat4
-	Field mLevel			: Mesh
-	Field mRenderList		: RenderList
-	Field mYaw				: Float
+	Field mFont		: Font
+	Field mCam		: Camera
+	Field mModel	: Model
 End
 
 Function Main:Int()

@@ -2,7 +2,7 @@ Strict
 
 Private
 Import brl.databuffer
-Import vortex.src.renderer
+Import renderer
 
 Public
 Class Texture Final
@@ -23,43 +23,6 @@ Public
 		tex.mHeight = height
 		tex.mIsCubic = False
 		Return tex
-	End
-	
-	Function Load:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
-		filename = filename.Replace("\", "/")
-		Local handle:Int = Renderer.LoadTexture(filename, mSizeArr, filter)
-		If mSizeArr[0] > 0
-			Local tex:Texture = New Texture
-			tex.mFilename = filename
-			tex.mHandle = handle
-			tex.mWidth = mSizeArr[0]
-			tex.mHeight = mSizeArr[1]
-			tex.mIsCubic = False
-			Return tex
-		Else
-			Return Null
-		End
-	End
-	
-	Function Load:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
-		left = left.Replace("\", "/")
-		right = right.Replace("\", "/")
-		front = front.Replace("\", "/")
-		back = back.Replace("\", "/")
-		top = top.Replace("\", "/")
-		bottom = bottom.Replace("\", "/")
-		Local handle:Int = Renderer.LoadCubicTexture(left, right, front, back, top, bottom, mSizeArr, filter)
-		If mSizeArr[0] > 0
-			Local tex:Texture = New Texture
-			tex.mFilename = left + "," + right + "," + front + "," + back + "," + top + "," + bottom
-			tex.mHandle = handle
-			tex.mWidth = mSizeArr[0]
-			tex.mHeight = mSizeArr[1]
-			tex.mIsCubic = True
-			Return tex
-		Else
-			Return Null
-		End
 	End
 
 	Method Free:Void()
@@ -107,6 +70,43 @@ Public
 		Renderer.SetTextures(mHandle, 0, 0, 0, 0, mIsCubic)
 		Renderer.DrawRectEx(x, y, Abs(width), Abs(height), u0, v0, u1, v1)
 		Renderer.SetTextures(0, 0, 0, 0, 0, False)
+	End
+	
+	Function _Load:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
+		filename = filename.Replace("\", "/")
+		Local handle:Int = Renderer.LoadTexture(filename, mSizeArr, filter)
+		If mSizeArr[0] > 0
+			Local tex:Texture = New Texture
+			tex.mFilename = filename
+			tex.mHandle = handle
+			tex.mWidth = mSizeArr[0]
+			tex.mHeight = mSizeArr[1]
+			tex.mIsCubic = False
+			Return tex
+		Else
+			Return Null
+		End
+	End
+	
+	Function _Load:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
+		left = left.Replace("\", "/")
+		right = right.Replace("\", "/")
+		front = front.Replace("\", "/")
+		back = back.Replace("\", "/")
+		top = top.Replace("\", "/")
+		bottom = bottom.Replace("\", "/")
+		Local handle:Int = Renderer.LoadCubicTexture(left, right, front, back, top, bottom, mSizeArr, filter)
+		If mSizeArr[0] > 0
+			Local tex:Texture = New Texture
+			tex.mFilename = left + "," + right + "," + front + "," + back + "," + top + "," + bottom
+			tex.mHandle = handle
+			tex.mWidth = mSizeArr[0]
+			tex.mHeight = mSizeArr[1]
+			tex.mIsCubic = True
+			Return tex
+		Else
+			Return Null
+		End
 	End
 Private
 	Method New()

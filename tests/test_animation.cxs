@@ -24,49 +24,41 @@ Public
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not Vortex.Init()
+		If Not World.Init()
 #If TARGET="glfw" And HOST<>"linux"
-			Notify "Error", Vortex.ShaderError(), True
+			Notify "Error", Stats.ShaderError(), True
 #Else
-			Print "Error: " + Vortex.ShaderError()
+			Print "Error: " + Stats.ShaderError()
 #Endif
 			EndApp()
 		End
-		Print "Vendor name: " + Vortex.VendorName()
-		Print "Renderer name: " + Vortex.RendererName()
-		Print "API version name: " + Vortex.APIVersionName()
-		Print "Shading version name: " + Vortex.ShadingVersionName()
-		Print "Shader compilation: " + Vortex.ShaderError()
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Font.Load("system.fnt")
+		mFont = Cache.LoadFont("system.fnt")
 		
-		'Create matrices
-		mProj = Mat4.Create()
-		mView = Mat4.Create()
-		mSwatModel = Mat4.Create()
-		mDwarfModel = Mat4.Create()
+		'Create camera
+		mCam = Camera.Create()
+		mCam.SetPosition(0, 64, -128)
+		mCam.SetRotation(10, 0, 0)
+		mCam.ClearColor = Color.White()
 		
-		'Create RenderList
-		mRenderList = RenderList.Create()
+		'Load swat model
+		mSwatModel = Model.Create(Cache.LoadMesh("swat.msh", "swat.skl", "swat.anm"))
+		mSwatModel.SetPosition(-32, 32, 0)
+		mSwatModel.SetRotation(0, -15, 0)
+		mSwatModel.SetScale(7, 7, 7)
+		mSwatModel.FPS = 16
 		
-		'Load SWAT model, create matrices for animation data, and add mesh to RenderList
-		mSwatMesh = Mesh.Load ("swat.msh", "swat.skl", "swat.anm")
-		mSwatAnimMatrices = New Mat4[mSwatMesh.NumBones]
-		For Local i:Int = 0 Until mSwatAnimMatrices.Length()
-			mSwatAnimMatrices[i] = Mat4.Create()
-		Next
-		mSwatModel.SetTransform(-32, 0, 0, 0, -15, 0, 35, 35, 35)
-		mRenderList.AddMesh(mSwatMesh, mSwatModel, mSwatAnimMatrices)
-		
-		'Load dwarf model, create matrices for animation data, and add mesh to RenderList
-		mDwarfMesh = Mesh.Load("dwarf.msh", "dwarf.skl", "dwarf.anm")
-		mDwarfAnimMatrices = New Mat4[mDwarfMesh.NumBones]
-		For Local i:Int = 0 Until mDwarfAnimMatrices.Length()
-			mDwarfAnimMatrices[i] = Mat4.Create()
-		Next
-		mDwarfModel.SetTransform(32, 0, 0, 0, 15, 0, 1, 1, 1)
-		mRenderList.AddMesh(mDwarfMesh, mDwarfModel, mDwarfAnimMatrices)
+		'Load dwarf model
+		mDwarfModel = Model.Create(Cache.LoadMesh("dwarf.msh", "dwarf.skl", "dwarf.anm"))
+		mDwarfModel.SetPosition(32, 0, 0)
+		mDwarfModel.SetRotation(0, 15, 0)
+		mDwarfModel.FPS = 16
 		
 		Return False
 	End
@@ -77,65 +69,42 @@ Public
 		If KeyHit(KEY_ESCAPE) Then EndApp()
 		#End
 		
-		'Update delta time
-		Stats.UpdateDeltaTime()
+		'Update world
+		World.Update()
 		
-		mSwatCurrentFrame += 16 * Stats.DeltaTime()
-		If mSwatCurrentFrame >= mSwatMesh.NumFrames Then mSwatCurrentFrame = mSwatCurrentFrame - Int(mSwatCurrentFrame)
-		mSwatMesh.Animate(mSwatAnimMatrices, mSwatCurrentFrame)
-	
-		mDwarfCurrentFrame += 16 * Stats.DeltaTime()
-		If mDwarfCurrentFrame >= mDwarfMesh.NumFrames Then mDwarfCurrentFrame = mDwarfCurrentFrame - Int(mDwarfCurrentFrame)
-		mDwarfMesh.Animate(mDwarfAnimMatrices, mDwarfCurrentFrame)
+		'Update camera view
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
 		
 		Return False
 	End
 	
 	Method OnRender:Int()
-		'Update FPS
-		Stats.UpdateFPS()
+		'Render world
+		World.Render()
 		
-		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 1000)
-		mView.LookAtLH(0, 64, -128, 0, 32, 0, 0, 1, 0)
-		
-		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.SetProjectionMatrix(mProj)
-		Renderer.SetViewMatrix(mView)
-		Renderer.SetModelMatrix(mDwarfModel)
-		Renderer.ClearColorBuffer(1, 1, 1)
-		Renderer.ClearDepthBuffer()
-		mNumRenderCalls = mRenderList.Render()
-		
+		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.SetColor(0, 0, 0)
-		mFont.Draw(4, DeviceHeight() - 20, "Frame: " + Int(mDwarfCurrentFrame))
+		Renderer.SetColor(Color.Black())
+		mFont.Draw(4, DeviceHeight() - 20, "Frame: " + Int(mDwarfModel.CurrentFrame))
 		
 		'Draw FPS
-		Renderer.SetColor(0, 0, 0)
+		Renderer.SetColor(Color.Black())
 		Local text$ = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
-		text = "Render calls: " + mNumRenderCalls
+		text = "Render calls: " + Stats.RenderCalls()
 		mFont.Draw(2, 18, text)
 	
 		Return False
 	End
 Private	
-	Field mNumRenderCalls	: Int
-	Field mFont				: Font
-
-	Field mProj					: Mat4
-	Field mView					: Mat4
-	Field mSwatModel			: Mat4
-	Field mDwarfModel			: Mat4
-	Field mSwatMesh				: Mesh
-	Field mDwarfMesh			: Mesh
-	Field mSwatAnimMatrices		: Mat4[]
-	Field mDwarfAnimMatrices	: Mat4[]
-	Field mSwatCurrentFrame		: Float
-	Field mDwarfCurrentFrame	: Float
-	Field mRenderList			: RenderList
+	Field mFont			: Font
+	Field mCam			: Camera
+	Field mSwatModel	: Model
+	Field mDwarfModel	: Model
 End
 
 Function Main:Int()

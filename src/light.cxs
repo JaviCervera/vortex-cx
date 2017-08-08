@@ -1,0 +1,113 @@
+Strict
+
+Private
+Import color
+Import math3d
+Import renderer
+Import world
+
+Public
+Import entity
+
+Class Light Extends Entity Final
+	Const TYPE_DIRECTIONAL	: Int = 0
+	Const TYPE_POINT		: Int = 1
+	
+	Function Create:Light(type:Int = TYPE_DIRECTIONAL, parent:Entity = Null)
+		If type >= 0 And type <= 1 Then Return New Light(type, parent) Else Return Null
+	End
+	
+	Method Free:Void()
+		Visible = False
+		Super.Free()
+	End
+	
+	Method Visible:Bool() Property
+		Return Super.Visible
+	End	
+	
+	Method Visible:Void(visible:Bool) Property
+		If visible <> Super.Visible
+			Super.Visible(visible)
+			If visible
+				World._AddLight(Self)
+			Else
+				World._FreeLight(Self)
+			End
+		End
+	End
+	
+	Method Width:Float() Property
+		Return 0
+	End
+	
+	Method Height:Float() Property
+		Return 0
+	End
+	
+	Method Depth:Float() Property
+		Return 0
+	End
+	
+	Method Type:Int() Property
+		Return mType
+	End
+	
+	Method Type:Void(type:Int) Property
+		mType = type
+	End
+	
+	Method Color:Int() Property
+		Return mColor
+	End
+	
+	Method Color:Void(color:Int) Property
+		mColor = color
+	End
+	
+	Method Radius:Float() Property
+		Return mRadius
+	End
+	
+	Method Radius:Void(rad:Float) Property
+		mRadius = rad
+	End
+	
+	Method _PrepareForRender:Void()
+		If mType = TYPE_DIRECTIONAL
+			mTempQuat.SetEuler(Pitch, Yaw, Roll)
+			mTempQuat.Mul(0, 0, -1)
+			Renderer.ViewMatrix().Mul(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, 0.0)
+			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 0.0, color.Color.RF(mColor), color.Color.GF(mColor), color.Color.BF(mColor), mRadius)
+		Else
+			Renderer.ViewMatrix().Mul(WorldX, WorldY, WorldZ, 1.0)
+			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 1.0, color.Color.RF(mColor), color.Color.GF(mColor), color.Color.BF(mColor), mRadius)
+		End
+	End
+	
+	Method _Number:Int() Property
+		Return mNumber
+	End
+	
+	Method _Number:Void(number:Int) Property
+		mNumber = number
+	End
+Private
+	Field mNumber		: Int
+	Field mType			: Int
+	Field mColor		: Int
+	Field mRadius		: Float
+	Global mTempQuat	: Quat = Quat.Create()
+	
+	Method New()
+		Super.New(Null)
+	End
+	
+	Method New(type:Int, parent:Entity)
+		Super.New(parent)
+		mType = type
+		mColor = color.Color.White()
+		mRadius = 10
+		Visible = True
+	End
+End

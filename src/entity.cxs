@@ -1,0 +1,320 @@
+Strict
+
+Private
+Import game
+Import listener
+Import mojo.audio
+Import vortex
+Import world
+
+Public
+Class Entity
+	Method New(parent:Entity)
+		Parent = parent
+		mChildren = New List<Entity>
+		mActive = True
+		mVisible = False	'Subclases should change this if needed
+		mPosition = Vec3.Create()
+		mRotation = Vec3.Create()
+		mScale = Vec3.Create(1, 1, 1)
+		mTransform = Mat4.Create()
+		World._AddEntity(Self)
+	End
+	
+	Function Create:Entity(parent:Entity)
+		Return New Entity(parent)
+	End
+	
+	Method Free:Void()
+		While Not mChildren.IsEmpty()
+			mChildren.First().Free()
+		Wend
+		Parent = Null
+		World._FreeEntity(Self)
+		Game._EntityFreed(Self)
+	End
+	
+	Method Name:String() Property
+		Return mName
+	End
+	
+	Method Name:Void(name:String) Property
+		mName = name
+	End
+	
+	Method Parent:Entity() Property
+		Return mParent
+	End
+	
+	Method Parent:Void(p:Entity) Property
+		If mParent <> p
+			If mParent Then mParent.mChildren.RemoveFirst(Self)
+			If p Then p.mChildren.AddLast(Self)
+			mParent = p
+		End
+	End
+	
+	Method NumChildren:Int() Property
+		Return mChildren.Count()
+	End
+	
+	Method Child:Entity(index:Int)
+		Local current:Int = 0
+		For Local e:Entity = Eachin mChildren
+			If current = index Then Return e
+			current += 1
+		Next
+		Return Null
+	End
+	
+	Method Active:Bool() Property
+		Return mActive
+	End
+	
+	Method Active:Void(active:Bool) Property
+		mActive = active
+		For Local c:Entity = Eachin mChildren
+			c.Active = active
+		Next
+	End
+	
+	Method Visible:Bool() Property
+		Return mVisible
+	End
+	
+	Method Visible:Void(visible:Bool) Property
+		mVisible = visible
+		For Local c:Entity = Eachin mChildren
+			c.Visible = visible
+		Next
+	End
+	
+	Method X:Float() Property
+		Return mPosition.X
+	End
+	
+	Method Y:Float() Property
+		Return mPosition.Y
+	End
+	
+	Method Z:Float() Property
+		Return mPosition.Z
+	End
+	
+	Method X:Void(val:Float) Property
+		mPosition.X = val
+		_UpdateTransform()
+	End
+	
+	Method Y:Void(val:Float) Property
+		mPosition.Y = val
+		_UpdateTransform()
+	End
+	
+	Method Z:Void(val:Float) Property
+		mPosition.Z = val
+		_UpdateTransform()
+	End
+	
+	Method WorldX:Float() Property
+		Return mTransform.M[12]
+	End
+	
+	Method WorldY:Float() Property
+		Return mTransform.M[13]
+	End
+	
+	Method WorldZ:Float() Property
+		Return mTransform.M[14]
+	End
+	
+	Method SetPosition:Void(x:Float, y:Float, z:Float)
+		mPosition.Set(x, y, z)
+		_UpdateTransform()
+	End
+	
+	Method Move:Void(x:Float, y:Float, z:Float)
+		'Transform x, y, z by entity's rotation
+		mTempQuat.SetEuler(mRotation.X, mRotation.Y, mRotation.Z)
+		mTempQuat.Mul(x, y, z)
+		
+		'Add resulting vector to entity's position		
+		mPosition.Sum(mTempQuat.ResultVector())
+		
+		_UpdateTransform()
+	End
+	
+	Method Pitch:Float() Property
+		Return mRotation.X
+	End
+	
+	Method Yaw:Float() Property
+		Return mRotation.Y
+	End
+	
+	Method Roll:Float() Property
+		Return mRotation.Z
+	End
+	
+	Method Pitch:Void(val:Float) Property
+		mRotation.X = val
+		_UpdateTransform()
+	End
+	
+	Method Yaw:Void(val:Float) Property
+		mRotation.Y = val
+		_UpdateTransform()
+	End
+	
+	Method Roll:Void(val:Float) Property
+		mRotation.Z = val
+		_UpdateTransform()
+	End
+	
+	Method SetRotation:Void(pitch:Float, yaw:Float, roll:Float)
+		mRotation.Set(pitch, yaw, roll)
+		_UpdateTransform()
+	End
+	
+	Method Turn:Void(pitch:Float, yaw:Float, roll:Float)
+		mRotation.Sum(pitch, yaw, roll)
+		_UpdateTransform()
+	End
+	
+	Method Width:Float() Property
+		Return mScale.X
+	End
+	
+	Method Height:Float() Property
+		Return mScale.Y
+	End
+	
+	Method Depth:Float() Property
+		Return mScale.Z
+	End
+	
+	Method ScaleX:Float() Property
+		Return mScale.X
+	End
+	
+	Method ScaleY:Float() Property
+		Return mScale.Y
+	End
+	
+	Method ScaleZ:Float() Property
+		Return mScale.Z
+	End
+	
+	Method ScaleX:Void(val:Float) Property
+		mScale.X = val
+		_UpdateTransform()
+	End
+	
+	Method ScaleY:Void(val:Float) Property
+		mScale.Y = val
+		_UpdateTransform()
+	End
+	
+	Method ScaleZ:Void(val:Float) Property
+		mScale.Z = val
+		_UpdateTransform()
+	End
+
+	Method SetScale:Void(x:Float, y:Float, z:Float)
+		mScale.Set(x, y, z)
+		_UpdateTransform()
+	End
+	
+	Method Distance:Float(other:Entity)
+		mTempVec.Set(mPosition)
+		mTempVec.Sub(other.mPosition)
+		Return mTempVec.Length()
+	End
+	
+	Method NumMaterials:Int() Property
+		Return 0
+	End
+	
+	Method Material:Material(index:Int)
+		Return Null
+	End
+	
+	Method Material:Material() Property
+		Return Material(0)
+	End
+	
+	Method ReplaceMaterials:Void(mat:Material)
+		For Local i:Int = 0 Until NumMaterials
+			Material(i).Set(mat)
+		Next
+	End
+	
+	Method EmitSound:Void(sound:Sound, radius:Float, channel:Int)
+		Listener._EmitSound(Self, sound, radius, channel)
+	End
+	
+	Method BoxX:Float() Property
+		Return WorldX - Width/2
+	End
+	
+	Method BoxY:Float() Property
+		Return WorldY - Height/2
+	End
+	
+	Method BoxZ:Float() Property
+		Return WorldZ - Depth/2
+	End
+	
+	Method UserData:Object() Property
+		Return mUserData
+	End
+	
+	Method UserData:Void(data:Object) Property
+		mUserData = data
+	End
+	
+	Method _Update:Void()
+	End
+	
+	Method _PrepareForRender:Void()
+	End
+	
+	Method _Transform:Mat4() Property
+		Return mTransform
+	End
+Private
+	Field mName			: String
+	Field mParent		: Entity
+	Field mChildren		: List<Entity>
+	Field mActive		: Bool
+	Field mVisible		: Bool
+	Field mPosition		: Vec3
+	Field mRotation		: Vec3
+	Field mScale		: Vec3
+	Field mTransform	: Mat4
+	Field mUserData		: Object
+	
+	Method New()
+	End
+	
+	Method _UpdateTransform:Void()
+		'Set entity's transform
+		mTransform.SetTransform(mPosition, mRotation, mScale)
+		
+		'Premultiply paren't transform
+		If mParent
+			mTempMat.Set(mParent.mTransform)
+			mTempMat.Mul(mTransform)
+			mTransform.Set(mTempMat)
+		End
+		
+		'Update children's transforms
+		For Local child:Entity = Eachin mChildren
+			child._UpdateTransform()
+		Next
+	End
+	
+	Global mTempMat		: Mat4 = Mat4.Create()
+	Global mTempQuat	: Quat = Quat.Create()
+	Global mTempVec		: Vec3 = Vec3.Create()
+End

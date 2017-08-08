@@ -1,0 +1,154 @@
+Strict
+
+Private
+Import material
+Import math3d
+Import mesh
+Import stats
+Import world
+
+Public
+Import entity
+
+Class Model Extends Entity Implements IMaterialDelegate Final
+	Function Create:Model(mesh:Mesh, parent:Entity = Null)
+		If mesh Then Return New Model(mesh, parent) Else Return Null
+	End
+	
+	Method Free:Void()
+		Visible = False
+		Super.Free()
+	End
+	
+	Method Mesh:Mesh() Property
+		Return mMesh
+	End
+	
+	Method FPS:Float() Property
+		Return mAnimFPS
+	End
+	
+	Method FPS:Void(fps:Float) Property
+		mAnimFPS = fps
+	End
+	
+	Method CurrentFrame:Float() Property
+		Return mCurrentFrame
+	End
+	
+	Method Active:Bool() Property
+		Return Super.Active
+	End
+	
+	Method Active:Void(active:Bool) Property
+		If active <> Super.Active
+			Super.Active(active)
+			If active
+				World._EntityNeedsUpdate(Self, True)
+			Else
+				World._EntityNeedsUpdate(Self, False)
+			End
+		End
+	End
+	
+	Method Visible:Bool() Property
+		Return Super.Visible
+	End
+	
+	Method Visible:Void(visible:Bool) Property
+		If visible <> Super.Visible
+			Super.Visible(visible)
+			If visible
+				For Local i:Int = 0 Until mMesh.NumSurfaces
+					World._AddSurfaceToRenderList(mMesh.Surface(i), _Transform, mAnimMatrices, mMaterials[i])
+				Next
+			Else
+				For Local i:Int = 0 Until mMesh.NumSurfaces
+					World._RemoveSurfaceFromRenderList(mMesh.Surface(i), _Transform, mAnimMatrices, mMaterials[i])
+				Next
+			End
+		End
+	End
+	
+	Method Width:Float() Property
+		Return mMesh.Width * ScaleX
+	End
+	
+	Method Height:Float() Property
+		Return mMesh.Height * ScaleY
+	End
+	
+	Method Depth:Float() Property
+		Return mMesh.Depth * ScaleZ
+	End
+	
+	Method NumMaterials:Int() Property
+		Return mMaterials.Length
+	End
+	
+	Method Material:Material(index:Int)
+		Return mMaterials[index]
+	End
+	
+	Method Material:Material() Property
+		Return Material(0)
+	End
+	
+	Method BoxX:Float() Property
+		Return WorldX + mMesh.MinBoundX * ScaleX
+	End
+	
+	Method BoxY:Float() Property
+		Return WorldY + mMesh.MinBoundY * ScaleY
+	End
+	
+	Method BoxZ:Float() Property
+		Return WorldZ + mMesh.MinBoundZ * ScaleZ
+	End
+	
+	Method MaterialChanged:Void(mat:Material)
+		Local index:Int = -1
+		For Local i:Int = 0 Until mMaterials.Length
+			If mMaterials[i] = mat Then index = i; Exit
+		Next
+		If index <> -1
+			World._RemoveSurfaceFromRenderList(mMesh.Surface(index), _Transform)
+			If Visible Then World._AddSurfaceToRenderList(mMesh.Surface(index), _Transform, mat)
+		End
+	End
+	
+	Method _Update:Void()
+		If mAnimFPS <> 0 And mAnimMatrices.Length > 0
+			mCurrentFrame += mAnimFPS * Stats.DeltaTime()
+			If mCurrentFrame > mMesh.NumFrames Then mCurrentFrame -= mMesh.NumFrames
+			If mCurrentFrame < 0 Then mCurrentFrame += mMesh.NumFrames
+			mMesh.Animate(mAnimMatrices, mCurrentFrame)
+		End
+	End
+Private
+	Field mMesh			: Mesh
+	Field mMaterials	: Material[]
+	Field mAnimMatrices	: Mat4[]
+	Field mCurrentFrame	: Float
+	Field mAnimFPS		: Float
+	
+	Method New()
+		Super.New(Null)
+	End
+	
+	Method New(mesh:Mesh, parent:Entity)
+		Super.New(parent)
+		mMesh = mesh
+		mMaterials = New Material[mMesh.NumSurfaces]
+		For Local i:Int = 0 Until mMaterials.Length
+			mMaterials[i] = material.Material.Create(mMesh.Surface(i).Material, Self)
+		Next
+		mAnimMatrices = New Mat4[mesh.NumBones]
+		For Local i:Int = 0 Until mAnimMatrices.Length
+			mAnimMatrices[i] = Mat4.Create()
+		Next
+		Visible = True
+		Active = False
+		Active = True
+	End
+End

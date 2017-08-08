@@ -1,10 +1,10 @@
 Strict
 
 Private
-Import vortex.src.lighting
-Import vortex.src.renderlist
-Import vortex.src.renderer
-Import vortex.src.texture
+Import color
+Import renderlist
+Import renderer
+Import texture
 
 Public
 
@@ -14,14 +14,11 @@ End
 
 Class Material Final
 Public
-	Function Create:Material(diffuseTex:Texture = Null, delegate:IMaterialDelegate = Null)
+	Function Create:Material(baseTex:Texture = Null, delegate:IMaterialDelegate = Null)
 		Local mat:Material = New Material
 		mat.mDelegate = delegate
-		mat.mDiffuseRed = 1
-		mat.mDiffuseGreen = 1
-		mat.mDiffuseBlue = 1
-		mat.mDiffuseTex = diffuseTex
-		mat.mOpacity = 1
+		mat.mColor = color.Color.White()
+		mat.mBaseTex = baseTex
 		mat.mShininess = 0
 		mat.mRefractCoef = 1
 		mat.mBlendMode = Renderer.BLEND_ALPHA
@@ -37,16 +34,16 @@ Public
 	End
 	
 	Method FreeTextures:Void()
-		If mDiffuseTex Then mDiffuseTex.Free()
+		If mBaseTex Then mBaseTex.Free()
 		If mNormalTex Then mNormalTex.Free()
-		If mLightmap Then mLightmap.Free()
+		If mLightTex Then mLightTex.Free()
 		If mReflectTex Then mReflectTex.Free()
 		If mReflectTex Then mRefractTex.Free()
 	End
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mDiffuseRed = other.mDiffuseRed And mDiffuseGreen = other.mDiffuseGreen And mDiffuseBlue = other.mDiffuseBlue And mDiffuseTex = other.mDiffuseTex And mNormalTex = other.mNormalTex And mLightmap = other.mLightmap And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mOpacity = other.mOpacity And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite
+		If mColor = other.mColor And mBaseTex = other.mBaseTex And mNormalTex = other.mNormalTex And mLightTex = other.mLightTex And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite
 			Return True
 		Else
 			Return False
@@ -55,15 +52,12 @@ Public
 
 	Method Set:Void(other:Material)
 		If Self.IsEqual(other) Then Return
-		mDiffuseRed = other.mDiffuseRed
-		mDiffuseGreen = other.mDiffuseGreen
-		mDiffuseBlue = other.mDiffuseBlue
-		mDiffuseTex = other.mDiffuseTex
+		mColor = other.mColor
+		mBaseTex = other.mBaseTex
 		mNormalTex = other.mNormalTex
-		mLightmap = other.mLightmap
+		mLightTex = other.mLightTex
 		mReflectTex = other.mReflectTex
 		mRefractTex = other.mRefractTex
-		mOpacity = other.mOpacity
 		mShininess = other.mShininess
 		mRefractCoef = other.mRefractCoef
 		mBlendMode = other.mBlendMode
@@ -79,53 +73,25 @@ Public
 	Method Delegate:IMaterialDelegate() Property
 		Return mDelegate
 	End
-
-	Method SetDiffuseColor:Void(r:Float, g:Float, b:Float)
-		If DiffuseRed = r And DiffuseGreen = g And DiffuseBlue = b Then Return
-		mDiffuseRed = r
-		mDiffuseGreen = g
-		mDiffuseBlue = b
+	
+	Method Color:Void(color:Int) Property
+		If mColor = color Then Return
+		mColor = color
 		If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+
+	Method Color:Int() Property
+		Return mColor
 	End
 	
-	Method DiffuseRed:Void(red:Float) Property
-		If DiffuseRed = red Then Return
-		mDiffuseRed = Clamp(red, 0.0, 1.0)
+	Method BaseTexture:Void(tex:Texture) Property
+		If mBaseTex = tex Then Return
+		mBaseTex = tex
 		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
-	Method DiffuseRed:Float() Property
-		Return mDiffuseRed
-	End
-	
-	Method DiffuseGreen:Void(green:Float) Property
-		If DiffuseGreen = green Then Return
-		mDiffuseGreen = Clamp(green, 0.0, 1.0)
-		If mDelegate Then mDelegate.MaterialChanged(Self)
-	End
-
-	Method DiffuseGreen:Float() Property
-		Return mDiffuseGreen
-	End
-	
-	Method DiffuseBlue:Void(blue:Float) Property
-		If DiffuseBlue = blue Then Return
-		mDiffuseBlue = Clamp(blue, 0.0, 1.0)
-		If mDelegate Then mDelegate.MaterialChanged(Self)
-	End
-
-	Method DiffuseBlue:Float() Property
-		Return mDiffuseBlue
-	End
-	
-	Method DiffuseTexture:Void(tex:Texture) Property
-		If mDiffuseTex = tex Then Return
-		mDiffuseTex = tex
-		If mDelegate Then mDelegate.MaterialChanged(Self)
-	End
-
-	Method DiffuseTexture:Texture() Property
-		Return mDiffuseTex
+	Method BaseTexture:Texture() Property
+		Return mBaseTex
 	End
 	
 	Method NormalTexture:Void(tex:Texture) Property
@@ -138,14 +104,14 @@ Public
 		Return mNormalTex
 	End
 	
-	Method Lightmap:Void(tex:Texture) Property
-		If mLightmap = tex Then Return
-		mLightmap = tex
+	Method LightTexture:Void(tex:Texture) Property
+		If mLightTex = tex Then Return
+		mLightTex = tex
 		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
-	Method Lightmap:Texture() Property
-		Return mLightmap
+	Method LightTexture:Texture() Property
+		Return mLightTex
 	End
 	
 	Method ReflectionTexture:Void(tex:Texture) Property
@@ -168,19 +134,10 @@ Public
 		Return mRefractTex
 	End
 
-	Method Opacity:Void(opacity:Float) Property
-		If mOpacity = opacity Then Return
-		mOpacity = opacity
-		If mDelegate Then mDelegate.MaterialChanged(Self)
-	End
-
-	Method Opacity:Float() Property
-		Return mOpacity
-	End
-
 	Method Shininess:Void(shininess:Float) Property
+		shininess = Clamp(shininess, 0.0, 1.0)
 		If mShininess = shininess Then Return
-		mShininess = Clamp(shininess, 0.0, 1.0)
+		mShininess = shininess
 		If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
@@ -230,41 +187,37 @@ Public
 	End
 
 	Method Prepare:Void()
-		Local diffuseHandle:Int = 0
+		Local baseHandle:Int = 0
 		Local normalHandle:Int = 0
-		Local lightmapHandle:Int = 0
+		Local lightHandle:Int = 0
 		Local reflectHandle:Int = 0
 		Local refractHandle:Int = 0
 		'Local shininess:Int = 0
 		'If mShininess > 0 Then shininess = Int(mShininess * 128)
-		Renderer.SetColor(mDiffuseRed, mDiffuseGreen, mDiffuseBlue, mOpacity)
+		Renderer.SetColor(mColor)
 		Renderer.SetShininess(mShininess)
 		Renderer.SetRefractCoef(mRefractCoef)
 		Renderer.SetBlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)
 		Renderer.SetDepthWrite(mDepthWrite)
-		If mDiffuseTex <> Null Then diffuseHandle = mDiffuseTex.Handle
+		If mBaseTex <> Null Then baseHandle = mBaseTex.Handle
 		If mNormalTex <> Null Then normalHandle = mNormalTex.Handle
-		If mLightmap <> Null Then lightmapHandle = mLightmap.Handle
+		If mLightTex <> Null Then lightHandle = mLightTex.Handle
 		If mReflectTex <> Null Then reflectHandle = mReflectTex.Handle
 		If mRefractTex <> Null Then refractHandle = mRefractTex.Handle
-		Renderer.SetTextures(diffuseHandle, normalHandle, lightmapHandle, reflectHandle, refractHandle, mDiffuseTex And mDiffuseTex.IsCubic)
-		Renderer.SetPixelLighting(Lighting.GlobalPixelLightingEnabled())
+		Renderer.SetTextures(baseHandle, normalHandle, lightHandle, reflectHandle, refractHandle, mBaseTex And mBaseTex.IsCubic)
 	End
 Private
 	Method New()
 	End
 
 	Field mDelegate		: IMaterialDelegate
-	Field mDiffuseRed	: Float
-	Field mDiffuseGreen	: Float
-	Field mDiffuseBlue	: Float
-	Field mDiffuseTex	: Texture
+	Field mColor		: Int
+	Field mBaseTex		: Texture
 	Field mNormalTex	: Texture
-	Field mLightmap		: Texture
+	Field mLightTex		: Texture
 	Field mReflectTex	: Texture
 	Field mRefractTex	: Texture
-	Field mOpacity		: Float
 	Field mShininess	: Float
 	Field mRefractCoef	: Float
 	Field mBlendMode	: Int

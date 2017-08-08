@@ -24,61 +24,38 @@ Public
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not Vortex.Init()
+		If Not World.Init()
 #If TARGET="glfw" And HOST<>"linux"
-			Notify "Error", Vortex.ShaderError(), True
+			Notify "Error", Stats.ShaderError(), True
 #Else
-			Print "Error: " + Vortex.ShaderError()
+			Print "Error: " + Stats.ShaderError()
 #Endif
 			EndApp()
 		End
-		Print "Vendor name: " + Vortex.VendorName()
-		Print "Renderer name: " + Vortex.RendererName()
-		Print "API version name: " + Vortex.APIVersionName()
-		Print "Shading version name: " + Vortex.ShadingVersionName()
-		Print "Shader compilation: " + Vortex.ShaderError()
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Font.Load("system.fnt")
-		
-		'Create projection and view matrices
-		mProj = Mat4.Create()
-		mView = Mat4.Create()
-		
-		'Create RenderList
-		mRenderList = RenderList.Create()
+		mFont = Cache.LoadFont("system.fnt")		
 		
 		'Load texture
-		Local smileTex:Texture = Texture.Load("smile.png")
+		Local smileTex:Texture = Cache.LoadTexture("smile.png")
 		
-		'Create billboard surface
-		mBillboard = Surface.Create(Material.Create(smileTex))
-
-		'Add vertices and indices
-		Local x0# = -0.5
-		Local x1# =  0.5
-		Local z0# = -0.5
-		Local z1# =  0.5
-		mBillboard.AddTriangle(0, 1, 2)
-		mBillboard.AddTriangle(2, 1, 3)
-		mBillboard.AddVertex(x0, z1, 0, 0, 0, -1, 1, 1, 1, 1, 0, 0)
-		mBillboard.AddVertex(x1, z1, 0, 0, 0, -1, 1, 1, 1, 1, 1, 0)
-		mBillboard.AddVertex(x0, z0, 0, 0, 0, -1, 1, 1, 1, 1, 0, 1)
-		mBillboard.AddVertex(x1, z0, 0, 0, 0, -1, 1, 1, 1, 1, 1, 1)
-		mBillboard.Rebuild()
+		'Create camera
+		mCam = Camera.Create()
+		mCam.SetRotation(45, -45, 0)
+		mCam.ClearColor = Color.White()
 		
-		'Create billboard matrices, positions and surfaces
-		mModels = New Mat4[64]
-		mPositions = New Float[64][]
-		mMaterials = New Material[64]
+		'Create sprites
 		Local x:Float = -8, z:Float = -8
-		For Local i:Int = 0 Until mModels.Length()
-			mModels[i] = Mat4.Create()
-			mPositions[i] = [x, z]
-			mMaterials[i] = Material.Create(smileTex)
-			mMaterials[i].SetDiffuseColor(Rnd(0, 1), Rnd(0, 1), Rnd(0, 1))
-			mRenderList.AddSurface(mBillboard, mModels[i], mMaterials[i])
-			
+		For Local i:Int = 0 Until 64
+			Local spr:Sprite = Sprite.Create(smileTex)
+			spr.SetPosition(x, 0, z)
+			spr.SetSize(1, 1)
+			spr.Material(0).Color = Color.RGB(Rnd(256), Rnd(256), Rnd(256))
 			x += 2; If x >= 8 Then x = -8; z += 2
 		Next
 		
@@ -91,60 +68,43 @@ Public
 		If KeyHit(KEY_ESCAPE) Then EndApp()
 		#End
 		
-		'Update delta time
-		Stats.UpdateDeltaTime()
+		'Update world
+		World.Update()
 		
-		'Increment rotation
-		mYaw += 32 * Stats.DeltaTime()
+		'Update camera
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		'Increment camera rotation
+		mCam.Yaw += 32 * Stats.DeltaTime()
+		mCam.SetPosition(0, 0, 0)
+		mCam.Move(0, 0, -8)
 		
 		Return False
 	End
 	
 	Method OnRender:Int()
-		'Update FPS
-		Stats.UpdateFPS()
-		
-		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 100)
-		mView.LookAtLH(Cos(mYaw) * 8, Sin(45) * 8, Sin(mYaw) * 8, 0, 0, 0, 0, 1, 0)
-		
-		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.SetProjectionMatrix(mProj)
-		Renderer.SetViewMatrix(mView)
-		Renderer.ClearColorBuffer(1, 1, 1)
-		Renderer.ClearDepthBuffer()
-	
-		For Local i:Int = 0 Until mPositions.Length()
-			mModels[i].SetBillboardTransformLH(mView, mPositions[i][0], 0, mPositions[i][1], 0, 1, 1)
-		Next
-		
-		mNumRenderCalls = mRenderList.Render()
+		'Render world
+		World.Render()
 		
 		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Renderer.SetColor(0, 0, 0)
+		Renderer.SetColor(Color.Black())
 		Local text$ = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
-		text = "Render calls: " + mNumRenderCalls
+		text = "Render calls: " + Stats.RenderCalls()
 		mFont.Draw(2, 18, text)
 	
 		Return False
 	End
 Private
-	Field mNumRenderCalls	: Int
-	Field mFont				: Font
-	
-	Field mProj				: Mat4
-	Field mView				: Mat4
-	Field mModels			: Mat4[]
-	Field mPositions		: Float[][]
-	Field mMaterials		: Material[]
-	Field mBillboard		: Surface
-	Field mRenderList		: RenderList
-	Field mYaw			: Float
+	Field mFont	: Font
+	Field mCam	: Camera
 End
 
 Function Main:Int()

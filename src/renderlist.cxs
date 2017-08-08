@@ -2,11 +2,11 @@ Strict
 
 Private
 
-Import vortex.src.material
-Import vortex.src.math3d
-Import vortex.src.mesh
-Import vortex.src.renderer
-Import vortex.src.surface
+Import material
+Import math3d
+Import mesh
+Import renderer
+Import surface
 
 Class RenderGeom Final
 Public

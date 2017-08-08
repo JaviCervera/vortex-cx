@@ -1,0 +1,131 @@
+Strict
+
+Private
+Import color
+Import material
+Import renderer
+Import surface
+Import texture
+Import world
+
+Public
+Import entity
+
+Class Sprite Extends Entity Implements IMaterialDelegate Final
+	Const MODE_STATIC		: Int = 0
+	Const MODE_SPHERICAL	: Int = 1
+	Const MODE_CYLINDRICAL	: Int = 2
+	
+	Function Create:Sprite(texture:Texture, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
+		Return New Sprite(texture, orientation, parent)
+	End
+	
+	Method Free:Void()
+		Visible = False
+		Super.Free()
+	End
+	
+	Method Visible:Void(visible:Bool) Property
+		If visible <> Super.Visible
+			Super.Visible(visible)
+			If visible
+				World._AddSurfaceToRenderList(mSurface, _Transform, mMaterial)
+				World._EntityNeedsPrepareRender(Self, True)
+			Else
+				World._RemoveSurfaceFromRenderList(mSurface, _Transform, mMaterial)
+				World._EntityNeedsPrepareRender(Self, False)
+			End
+		End
+	End
+	
+	Method Visible:Bool() Property
+		Return Super.Visible
+	End
+	
+	Method Orientation:Int() Property
+		Return mOrientation
+	End
+	
+	Method Orientation:Void(orientation:Int) Property
+		mOrientation = orientation
+	End
+	
+	Method Spin:Float() Property
+		Return Roll
+	End
+	
+	Method Spin:Void(spin:Float) Property
+		SetRotation(Pitch, Yaw, spin)
+	End
+	
+	Method Depth:Float() Property
+		Return 0
+	End
+	
+	Method SetSize:Void(width:Float, height:Float)
+		SetScale(width, height, 1)
+	End
+	
+	Method NumMaterials:Int() Property
+		Return 1
+	End
+	
+	Method Material:Material(index:Int)
+		Return mMaterial
+	End
+	
+	Method Material:Material() Property
+		Return Material(0)
+	End
+	
+	Method MaterialChanged:Void(mat:Material)
+		World._RemoveSurfaceFromRenderList(mSurface, _Transform)
+		If Visible Then World._AddSurfaceToRenderList(mSurface, _Transform, mat)
+	End
+	
+	Method _PrepareForRender:Void()
+		If mOrientation <> MODE_STATIC
+			Local cylindrical:Bool = False
+			If mOrientation = MODE_CYLINDRICAL Then cylindrical = True
+			_Transform.SetBillboardTransformLH(Renderer.ViewMatrix(), WorldX, WorldY, WorldZ, Spin, Width, Height, cylindrical)
+		End
+	End
+Private
+	Field mOrientation	: Int
+	Field mMaterial		: Material
+	Global mSurface		: Surface
+	
+	Method New()
+		Super.New(Null)
+	End
+	
+	Method New(texture:Texture, orientation:Int, parent:Entity)
+		Super.New(parent)
+		mOrientation = orientation
+		mMaterial = material.Material.Create(texture, Self)
+		mMaterial.Culling = False
+		
+		
+		'Create quad
+		If mSurface = Null
+			mSurface = Surface.Create()
+			mSurface.AddVertex(-0.5,  0.5, 0,  0, 0, -1,  Color.White(),  0, 0)
+			mSurface.AddVertex( 0.5,  0.5, 0,  0, 0, -1,  Color.White(),  1, 0)
+			mSurface.AddVertex( 0.5, -0.5, 0,  0, 0, -1,  Color.White(),  1, 1)
+			mSurface.AddVertex(-0.5, -0.5, 0,  0, 0, -1,  Color.White(),  0, 1)
+			mSurface.AddTriangle(0, 1, 2)
+			mSurface.AddTriangle(0, 2, 3)
+			mSurface.Rebuild()
+		End
+		
+		'Set size
+		If texture <> Null
+			SetSize(texture.Width, texture.Height)
+		Else
+			SetSize(1, 1)
+		End
+		
+		'Make visible
+		Visible = True
+	End
+End

@@ -18,7 +18,7 @@ Function LoadMesh:Mesh(filename:String)
 	
 	'Directly load native MSH files
 	If ExtractExt(filename).ToLower() = "msh"
-		Local mesh:Mesh = Mesh.Load(filename, StripExt(filename) + ".skl", StripExt(filename) + ".anm")
+		Local mesh:Mesh = Cache.LoadMesh(filename, StripExt(filename) + ".skl", StripExt(filename) + ".anm")
 		Return mesh
 	End
 
@@ -98,7 +98,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 			If loadedDiffuse.Contains(baseTexStr)
 				diffuseTex = loadedDiffuse.Get(baseTexStr)
 			Else
-				diffuseTex = Texture.Load(baseTexStr, texFilter)
+				diffuseTex = Cache.LoadTexture(baseTexStr, texFilter)
 				loadedDiffuse.Add(baseTexStr, diffuseTex)
 			End
 		End
@@ -110,19 +110,18 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 			If loadedLightmaps.Contains(lightmapStr)
 				lightmap = loadedLightmaps.Get(lightmapStr)
 			Else
-				lightmap = Texture.Load(lightmapStr, texFilter)
+				lightmap = Cache.LoadTexture(lightmapStr, texFilter)
 				loadedLightmaps.Add(lightmapStr, lightmap)
 			End
 		End
 
 		'Create material
 		Local material:Material = Material.Create(diffuseTex)
-		material.Lightmap = lightmap
+		material.LightTexture = lightmap
 		If blendStr.ToLower() = "alpha" Then material.BlendMode = Renderer.BLEND_ALPHA
 		If blendStr.ToLower() = "add" Then material.BlendMode = Renderer.BLEND_ADD
 		If blendStr.ToLower() = "mul" Then material.BlendMode = Renderer.BLEND_MUL
-		material.SetDiffuseColor(baseColor[0], baseColor[1], baseColor[2])
-		material.Opacity = opacity
+		material.Color = Color.RGBF(baseColor[0], baseColor[1], baseColor[2], opacity)
 		material.Shininess = shininess
 		material.Culling = culling
 		material.DepthWrite = depthWrite
@@ -221,7 +220,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 			End
 
 			'Add vertex
-			Local vertex:Int = surf.AddVertex(x, y, z, nx, ny, nz, r, g, b, a, u0, v0)
+			Local vertex:Int = surf.AddVertex(x, y, z, nx, ny, nz, Color.RGBF(r, g, b, a), u0, v0)
 			surf.SetVertexTexCoords(vertex, u1, v1, 1)
 			surf.SetVertexTangent(vertex, tx, ty, tz)
 			
@@ -307,9 +306,9 @@ Function MaterialSize:Int(mat:Material)
 	size += 1			'Used textures
 	
 	'Texture names
-	If mat.DiffuseTexture Then size += 4 + StripDir(mat.DiffuseTexture.Filename).Length
+	If mat.BaseTexture Then size += 4 + StripDir(mat.BaseTexture.Filename).Length
 	If mat.NormalTexture Then size += 4 + StripDir(mat.NormalTexture.Filename).Length
-	If mat.Lightmap Then size += 4 + StripDir(mat.Lightmap.Filename).Length
+	If mat.LightTexture Then size += 4 + StripDir(mat.LightTexture.Filename).Length
 	If mat.ReflectionTexture Then size += 4 + StripDir(mat.ReflectionTexture.Filename).Length
 	If mat.RefractionTexture Then size += 4 + StripDir(mat.RefractionTexture.Filename).Length
 	
@@ -336,7 +335,7 @@ End
 
 Function ColorsSize:Int(surf:Surface)
 	For Local v:Int = 0 Until surf.NumVertices
-		If surf.VertexRed(v) <> 1 Or surf.VertexGreen(v) <> 1 Or surf.VertexBlue(v) <> 1 Or surf.VertexAlpha(v) <> 1
+		If surf.VertexColor(v) <> Color.White()
 			Return surf.NumVertices * 4 * 4
 		End
 	Next
@@ -405,10 +404,10 @@ End
 
 Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	'Color
-	stream.WriteFloat(mat.DiffuseRed)
-	stream.WriteFloat(mat.DiffuseGreen)
-	stream.WriteFloat(mat.DiffuseBlue)
-	stream.WriteFloat(mat.Opacity)
+	stream.WriteFloat(Color.RF(mat.Color))
+	stream.WriteFloat(Color.GF(mat.Color))
+	stream.WriteFloat(Color.BF(mat.Color))
+	stream.WriteFloat(Color.AF(mat.Color))
 	
 	'Blend mode
 	stream.WriteByte(mat.BlendMode)
@@ -427,19 +426,19 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	
 	'Used textures
 	Local usedTexs:Int = 0	'1=Diffuse2D,2=DiffuseCube,4=Normal,8=Lightmap,16=Reflect,32=Refract
-	If mat.DiffuseTexture And Not mat.DiffuseTexture.IsCubic Then usedTexs |= 1
-	If mat.DiffuseTexture And mat.DiffuseTexture.IsCubic Then usedTexs |= 2
+	If mat.BaseTexture And Not mat.BaseTexture.IsCubic Then usedTexs |= 1
+	If mat.BaseTexture And mat.BaseTexture.IsCubic Then usedTexs |= 2
 	If mat.NormalTexture Then usedTexs |= 4
-	If mat.Lightmap Then usedTexs |= 8
+	If mat.LightTexture Then usedTexs |= 8
 	If mat.ReflectionTexture Then usedTexs |= 16
 	If mat.RefractionTexture Then usedTexs |= 32
 	stream.WriteByte(usedTexs)
 	
 	'Texture names
 	Local filename:String = ""
-	If mat.DiffuseTexture Then filename = StripDir(mat.DiffuseTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.BaseTexture Then filename = StripDir(mat.BaseTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.NormalTexture Then filename = StripDir(mat.NormalTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
-	If mat.Lightmap Then filename = StripDir(mat.Lightmap.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.LightTexture Then filename = StripDir(mat.LightTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.ReflectionTexture Then filename = StripDir(mat.ReflectionTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.RefractionTexture Then filename = StripDir(mat.RefractionTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 End
@@ -488,10 +487,10 @@ Function WriteSurfaceData:Void(stream:DataStream, surf:Surface, includeBones:Boo
 		End
 		
 		If vertexFlags & 4 = 4
-			stream.WriteFloat(surf.VertexRed(v))
-			stream.WriteFloat(surf.VertexGreen(v))
-			stream.WriteFloat(surf.VertexBlue(v))
-			stream.WriteFloat(surf.VertexAlpha(v))
+			stream.WriteFloat(Color.RF(surf.VertexColor(v)))
+			stream.WriteFloat(Color.GF(surf.VertexColor(v)))
+			stream.WriteFloat(Color.BF(surf.VertexColor(v)))
+			stream.WriteFloat(Color.AF(surf.VertexColor(v)))
 		End
 		
 		If vertexFlags & 8 = 8
@@ -837,73 +836,73 @@ Function CreateCube:Mesh()
 	Local surf:Surface = Surface.Create()
 	
 	'Front face
-	surf.AddVertex(-0.5,  0.5, -0.5,  0, 0, -1,  1, 1, 1, 1,  0, 0)
+	surf.AddVertex(-0.5,  0.5, -0.5,  0, 0, -1,  Color.White(),  0, 0)
 	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
-	surf.AddVertex( 0.5,  0.5, -0.5,  0, 0, -1,  1, 1, 1, 1,  1, 0)
+	surf.AddVertex( 0.5,  0.5, -0.5,  0, 0, -1,  Color.White(),  1, 0)
 	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
-	surf.AddVertex(-0.5, -0.5, -0.5,  0, 0, -1,  1, 1, 1, 1,  0, 1)
+	surf.AddVertex(-0.5, -0.5, -0.5,  0, 0, -1,  Color.White(),  0, 1)
 	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
-	surf.AddVertex( 0.5, -0.5, -0.5,  0, 0, -1,  1, 1, 1, 1,  1, 1)
+	surf.AddVertex( 0.5, -0.5, -0.5,  0, 0, -1,  Color.White(),  1, 1)
 	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
 	surf.AddTriangle(0, 1, 2)
 	surf.AddTriangle(3, 2, 1)
 	
 	'Back face
-	surf.AddVertex( 0.5,  0.5, 0.5,  0, 0, 1,  1, 1, 1, 1,  0, 0)
+	surf.AddVertex( 0.5,  0.5, 0.5,  0, 0, 1,  Color.White(),  0, 0)
 	surf.SetVertexTangent(surf.NumVertices-1, -1, 0, 0)
-	surf.AddVertex(-0.5,  0.5, 0.5,  0, 0, 1,  1, 1, 1, 1,  1, 0)
+	surf.AddVertex(-0.5,  0.5, 0.5,  0, 0, 1,  Color.White(),  1, 0)
 	surf.SetVertexTangent(surf.NumVertices-1, -1, 0, 0)
-	surf.AddVertex( 0.5, -0.5, 0.5,  0, 0, 1,  1, 1, 1, 1,  0, 1)
+	surf.AddVertex( 0.5, -0.5, 0.5,  0, 0, 1,  Color.White(),  0, 1)
 	surf.SetVertexTangent(surf.NumVertices-1, -1, 0, 0)
-	surf.AddVertex(-0.5, -0.5, 0.5,  0, 0, 1,  1, 1, 1, 1,  1, 1)
+	surf.AddVertex(-0.5, -0.5, 0.5,  0, 0, 1,  Color.White(),  1, 1)
 	surf.SetVertexTangent(surf.NumVertices-1, -1, 0, 0)
 	surf.AddTriangle(4, 5, 6)
 	surf.AddTriangle(7, 6, 5)
 	
 	'Left face
-	surf.AddVertex(-0.5,  0.5,  0.5,  -1, 0, 0,  1, 1, 1, 1,  0, 0)
+	surf.AddVertex(-0.5,  0.5,  0.5,  -1, 0, 0,  Color.White(),  0, 0)
 	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, -1)
-	surf.AddVertex(-0.5,  0.5, -0.5,  -1, 0, 0,  1, 1, 1, 1,  1, 0)
+	surf.AddVertex(-0.5,  0.5, -0.5,  -1, 0, 0,  Color.White(),  1, 0)
 	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, -1)
-	surf.AddVertex(-0.5, -0.5,  0.5,  -1, 0, 0,  1, 1, 1, 1,  0, 1)
+	surf.AddVertex(-0.5, -0.5,  0.5,  -1, 0, 0,  Color.White(),  0, 1)
 	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, -1)
-	surf.AddVertex(-0.5, -0.5, -0.5,  -1, 0, 0,  1, 1, 1, 1,  1, 1)
+	surf.AddVertex(-0.5, -0.5, -0.5,  -1, 0, 0,  Color.White(),  1, 1)
 	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, -1)
 	surf.AddTriangle(8, 9, 10)
 	surf.AddTriangle(11, 10, 9)
 	
 	'Right face
-	surf.AddVertex(0.5,  0.5, -0.5,  1, 0, 0,  1, 1, 1, 1,  0, 0)
+	surf.AddVertex(0.5,  0.5, -0.5,  1, 0, 0,  Color.White(),  0, 0)
 	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, 1)
-	surf.AddVertex(0.5,  0.5,  0.5,  1, 0, 0,  1, 1, 1, 1,  1, 0)
+	surf.AddVertex(0.5,  0.5,  0.5,  1, 0, 0,  Color.White(),  1, 0)
 	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, 1)
-	surf.AddVertex(0.5, -0.5, -0.5,  1, 0, 0,  1, 1, 1, 1,  0, 1)
+	surf.AddVertex(0.5, -0.5, -0.5,  1, 0, 0,  Color.White(),  0, 1)
 	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, 1)
-	surf.AddVertex(0.5, -0.5,  0.5,  1, 0, 0,  1, 1, 1, 1,  1, 1)
+	surf.AddVertex(0.5, -0.5,  0.5,  1, 0, 0,  Color.White(),  1, 1)
 	surf.SetVertexTangent(surf.NumVertices-1, 0, 0, 1)
 	surf.AddTriangle(12, 13, 14)
 	surf.AddTriangle(15, 14, 13)
 	
 	'Top face
-	surf.AddVertex(-0.5, 0.5,  0.5,  0, 1, 0,  1, 1, 1, 1,  0, 0)
+	surf.AddVertex(-0.5, 0.5,  0.5,  0, 1, 0,  Color.White(),  0, 0)
 	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
-	surf.AddVertex( 0.5, 0.5,  0.5,  0, 1, 0,  1, 1, 1, 1,  1, 0)
+	surf.AddVertex( 0.5, 0.5,  0.5,  0, 1, 0,  Color.White(),  1, 0)
 	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
-	surf.AddVertex(-0.5, 0.5, -0.5,  0, 1, 0,  1, 1, 1, 1,  0, 1)
+	surf.AddVertex(-0.5, 0.5, -0.5,  0, 1, 0,  Color.White(),  0, 1)
 	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
-	surf.AddVertex( 0.5, 0.5, -0.5,  0, 1, 0,  1, 1, 1, 1,  1, 1)
+	surf.AddVertex( 0.5, 0.5, -0.5,  0, 1, 0,  Color.White(),  1, 1)
 	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
 	surf.AddTriangle(16, 17, 18)
 	surf.AddTriangle(19, 18, 17)
 	
 	'Bottom face
-	surf.AddVertex(-0.5, -0.5, -0.5,  0, -1, 0,  1, 1, 1, 1,  0, 0)
+	surf.AddVertex(-0.5, -0.5, -0.5,  0, -1, 0,  Color.White(),  0, 0)
 	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
-	surf.AddVertex( 0.5, -0.5, -0.5,  0, -1, 0,  1, 1, 1, 1,  1, 0)
+	surf.AddVertex( 0.5, -0.5, -0.5,  0, -1, 0,  Color.White(),  1, 0)
 	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
-	surf.AddVertex(-0.5, -0.5,  0.5,  0, -1, 0,  1, 1, 1, 1,  0, 1)
+	surf.AddVertex(-0.5, -0.5,  0.5,  0, -1, 0,  Color.White(),  0, 1)
 	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
-	surf.AddVertex( 0.5, -0.5,  0.5,  0, -1, 0,  1, 1, 1, 1,  1, 1)
+	surf.AddVertex( 0.5, -0.5,  0.5,  0, -1, 0,  Color.White(),  1, 1)
 	surf.SetVertexTangent(surf.NumVertices-1, 1, 0, 0)
 	surf.AddTriangle(20, 21, 22)
 	surf.AddTriangle(23, 22, 21)

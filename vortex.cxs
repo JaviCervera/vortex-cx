@@ -1,6 +1,8 @@
 'TODO v2.0:
-'- Add high level Entity, World, etc functions
-'- Add new tests
+'- Store color in msh file as Int instead of 4 floats (both in materials and vertices)
+'- Add .dat suffix to binary files (.msh.dat, .skl.dat, etc)
+'- Update tests
+'- Replace Color.White(), Color.Red(), etc. with Color.WHITE, Color.RED...
 '- Document mesh and surface modification functions
 '- Document engine and tools
 '- Replace number of frames with animation duration?
@@ -14,58 +16,23 @@
 
 Strict
 
-Import vortex.src.bone
-Import vortex.src.font
-Import vortex.src.framebuffer
-Import vortex.src.lighting
-Import vortex.src.material
-Import vortex.src.math3d
-Import vortex.src.mesh
-Import vortex.src.renderer
-Import vortex.src.renderlist
-Import vortex.src.stats
-Import vortex.src.surface
-Import vortex.src.texture
-
-Class Vortex Final
-Public
-	Function Init:Bool(numLights:Int = 8, numBones:Int = 75)
-		If Renderer.Init(numLights, numBones)
-			Stats.Init()
-			Return True
-		Else
-			Return False
-		End
-	End
-
-	Function ShaderError:String()
-		Return Renderer.ProgramError()
-	End
-	
-	Function VendorName:String()
-		Return Renderer.VendorName()
-	End
-	
-	Function RendererName:String()
-		Return Renderer.RendererName()
-	End
-	
-	Function APIVersionName:String()
-		Return Renderer.APIVersionName()
-	End
-	
-	Function ShadingVersionName:String()
-		Return Renderer.ShadingVersionName()
-	End
-
-	Function APIVersion:Float()
-		Return Renderer.APIVersion()
-	End Function
-
-	Function ShadingVersion:Float()
-		Return Renderer.ShadingVersion()
-	End Function
-Private
-	Method New()
-	End
-End
+Import src.bone
+Import src.cache
+Import src.camera
+Import src.color
+Import src.entity
+Import src.font
+Import src.framebuffer
+Import src.light
+Import src.listener
+Import src.material
+Import src.math3d
+Import src.mesh
+Import src.model
+Import src.primitive
+Import src.renderer
+Import src.sprite
+Import src.stats
+Import src.surface
+Import src.texture
+Import src.world
