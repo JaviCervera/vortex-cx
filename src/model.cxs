@@ -15,11 +15,6 @@ Class Model Extends Entity Implements IMaterialDelegate Final
 		If mesh Then Return New Model(mesh, parent) Else Return Null
 	End
 	
-	Method Free:Void()
-		Visible = False
-		Super.Free()
-	End
-	
 	Method Mesh:Mesh() Property
 		Return mMesh
 	End

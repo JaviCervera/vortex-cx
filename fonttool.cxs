@@ -33,15 +33,15 @@ Public
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not Vortex.Init()
-			Notify "Error", Vortex.ShaderError(), True
+		If Not World.Init()
+			Notify "Error", Stats.ShaderError(), True
 			EndApp()
 		End
-		Print "Vendor name: " + Vortex.VendorName()
-		Print "Renderer name: " + Vortex.RendererName()
-		Print "API version name: " + Vortex.APIVersionName()
-		Print "Shading version name: " + Vortex.ShadingVersionName()
-		Print "Shader compilation: " + Vortex.ShaderError()
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Create gui
 		mGui = New Gui
@@ -50,7 +50,8 @@ Public
 	End
 	
 	Method OnUpdate:Int()
-		Stats.UpdateDeltaTime()
+		'Update world
+		World.Update()
 	
 		'Update GUI
 		Local newFont:Font = mGui.Update(mFont)
@@ -62,8 +63,11 @@ Public
 	End
 	
 	Method OnRender:Int()
-		Stats.UpdateFPS()
+		'Render world
+		World.Render()
+		
 		mGui.Render(mFont)
+		
 		Return False
 	End
 Private

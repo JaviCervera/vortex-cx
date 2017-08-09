@@ -1,10 +1,12 @@
 'TODO v2.0:
-'- Store color in msh file as Int instead of 4 floats (both in materials and vertices)
+'- Rename Free to Discard, to be consistent with the rest of Cerberus modules
+'- Store color in msh file as int instead of 4 floats (both in materials and vertices)
 '- Add .dat suffix to binary files (.msh.dat, .skl.dat, etc)
 '- Update tests
 '- Replace Color.White(), Color.Red(), etc. with Color.WHITE, Color.RED...
 '- Document mesh and surface modification functions
 '- Document engine and tools
+'- Add Building section to README.md
 '- Replace number of frames with animation duration?
 'TODO v2.1:
 '- Add texture matrix in Material

@@ -20,11 +20,6 @@ Class Sprite Extends Entity Implements IMaterialDelegate Final
 		Return New Sprite(texture, orientation, parent)
 	End
 	
-	Method Free:Void()
-		Visible = False
-		Super.Free()
-	End
-	
 	Method Visible:Void(visible:Bool) Property
 		If visible <> Super.Visible
 			Super.Visible(visible)

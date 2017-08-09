@@ -18,7 +18,7 @@ Function LoadFont:Font(filename:String, size:Int)
 	
 	'Directly load native FNT files
 	If ExtractExt(filename).ToLower() = "fnt"
-		Local font:Font = Font.Load(filename)
+		Local font:Font = Cache.LoadFont(filename)
 		Return font
 	End
 
@@ -61,7 +61,7 @@ Function LoadXMLFontString:Font(buffer:String, filename:String)
 	Local glyphNodes:List<XMLNode> = doc.GetChild("glyphs").GetChildren("glyph")
 	If image = "" Or bufferWidth = 0 Or fontSize = 0 Or glyphNodes.IsEmpty() Then Return Null
 	
-	Local tex:Texture = Texture.Load(image, Renderer.FILTER_NONE)
+	Local tex:Texture = Texture._Load(image, Renderer.FILTER_NONE)
 
 	'Create font
 	Local font:Font = Font.Create(filename, fontSize, tex)

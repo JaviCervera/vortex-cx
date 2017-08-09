@@ -24,7 +24,7 @@ Import src_tools.dialog
 Import src_tools.meshtool_gui
 Import vortex
 
-Class MeshToolApp Extends App Implements IMaterialDelegate Final
+Class MeshToolApp Extends App Final
 Public
 	Method OnCreate:Int()
 		'Setup
@@ -33,70 +33,47 @@ Public
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not Vortex.Init()
-			Notify "Error", Vortex.ShaderError(), True
+		If Not World.Init()
+			Notify "Error", Stats.ShaderError(), True
 			EndApp()
 		End
-		Print "Vendor name: " + Vortex.VendorName()
-		Print "Renderer name: " + Vortex.RendererName()
-		Print "API version name: " + Vortex.APIVersionName()
-		Print "Shading version name: " + Vortex.ShadingVersionName()
-		Print "Shader compilation: " + Vortex.ShaderError()
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Create gui
 		mGui = New Gui
 		
-		'Create matrices and quaternions
-		mProj = Mat4.Create()
-		mView = Mat4.Create()
-		mModel = Mat4.Create()
-		mTempQuat = Quat.Create()
+		'Create camera
+		mCam = Camera.Create()
+		mCam.SetPosition(2, 2, -2)
+		mCam.SetRotation(37, -45, 0)
+		mCam.ClearColor = Color.RGB(100, 100, 100)
+		mCam.Far = 5000
 		
-		'Create RenderList
-		mRenderList = RenderList.Create()
+		'Add directional light
+		mLight = Light.Create(Light.TYPE_POINT, mCam)
+		mLight.Radius = 100000
 		
-		'Setup lighting
-		Lighting.SetLightEnabled(0, True)
-		Lighting.SetLightType(0, Lighting.DIRECTIONAL)
-		
-		mCamPos = Vec3.Create(2, 2, -2)
-		mCamRot = Vec3.Create(37, -45, 0)
 		mLastMouseX = MouseX()
 		mLastMouseY = MouseY()
 		mFreeLook = False
-		mAnimFrame = 0
 		
 		Return False
 	End
 	
 	Method OnUpdate:Int()
-		'Update delta time
-		Stats.UpdateDeltaTime()
+		'Update world
+		World.Update()
 		
 		'Update GUI
-		Local newMesh:Mesh = mGui.Update(mMesh)
-		If newMesh <> Null
-			If mMesh Then mRenderList.RemoveMesh(mMesh, mModel)
-			mMesh = newMesh
-			
-			'Set material delegate
-			For Local s:Int = 0 Until mMesh.NumSurfaces
-				mMesh.Surface(s).Material.Delegate = Self
-			Next
-			
-			'Add animation matrices
-			mAnimMatrices = New Mat4[mMesh.NumBones]
-			For Local m:Int = 0 Until mAnimMatrices.Length
-				mAnimMatrices[m] = Mat4.Create()
-				mAnimMatrices[m].Set(mMesh.Bone(m).InversePoseMatrix)
-			Next
-			mAnimFrame = 0
-			
-			If mAnimMatrices.Length = 0
-				mRenderList.AddMesh(mMesh, mModel)
-			Else
-				mRenderList.AddMesh(mMesh, mModel, mAnimMatrices)
-			End
+		Local newModel:Model = mGui.Update(mModel)
+		If newModel <> Null
+			If mModel Then mModel.Free()
+			mModel = newModel
+			mModel.FPS = 16
 		End
 		
 		'Update camera controls
@@ -105,27 +82,14 @@ Public
 			'If mFreeLook Then HideMouse() Else ShowMouse()
 		End
 		If mFreeLook
-			mCamRot.X += (MouseY() - mLastMouseY) * 90 * Stats.DeltaTime()
-			mCamRot.Y += (MouseX() - mLastMouseX) * 90 * Stats.DeltaTime()
-			If mCamRot.X > 89 Then mCamRot.X = 89
-			If mCamRot.X < -89 Then mCamRot.X = -89
-			mTempQuat.SetEuler(mCamRot.X, mCamRot.Y, mCamRot.Z)
-			If KeyDown(KEY_W)
-				mTempQuat.Mul(0, 0, 32 * Stats.DeltaTime())
-				mCamPos.Sum(mTempQuat.ResultVector())
-			End
-			If KeyDown(KEY_S)
-				mTempQuat.Mul(0, 0, -32 * Stats.DeltaTime())
-				mCamPos.Sum(mTempQuat.ResultVector())
-			End
-			If KeyDown(KEY_A)
-				mTempQuat.Mul(-32 * Stats.DeltaTime(), 0, 0)
-				mCamPos.Sum(mTempQuat.ResultVector())
-			End
-			If KeyDown(KEY_D)
-				mTempQuat.Mul(32 * Stats.DeltaTime(), 0, 0)
-				mCamPos.Sum(mTempQuat.ResultVector())
-			End
+			mCam.Pitch += (MouseY() - mLastMouseY) * 90 * Stats.DeltaTime()
+			mCam.Yaw += (MouseX() - mLastMouseX) * 90 * Stats.DeltaTime()
+			If mCam.Pitch > 89 Then mCam.Pitch = 89
+			If mCam.Pitch < -89 Then mCam.Pitch = -89
+			If KeyDown(KEY_W) Then mCam.Move(0, 0, 32 * Stats.DeltaTime())
+			If KeyDown(KEY_S) Then mCam.Move(0, 0, -32 * Stats.DeltaTime())
+			If KeyDown(KEY_A) Then mCam.Move(-32 * Stats.DeltaTime(), 0, 0)
+			If KeyDown(KEY_D) Then mCam.Move(32 * Stats.DeltaTime(), 0, 0)
 		End
 		
 		'Update mouse
@@ -133,73 +97,30 @@ Public
 		mLastMouseY = MouseY()
 		
 		'Update camera projection
-		mProj.SetPerspectiveLH(45, Float(DeviceWidth()) / DeviceHeight(), 1, 5000)
-		
-		'Update camera view
-		mTempQuat.SetEuler(mCamRot.X, mCamRot.Y, mCamRot.Z)
-		mTempQuat.Mul(0, 0, 1)
-		mTempQuat.ResultVector().Sum(mCamPos)
-		mView.LookAtLH(mCamPos.X, mCamPos.Y, mCamPos.Z, mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, 0, 1, 0)
-		
-		'Update light
-		mTempQuat.ResultVector().Sub(mCamPos)
-		mTempQuat.ResultVector().Normalize()
-		mTempQuat.ResultVector().Mul(-1)
-		Lighting.SetLightPosition(0, mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z)
-		
-		'Update animations
-		If mMesh And mMesh.NumFrames > 0
-			mAnimFrame += 16 * Stats.DeltaTime()
-			If mAnimFrame >= mMesh.NumFrames Then mAnimFrame -= Int(mAnimFrame)
-			mMesh.Animate(mAnimMatrices, mAnimFrame)
-		End
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
 		
 		Return False
 	End
 	
 	Method OnRender:Int()
-		'Update FPS
-		Stats.UpdateFPS()
-		
 		'Render world
-		Renderer.Setup3D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.SetProjectionMatrix(mProj)
-		Renderer.SetViewMatrix(mView)
-		Lighting.Prepare(0, 0, 0)
-		Renderer.ClearColorBuffer(0.4, 0.4, 0.4)
-		Renderer.ClearDepthBuffer()
-		mRenderList.Render()
+		World.Render()
 		
 		'Render GUI
-		mGui.Render(mMesh)
+		mGui.Render(mModel)
 	
 		Return False
 	End
-	
-	Method MaterialChanged:Void(mat:Material)
-		mRenderList.RemoveMesh(mMesh, mModel)
-		mRenderList.AddMesh(mMesh, mModel, mAnimMatrices)
-	End
 Private
-	'Resources
-	Field mMesh				: Mesh
-	
-	'Matrices and other Vortex stuff
-	Field mProj					: Mat4
-	Field mView					: Mat4
-	Field mModel				: Mat4
-	Field mAnimMatrices			: Mat4[]
-	Field mTempQuat				: Quat
-	Field mRenderList			: RenderList
-	
-	'Misc
-	Field mGui				: Gui
-	Field mCamPos			: Vec3
-	Field mCamRot			: Vec3
-	Field mLastMouseX		: Float
-	Field mLastMouseY		: Float
-	Field mFreeLook			: Bool
-	Field mAnimFrame		: Float
+	Field mCam			: Camera
+	Field mLight		: Light
+	Field mModel		: Model
+	Field mGui			: Gui
+	Field mLastMouseX	: Float
+	Field mLastMouseY	: Float
+	Field mFreeLook		: Bool
 End
 
 Function Main:Int()

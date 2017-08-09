@@ -89,7 +89,8 @@ Const SHADER_CALC_LIGHTING:String = "" +
 "	lighting.combinedSpecular = vec3(0.0, 0.0, 0.0);" +
 
 	'Compute all lights
-"	for ( int i = 0; i < numLights; i++ ) {" +
+"	for ( int i = 0; i < MAX_LIGHTS; ++i ) {" +
+"		if ( i >= numLights ) break;" +
 "   	vec3 L = vec3(lightPos[i]);" +
 "   	float att = 1.0;" +
 

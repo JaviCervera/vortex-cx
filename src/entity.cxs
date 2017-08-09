@@ -1,7 +1,6 @@
 Strict
 
 Private
-Import game
 Import listener
 Import mojo.audio
 Import vortex
@@ -19,6 +18,7 @@ Class Entity
 		mScale = Vec3.Create(1, 1, 1)
 		mTransform = Mat4.Create()
 		World._AddEntity(Self)
+		_UpdateTransform()
 	End
 	
 	Function Create:Entity(parent:Entity)
@@ -26,12 +26,12 @@ Class Entity
 	End
 	
 	Method Free:Void()
+		Visible = False
 		While Not mChildren.IsEmpty()
 			mChildren.First().Free()
 		Wend
 		Parent = Null
 		World._FreeEntity(Self)
-		Game._EntityFreed(Self)
 	End
 	
 	Method Name:String() Property
