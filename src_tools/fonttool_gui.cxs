@@ -13,7 +13,7 @@ Class Gui
 Public
 	Method New()
 		'Load resources
-		mFont = Cache.LoadFont("system.fnt")
+		mFont = Cache.LoadFont("system.fnt.dat")
 	
 		mFontRect = New Rect(8, 8, 300, 24)
 		mSizeRect = New Rect(312, 8, 100, 24)
@@ -34,29 +34,29 @@ Public
 					filename = filename.Replace("\", "/")
 					Local font:Font = LoadFont(filename, mFontSizes[mSelSize])
 					If font <> Null
-						If ExtractExt(filename).ToLower() <> "fnt" Then SaveFont(font, StripExt(filename) + ".fnt")
+						If ExtractExt(filename).ToLower() <> "dat" Then SaveFont(font, StripExt(filename) + ".fnt.dat")
 						Return font
 					Else
 						Notify "Error", "Could not load font '" + filename + "'", True
 					End
 				End
 			'Size
-			Elseif mSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "fnt" And ExtractExt(currentFont.Filename).ToLower() <> "xml"
+			Elseif mSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "dat" And ExtractExt(currentFont.Filename).ToLower() <> "xml"
 				mSelSize += 1
 				If mSelSize = mFontSizes.Length Then mSelSize = 0
 				Local font:Font = LoadFont(currentFont.Filename, mFontSizes[mSelSize])
 				If font <> Null
-					SaveFont(font, StripExt(currentFont.Filename) + ".fnt")
+					SaveFont(font, StripExt(currentFont.Filename) + ".fnt.dat")
 					Return font
 				End
 			'Custom size
-			Elseif mCustomSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "fnt" And ExtractExt(currentFont.Filename).ToLower() <> "xml"
+			Elseif mCustomSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "dat" And ExtractExt(currentFont.Filename).ToLower() <> "xml"
 				Local sizeStr:String = RequestInput("Font size", "Enter custom font size", Int(currentFont.Height))
 				Local newSize:Int = Int(sizeStr)
 				If newSize <> 0 And newSize <> currentFont.Height
 					Local font:Font = LoadFont(currentFont.Filename, newSize)
 					If font <> Null
-						SaveFont(font, StripExt(currentFont.Filename) + ".fnt")
+						SaveFont(font, StripExt(currentFont.Filename) + ".fnt.dat")
 						Return font
 					End
 				End
@@ -69,16 +69,16 @@ Public
 	Method Render:Void(currentFont:Font)
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetBlendMode(Renderer.BLEND_ALPHA)
-		Renderer.ClearColorBuffer(0.2, 0.2, 0.2)
+		Renderer.ClearColorBuffer(Color.RGB(50, 50, 50))
 		If currentFont
-			DrawPanel(mFontRect, "Font: " + StripDir(StripExt(currentFont.Filename)), mFont)
+			DrawPanel(mFontRect, "Font: " + StripDir(StripExt(StripExt(currentFont.Filename))), mFont)
 		Else
 			DrawPanel(mFontRect, "Load Font", mFont)
 		End
 		
 		If currentFont
 			DrawPanel(mSizeRect, "Size: " + currentFont.Height, mFont)
-			If ExtractExt(currentFont.Filename).ToLower() <> "fnt" And ExtractExt(currentFont.Filename).ToLower() <> "xml" Then DrawPanel(mCustomSizeRect, "...", mFont)
+			If ExtractExt(currentFont.Filename).ToLower() <> "dat" And ExtractExt(currentFont.Filename).ToLower() <> "xml" Then DrawPanel(mCustomSizeRect, "...", mFont)
 		End
 		
 		If currentFont

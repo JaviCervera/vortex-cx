@@ -131,7 +131,9 @@ Public
 		Return True
 	End
 
-	Function Setup2D:Void(x:Int, y:Int, w:Int, h:Int, framebufferHeight:Int = DeviceHeight())
+	Function Setup2D:Void(x:Int, y:Int, w:Int, h:Int, framebufferHeight:Int = 0)
+		If framebufferHeight = 0 Then framebufferHeight = h
+	
 		'Switch to 2D program
 		UseProgram(m2DProgram)
 
@@ -161,7 +163,9 @@ Public
 		Renderer.SetModelMatrix(mTempMatrix)
 	End
 
-	Function Setup3D:Void(x:Int, y:Int, w:Int, h:Int, isDepthPass:Bool = False, framebufferHeight:Int = DeviceHeight())
+	Function Setup3D:Void(x:Int, y:Int, w:Int, h:Int, isDepthPass:Bool = False, framebufferHeight:Int = 0)
+		If framebufferHeight = 0 Then framebufferHeight = h
+	
 		'Switch to 3D program
 		If Not isDepthPass
 			UseProgram(mDefaultProgram)
@@ -305,7 +309,7 @@ Public
 	End
 	
 	Function SetColor:Void(color:Int)
-		SetColor(Color.RF(color), Color.GF(color), Color.BF(color), Color.AF(color))
+		SetColor(Color.Red(color) / 255.0, Color.Green(color) / 255.0, Color.Blue(color) / 255.0, Color.Alpha(color) / 255.0)
 	End
 
 	Function SetColor:Void(r:Float, g:Float, b:Float, a:Float = 1)
@@ -362,8 +366,8 @@ Public
 	' Drawing
 	'---------------------------------------------------------------------------
 
-	Function ClearColorBuffer:Void(r:Float = 0, g:Float = 0, b:Float = 0, a:Float = 1)
-		glClearColor(r, g, b, a)
+	Function ClearColorBuffer:Void(color:Int = Color.BLACK)
+		glClearColor(Color.Red(color) / 255.0, Color.Green(color) / 255.0, Color.Blue(color) / 255.0, Color.Alpha(color) / 255.0)
 		glClear(GL_COLOR_BUFFER_BIT)
 	End
 

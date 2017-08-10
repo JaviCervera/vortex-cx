@@ -42,16 +42,16 @@ Function DrawRectOutline:Void(x:Float, y:Float, width:Float, height:Float)
 	Renderer.DrawLine(x+width, y, x+width, y+height)
 End
 
-Function DrawPanel:Void(r:Rect, text:String = "", font:Font = Null, color:Int = Color.LightGray())
+Function DrawPanel:Void(r:Rect, text:String = "", font:Font = Null, color:Int = Color.LIGHT_GRAY)
 	DrawPanel(r.x, r.y, r.width, r.height, text, font, color)
 End
 
-Function DrawPanel:Void(x:Float, y:Float, width:Float, height:Float, text:String = "", font:Font = Null, color:Int = Color.LightGray())
+Function DrawPanel:Void(x:Float, y:Float, width:Float, height:Float, text:String = "", font:Font = Null, color:Int = Color.LIGHT_GRAY)
 	Renderer.SetColor(color)
 	Renderer.DrawRect(x, y, width, height)
 	DrawRectOutline(x, y, width, height)
 	If text <> "" And font <> Null
-		Renderer.SetColor(Color.RF(color) * 0.3, Color.GF(color) * 0.3, Color.BF(color) * 0.3)
+		Renderer.SetColor(Color.RGB(Color.Red(color) * 0.3, Color.Green(color) * 0.3, Color.Blue(color) * 0.3))
 		font.Draw(x + width/2 - font.TextWidth(text)/2, y + height/2 - font.TextHeight(text)/2, text)
 	End
 End

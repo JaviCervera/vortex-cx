@@ -5,13 +5,8 @@ Strict
 #GLFW_WINDOW_HEIGHT=600
 #GLFW_WINDOW_RESIZABLE=True
 #GLFW_WINDOW_SAMPLES=2
-#OPENGL_DEPTH_BUFFER_ENABLED=True
-#BINARY_FILES+="*.msh|*.skl|*.anm|*.fnt"
 '#GLFW_GCC_MSIZE_WINNT="32"
 
-#If TARGET="glfw" And HOST<>"linux"
-Import brl.requesters
-#Endif
 Import mojo.app
 Import mojo.input
 Import vortex
@@ -26,11 +21,7 @@ Public
 	
 		'Init vortex
 		If Not World.Init()
-#If TARGET="glfw" And HOST<>"linux"
-			Notify "Error", Stats.ShaderError(), True
-#Else
 			Print "Error: " + Stats.ShaderError()
-#Endif
 			EndApp()
 		End
 		Print "Vendor name: " + Stats.VendorName()
@@ -40,7 +31,7 @@ Public
 		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt")
+		mFont = Cache.LoadFont("system.fnt.dat")
 		
 		'Create camera
 		mCam = Camera.Create()
@@ -49,7 +40,7 @@ Public
 		mCam.ClearColor = Color.RGB(15, 15, 15)
 		
 		'Create model
-		mModel = Model.Create(Cache.LoadMesh("angel.msh"))
+		mModel = Model.Create(Cache.LoadMesh("angel.msh.dat"))
 		mModel.Yaw = 180.0
 		
 		'Create lights
@@ -63,11 +54,11 @@ Public
 		mLights[2].SetPosition(2, 0, 0)
 		mLights[3].SetPosition(0, 0, 2)
 		mLights[4].SetPosition(-2, 0, 0)
-		mLights[0].Color = Color.RGBF(0.6, 0.6, 0.6)
-		mLights[1].Color = Color.RGBF(0.5, 1, 0.7)
-		mLights[2].Color = Color.RGBF(1, 0.7, 0.2)
-		mLights[3].Color = Color.RGBF(1, 0.5, 0.7)
-		mLights[4].Color = Color.RGBF(0.2, 0.7, 1)
+		mLights[0].Color = Color.RGB(155, 155, 155)
+		mLights[1].Color = Color.RGB(128, 255, 178)
+		mLights[2].Color = Color.RGB(255, 178, 50)
+		mLights[3].Color = Color.RGB(255, 128, 178)
+		mLights[4].Color = Color.RGB(50, 178, 255)
 
 		Return False
 	End

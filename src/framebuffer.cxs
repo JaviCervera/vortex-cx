@@ -16,9 +16,9 @@ Public
 		Return fb
 	End
 	
-	Method Free:Void()
-		If mColorTex Then mColorTex.Free()
-		'If mDepthTex Then mDepthTex.Free()
+	Method Discard:Void()
+		If mColorTex Then mColorTex.Discard()
+		'If mDepthTex Then mDepthTex.Discard()
 		If mDepthBuffer > 0 Then Renderer.FreeRenderbuffer(mDepthBuffer)
 		Renderer.FreeFramebuffer(mHandle)
 	End

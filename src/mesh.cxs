@@ -130,9 +130,9 @@ Public
 		Return True
 	End
 
-	Method Free:Void(freeTextures:Bool = True)
+	Method Discard:Void(discardTextures:Bool = True)
 		For Local surf:Surface = Eachin mSurfaces
-			surf.Free(freeTextures)
+			surf.Discard(discardTextures)
 		Next
 	End
 	
@@ -360,11 +360,7 @@ Public
 		
 			'Material
 			Local flags:Int = 0
-			Local red:Float = stream.ReadFloat()
-			Local green:Float = stream.ReadFloat()
-			Local blue:Float = stream.ReadFloat()
-			Local alpha:Float = stream.ReadFloat()
-			surf.Material.Color = Color.RGBF(red, green, blue, alpha)
+			surf.Material.Color = stream.ReadInt()
 			surf.Material.BlendMode = stream.ReadByte()
 			flags = stream.ReadByte()
 			If flags & 1 Then surf.Material.Culling = True Else surf.Material.Culling = False
@@ -461,16 +457,8 @@ Public
 				End
 				
 				'Load colors if present
-				Local r:Float = 1
-				Local g:Float = 1
-				Local b:Float = 1
-				Local a:Float = 1
-				If vertexFlags & 4 = 4
-					r = stream.ReadFloat()
-					g = stream.ReadFloat()
-					b = stream.ReadFloat()
-					a = stream.ReadFloat()
-				End
+				Local color:Int = Color.WHITE
+				If vertexFlags & 4 = 4 Then color = stream.ReadInt()
 				
 				'Load texcoords0 if present
 				Local u0:Float = 0
@@ -508,7 +496,7 @@ Public
 					w3 = stream.ReadFloat()
 				End
 				
-				surf.AddVertex(x, y, z, nx, ny, nz, Color.RGBF(r, g, b, a), u0, v0)
+				surf.AddVertex(x, y, z, nx, ny, nz, color, u0, v0)
 				surf.SetVertexTangent(v, tx, ty, tz)
 				surf.SetVertexTexCoords(v, u1, v1, 1)
 				surf.SetVertexBone(v, 0, b0, w0)

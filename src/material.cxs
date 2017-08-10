@@ -17,7 +17,7 @@ Public
 	Function Create:Material(baseTex:Texture = Null, delegate:IMaterialDelegate = Null)
 		Local mat:Material = New Material
 		mat.mDelegate = delegate
-		mat.mColor = color.Color.White()
+		mat.mColor = color.Color.WHITE
 		mat.mBaseTex = baseTex
 		mat.mShininess = 0
 		mat.mRefractCoef = 1
@@ -33,12 +33,12 @@ Public
 		Return mat
 	End
 	
-	Method FreeTextures:Void()
-		If mBaseTex Then mBaseTex.Free()
-		If mNormalTex Then mNormalTex.Free()
-		If mLightTex Then mLightTex.Free()
-		If mReflectTex Then mReflectTex.Free()
-		If mReflectTex Then mRefractTex.Free()
+	Method DiscardTextures:Void()
+		If mBaseTex Then mBaseTex.Discard()
+		If mNormalTex Then mNormalTex.Discard()
+		If mLightTex Then mLightTex.Discard()
+		If mReflectTex Then mReflectTex.Discard()
+		If mReflectTex Then mRefractTex.Discard()
 	End
 	
 	Method IsEqual:Bool(other:Material)

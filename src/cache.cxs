@@ -87,13 +87,13 @@ Private
 
 	Method Clear:Void()
 		For Local font:Font = Eachin mFonts.Values()
-			font.Free()
+			font.Discard()
 		Next
 		For Local mesh:Mesh = Eachin mMeshes.Values()
-			mesh.Free()
+			mesh.Discard()
 		Next
 		For Local tex:Texture = Eachin mTextures.Values()
-			tex.Free()
+			tex.Discard()
 		Next
 		mFonts.Clear()
 		mMeshes.Clear()

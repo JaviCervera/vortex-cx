@@ -12,9 +12,7 @@ Strict
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 '#GLFW_GCC_MSIZE_LINUX="32"
 #If HOST = "winnt"
-#BINARY_FILES += "*.exe|*.fnt"
-#Else
-#BINARY_FILES += "*.bin|*.fnt"
+#BINARY_FILES += "*.exe"
 #End
 
 'Imports
@@ -71,7 +69,7 @@ Public
 		'Update GUI
 		Local newModel:Model = mGui.Update(mModel)
 		If newModel <> Null
-			If mModel Then mModel.Free()
+			If mModel Then mModel.Discard()
 			mModel = newModel
 			mModel.FPS = 16
 		End

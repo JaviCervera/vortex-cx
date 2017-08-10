@@ -25,7 +25,7 @@ Public
 		Return tex
 	End
 
-	Method Free:Void()
+	Method Discard:Void()
 		If mHandle <> 0 Then Renderer.FreeTexture(mHandle)
 		mHandle = 0
 	End

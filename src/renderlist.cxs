@@ -89,7 +89,7 @@ Public
 		Return New RenderList
 	End
 	
-	Method Free:Void()
+	Method Discard:Void()
 		mRenderLists.RemoveFirst(Self)
 	End
 

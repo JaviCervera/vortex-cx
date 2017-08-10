@@ -5,12 +5,7 @@ Strict
 #GLFW_WINDOW_HEIGHT=600
 #GLFW_WINDOW_RESIZABLE=True
 #GLFW_WINDOW_SAMPLES=2
-#OPENGL_DEPTH_BUFFER_ENABLED=True
-#BINARY_FILES+="*.msh|*.skl|*.anm|*.fnt"
 
-#If TARGET="glfw" And HOST<>"linux"
-Import brl.requesters
-#Endif
 Import mojo.app
 Import mojo.input
 Import vortex
@@ -25,11 +20,7 @@ Public
 	
 		'Init vortex
 		If Not World.Init()
-#If TARGET="glfw" And HOST<>"linux"
-			Notify "Error", Stats.ShaderError(), True
-#Else
 			Print "Error: " + Stats.ShaderError()
-#Endif
 			EndApp()
 		End
 		Print "Vendor name: " + Stats.VendorName()
@@ -39,20 +30,20 @@ Public
 		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt")
+		mFont = Cache.LoadFont("system.fnt.dat")
 		
 		'Create camera
 		mCam = Camera.Create()
-		mCam.ClearColor = Color.White()
+		mCam.ClearColor = Color.WHITE
 		mCam.SetPosition(0, 0, -3)
 		
 		'Create surface
 		Local tri:Surface = Surface.Create()
 		tri.Material.Culling = False
 		tri.AddTriangle(0, 1, 2)
-		tri.AddVertex(0,0.5,0,     0,0,-1, Color.Red(),	0,0)
-		tri.AddVertex(0.5,-0.5,0,  0,0,-1, Color.Green(),	0,0)
-		tri.AddVertex(-0.5,-0.5,0, 0,0,-1, Color.Blue(),	0,0)
+		tri.AddVertex(0,0.5,0,     0,0,-1, Color.RED,		0,0)
+		tri.AddVertex(0.5,-0.5,0,  0,0,-1, Color.GREEN,	0,0)
+		tri.AddVertex(-0.5,-0.5,0, 0,0,-1, Color.BLUE,		0,0)
 		
 		'Create mesh
 		Local mesh:Mesh = Mesh.Create()
@@ -92,7 +83,7 @@ Public
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Renderer.SetColor(Color.Black())
+		Renderer.SetColor(Color.BLACK)
 		Local text:String = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

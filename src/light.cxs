@@ -17,9 +17,9 @@ Class Light Extends Entity Final
 		If type >= 0 And type <= 1 Then Return New Light(type, parent) Else Return Null
 	End
 	
-	Method Free:Void()
+	Method Discard:Void()
 		Visible = False
-		Super.Free()
+		Super.Discard()
 	End
 	
 	Method Visible:Bool() Property
@@ -78,10 +78,10 @@ Class Light Extends Entity Final
 			mTempQuat.SetEuler(Pitch, Yaw, Roll)
 			mTempQuat.Mul(0, 0, -1)
 			Renderer.ViewMatrix().Mul(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, 0.0)
-			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 0.0, color.Color.RF(mColor), color.Color.GF(mColor), color.Color.BF(mColor), mRadius)
+			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 0.0, color.Color.Red(mColor) / 255.0, color.Color.Green(mColor) / 255.0, color.Color.Blue(mColor) / 255.0, mRadius)
 		Else
 			Renderer.ViewMatrix().Mul(WorldX, WorldY, WorldZ, 1.0)
-			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 1.0, color.Color.RF(mColor), color.Color.GF(mColor), color.Color.BF(mColor), mRadius)
+			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 1.0, color.Color.Red(mColor) / 255.0, color.Color.Green(mColor) / 255.0, color.Color.Blue(mColor) / 255.0, mRadius)
 		End
 	End
 	
@@ -106,7 +106,7 @@ Private
 	Method New(type:Int, parent:Entity)
 		Super.New(parent)
 		mType = type
-		mColor = color.Color.White()
+		mColor = color.Color.WHITE
 		mRadius = 10
 		Visible = True
 	End

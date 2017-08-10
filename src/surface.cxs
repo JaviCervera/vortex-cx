@@ -29,12 +29,12 @@ Public
 		Return surf
 	End
 
-	Method Free:Void(freeTextures:Bool = False)
+	Method Discard:Void(discardTextures:Bool = False)
 		mIndices.Discard()
 		mVertices.Discard()
 		Renderer.FreeBuffer(mIndexBuffer)
 		Renderer.FreeBuffer(mVertexBuffer)
-		If freeTextures Then mMaterial.FreeTextures()
+		If discardTextures Then mMaterial.DiscardTextures()
 	End
 	
 	Method Set:Void(other:Surface)
@@ -127,10 +127,10 @@ Public
 		'mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 24, 1)
 		'mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 28, 0)
 		'mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 32, 0)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 36, Color.RF(color))
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 40, Color.GF(color))
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 44, Color.BF(color))
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 48, Color.AF(color))
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 36, Color.Red(color) / 255.0)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 40, Color.Green(color) / 255.0)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 44, Color.Blue(color) / 255.0)
+		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 48, Color.Alpha(color) / 255.0)
 		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 52, u0)
 		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 56, v0)
 		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 60, u0)
@@ -236,7 +236,7 @@ Public
 		Local g:Float = mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 4)
 		Local b:Float = mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 8)
 		Local a:Float = mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 12)
-		Return Color.RGBF(r, g, b, a)
+		Return Color.RGB(r * 255, g * 255, b * 255, a * 255)
 	End
 
 	Method VertexU:Float(index:Int, set:Int = 0)

@@ -12,9 +12,7 @@ Strict
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 '#GLFW_GCC_MSIZE_LINUX="32"
 #If HOST = "winnt"
-#BINARY_FILES += "*.exe|*.fnt"
-#Else
-#BINARY_FILES += "*.bin|*.fnt"
+#BINARY_FILES += "*.exe"
 #End
 
 'Imports
@@ -56,7 +54,7 @@ Public
 		'Update GUI
 		Local newFont:Font = mGui.Update(mFont)
 		If newFont <> Null
-			If mFont Then mFont.Free()
+			If mFont Then mFont.Discard()
 			mFont = newFont
 		End
 		Return False

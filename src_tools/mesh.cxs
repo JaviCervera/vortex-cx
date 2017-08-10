@@ -16,9 +16,10 @@ Function LoadMesh:Mesh(filename:String)
 	'Directly load native XML files
 	If ExtractExt(filename).ToLower() = "xml" Then Return LoadXMLMesh(filename)
 	
-	'Directly load native MSH files
-	If ExtractExt(filename).ToLower() = "msh"
-		Local mesh:Mesh = Cache.LoadMesh(filename, StripExt(filename) + ".skl", StripExt(filename) + ".anm")
+	'Directly load native files
+	If ExtractExt(filename).ToLower() = "dat"
+		Local baseName:String = StripExt(StripExt(filename))
+		Local mesh:Mesh = Cache.LoadMesh(filename, baseName + ".skl.dat", baseName + ".anm.dat")
 		Return mesh
 	End
 
@@ -121,7 +122,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 		If blendStr.ToLower() = "alpha" Then material.BlendMode = Renderer.BLEND_ALPHA
 		If blendStr.ToLower() = "add" Then material.BlendMode = Renderer.BLEND_ADD
 		If blendStr.ToLower() = "mul" Then material.BlendMode = Renderer.BLEND_MUL
-		material.Color = Color.RGBF(baseColor[0], baseColor[1], baseColor[2], opacity)
+		material.Color = Color.RGB(baseColor[0] * 255, baseColor[1] * 255, baseColor[2] * 255, opacity * 255)
 		material.Shininess = shininess
 		material.Culling = culling
 		material.DepthWrite = depthWrite
@@ -220,7 +221,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 			End
 
 			'Add vertex
-			Local vertex:Int = surf.AddVertex(x, y, z, nx, ny, nz, Color.RGBF(r, g, b, a), u0, v0)
+			Local vertex:Int = surf.AddVertex(x, y, z, nx, ny, nz, Color.RGB(r * 255, g * 255, b * 255, a * 255), u0, v0)
 			surf.SetVertexTexCoords(vertex, u1, v1, 1)
 			surf.SetVertexTangent(vertex, tx, ty, tz)
 			
@@ -298,7 +299,7 @@ End
 
 Function MaterialSize:Int(mat:Material)
 	'Fixed header
-	Local size:Int = 16	'RGBA
+	Local size:Int = 4	'Color
 	size += 1			'BlendMode
 	size += 1			'Flags
 	size += 4			'Shininess
@@ -335,8 +336,8 @@ End
 
 Function ColorsSize:Int(surf:Surface)
 	For Local v:Int = 0 Until surf.NumVertices
-		If surf.VertexColor(v) <> Color.White()
-			Return surf.NumVertices * 4 * 4
+		If surf.VertexColor(v) <> Color.WHITE
+			Return surf.NumVertices * 1 * 4
 		End
 	Next
 	Return 0
@@ -404,10 +405,7 @@ End
 
 Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	'Color
-	stream.WriteFloat(Color.RF(mat.Color))
-	stream.WriteFloat(Color.GF(mat.Color))
-	stream.WriteFloat(Color.BF(mat.Color))
-	stream.WriteFloat(Color.AF(mat.Color))
+	stream.WriteInt(mat.Color)
 	
 	'Blend mode
 	stream.WriteByte(mat.BlendMode)
@@ -487,10 +485,7 @@ Function WriteSurfaceData:Void(stream:DataStream, surf:Surface, includeBones:Boo
 		End
 		
 		If vertexFlags & 4 = 4
-			stream.WriteFloat(Color.RF(surf.VertexColor(v)))
-			stream.WriteFloat(Color.GF(surf.VertexColor(v)))
-			stream.WriteFloat(Color.BF(surf.VertexColor(v)))
-			stream.WriteFloat(Color.AF(surf.VertexColor(v)))
+			stream.WriteInt(surf.VertexColor(v))
 		End
 		
 		If vertexFlags & 8 = 8

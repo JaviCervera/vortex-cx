@@ -33,8 +33,8 @@ Public
 		Return f
 	End
 
-	Method Free:Void()
-		mTexture.Free()
+	Method Discard:Void()
+		mTexture.Discard()
 	End
 	
 	Method Filename:Void(filename:String) Property

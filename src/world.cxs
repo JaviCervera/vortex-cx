@@ -33,7 +33,7 @@ Class World Final
 			SetFogEnabled(False)
 			SetFogMinDistance(600)
 			SetFogMaxDistance(1000)
-			SetFogColor(Color.Black())
+			SetFogColor(Color.BLACK)
 			SetGlobalPixelLighting(False)
 			SetShadows(False)
 			mFramebuffer = Framebuffer.Create(1024, 1024, True)
@@ -78,7 +78,7 @@ Class World Final
 				Renderer.Setup3D(0, 0, mFramebuffer.ColorTexture.Width, mFramebuffer.ColorTexture.Height, True, mFramebuffer.ColorTexture.Height)
 				Renderer.SetProjectionMatrix(mDepthProj)
 				Renderer.SetViewMatrix(mDepthView)
-				Renderer.ClearColorBuffer(1, 1, 1)
+				Renderer.ClearColorBuffer(Color.WHITE)
 				Renderer.ClearDepthBuffer()
 				
 				'Render list
@@ -92,7 +92,7 @@ Class World Final
 			c._PrepareForRender()
 			
 			'Set fog and number of lights
-			Renderer.SetFog(mFogEnabled, mFogMin, mFogMax, Color.RF(mFogColor), Color.GF(mFogColor), Color.BF(mFogColor))
+			Renderer.SetFog(mFogEnabled, mFogMin, mFogMax, Color.Red(mFogColor) / 255.0, Color.Green(mFogColor) / 255.0, Color.Blue(mFogColor) / 255.0)
 			Renderer.SetNumLights(numLights)
 			
 			'Set depth data
@@ -105,7 +105,7 @@ Class World Final
 			'Prepare lighting
 			If numLights > 0
 				Renderer.SetPixelLighting(GlobalPixelLighting())
-				Renderer.SetAmbient(Color.RF(mAmbient), Color.GF(mAmbient), Color.BF(mAmbient))
+				Renderer.SetAmbient(Color.Red(mAmbient) / 255.0, Color.Green(mAmbient) / 255.0, Color.Blue(mAmbient) / 255.0)
 				Local i:Int = 0
 				For Local l:Light = Eachin mLights
 					l._Number = i
@@ -129,7 +129,7 @@ Class World Final
 	End
 	
 	Function SetSkyboxTexture:Void(tex:Texture)
-		mSkybox.Surface(0).Material.FreeTextures()
+		mSkybox.Surface(0).Material.DiscardTextures()
 		mSkybox.Surface(0).Material.BaseTexture = tex
 	End
 	

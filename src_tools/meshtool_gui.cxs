@@ -13,7 +13,7 @@ Class Gui Final
 Public
 	Method New()
 		'Load resources
-		mFont = Cache.LoadFont("system.fnt")
+		mFont = Cache.LoadFont("system.fnt.dat")
 		mCubeTex = Cache.LoadTexture("cube.png", Renderer.FILTER_NONE)
 		mOpenTex = Cache.LoadTexture("folder.png", Renderer.FILTER_NONE)
 		mSaveTex = Cache.LoadTexture("disk.png", Renderer.FILTER_NONE)
@@ -61,12 +61,10 @@ Public
 			If mSaveRect.IsPointInside(MouseX(), MouseY())
 				Local filename:String = currentModel.Mesh.Filename
 				If filename = ""
-					'filename = RequestFile("Save mesh", "Mesh Files:msh.xml;All Files:*", True)
-					filename = RequestFile("Save mesh", "Mesh Files:msh;All Files:*", True)
+					filename = RequestFile("Save mesh", "Mesh Files:msh.dat;All Files:*", True)
 					currentModel.Mesh.Filename = filename
 				Else
-					'filename = StripExt(filename) + ".msh.xml"
-					filename = StripExt(filename) + ".msh"
+					filename = StripExt(StripExt(filename)) + ".msh.dat"
 				End
 				'If filename <> "" Then SaveMeshXML(currentMesh, filename, mExportAnimations)
 				If filename <> ""
@@ -79,8 +77,8 @@ Public
 					
 					'Save skeleton and animations
 					If mExportAnimations And currentModel.Mesh.NumBones > 0
-						SaveSkeleton(currentModel.Mesh, StripExt(filename) + ".skl")
-						SaveAnimation(currentModel.Mesh, StripExt(filename) + ".anm")
+						SaveSkeleton(currentModel.Mesh, StripExt(StripExt(filename)) + ".skl.dat")
+						SaveAnimation(currentModel.Mesh, StripExt(StripExt(filename)) + ".anm.dat")
 					End
 				End
 			'Export animations
@@ -106,8 +104,8 @@ Public
 				If mSelMat = currentModel.NumMaterials Then mSelMat = 0
 			'Diffuse color
 			Elseif mDiffuseColorRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				If RequestColor("Select color", Color.R(currentModel.Material(mSelMat).Color), Color.G(currentModel.Material(mSelMat).Color), Color.B(currentModel.Material(mSelMat).Color))
-					currentModel.Material(mSelMat).Color = Color.RGB(RequestedRed(), RequestedGreen(), RequestedBlue(), Color.A(currentModel.Material(mSelMat).Color))
+				If RequestColor("Select color", Color.Red(currentModel.Material(mSelMat).Color), Color.Green(currentModel.Material(mSelMat).Color), Color.Blue(currentModel.Material(mSelMat).Color))
+					currentModel.Material(mSelMat).Color = Color.RGB(RequestedRed(), RequestedGreen(), RequestedBlue(), Color.Alpha(currentModel.Material(mSelMat).Color))
 				End
 			'Diffuse texture
 			Elseif mDiffuseTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
@@ -243,11 +241,15 @@ Public
 				currentModel.Material(mSelMat).RefractionCoef = iCoef / 100.0
 			'Opacity
 			Elseif mOpacityRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local iOp:Int = Int(Color.AF(currentModel.Material(mSelMat).Color) * 100)
-				iOp += 10
-				If iOp > 100 Then iOp = 0
+				Local alpha:Int = Color.Alpha(currentModel.Material(mSelMat).Color)
+				If alpha = 255
+					alpha = 0
+				Else
+					alpha += 25
+					If alpha > 255 Then alpha = 255
+				End
 				Local color:Int = currentModel.Material(mSelMat).Color
-				currentModel.Material(mSelMat).Color = Color.RGBF(Color.RF(color), Color.GF(color), Color.BF(color), iOp / 100.0)
+				currentModel.Material(mSelMat).Color = Color.RGB(Color.Red(color), Color.Green(color), Color.Blue(color), alpha)
 			'Shininess
 			Elseif mShininessRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local iShininess:Int = Int(currentModel.Material(mSelMat).Shininess * 100)
@@ -275,7 +277,7 @@ Public
 				Return Model.Create(mCube)
 			'Load mesh
 			Elseif mOpenRect.IsPointInside(MouseX(), MouseY())
-				Local filename:String = RequestFile("Load mesh")', "Mesh Files:msh.xml;All Files:*", False)
+				Local filename:String = RequestFile("Load mesh")', "Mesh Files:msh.dat;All Files:*", False)
 				If filename <> ""
 					filename = filename.Replace("\", "/")
 					Local mesh:Mesh = LoadMesh(filename)
@@ -313,7 +315,9 @@ Public
 			
 			DrawPanel(mMaterialRect)
 			DrawPanel(mMaterialRect.x + mSelMatRect.x, mMaterialRect.y + mSelMatRect.y, mSelMatRect.width, mSelMatRect.height, "Material #" + mSelMat, mFont)
-			DrawPanel(mMaterialRect.x + mDiffuseColorRect.x, mMaterialRect.y + mDiffuseColorRect.y, mDiffuseColorRect.width, mDiffuseColorRect.height, "Color", mFont, currentModel.Material(mSelMat).Color)
+			
+			Local color:Int = currentModel.Material(mSelMat).Color
+			DrawPanel(mMaterialRect.x + mDiffuseColorRect.x, mMaterialRect.y + mDiffuseColorRect.y, mDiffuseColorRect.width, mDiffuseColorRect.height, "Color", mFont, Color.RGB(Color.Red(color), Color.Green(color), Color.Blue(color), 255))
 			
 			'Diffuse
 			If currentModel.Material(mSelMat).BaseTexture
@@ -363,7 +367,7 @@ Public
 			mFont.Draw(mMaterialRect.x + mRefractionTexRect.x + 2, mMaterialRect.y + mRefractionTexRect.y, "Refraction")
 	
 			DrawPanel(mMaterialRect.x + mRefractionCoefRect.x, mMaterialRect.y + mRefractionCoefRect.y, mRefractionCoefRect.width, mRefractionCoefRect.height, "Refr. Coef: " + String(currentModel.Material(mSelMat).RefractionCoef)[..4], mFont)
-			DrawPanel(mMaterialRect.x + mOpacityRect.x, mMaterialRect.y + mOpacityRect.y, mOpacityRect.width, mOpacityRect.height, "Opacity: " + String(Color.AF(currentModel.Material(mSelMat).Color))[..4], mFont)
+			DrawPanel(mMaterialRect.x + mOpacityRect.x, mMaterialRect.y + mOpacityRect.y, mOpacityRect.width, mOpacityRect.height, "Opacity: " + String(Color.Alpha(currentModel.Material(mSelMat).Color))[..3], mFont)
 			DrawPanel(mMaterialRect.x + mShininessRect.x, mMaterialRect.y + mShininessRect.y, mShininessRect.width, mShininessRect.height, "Shininess: " + String(currentModel.Material(mSelMat).Shininess)[..4], mFont)
 			Local blendStr:String = ""
 			Select currentModel.Material(mSelMat).BlendMode

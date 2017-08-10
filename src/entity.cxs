@@ -25,10 +25,10 @@ Class Entity
 		Return New Entity(parent)
 	End
 	
-	Method Free:Void()
+	Method Discard:Void()
 		Visible = False
 		While Not mChildren.IsEmpty()
-			mChildren.First().Free()
+			mChildren.First().Discard()
 		Wend
 		Parent = Null
 		World._FreeEntity(Self)

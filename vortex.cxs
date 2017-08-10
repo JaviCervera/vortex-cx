@@ -1,11 +1,7 @@
 'TODO v2.0:
-'- Rename Free to Discard, to be consistent with the rest of Cerberus modules
-'- Store color in msh file as int instead of 4 floats (both in materials and vertices)
-'- Add .dat suffix to binary files (.msh.dat, .skl.dat, etc)
-'- Update tests
-'- Replace Color.White(), Color.Red(), etc. with Color.WHITE, Color.RED...
-'- Document mesh and surface modification functions
+'- Fix render to texture on HTML5
 '- Document engine and tools
+'- Document mesh and surface modification functions
 '- Add Building section to README.md
 '- Replace number of frames with animation duration?
 'TODO v2.1:
@@ -15,6 +11,9 @@
 '- Write Assimp mesh loader
 '- Document IMaterialDelegate class
 '- Document IMeshLoadDelegate class
+
+'Enable depth buffer when using this module
+#OPENGL_DEPTH_BUFFER_ENABLED=True
 
 Strict
 

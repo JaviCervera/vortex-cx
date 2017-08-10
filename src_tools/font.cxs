@@ -17,7 +17,7 @@ Function LoadFont:Font(filename:String, size:Int)
 	If ExtractExt(filename).ToLower() = "xml" Then Return LoadXMLFont(filename)
 	
 	'Directly load native FNT files
-	If ExtractExt(filename).ToLower() = "fnt"
+	If ExtractExt(filename).ToLower() = "dat"
 		Local font:Font = Cache.LoadFont(filename)
 		Return font
 	End

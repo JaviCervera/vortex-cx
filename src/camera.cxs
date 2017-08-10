@@ -147,7 +147,7 @@ Class Camera Extends Entity Final
 		Renderer.ClearDepthBuffer()
 		Select mClearMode
 		Case CLEAR_COLOR
-			Renderer.ClearColorBuffer(Color.R(ClearColor) / 255.0, Color.G(ClearColor) / 255.0, Color.B(ClearColor) / 255.0)
+			Renderer.ClearColorBuffer(ClearColor)
 		Case CLEAR_SKYBOX
 			World._DrawSkybox(WorldX, WorldY, WorldZ)
 		End

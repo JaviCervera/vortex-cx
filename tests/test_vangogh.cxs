@@ -5,13 +5,8 @@ Strict
 #GLFW_WINDOW_HEIGHT=600
 #GLFW_WINDOW_RESIZABLE=True
 #GLFW_WINDOW_SAMPLES=2
-#OPENGL_DEPTH_BUFFER_ENABLED=True
-#BINARY_FILES+="*.msh|*.skl|*.anm|*.fnt"
 '#GLFW_GCC_MSIZE_WINNT="32"
 
-#If TARGET="glfw" And HOST<>"linux"
-Import brl.requesters
-#Endif
 Import mojo.app
 Import mojo.input
 Import vortex
@@ -26,11 +21,7 @@ Public
 	
 		'Init vortex
 		If Not World.Init()
-#If TARGET="glfw" And HOST<>"linux"
-			Notify "Error", Stats.ShaderError(), True
-#Else
 			Print "Error: " + Stats.ShaderError()
-#Endif
 			EndApp()
 		End
 		Print "Vendor name: " + Stats.VendorName()
@@ -40,14 +31,14 @@ Public
 		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt")
+		mFont = Cache.LoadFont("system.fnt.dat")
 		
 		'Create camera
 		mCam = Camera.Create()
 		mCam.SetPosition(0, 1.5, -6)
 		
 		'Create model
-		mModel = Model.Create(Cache.LoadMesh("vangogh.msh"))
+		mModel = Model.Create(Cache.LoadMesh("vangogh.msh.dat"))
 		mModel.Yaw = 180
 		
 		Return False
