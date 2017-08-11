@@ -1,15 +1,15 @@
 # Module vortex
 
-The Vortex module adds a very simple 3D rendering engine based on OpenGL ES 2.
-More than a full 3D engine, it provides a lower-level API, similar to what the official Mojo module offers for 2D.
+The Vortex module adds an easy to use 3D rendering engine based on OpenGL ES 2.
+It is inspired by the design of the Blitz3D engine, but it uses many object oriented patterns.
 
 >>> Coordinate system and rotations
 Vortex uses a left handed coordinate system where X points right, Y points up, and Z points away from the viewer.
 
-Rotations can be expressed both using quaternions and euler angles (expressed in degrees).
+Rotations are using euler angles expressed in degrees.
 
 >>> Screen coordinates
-In Vortex, coordinates 0,0 represent the top left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the bottom right. This is a convention common in several graphics libraries (like Monkey's Mojo).
+In Vortex, coordinates 0,0 represent the top left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the bottom right. This is a common convention in many graphics libraries (like Cerberus' Mojo).
 
 >>> Texture coordinates
 Texture coordinates are mapped from the top left (coordinates 0,0) to the bottom right (coordinates 1,1).
@@ -17,21 +17,15 @@ Texture coordinates are mapped from the top left (coordinates 0,0) to the bottom
 >>> Triangle order
 Front facing triangles are those that are mapped to the screen in clockwise order.
 
->>> Surfaces, meshes, transformations and render lists
+>>> Surfaces, meshes, and entities
 A *surface* is a list of vertices and indices that when connected define a 3 dimensional shape. A surface also has a *material*, which defines its visual properties like color, textures used and shininess.
 
 A *mesh* is a collection of surfaces that make up a single object. Basically, a mesh has as many surfaces as materials. A mesh can also have animation information (an array of bones).
 
-In order to render simple surfaces or complete meshes on screen, you must create a *render list*. A render list stores the objects that need to be rendered in an optimal way to reduce the amount of render calls and state changes required to render the scene. When you add a surface or a mesh to a render list, you must also provide at least the *transformation* that you want it to have on the scene.
+An *entity* is anything that exists in your 3D world, and has a position, rotation and scale. There are many types of entities, such as cameras, lights and models. An entity by itself does not draw anything in your world, but some special types of entities do. For example, a *model* is a type of entity that puts a mesh in the world. Since a mesh could appear at many places in your world, you can have a single mesh object that can be used by several models.
 
-A *transformation* indicates the position, rotation and scale of the object in the 3D world. It is stored in a 4x4 homogeneous coordinate *matrix*. You can create a matrix with `Mat4.Create()` and then define its transformation with the method `SetTransform(x, y, z, pitch, yaw, roll, x_scale, y_scale, z_scale)`.
 
->>> The viewer
-In order to define how the user sees your world, you must define the *projection* and *view* matrices.
 
-The *projection matrix* defines how the scene is projected to the screen (an orthogonal projection is defined with the method `Mat4.SetOrthoLH(left, right, bottom, top, near, far`, while a perspective projection is defined with `Mat4.SetPerspectiveLH(fov, ratio, near, far)`).
-
-The *view matrix* defines the position and orientation of the viewer in the scene. You can set it with `Mat4.LookAtLH(x_pos, y_pos, z_pos, x_target, y_target, z_target, 0, 1, 0)` if you want to define the position of the viewer and a target point in the scene towards which it will be oriented, or with `Mat4.SetViewerTransform(x, y, z, pitch, yaw, roll)` if you want to define the position and orientation of the viewer directly.
 
 # Class Bone
 
@@ -112,6 +106,108 @@ Returns the Y coordinate of the specified scale keyframe. The value of `index` g
 
 # Method ScaleKeyZ:Float(index:Int)
 Returns the Z coordinate of the specified scale keyframe. The value of `index` goes in the range `0 .. NumRotationKeys - 1`.
+
+
+
+
+# Class Cache
+
+The cache is used to avoid loading resources from disk more that once.
+When you want to load a resource from disk (a texture, a mesh, or a font), Vortex will check if the resource was already loaded, in which case the same instance is returned to you, so it is not loaded multiple times in memory.
+
+Internally, Vortex holds a stack of cache objects. You can add a new cache with the `Cache.Push` function, and all the resources loaded afterwards will be deallocated when the cache object is removed from the stack with `Cache.Pop`.
+For example, on game initialization you could push a new cache object, and then load all the resources that are used throughout the entire game (menu textures and fonts, for example).
+Then, when you are loading a new level, you push a new cache object and load all the resource of the level.
+When you exit the level, you pop the cache object from the stack, deallocating all level resources, but the menu resources remain intact.
+When you exit the game, you pop the last cache object, and all the resources allocated are cleared.
+
+When calling `World.Init`, a cache object is created automatically.
+
+# Function Push:Void()
+Pushes a new cache object onto the stack. All resources loaded afterwards are handled by this cache object. When you pop this stack object with the `Cache.Pop` function, all the resources are deallocated.
+
+# Function Pop:Void()
+Pops the last pushed cache object from the stack, deallocating all the resources that were loaded after the creation of the cache object.
+
+# Function LoadFont:Font(filename:String)
+Returns the font with the specified filename, or Null if it could not be found.
+If the font has been loaded previously by any cache object, that same object will be returned.
+Otherwise, the last pushed cache object will load and return a new font.
+
+# Function LoadMesh:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
+Returns the mesh with the specified filename, or Null if it could not be found. You can also specify a skeleton and animation files that will be loaded with the mesh.
+If the mesh has been loaded previously by any cache object, that same object will be returned. Otherwise, the last pushed cache object will load and return a new mesh.
+
+# Function LoadTexture:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
+Returns the texture with the specified filename, or Null if the texture was not found.
+If the texture has been loaded previously by any cache object, that same object will be returned.
+Otherwise, the last pushed cache object will load and return a new texture.
+
+# Function LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
+Returns the cubemap texture with the specified filenames (one for each face of the cube), or Null if the texture was not found.
+If the texture has been loaded previously by any cache object, that same object will be returned.
+Otherwise, the last pushed cache object will load and return a new texture.
+
+
+
+
+# Class Camera Extends Entity
+
+A camera is a type of `Entity` that represents the player in the 3D world. It has a position and rotation, a viewport that will indicate the region of the screen where the camera will be renderer, and other properties like the clear mode and projection settings.
+
+# Const CLEAR_NONE : Int
+# Const CLEAR_COLOR : Int
+# Const CLEAR_SKYBOX : Int
+
+# Function Create:Camera(parent:Entity = Null)
+Creates a new camera entity with the specified parent (if any).
+
+# Method ViewportX:Int() Property
+Returns the origin X coordinate of the region of the screen that the camera will be drawn to.
+
+# Method ViewportY:Int() Property
+Returns the origin Y coordinate of the region of the screen that the camera will be drawn to.
+
+# Method ViewportWidth:Int() Property
+Returns the width of the region of the screen that the camera will be drawn to.
+
+# Method ViewportHeight:Int() Property
+Returns the height of the region of the screen that the camera will be drawn to.
+
+# Method ViewportX:Void(val:Int) Property
+Sets the origin X coordinate of the region of the screen that the camera will be drawn to.
+
+# Method ViewportY:Void(val:Int) Property
+Sets the origin Y coordinate of the region of the screen that the camera will be drawn to.
+
+# Method ViewportWidth:Void(val:Int) Property
+Sets the width of the region of the screen that the camera will be drawn to.
+
+# Method ViewportHeight:Void(val:Int) Property
+Sets the height of the region of the screen that the camera will be drawn to.
+
+# Method SetViewport:Void(x:Int, y:Int, width:Int, height:Int)
+Sets the region of the screen that the camera will be drawn to.
+
+# Method ClearMode:Int() Property
+Returns the clear mode for this camera. Depending on the value of this property, the viewport will be cleared with a plain color or a textured skybox before performing rendering.
+| Value | Meaning
+| Camera.CLEAR_NONE | Does not clear the viewport before rendering.
+| Camera.CLEAR_COLOR | Clears the viewport with the color defined by the `ClearColor` property.
+| Camera.CLEAR_SKYBOX | Clears the viewport with the skybox defined by the `World.SetSkyboxTexture` function (defaults to `Null`).
+
+# Method ClearMode:Void(mode:Int) Property
+Sets the clear mode for this camera. Depending on the value of this property, the viewport will be cleared with a plain color or a textured skybox before performing rendering.
+| Value | Meaning
+| Camera.CLEAR_NONE | Does not clear the viewport before rendering.
+| Camera.CLEAR_COLOR | Clears the viewport with the color defined by the `ClearColor` property.
+| Camera.CLEAR_SKYBOX | Clears the viewport with the skybox defined by the `World.SetSkyboxTexture` function (defaults to `Null`).
+
+# Method ClearColor:Int() Property
+Returns the clear color used by this camera in case that the `ClearMode` property is set to `Camera.CLEAR_COLOR`.
+
+# Method ClearColor:Void(color:Int) Property
+Sets the clear color used by this camera in case that the `ClearMode` property is set to `Camera.CLEAR_COLOR`.
 
 
 

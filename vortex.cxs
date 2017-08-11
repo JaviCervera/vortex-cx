@@ -1,5 +1,5 @@
 'TODO v2.0:
-'- Document engine and tools
+'* Document engine and tools
 '- Document mesh and surface modification functions
 '- Add Building section to README.md
 '- Fix render to texture on HTML5

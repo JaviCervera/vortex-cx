@@ -11,8 +11,9 @@ Public
 Import entity
 
 Class Camera Extends Entity Final
-	Const CLEAR_COLOR	: Int = 0
-	Const CLEAR_SKYBOX	: Int = 1
+	Const CLEAR_NONE	: Int = 0
+	Const CLEAR_COLOR	: Int = 1
+	Const CLEAR_SKYBOX	: Int = 2
 	
 	Function Create:Camera(parent:Entity = Null)
 		Return New Camera(parent)
@@ -45,7 +46,6 @@ Class Camera Extends Entity Final
 		Return mVH
 	End
 	
-	
 	Method ViewportX:Void(val:Int) Property
 		mVX = val
 	End
@@ -74,7 +74,7 @@ Class Camera Extends Entity Final
 	End
 	
 	Method ClearMode:Void(mode:Int) Property
-		mClearMode = Clamp(mode, CLEAR_COLOR, CLEAR_SKYBOX)
+		mClearMode = Clamp(mode, CLEAR_NONE, CLEAR_SKYBOX)
 	End
 	
 	Method ClearColor:Int() Property
@@ -177,6 +177,7 @@ Private
 	Method New(parent:Entity)
 		Super.New(parent)
 		SetViewport(0, 0, DeviceWidth(), DeviceHeight())
+		mClearMode = CLEAR_COLOR
 		mClearColor = Color.RGB(55, 155, 255)
 		FovY = 50
 		AspectRatio = Float(DeviceWidth()) / DeviceHeight()
