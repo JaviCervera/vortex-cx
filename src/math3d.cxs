@@ -116,6 +116,14 @@ Public
 		Y += (other.Y - Y) * t
 		Z += (other.Z - Z) * t
 	End
+	
+	Method Pitch:Float() Property
+		Return ASin(-Y)
+	End
+	
+	Method Yaw:Float() Property
+		Return ATan2(X, Z)
+	End
 Private
 	Method New()
 	End

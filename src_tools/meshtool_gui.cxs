@@ -267,6 +267,9 @@ Public
 			Elseif mDepthWriteRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				currentModel.Material(mSelMat).DepthWrite = Not currentModel.Material(mSelMat).DepthWrite
 			End
+			
+			'Set the original surface material, because that's used by the exporter
+			currentModel.Mesh.Surface(mSelMat).Material.Set(currentModel.Material(mSelMat))
 		End
 		
 		'This events can be responded if there is no loaded mesh

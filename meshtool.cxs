@@ -9,7 +9,6 @@ Strict
 #GLFW_WINDOW_HEIGHT=600
 #GLFW_WINDOW_RESIZABLE=True
 #GLFW_WINDOW_SAMPLES=2
-#OPENGL_DEPTH_BUFFER_ENABLED=True
 '#GLFW_GCC_MSIZE_LINUX="32"
 #If HOST = "winnt"
 #BINARY_FILES += "*.exe"
@@ -52,12 +51,12 @@ Public
 		mCam.Far = 5000
 		
 		'Add directional light
-		mLight = Light.Create(Light.TYPE_POINT, mCam)
-		mLight.Radius = 100000
+		mLight = Light.Create(Light.TYPE_DIRECTIONAL)
 		
 		mLastMouseX = MouseX()
 		mLastMouseY = MouseY()
 		mFreeLook = False
+		mTempVec = Vec3.Create()
 		
 		Return False
 	End
@@ -73,6 +72,11 @@ Public
 			mModel = newModel
 			mModel.FPS = 16
 		End
+		
+		'Update camera view
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
 		
 		'Update camera controls
 		If MouseHit(MOUSE_RIGHT)
@@ -90,14 +94,15 @@ Public
 			If KeyDown(KEY_D) Then mCam.Move(32 * Stats.DeltaTime(), 0, 0)
 		End
 		
+		'Update light rotation
+		mTempVec.Set(-mCam.WorldX, -mCam.WorldY, -mCam.WorldZ)
+		mTempVec.Normalize()
+		mLight.Pitch = mTempVec.Pitch
+		mLight.Yaw = mTempVec.Yaw
+		
 		'Update mouse
 		mLastMouseX = MouseX()
 		mLastMouseY = MouseY()
-		
-		'Update camera projection
-		mCam.ViewportWidth = DeviceWidth()
-		mCam.ViewportHeight = DeviceHeight()
-		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
 		
 		Return False
 	End
@@ -119,6 +124,7 @@ Private
 	Field mLastMouseX	: Float
 	Field mLastMouseY	: Float
 	Field mFreeLook		: Bool
+	Field mTempVec		: Vec3
 End
 
 Function Main:Int()

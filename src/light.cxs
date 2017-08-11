@@ -107,7 +107,7 @@ Private
 		Super.New(parent)
 		mType = type
 		mColor = color.Color.WHITE
-		mRadius = 10
+		mRadius = 100
 		Visible = True
 	End
 End
