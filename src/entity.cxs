@@ -4,6 +4,7 @@ Private
 Import listener
 Import mojo.audio
 Import vortex
+Import vortex.src.math3d
 Import world
 
 Public

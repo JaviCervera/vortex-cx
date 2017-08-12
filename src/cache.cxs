@@ -48,6 +48,20 @@ Public
 		If mesh <> Null Then mStack[mStack.Length() -1].mMeshes.Set(filename, mesh)
 		Return mesh
 	End
+	
+	Function LoadSound:Sound(filename:String)
+		'Search for the sound in all allocated caches
+		For Local i:Int = mStack.Length()-1 To 0 Step -1
+			If mStack[i].mSounds.Contains(filename)
+				Return mStack[i].mSounds.Get(filename)
+			End
+		Next
+
+		'If it was not found, load it
+		Local sound:Sound = LoadSound(filename)
+		If sound <> Null Then mStack[mStack.Length() - 1].mSounds.Set(filename, sound)
+		Return sound
+	End
 
 	Function LoadTexture:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
 		'Search for the texture in all allocated caches
@@ -82,6 +96,7 @@ Private
 	Method New()
 		mFonts = New StringMap<Font>
 		mMeshes = New StringMap<Mesh>
+		mSounds = New StringMap<Sound>
 		mTextures = New StringMap<Texture>
 	End
 
@@ -90,18 +105,20 @@ Private
 			font.Discard()
 		Next
 		For Local mesh:Mesh = Eachin mMeshes.Values()
-			mesh.Discard()
+			mesh.Discard(False)
 		Next
 		For Local tex:Texture = Eachin mTextures.Values()
 			tex.Discard()
 		Next
 		mFonts.Clear()
 		mMeshes.Clear()
+		mSounds.Clear()
 		mTextures.Clear()
 	End
 
 	Global mStack	: Cache[0]
 	Field mFonts	: StringMap<Font>
 	Field mMeshes	: StringMap<Mesh>
+	Field mSounds	: StringMap<Sound>
 	Field mTextures	: StringMap<Texture>
 End

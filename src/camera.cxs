@@ -2,6 +2,7 @@ Strict
 
 Private
 Import color
+Import listener
 Import math3d
 Import mojo.app
 Import renderer
@@ -17,6 +18,11 @@ Class Camera Extends Entity Final
 	
 	Function Create:Camera(parent:Entity = Null)
 		Return New Camera(parent)
+	End
+	
+	Method Discard:Void()
+		Super.Discard()
+		If Listener.Instance() = Self Then Listener.SetInstance(Null)
 	End
 	
 	Method Visible:Void(visible:Bool) Property
@@ -184,5 +190,6 @@ Private
 		Near = 1
 		Far = 1000
 		Visible = True
+		If Listener.Instance() = Null Then Listener.SetInstance(Self)
 	End
 End

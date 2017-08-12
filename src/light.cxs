@@ -17,11 +17,6 @@ Class Light Extends Entity Final
 		If type >= 0 And type <= 1 Then Return New Light(type, parent) Else Return Null
 	End
 	
-	Method Discard:Void()
-		Visible = False
-		Super.Discard()
-	End
-	
 	Method Visible:Bool() Property
 		Return Super.Visible
 	End	

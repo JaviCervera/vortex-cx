@@ -20,6 +20,7 @@ Import mojo.input
 Import src_tools.dialog
 Import src_tools.meshtool_gui
 Import vortex
+Import vortex.src.math3d
 
 Class MeshToolApp Extends App Final
 Public

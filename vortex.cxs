@@ -1,17 +1,15 @@
 'TODO v2.0:
 '* Document engine and tools
-'- Document mesh and surface modification functions
 '- Add Building section to README.md
-'- Limit number of lights to 4, and sort the light list to render the closest ones?
-'- Fix render to texture on HTML5
+'- Limit number of lights to 4 by default, and sort the light list to render the closest ones?
+'- Add spot lights
 '- Replace number of frames with animation duration?
-'TODO v2.1:
 '- Add texture matrix in Material
+'- Fix render to texture on HTML5
+'TODO v2.1:
 '- Add several shaders: unlit, vlit, flit, with static and skinned modes
 '- Integrate with Mojo
 '- Write Assimp mesh loader
-'- Document IMaterialDelegate class
-'- Document IMeshLoadDelegate class
 
 'Enable depth buffer when using this module
 #OPENGL_DEPTH_BUFFER_ENABLED=True
