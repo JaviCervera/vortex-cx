@@ -209,6 +209,237 @@ Returns the clear color used by this camera in case that the `ClearMode` propert
 # Method ClearColor:Void(color:Int) Property
 Sets the clear color used by this camera in case that the `ClearMode` property is set to `Camera.CLEAR_COLOR`.
 
+# Method Orthographic:Bool() Property
+Returns whether this camera uses an orthogrsphic projection.
+
+# Method Orthographic:Void(ortho:Bool) Property
+Sets the camera to use an orthographics instead of a perspective projection.
+
+# Method FovY:Float() Property
+Returns the vertical focal angle of the camera.
+
+# Method FovY:Void(fovy:Float) Property
+Sets the vertical focal angle of the camera.
+
+# Method AspectRatio:Float() Property
+Returns the aspect ratio of the camera.
+
+# Method AspectRatio:Void(ratio:Float) Property
+Sets the aspect ratio of the camera, usually the width of the viewport cast to float divided by the height.
+
+# Method Near:Float() Property
+Returns the distance of the near frustum plane of the camera.
+
+# Method Near:Void(near:Float) Property
+Sets the distance of the near frustum plane of the camera. Anything closer to the camera than this plane will not be drawn.
+
+# Method Far:Float() Property
+Returns the distance of the far frustum plane of the camera.
+
+# Method Far:Void(far:Float) Property
+Sets the distance of the far frustum plane of the camera. Anything further to the camera than this plane will not be drawn.
+
+
+
+
+# Class Color
+
+While internally a color is treated as 4 float values (red, green, blue, alpha), this information is packed inside a single integer, and we work with color components that go from 0 to 255. This class allows you to pack the color components into a single color integer, and extract each component from the color. It also has a set of predefined constants with some commonly used colors.
+
+# Const RED			: Int
+# Const GREEN			: Int
+# Const BLUE			: Int
+# Const CYAN			: Int
+# Const MAGENTA		: Int
+# Const YELLOW		: Int
+# Const BLACK			: Int
+# Const WHITE			: Int
+# Const GRAY			: Int
+# Const LIGHT_GRAY	: Int
+# Const DARK_GRAY		: Int
+# Const ORANGE		: Int
+# Const BROWN			: Int
+
+# Function RGB:Int(r:Int, g:Int, b:Int, a:Int = 255)
+Returns a color with the specified RGBA components.
+
+# Function Red:Int(color:Int)
+Returns the red component of the specified color.
+
+# Function Green:Int(color:Int)
+Returns the green component of the specified color.
+
+# Function Blue:Int(color:Int)
+Returns the blue component of the specified color.
+
+# Function Alpha:Int(color:Int)
+Returns the alpha component of the specified color.
+
+
+
+
+# Class Entity
+
+Everything that exists in the 3D world is an entity. Basically, an entity is an object which has a position, rotation and scale. This is the base class for all the types of elements that can be part of your world, like cameras, models, lights and sprites.
+
+An entity can have a parent and a list of children. When a parent entity is moved, rotated or scaled, it affects all its children.
+
+# Function Create:Entity(parent:Entity)
+Creates a new entity with the specified parent. By default, an entity is an empty object in your world, but it can be used as a reference point.
+
+# Method Discard:Void()
+Removes the entity from the world and deallocates its resources.
+
+# Method Name:String() Property
+Returns the name of the entity.
+
+# Method Name:Void(name:String) Property
+Sets the name of the entity.
+
+# Method Parent:Entity() Property
+Returns the parent of the entity.
+
+# Method Parent:Void(p:Entity) Property
+Sets the parent of the entity.
+
+# Method NumChildren:Int() Property
+Returns the number of children this entity has.
+
+# Method Child:Entity(index:Int)
+Returns the child at the specified `index`, which is a value between `0` and `Entity.NumChildren - 1`.
+
+# Method Active:Bool() Property
+Returns whether the entity is active or not. Inactive entities are not updated every frame.
+
+# Method Active:Void(active:Bool) Property
+Sets whether the entitiy is active or not. Inactive entities are not updated every frame.
+
+# Method Visible:Bool() Property
+Returns whether an entity is visible or not. Invisible entities are not drawn.
+
+# Method Visible:Void(visible:Bool) Property
+Sets whether the entity is visible or not. Invisible entities are not drawn.
+
+# Method X:Float() Property
+Returns the local X position of the entity (this is, not taking its parent transformation into account).
+
+# Method Y:Float() Property
+Returns the local Y position of the entity (this is, not taking its parent transformation into account).
+
+# Method Z:Float() Property
+Returns the local Z position of the entity (this is, not taking its parent transformation into account).
+
+# Method X:Void(val:Float) Property
+Sets the X position of an entity (relative to its parent).
+
+# Method Y:Void(val:Float) Property
+Sets the Y position of an entity (relative to its parent).
+
+# Method Z:Void(val:Float) Property
+Sets the Z position of an entity (relative to its parent).
+
+# Method WorldX:Float() Property
+Returns the X position of the entity in the world.
+
+# Method WorldY:Float() Property
+Returns the Y position of the entity in the world.
+
+# Method WorldZ:Float() Property
+Returns the Z position of the entity in the world.
+
+# Method SetPosition:Void(x:Float, y:Float, z:Float)
+Sets the local position of the entity.
+
+# Method Move:Void(x:Float, y:Float, z:Float)
+Moves the entity from its current location, taking its orientation into account.
+
+# Method Pitch:Float() Property
+Returns the pitch of X rotation of the entity.
+
+# Method Yaw:Float() Property
+Returns the yaw of Y rotation of the entity.
+
+# Method Roll:Float() Property
+Returns the roll of Z rotation of the entity.
+
+# Method Pitch:Void(val:Float) Property
+Sets the pitch or X rotation of the entity.
+
+# Method Yaw:Void(val:Float) Property
+Sets the yaw or Y rotation of the entity.
+
+# Method Roll:Void(val:Float) Property
+Sets the roll or Z rotation of the entity.
+
+# Method SetRotation:Void(pitch:Float, yaw:Float, roll:Float)
+Sets the rotation of the entity.
+
+# Method Turn:Void(pitch:Float, yaw:Float, roll:Float)
+Adds a rotation to the entity.
+
+# Method Width:Float() Property
+Returns the total width of the entity.
+
+# Method Height:Float() Property
+Returns the total height of the entity.
+
+# Method Depth:Float() Property
+Returns the total depth of the entity.
+
+# Method ScaleX:Float() Property
+Returns the X scale factor of the entity.
+
+# Method ScaleY:Float() Property
+Returns the Y scale factor of the entity.
+
+# Method ScaleZ:Float() Property
+Returns the Z scale factor of the entity.
+
+# Method ScaleX:Void(val:Float) Property
+Sets the X scale factor of the entity.
+
+# Method ScaleY:Void(val:Float) Property
+Sets the Y scale factor of the entity.
+
+# Method ScaleZ:Void(val:Float) Property
+Sets the Z scale factor of the entity.
+
+# Method SetScale:Void(x:Float, y:Float, z:Float)
+Sets the scale factor of the entity.
+
+# Method Distance:Float(other:Entity)
+Returns the distance to another entity.
+
+# Method NumMaterials:Int() Property
+Returns the number of materials that this entity has.
+
+# Method Material:Material(index:Int)
+Returns the entity's material with the specified index, which is a value between `0` and `Entity.NumMaterials - 1`.
+
+# Method Material:Material() Property
+Returns the first material of this entity.
+
+# Method ReplaceMaterials:Void(mat:Material)
+Replaces all materials in the entity with the specified one.
+
+# Method EmitSound:Void(sound:Sound, radius:Float, channel:Int)
+Emits a sound from the entity's position. The value of `radius` will be the maximum distance at which the sound can be heard.
+
+# Method BoxX:Float() Property
+Returns the origin X coordinate of the minimum bounding box that wraps the entire entity.
+
+# Method BoxY:Float() Property
+Returns the origin Y coordinate of the minimum bounding box that wraps the entire entity.
+
+# Method BoxZ:Float() Property
+Returns the origin Z coordinate of the minimum bounding box that wraps the entire entity.
+
+# Method UserData:Object() Property
+Returns the custom object associated with this entity.
+
+# Method UserData:Void(data:Object) Property
+Associates a custom object with this entity. This can be any object that you might want to associate with the entity (for example, an object with physics or gameplay information).
+
 
 
 
@@ -219,15 +450,9 @@ It is composed by a texture which contains the characters used to render texts, 
 You normally don't generate fonts by hand, but by using the bundled fonttool utility.
 
 # Function Create:Font(filename:String, height:Float, tex:Texture)
-Creates a new font, assigning a filename to it, the heigth in pixels of the font, and the texture map that will be used to render texts with this font. After creating it, you should define its glyphs. You normally don't need to use this function, as `Font.Load` gives you a ready to use font.
+Creates a new font, assigning a filename to it, the heigth in pixels of the font, and the texture map that will be used to render texts with this font. After creating it, you should define its glyphs. You normally don't need to use this function, as `Cache.LoadFont` gives you a ready to use font.
 
-# Function Load:Font(filename:String)
-Loads a font file from disk. A font is generated with the bundled fonttool app. The texture for the font is also loaded and assigned to the `Texture` property of the font.
-
-# Function LoadData:Font(data:DataBuffer, filename:String)
-Load a font that is stored in a DataBuffer in memory instead of a file on disk.
-
-# Method Free:Void()
+# Method Discard:Void()
 When you are not going to render text usign this font anymore, you should call this method to deallocate its resources.
 
 # Method Filename:String() Property
@@ -267,7 +492,7 @@ A framebuffer can be used to perform rendering to a texture. It can also optiona
 # Function Create:Framebuffer(width:Int, height:Int, depthBuffer:Bool)
 Creates a framebuffer with the specified size and an optional depth buffer.
 
-# Method Free:Void()
+# Method Discard:Void()
 When you no longer need a framebuffer, you should call this method.
 
 # Method Set:Void()
@@ -288,7 +513,7 @@ Indicates whether this framebuffer has a depth buffer or not.
 
 
 
-# Class Lighting
+# Class Light Extends Entity
 
 Vortex supports defining lights sources that can shine on objects.
 The maximum number of lights that can be defined simultaneously is 8.
@@ -303,101 +528,40 @@ Finally, independently from how many light rays are hitting an object, every obj
 For example, if we are in a sunny open environment, the amount of ambient lighting is much bigger than in a narrow, dark cave, because the intensity of all the lights produce a brighter residual lighting.
 
 Lights can be at infinity, emitting rays in one direction (called *directional lights*; one common example is the sun),
-or can be at one specific place, emitting rays in all directions that attenuate with distance (called *point lights*).
+or can be at one specific place, emitting rays in all directions that attenuate with distance (called *point lights*). Directional light will only take into account their rotation, while point lights will only take into account their position.
 
-# Const NUM_LIGHTS : Int
-# Const DIRECTIONAL : Int
-# Const POINT : Int
+# Const TYPE_DIRECTIONAL : Int
+# Const TYPE_POINT : Int
 
-# Function SetLightEnabled:Void(index:Int, enabled:Bool)
-Sets whether the light with the specified index (in the range [0,7]) must be taken into account or not when computing lighting.
+# Function Create:Light(type:Int = TYPE_DIRECTIONAL, parent:Entity = Null)
+Creates a new light source with the specified type.
 
-# Function LightEnabled:Bool(index:Int)
-Returns whether the specified light is enabled or not.
+# Method Type:Int() Property
+Returns the type of the specified light. It can take one of the following values:
 
-# Function SetLightType:Void(index:Int, type:Int)
+| Value                | Meaning
+| Light.TYPE_DIRECTIONAL | A directional light. This light behaves as a light source coming from infinity with the direction specified by its rotation. This type of light is commonly used to represent the sun.
+| Light.TYPE_POINT       | A point light. This light is placed at a position in the 3D space, and attenuates with distance based on its maximum radius, which can be set with the `Radius` property.
+
+
+# Method Type:Void(type:Int) Property
 Sets the type of the specified light. It can take one of the following values:
 
 | Value                | Meaning
-| Lighting.DIRECTIONAL | A directional light. This light behaves as a light source coming from infinity with the direction specified by a normal vector, and this type of lighting is commonly used to represent the sun light. This is the default value.
-| Lighting.POINT       | A point light. This light is placed at a position in the 3D space, and attenuates with distance. The linear attenuation factor can be specified with the `Lighting.SetLightAttenuation` function.
+| Light.TYPE_DIRECTIONAL | A directional light. This light behaves as a light source coming from infinity with the direction specified by its rotation. This type of light is commonly used to represent the sun.
+| Light.TYPE_POINT       | A point light. This light is placed at a position in the 3D space, and attenuates with distance based on its maximum radius, which can be set with the `Radius` property.
 
-# Function LightType:Int(index:Int)
-Returns the type of the specified light.
+# Method Color:Int() Property
+Returns the color of the light.
 
-# Function SetLightPosition:Void(index:Int, x:Float, y:Float, z:Float)
-Sets the position of the specified light in 3D space. In directional lights, this value is a normal vector that indicates the direction that the light is coming from.
+# Method Color:Void(color:Int) Property
+Sets the color that the specified light emits. White by default.
 
-# Function LightX:Float(index:Int)
-Returns the X position of the specified light.
-
-# Function LightY:Float(index:Int)
-Returns the Y position of the specified light.
-
-# Function LightZ:Float(index:Int)
-Returns the Z position of the specified light.
-
-# Function SetLightColor:Void(index:Int, r:Float, g:Float, b:Float)
-Sets the color that the specified light emits. White by default (1,1,1).
-
-# Function LightRed:Float(index:Int)
-Returns the red component of the specified light color.
-
-# Function LightGreen:Float(index:Int)
-Returns the green component of the specified light color.
-
-# Function LightBlue:Float(index:Int)
-Returns the blue component of the specified light color.
-
-# Function SetLightRadius:Void(index:Int, att:Float)
-Sets the radius of the specified light. This value is ignored for directional lights.
-
-# Function LightRadius:Float(index:Int)
+# Method Radius:Float() Property
 Returns the radius of the specified light.
 
-# Function Prepare:Void(ambientRed:Float = 0.3, ambientGreen:Float = 0.3, ambientBlue:Float = 0.3, globalPixelLighting:Bool = False)
-Prepares the engine to render with lighting in the next frame, using the color color components specified
-as parameters as the ambient color (this is, the lighting that will be received by all geometry independent from the light sources).
-Required lights must have been previously enabled and configured. If you do not call this before drawing your scene,
-no lighting information will be computed, despite of which lights were enabled.
-
-The parameter `globalPixelLighting` can be used to enable per-pixel lighting for the entire scene (by default, only normal mapped surfaces use per-pixel lighting).
-
-# Function GlobalPixelLightingEnabled:Bool()
-Indicates whether global pixel lighting was enabled on the last call to `Lighting.Prepare` or not.
-
-
-
-
-# Class Mat4
-
-Represents a 4x4 homogeneus coordinate matrix. Transformations in 3D space are defined with these kind of matrices, as well as the projection of 3D graphics to the screen.
-
-To define how graphics are projected to the screen, you can setup a projection matrix with the methods `SetOrthoLH` (if you want an orthographic projection), `SetPerspectiveLH`, or `SetFrustumLH` (if you want a perspective projection), and set that matrix as the projection matrix with `Renderer.SetProjectionMatrix` before rendering.
-
-To define the viewer's position and orientation, you can use the methods `LookAtLH` or `SetViewerTransform`, and set that matrix as the view matrix with `Renderer.SetViewMatrix` before rendering.
-
-To define the position, rotation and scale of an object in the 3D world, you can create a transformation matrix with the methods `SetTransform` or `SetBillboardTransformLH` (if you want to render an object that always faces the viewer, like a billboard), and set that matrix as the model matrix with `Renderer.SetModelMatrix` before rendering.
-
-Not all matrix methods are represented here, only the ones above, which are the relevant ones for most situations:
-
-# Method SetOrthoLH:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
-
-# Method SetFrustumLH:Void(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
-
-# Method SetPerspectiveLH:Void(fovy:Float, aspect:Float, near:Float, far:Float)
-
-# Method LookAtLH:Void(eyex:Float, eyey:Float, eyez:Float, centerx:Float, centery:Float, centerz:Float, upx:Float, upy:Float, upz:Float)
-
-# Method SetTransform:Void(x:Float, y:Float, z:Float, rw:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
-
-# Method SetTransform:Void(x:Float, y:Float, z:Float, rx:Float, ry:Float, rz:Float, sx:Float, sy:Float, sz:Float)
-
-# Method SetViewerTransform:Void(x:Float, y:Float, z:Float, rw:Float, rx:Float, ry:Float, rz:Float)
-
-# Method SetViewerTransform:Void(x:Float, y:Float, z:Float, rx:Float, ry:Float, rz:Float)
-
-# Method SetBillboardTransformLH:Void(view:Mat4, x:Float, y:Float, z:Float, spin:Float, width:Float, height:Float, cylindrical:Bool = False)
+# Method Radius:Void(rad:Float) Property
+Sets the radius of the specified light. This value is ignored for directional lights.
 
 
 
@@ -907,3 +1071,19 @@ Get the version of the API supported by this machine (currently, the version of 
 
 # Function ShadingVersion:Float()
 Get the version of the shading language supported by this machine (currently, the version of GLSL supported by the implementation).
+
+
+
+
+# Class World
+
+# Function Prepare:Void(ambientRed:Float = 0.3, ambientGreen:Float = 0.3, ambientBlue:Float = 0.3, globalPixelLighting:Bool = False)
+Prepares the engine to render with lighting in the next frame, using the color color components specified
+as parameters as the ambient color (this is, the lighting that will be received by all geometry independent from the light sources).
+Required lights must have been previously enabled and configured. If you do not call this before drawing your scene,
+no lighting information will be computed, despite of which lights were enabled.
+
+The parameter `globalPixelLighting` can be used to enable per-pixel lighting for the entire scene (by default, only normal mapped surfaces use per-pixel lighting).
+
+# Function GlobalPixelLightingEnabled:Bool()
+Indicates whether global pixel lighting was enabled on the last call to `Lighting.Prepare` or not.

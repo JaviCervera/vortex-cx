@@ -2,6 +2,7 @@
 '* Document engine and tools
 '- Document mesh and surface modification functions
 '- Add Building section to README.md
+'- Limit number of lights to 4, and sort the light list to render the closest ones?
 '- Fix render to texture on HTML5
 '- Replace number of frames with animation duration?
 'TODO v2.1:
@@ -27,7 +28,6 @@ Import src.framebuffer
 Import src.light
 Import src.listener
 Import src.material
-Import src.math3d
 Import src.mesh
 Import src.model
 Import src.primitive
