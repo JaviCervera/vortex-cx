@@ -16,7 +16,7 @@ Class Collision
 		End
 	End
 	
-	Function BoxSphere:Bool(minx:Float, miny:Float, minz:Float, maxx:Float, maxy:Float, maxz:Float, sx:Float, sy:Float, sz:Float, sqrad:Float)
+	Function BoxSphere:Bool(minx:Float, miny:Float, minz:Float, maxx:Float, maxy:Float, maxz:Float, sx:Float, sy:Float, sz:Float, sqrad:Float)		
 		'Check if point is in box
 		If IsPointInBox(minx, miny, minz, maxx, maxy, maxz, sx, sy, sz)
 			Return True

@@ -1,0 +1,117 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Collisions Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+
+Import mojo.app
+Import mojo.input
+Import vortex
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init()
+			Print "Error: " + Stats.ShaderError()
+			EndApp()
+		End
+		
+		'Setup world
+		World.SetAmbient(Color.LIGHT_GRAY)
+		World.SetShadows(True, 25, 100, 0.0025)
+		
+		'Create sphere
+		mSphere = Model.Create(Cache.LoadMesh("sphere.msh.dat"))
+		mSphere.SetPosition(3.5, 0.5, 2.5)
+		mSphere.SetScale(0.5, 0.5, 0.5)
+		mSphere.CollisionMode = Entity.COLLISION_SPHERE
+		mSphere.Radius = 0.5
+		mSphere.Material.Color = Color.RED
+		
+		'Create camera
+		mCam = Camera.Create(mSphere)
+		mCam.SetPosition(0, 14, -16)
+		mCam.SetRotation(45, 0, 0)
+		mCam.ClearColor = Color.RGB(15, 25, 55)
+		
+		'Create level
+		Local mesh:Mesh = Primitive.CreateCube()
+		mesh.Surface(0).Material.Color = Color.ORANGE
+		mesh.Translate(0.5, 0.5, 0.5)
+		Local model:Model = Model.Create(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetScale(13, 1, 1)
+		model = Model.Create(mesh)
+		model.SetPosition(0, 0, 13)
+		model.SetScale(13, 1, 1)
+		model = Model.Create(mesh)
+		model.SetPosition(0, 0, 1)
+		model.SetScale(1, 1, 12)	
+		model = Model.Create(mesh)
+		model.SetPosition(12, 0, 1)
+		model.SetScale(1, 1, 12)
+		model = Model.Create(mesh)
+		model.SetPosition(6, 0, 1)
+		model.SetScale(1, 1, 8)
+		model = Model.Create(mesh)
+		model.SetPosition(0, -1, 0)
+		model.SetScale(13, 1, 13)
+		model.Material.Color = Color.BROWN
+		
+		'Create light
+		mLight = Light.Create()
+		mLight.SetRotation(45, 45, 0)
+
+		Return False
+	End
+	
+	Method OnUpdate:Int()	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		'Update camera view
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		'Update sphere
+		If KeyDown(KEY_UP) Then mSphere.Move(0, 0, 2 * Stats.DeltaTime())
+		If KeyDown(KEY_DOWN) Then mSphere.Move(0, 0, -2 * Stats.DeltaTime())
+		If KeyDown(KEY_LEFT) Then mSphere.Move(-2 * Stats.DeltaTime(), 0, 0)
+		If KeyDown(KEY_RIGHT) Then mSphere.Move(2 * Stats.DeltaTime(), 0, 0)
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		'World.DepthTexture().Draw(4, 4, 300, -225)
+		
+		Return False
+	End
+Private
+	Field mCam				: Camera
+	Field mSphere			: Model
+	Field mLight			: Light
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
+End
