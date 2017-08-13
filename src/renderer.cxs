@@ -127,13 +127,13 @@ Public
 		mRectBuffer = CreateVertexBuffer(dataBuffer.Length)
 		SetVertexBufferData(mRectBuffer, 0, dataBuffer.Length, dataBuffer)
 		dataBuffer.Discard()
+		
+		mFramebufferHeight = DeviceHeight()
 
 		Return True
 	End
 
-	Function Setup2D:Void(x:Int, y:Int, w:Int, h:Int, framebufferHeight:Int = 0)
-		If framebufferHeight = 0 Then framebufferHeight = h
-	
+	Function Setup2D:Void(x:Int, y:Int, w:Int, h:Int)
 		'Switch to 2D program
 		UseProgram(m2DProgram)
 
@@ -150,7 +150,7 @@ Public
 		SetColor(1,1,1,1)
 
 		'Setup viewport
-		y = framebufferHeight - y - h
+		y = mFramebufferHeight - y - h
 		glViewport(x, y, w, h)
 		glScissor(x, y, w, h)
 
@@ -163,9 +163,7 @@ Public
 		Renderer.SetModelMatrix(mTempMatrix)
 	End
 
-	Function Setup3D:Void(x:Int, y:Int, w:Int, h:Int, isDepthPass:Bool = False, framebufferHeight:Int = 0)
-		If framebufferHeight = 0 Then framebufferHeight = h
-	
+	Function Setup3D:Void(x:Int, y:Int, w:Int, h:Int, isDepthPass:Bool = False)
 		'Switch to 3D program
 		If Not isDepthPass
 			UseProgram(mDefaultProgram)
@@ -191,7 +189,7 @@ Public
 		SetSkinned(False)
 
 		'Setup viewport
-		y = framebufferHeight - y - h
+		y = mFramebufferHeight - y - h
 		glViewport(x, y, w, h)
 		glScissor(x, y, w, h)
 		
@@ -592,10 +590,10 @@ Public
 	
 	Function CreateFramebuffer:Int(colorTex:Int, depthBuffer:Int)
 		Local fb:Int = glCreateFramebuffer()
-		SetFramebuffer(fb)
+		SetFramebuffer(fb, mFramebufferHeight)
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0)
 		If depthBuffer <> 0 Then glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer)
-		SetFramebuffer(0)
+		SetFramebuffer(0, mFramebufferHeight)
 		Return fb
 	End
 	
@@ -603,8 +601,9 @@ Public
 		glDeleteFramebuffer(fb)
 	End
 	
-	Function SetFramebuffer:Void(fb:Int)
+	Function SetFramebuffer:Void(fb:Int, height:Int)
 		glBindFramebuffer(GL_FRAMEBUFFER, fb)
+		mFramebufferHeight = height
 	End
 	
 	'---------------------------------------------------------------------------
@@ -853,6 +852,7 @@ Private
 	Global mEllipseBuffer:Int
 	Global mLineBuffer:Int
 	Global mRectBuffer:Int
+	Global mFramebufferHeight:Int
 	Global mTexDataBuffer:DataBuffer = New DataBuffer(32, True)
 	Global mModelMatrix:Mat4 = Mat4.Create()
 	Global mViewMatrix:Mat4 = Mat4.Create()

@@ -75,7 +75,7 @@ Class World Final
 				mFramebuffer.Set()
 				
 				'Setup renderer
-				Renderer.Setup3D(0, 0, mFramebuffer.ColorTexture.Width, mFramebuffer.ColorTexture.Height, True, mFramebuffer.ColorTexture.Height)
+				Renderer.Setup3D(0, 0, mFramebuffer.ColorTexture.Width, mFramebuffer.ColorTexture.Height, True)
 				Renderer.SetProjectionMatrix(mDepthProj)
 				Renderer.SetViewMatrix(mDepthView)
 				Renderer.ClearColorBuffer(Color.WHITE)
@@ -125,7 +125,7 @@ Class World Final
 	End
 
 	Function SkyboxTexture:Texture()
-		Return mSkybox.Surface(0).Material.DiffuseTexture
+		Return mSkybox.Surface(0).Material.BaseTexture
 	End
 	
 	Function SetSkyboxTexture:Void(tex:Texture)

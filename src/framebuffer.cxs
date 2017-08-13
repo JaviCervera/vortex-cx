@@ -1,6 +1,7 @@
 Strict
 
 Private
+Import mojo.app
 Import renderer
 Import texture
 
@@ -24,11 +25,11 @@ Public
 	End
 	
 	Method Set:Void()
-		Renderer.SetFramebuffer(mHandle)
+		Renderer.SetFramebuffer(mHandle, mColorTex.Height)
 	End
 	
 	Function SetScreen:Void()
-		Renderer.SetFramebuffer(0)
+		Renderer.SetFramebuffer(0, DeviceHeight())
 	End
 	
 	Method Handle:Int() Property

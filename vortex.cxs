@@ -1,11 +1,12 @@
 'TODO v2.0:
-'* Document engine and tools
-'- Add Building section to README.md
-'- Limit number of lights to 4 by default, and sort the light list to render the closest ones?
+'- Limit number of lights to 4 by default
+'- Add box and sphere collisions
 '- Add spot lights
 '- Replace number of frames with animation duration?
 '- Add texture matrix in Material
 '- Fix render to texture on HTML5
+'- Add Building section to README.md
+'- Document tools
 'TODO v2.1:
 '- Add several shaders: unlit, vlit, flit, with static and skinned modes
 '- Integrate with Mojo

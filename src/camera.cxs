@@ -2,6 +2,7 @@ Strict
 
 Private
 Import color
+Import framebuffer
 Import listener
 Import math3d
 Import mojo.app
@@ -131,7 +132,22 @@ Class Camera Extends Entity Final
 		mFar = far
 	End
 	
+	Method Framebuffer:Framebuffer() Property
+		Return mFramebuffer
+	End
+	
+	Method Framebuffer:Void(fb:Framebuffer) Property
+		mFramebuffer = fb
+	End
+	
 	Method _PrepareForRender:Void()
+		'Set framebuffer
+		If mFramebuffer
+			mFramebuffer.Set()
+		Else
+			Framebuffer.SetScreen()
+		End
+	
 		'Set viewport
 		Renderer.Setup3D(mVX, mVY, mVW, mVH)
 		
@@ -170,6 +186,7 @@ Private
 	Field mRatio		: Float
 	Field mNear			: Float
 	Field mFar			: Float
+	Field mFramebuffer	: Framebuffer
 	
 	Global mProjMatrix	: Mat4 = Mat4.Create()
 	Global mViewMatrix	: Mat4 = Mat4.Create()
