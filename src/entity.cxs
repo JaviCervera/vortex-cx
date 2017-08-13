@@ -1,6 +1,7 @@
 Strict
 
 Private
+Import collision
 Import listener
 Import mojo.audio
 Import vortex
@@ -9,6 +10,10 @@ Import world
 
 Public
 Class Entity
+	Const COLLISION_NONE	: Int = 0
+	Const COLLISION_SPHERE	: Int = 1
+	Const COLLISION_BOX		: Int = 2
+
 	Method New(parent:Entity)
 		Parent = parent
 		mChildren = New List<Entity>
@@ -134,13 +139,62 @@ Class Entity
 		_UpdateTransform()
 	End
 	
-	Method Move:Void(x:Float, y:Float, z:Float)
+	Method Move:Void(x:Float, y:Float, z:Float, collideWithEntities:Bool = True)
 		'Transform x, y, z by entity's rotation
 		mTempQuat.SetEuler(mRotation.X, mRotation.Y, mRotation.Z)
 		mTempQuat.Mul(x, y, z)
 		
-		'Add resulting vector to entity's position		
-		mPosition.Sum(mTempQuat.ResultVector())
+		'Add resulting vector to entity's position
+		'mTempVec.Set(mPosition)
+		mTempVec.Set(mTempQuat.ResultVector())
+		
+		If CollisionMode <> COLLISION_NONE And Active
+			'Reset collision status
+			mCollided = False
+			mCollidedEntity = Null
+			
+			'Check static collisions
+			If World._CheckStaticCollision(WorldX + mTempVec.X, WorldY, WorldZ, mSqRadius) Then mCollided = True; mTempVec.X = 0
+			If World._CheckStaticCollision(WorldX, WorldY + mTempVec.Y, WorldZ, mSqRadius) Then mCollided = True; mTempVec.Y = 0
+			If World._CheckStaticCollision(WorldX, WorldY, WorldZ + mTempVec.Z, mSqRadius) Then mCollided = True; mTempVec.Z = 0
+			
+			'Check collisions with other entities
+			If collideWithEntities
+				For Local other:Entity = Eachin World._Entities()
+					'Do not check collisions with itself
+					If other <> Self And other.CollisionMode <> COLLISION_NONE And other.Active
+						If CollisionMode = COLLISION_SPHERE And other.CollisionMode = COLLISION_SPHERE
+							If Collision.SphereSphere(WorldX, WorldY, WorldZ, mSqRadius, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+								mCollided = True
+								mCollidedEntity = other
+								Exit
+							End
+						Elseif CollisionMode = COLLISION_SPHERE And other.CollisionMode = COLLISION_BOX
+							If Collision.BoxSphere(other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ, WorldX, WorldY, WorldZ, mSqRadius)
+								mCollided = True
+								mCollidedEntity = other
+								Exit
+							End
+						Elseif CollisionMode = COLLISION_BOX And other.CollisionMode = COLLISION_SPHERE
+							If Collision.BoxSphere(BoxMinX, BoxMinY, BoxMinZ, BoxMaxX, BoxMaxY, BoxMaxZ, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+								mCollided = True
+								mCollidedEntity = other
+								Exit
+							End
+						Elseif CollisionMode = COLLISION_BOX And other.CollisionMode = COLLISION_BOX
+							If Collision.BoxBox(BoxMinX, BoxMinY, BoxMinZ, BoxMaxX, BoxMaxY, BoxMaxZ, other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ)
+								mCollided = True
+								mCollidedEntity = other
+								Exit
+							End
+						End
+					End
+				Next
+			End
+		End
+		
+		'Go to destination point
+		mPosition.Sum(mTempVec)
 		
 		_UpdateTransform()
 	End
@@ -226,6 +280,27 @@ Class Entity
 		_UpdateTransform()
 	End
 	
+	Method CollisionMode:Int() Property
+		Return mCollisionMode
+	End
+	
+	Method CollisionMode:Void(mode:Int) Property
+		mCollisionMode = mode
+	End
+
+	Method Radius:Float() Property
+		Return mRadius
+	End
+	
+	Method Radius:Void(rad:Float) Property
+		mRadius = rad
+		mSqRadius = rad * rad
+	End
+	
+	Method CollidedEntity:Entity() Property
+		Return mCollidedEntity
+	End
+	
 	Method Distance:Float(other:Entity)
 		mTempVec.Set(mPosition)
 		mTempVec.Sub(other.mPosition)
@@ -254,15 +329,27 @@ Class Entity
 		Listener._EmitSound(Self, sound, radius, channel)
 	End
 	
-	Method BoxX:Float() Property
+	Method BoxMinX:Float() Property
 		Return WorldX - Width/2
 	End
 	
-	Method BoxY:Float() Property
+	Method BoxMinY:Float() Property
 		Return WorldY - Height/2
 	End
 	
-	Method BoxZ:Float() Property
+	Method BoxMinZ:Float() Property
+		Return WorldZ - Depth/2
+	End
+	
+	Method BoxMaxX:Float() Property
+		Return WorldX - Width/2
+	End
+	
+	Method BoxMaxY:Float() Property
+		Return WorldY - Height/2
+	End
+	
+	Method BoxMaxZ:Float() Property
 		Return WorldZ - Depth/2
 	End
 	
@@ -284,16 +371,21 @@ Class Entity
 		Return mTransform
 	End
 Private
-	Field mName			: String
-	Field mParent		: Entity
-	Field mChildren		: List<Entity>
-	Field mActive		: Bool
-	Field mVisible		: Bool
-	Field mPosition		: Vec3
-	Field mRotation		: Vec3
-	Field mScale		: Vec3
-	Field mTransform	: Mat4
-	Field mUserData		: Object
+	Field mName				: String
+	Field mParent			: Entity
+	Field mChildren			: List<Entity>
+	Field mActive			: Bool
+	Field mVisible			: Bool
+	Field mPosition			: Vec3
+	Field mRotation			: Vec3
+	Field mScale			: Vec3
+	Field mTransform		: Mat4
+	Field mCollisionMode	: Int
+	Field mRadius			: Float
+	Field mSqRadius			: Float
+	Field mCollided			: Bool
+	Field mCollidedEntity	: Entity
+	Field mUserData			: Object
 	
 	Method New()
 	End

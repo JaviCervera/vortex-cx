@@ -88,8 +88,12 @@ Public
 		Mul(1/scalar)
 	End
 	
+	Method SqLength:Float()
+		Return X*X + Y*Y + Z*Z
+	End
+	
 	Method Length:Float()
-		Return Sqrt(X*X + Y*Y + Z*Z)
+		Return Sqrt(SqLength())
 	End
 	
 	Method Normalize:Void()

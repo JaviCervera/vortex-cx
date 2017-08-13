@@ -291,6 +291,10 @@ Returns the alpha component of the specified color.
 
 # Class Entity
 
+# Const COLLISION_NONE		: Int
+# Const COLLISION_SPHERE	: Int
+# Const COLLISION_BOX		: Int
+
 Everything that exists in the 3D world is an entity. Basically, an entity is an object which has a position, rotation and scale. This is the base class for all the types of elements that can be part of your world, like cameras, models, lights and sprites.
 
 An entity can have a parent and a list of children. When a parent entity is moved, rotated or scaled, it affects all its children.
@@ -361,8 +365,8 @@ Returns the Z position of the entity in the world.
 # Method SetPosition:Void(x:Float, y:Float, z:Float)
 Sets the local position of the entity.
 
-# Method Move:Void(x:Float, y:Float, z:Float)
-Moves the entity from its current location, taking its orientation into account.
+# Method Move:Void(x:Float, y:Float, z:Float, collideWithEntities:Bool = True)
+Moves the entity from its current location, taking its orientation into account. If `collideWithEntities`is set to `True` and `CollisionMode` is different to `Entity.COLLISION_NONE`, then collision woth other entities will be performed during movement. Static collisions will always be checked if the entitiy's `CollisionMode` is different to `Entity.COLLISION_NONE`. The entity will not reach its destination point if a collision is detected.
 
 # Method Pitch:Float() Property
 Returns the pitch of X rotation of the entity.
@@ -418,6 +422,29 @@ Sets the Z scale factor of the entity.
 # Method SetScale:Void(x:Float, y:Float, z:Float)
 Sets the scale factor of the entity.
 
+# Method CollisionMode:Int() Property
+Returns the collision mode for the entity. Default is `Entity.COLLISION_NONE`.
+
+# Method CollisionMode:Void(mode:Int) Property
+Sets the collision mode for the entity. Possible values are:
+
+| Value | Meaning
+| Entity.COLLISION_NONE | Do not check for collisions.
+| Entity.COLLISION_SPHERE | Check for collisions using the entity's radius.
+| Entity.COLLISION_BOX | Check for collisions using the entity's bounding box.
+
+# Method Radius:Float() Property
+Returns the radius of the entity. This is used for collision detection when `CollisionMode` is set to `Entity.COLLISION_SPHERE`.
+
+# Method Radius:Void(rad:Float) Property
+Sets the radius of the entity. This is used for collision detection when `CollisionMode` is set to `Entity.COLLISION_SPHERE`.
+
+# Method Collided:Bool() Property
+Returns whether the entity collided on the last movement or not.
+
+# Method CollidedEntity:Entity() Property
+Returns the entity that was collided on the last movement.
+
 # Method Distance:Float(other:Entity)
 Returns the distance to another entity.
 
@@ -425,7 +452,7 @@ Returns the distance to another entity.
 Returns the number of materials that this entity has.
 
 # Method Material:Material(index:Int)
-Returns the entity's material with the specified index, which is a value between `0` and `Entity.NumMaterials - 1`.
+Returns the entity's material with the specified index, which is a value between `0` and `NumMaterials - 1`.
 
 # Method Material:Material() Property
 Returns the first material of this entity.
@@ -436,14 +463,23 @@ Replaces all materials in the entity with the specified one.
 # Method EmitSound:Void(sound:Sound, radius:Float, channel:Int)
 Emits a sound from the entity's position. The value of `radius` will be the maximum distance at which the sound can be heard.
 
-# Method BoxX:Float() Property
-Returns the origin X coordinate of the minimum bounding box that wraps the entire entity.
+# Method BoxMinX:Float() Property
+Returns the origin X coordinate of the bounding box that wraps the entity.
 
-# Method BoxY:Float() Property
-Returns the origin Y coordinate of the minimum bounding box that wraps the entire entity.
+# Method BoxMinY:Float() Property
+Returns the origin Y coordinate of the bounding box that wraps the entity.
 
-# Method BoxZ:Float() Property
-Returns the origin Z coordinate of the minimum bounding box that wraps the entire entity.
+# Method BoxMinZ:Float() Property
+Returns the origin Z coordinate of the bounding box that wraps the entity.
+
+# Method BoxMaxX:Float() Property
+Returns the final X coordinate of the bounding box that wraps the entity.
+
+# Method BoxMaxY:Float() Property
+Returns the final Y coordinate of the bounding box that wraps the entity.
+
+# Method BoxMaxZ:Float() Property
+Returns the final Z coordinate of the bounding box that wraps the entity.
 
 # Method UserData:Object() Property
 Returns the custom object associated with this entity.
@@ -567,12 +603,6 @@ Returns the color of the light.
 
 # Method Color:Void(color:Int) Property
 Sets the color that the specified light emits. White by default.
-
-# Method Radius:Float() Property
-Returns the radius of the specified light.
-
-# Method Radius:Void(rad:Float) Property
-Sets the radius of the specified light. This value is ignored for directional lights.
 
 
 
@@ -756,25 +786,25 @@ Returns the height of the mesh.
 # Method Depth:Float() Property
 Returns the depth of the mesh.
 
-# Method UpdateBounds:Void()
+# Method UpdateBoundingBox:Void()
 Updates the bounding box of the mesh. This method should be called if you have added vertices or modified the position of any vertex in the mesh.
 
-# Method MinBoundX:Float() Property
+# Method BoxMinX:Float() Property
 Returns the origin X coordinate of the bounding box that wraps the mesh.
 
-# Method MinBoundY:Float() Property
+# Method BoxMinY:Float() Property
 Returns the origin Y coordinate of the bounding box that wraps the mesh.
 
-# Method MinBoundZ:Float() Property
+# Method BoxMinZ:Float() Property
 Returns the origin Z coordinate of the bounding box that wraps the mesh.
 
-# Method MaxBoundX:Float() Property
+# Method BoxMaxX:Float() Property
 Returns the final X coordinate of the bounding box that wraps the mesh.
 
-# Method MaxBoundY:Float() Property
+# Method BoxMaxY:Float() Property
 Returns the final Y coordinate of the bounding box that wraps the mesh.
 
-# Method MaxBoundZ:Float() Property
+# Method BoxMaxZ:Float() Property
 Returns the final Z coordinate of the bounding box that wraps the mesh.
 
 # Method Translate:Void(x:Float, y:Float, z:Float)
@@ -1108,8 +1138,8 @@ You can also specifY a width and a height different than its original size, and 
 
 # Class World
 
-# Function Init:Bool(numLights:Int = 8, numBones:Int = 75)
-Initializes the Vortex library. This should be called before any other function in the library. You can override the default supported number of lights in the scene and the maximum number of bones per mesh.
+# Function Init:Bool(numLights:Int = 4, numBones:Int = 75)
+Initializes the Vortex library. This should be called before any other function in the library. You can override the maximum number of lights in the world and the maximum number of bones per mesh.
 
 # Function Update:Void()
 Updates all entities in the world. This should be called on the app's `OnUpdate` method.
@@ -1173,3 +1203,9 @@ Returns whether shadows are enabled or not.
 
 # Function SetShadows:Void(enable:Bool, depthHeight:Float = 500, depthFar:Float = 1000, depthEpsilon:Float = 0.009)
 Enables or disables shadow casting. Shadows will be cast from the first light in the world.
+
+# Function AddStaticCollisionBox:Void(x:Float, y:Float, z:Float, width:Float, height:Float, depth:Float)
+Adds a box to the static collision list. This list contains global world collisions that do not belong to any entity.
+
+# Function ClearStaticCollisions:Void()
+Clears the static collision list.

@@ -22,8 +22,8 @@ Public
 		mesh.mSurfaces = New Surface[0]
 		mesh.mBones = New Bone[0]
 		mesh.mNumFrames = 0
-		mesh.mMinBounds = Vec3.Create()
-		mesh.mMaxBounds = Vec3.Create()
+		mesh.mBoxMin = Vec3.Create()
+		mesh.mBoxMax = Vec3.Create()
 		Return mesh
 	End
 	
@@ -39,8 +39,8 @@ Public
 			mesh.mBones[i] = bone.Bone.Create(other.mBones[i])
 		Next
 		mesh.mNumFrames = other.mNumFrames
-		mesh.mMinBounds.Set(other.mMinBounds)
-		mesh.mMaxBounds.Set(other.mMaxBounds)
+		mesh.mBoxMin.Set(other.mBoxMin)
+		mesh.mBoxMax.Set(other.mBoxMax)
 		Return mesh
 	End
 	
@@ -147,7 +147,7 @@ Public
 	Method AddSurface:Void(surf:Surface)
 		mSurfaces = mSurfaces.Resize(mSurfaces.Length() + 1)
 		mSurfaces[mSurfaces.Length()-1] = surf
-		UpdateBounds()
+		UpdateBoundingBox()
 		surf.Rebuild()
 	End
 
@@ -214,22 +214,22 @@ Public
 	End
 	
 	Method Width:Float() Property
-		Return mMaxBounds.X - mMinBounds.X
+		Return mBoxMax.X - mBoxMin.X
 	End
 	
 	Method Height:Float() Property
-		Return mMaxBounds.Y - mMinBounds.Y
+		Return mBoxMax.Y - mBoxMin.Y
 	End
 	
 	Method Depth:Float() Property
-		Return mMaxBounds.Z - mMinBounds.Z
+		Return mBoxMax.Z - mBoxMin.Z
 	End
 	
-	Method UpdateBounds:Void()
+	Method UpdateBoundingBox:Void()
 		If NumSurfaces > 0 And Surface(0).NumVertices > 0
 			'Init
-			mMinBounds.Set(Surface(0).VertexX(0), Surface(0).VertexY(0), Surface(0).VertexZ(0))
-			mMaxBounds.Set(mMinBounds)
+			mBoxMin.Set(Surface(0).VertexX(0), Surface(0).VertexY(0), Surface(0).VertexZ(0))
+			mBoxMax.Set(mBoxMin)
 			
 			'Iterate through each geom
 			For Local surf:Surface = Eachin mSurfaces
@@ -237,63 +237,63 @@ Public
 					Local vx:Float = surf.VertexX(index)
 					Local vy:Float = surf.VertexY(index)
 					Local vz:Float = surf.VertexZ(index)
-					If vx < mMinBounds.X Then mMinBounds.X = vx
-					If vy < mMinBounds.Y Then mMinBounds.Y = vy
-					If vz < mMinBounds.Z Then mMinBounds.Z = vz
-					If vx > mMaxBounds.X Then mMaxBounds.X = vx
-					If vy > mMaxBounds.Y Then mMaxBounds.Y = vy
-					If vz > mMaxBounds.Z Then mMaxBounds.Z = vz
+					If vx < mBoxMin.X Then mBoxMin.X = vx
+					If vy < mBoxMin.Y Then mBoxMin.Y = vy
+					If vz < mBoxMin.Z Then mBoxMin.Z = vz
+					If vx > mBoxMax.X Then mBoxMax.X = vx
+					If vy > mBoxMax.Y Then mBoxMax.Y = vy
+					If vz > mBoxMax.Z Then mBoxMax.Z = vz
 				Next
 			Next
 		Else
-			mMinBounds.Set(0, 0, 0)
-			mMaxBounds.Set(0, 0, 0)
+			mBoxMin.Set(0, 0, 0)
+			mBoxMax.Set(0, 0, 0)
 		End
 	End
 	
-	Method MinBoundX:Float() Property
-		Return mMinBounds.X
+	Method BoxMinX:Float() Property
+		Return mBoxMin.X
 	End
 	
-	Method MinBoundY:Float() Property
-		Return mMinBounds.Y
+	Method BoxMinY:Float() Property
+		Return mBoxMin.Y
 	End
 	
-	Method MinBoundZ:Float() Property
-		Return mMinBounds.Z
+	Method BoxMinZ:Float() Property
+		Return mBoxMin.Z
 	End
 	
-	Method MaxBoundX:Float() Property
-		Return mMaxBounds.X
+	Method BoxMaxX:Float() Property
+		Return mBoxMax.X
 	End
 	
-	Method MaxBoundY:Float() Property
-		Return mMaxBounds.Y
+	Method BoxMaxY:Float() Property
+		Return mBoxMax.Y
 	End
 	
-	Method MaxBoundZ:Float() Property
-		Return mMaxBounds.Z
+	Method BoxMaxZ:Float() Property
+		Return mBoxMax.Z
 	End
 	
 	Method Translate:Void(x:Float, y:Float, z:Float)
 		For Local surf:Surface = Eachin mSurfaces
 			surf.Translate(x, y, z)
 		Next
-		UpdateBounds()
+		UpdateBoundingBox()
 	End
 
 	Method Rotate:Void(pitch:Float, yaw:Float, roll:Float)
 		For Local surf:Surface = Eachin mSurfaces
 			surf.Rotate(pitch, yaw, roll)
 		Next
-		UpdateBounds()
+		UpdateBoundingBox()
 	End
 
 	Method Scale:Void(x:Float, y:Float, z:Float)
 		For Local surf:Surface = Eachin mSurfaces
 			surf.Scale(x, y, z)
 		Next
-		UpdateBounds()
+		UpdateBoundingBox()
 	End
 
 	Method Flip:Void()
@@ -510,7 +510,7 @@ Public
 		
 		stream.Close()
 		
-		mesh.UpdateBounds()
+		mesh.UpdateBoundingBox()
 		
 		Return mesh
 	End
@@ -522,7 +522,7 @@ Private
 	Field mSurfaces		: Surface[]
 	Field mBones		: Bone[]
 	Field mNumFrames	: Int
-	Field mMinBounds	: Vec3
-	Field mMaxBounds	: Vec3
+	Field mBoxMin		: Vec3
+	Field mBoxMax		: Vec3
 	Global mTempMatrix	: Mat4 = Mat4.Create()
 End

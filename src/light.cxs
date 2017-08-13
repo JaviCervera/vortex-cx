@@ -60,23 +60,15 @@ Class Light Extends Entity Final
 		mColor = color
 	End
 	
-	Method Radius:Float() Property
-		Return mRadius
-	End
-	
-	Method Radius:Void(rad:Float) Property
-		mRadius = rad
-	End
-	
 	Method _PrepareForRender:Void()
 		If mType = TYPE_DIRECTIONAL
 			mTempQuat.SetEuler(Pitch, Yaw, Roll)
 			mTempQuat.Mul(0, 0, -1)
 			Renderer.ViewMatrix().Mul(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, 0.0)
-			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 0.0, color.Color.Red(mColor) / 255.0, color.Color.Green(mColor) / 255.0, color.Color.Blue(mColor) / 255.0, mRadius)
+			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 0.0, color.Color.Red(mColor) / 255.0, color.Color.Green(mColor) / 255.0, color.Color.Blue(mColor) / 255.0, Radius)
 		Else
 			Renderer.ViewMatrix().Mul(WorldX, WorldY, WorldZ, 1.0)
-			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 1.0, color.Color.Red(mColor) / 255.0, color.Color.Green(mColor) / 255.0, color.Color.Blue(mColor) / 255.0, mRadius)
+			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 1.0, color.Color.Red(mColor) / 255.0, color.Color.Green(mColor) / 255.0, color.Color.Blue(mColor) / 255.0, Radius)
 		End
 	End
 	
@@ -91,7 +83,6 @@ Private
 	Field mNumber		: Int
 	Field mType			: Int
 	Field mColor		: Int
-	Field mRadius		: Float
 	Global mTempQuat	: Quat = Quat.Create()
 	
 	Method New()
@@ -102,7 +93,7 @@ Private
 		Super.New(parent)
 		mType = type
 		mColor = color.Color.WHITE
-		mRadius = 100
+		Radius = 100
 		Visible = True
 	End
 End

@@ -85,7 +85,7 @@ Class Primitive Final
 		'Create mesh with surface
 		Local cube:Mesh = Mesh.Create()
 		cube.AddSurface(surf)
-		cube.UpdateBounds()
+		cube.UpdateBoundingBox()
 		
 		Return cube
 	End
@@ -168,7 +168,7 @@ Class Primitive Final
 		'Create mesh with surface
 		Local skybox:Mesh = Mesh.Create()
 		skybox.AddSurface(surf)
-		skybox.UpdateBounds()
+		skybox.UpdateBoundingBox()
 		
 		Return skybox
 	End
@@ -233,7 +233,7 @@ Class Primitive Final
 		'Create mesh with surface
 		Local wedge:Mesh = Mesh.Create()
 		wedge.AddSurface(surf)
-		wedge.UpdateBounds()
+		wedge.UpdateBoundingBox()
 		
 		Return wedge
 	End

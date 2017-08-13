@@ -38,10 +38,14 @@ Class Model Extends Entity Implements IMaterialDelegate Final
 	Method Active:Void(active:Bool) Property
 		If active <> Super.Active
 			Super.Active(active)
-			If active
-				World._EntityNeedsUpdate(Self, True)
-			Else
-				World._EntityNeedsUpdate(Self, False)
+			
+			'Only animated models need to care about updating
+			If mAnimMatrices.Length > 0
+				If active
+					World._EntityNeedsUpdate(Self, True)
+				Else
+					World._EntityNeedsUpdate(Self, False)
+				End
 			End
 		End
 	End
@@ -89,16 +93,28 @@ Class Model Extends Entity Implements IMaterialDelegate Final
 		Return Material(0)
 	End
 	
-	Method BoxX:Float() Property
-		Return WorldX + mMesh.MinBoundX * ScaleX
+	Method BoxMinX:Float() Property
+		Return WorldX + mMesh.BoxMinX * ScaleX
 	End
 	
-	Method BoxY:Float() Property
-		Return WorldY + mMesh.MinBoundY * ScaleY
+	Method BoxMinY:Float() Property
+		Return WorldY + mMesh.BoxMinY * ScaleY
 	End
 	
-	Method BoxZ:Float() Property
-		Return WorldZ + mMesh.MinBoundZ * ScaleZ
+	Method BoxMinZ:Float() Property
+		Return WorldZ + mMesh.BoxMinZ * ScaleZ
+	End
+	
+	Method BoxMaxX:Float() Property
+		Return WorldX + mMesh.BoxMaxX * ScaleX
+	End
+	
+	Method BoxMaxY:Float() Property
+		Return WorldY + mMesh.BoxMaxY * ScaleY
+	End
+	
+	Method BoxMaxZ:Float() Property
+		Return WorldZ + mMesh.BoxMaxZ * ScaleZ
 	End
 	
 	Method MaterialChanged:Void(mat:Material)

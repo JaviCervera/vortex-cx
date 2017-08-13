@@ -47,18 +47,13 @@ Public
 		mLights[0] = Light.Create()
 		mLights[1] = Light.Create(Light.TYPE_POINT)
 		mLights[2] = Light.Create(Light.TYPE_POINT)
-		mLights[3] = Light.Create(Light.TYPE_POINT)
-		mLights[4] = Light.Create(Light.TYPE_POINT)
 		mLights[0].SetRotation(45, -45, 0)
 		mLights[1].SetPosition(0, 0, -2)
-		mLights[2].SetPosition(2, 0, 0)
-		mLights[3].SetPosition(0, 0, 2)
-		mLights[4].SetPosition(-2, 0, 0)
-		mLights[0].Color = Color.RGB(155, 155, 155)
-		mLights[1].Color = Color.RGB(128, 255, 178)
-		mLights[2].Color = Color.RGB(255, 178, 50)
-		mLights[3].Color = Color.RGB(255, 128, 178)
-		mLights[4].Color = Color.RGB(50, 178, 255)
+		mLights[2].SetPosition(0, 8, 4)
+		mLights[0].Color = Color.RGB(100, 100, 100)
+		mLights[1].Color = Color.RGB(255, 100, 0)
+		mLights[2].Color = Color.RGB(0, 100, 255)
+		World.SetAmbient(Color.RGB(15, 15, 15))
 
 		Return False
 	End
@@ -79,6 +74,14 @@ Public
 		
 		'Update model
 		mModel.Yaw += 32 * Stats.DeltaTime()
+		mModel.Move(0, 0, 0)
+		
+		'Update lighting
+		mValue += Stats.DeltaTime()
+		Local sinVal:Float = 0.5 + Abs(Sinr(mValue)) * 0.5
+		Local cosVal:Float = 0.5 + Abs(Cosr(mValue)) * 0.5
+		mLights[1].Radius = 2 * sinVal
+		mLights[2].Radius = 10 * cosVal
 		
 		Return False
 	End
