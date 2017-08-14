@@ -8,7 +8,7 @@ Import surface
 Public
 Class Primitive Final
 	Function CreateCube:Mesh()
-		Local surf:Surface = Surface.Create()
+		Local surf:Surface = New Surface
 		
 		'Front face
 		surf.AddVertex(-0.5,  0.5, -0.5,  0, 0, -1,  Color.WHITE,  0, 0)
@@ -83,7 +83,7 @@ Class Primitive Final
 		surf.AddTriangle(23, 22, 21)
 
 		'Create mesh with surface
-		Local cube:Mesh = Mesh.Create()
+		Local cube:Mesh = New Mesh
 		cube.AddSurface(surf)
 		cube.UpdateBoundingBox()
 		
@@ -91,7 +91,7 @@ Class Primitive Final
 	End
 	
 	Function CreateSkybox:Mesh()
-		Local surf:Surface = Surface.Create()
+		Local surf:Surface = New Surface
 		
 		'Back face
 		surf.AddVertex(-0.5,  0.5, -0.5,  0, 0, 1,  Color.WHITE,  0, 0)
@@ -166,7 +166,7 @@ Class Primitive Final
 		surf.AddTriangle(23, 21, 22)
 
 		'Create mesh with surface
-		Local skybox:Mesh = Mesh.Create()
+		Local skybox:Mesh = New Mesh
 		skybox.AddSurface(surf)
 		skybox.UpdateBoundingBox()
 		
@@ -174,7 +174,7 @@ Class Primitive Final
 	End
 	
 	Function CreateWedge:Mesh()
-		Local surf:Surface = Surface.Create()
+		Local surf:Surface = New Surface
 		
 		'Back face
 		surf.AddVertex( 0.5,  0.5, 0.5,  0, 0, 1,  Color.WHITE,  0, 0)
@@ -231,7 +231,7 @@ Class Primitive Final
 		surf.AddTriangle(17, 16, 15)
 
 		'Create mesh with surface
-		Local wedge:Mesh = Mesh.Create()
+		Local wedge:Mesh = New Mesh
 		wedge.AddSurface(surf)
 		wedge.UpdateBoundingBox()
 		

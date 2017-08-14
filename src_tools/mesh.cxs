@@ -117,7 +117,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 		End
 
 		'Create material
-		Local material:Material = Material.Create(diffuseTex)
+		Local material:Material = New Material(diffuseTex)
 		material.LightTexture = lightmap
 		If blendStr.ToLower() = "alpha" Then material.BlendMode = Renderer.BLEND_ALPHA
 		If blendStr.ToLower() = "add" Then material.BlendMode = Renderer.BLEND_ADD
@@ -130,7 +130,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 	Next
 
 	'Create mesh object
-	Local mesh:Mesh = Mesh.Create()
+	Local mesh:Mesh = New Mesh()
 	mesh.Filename = filename
 
 	'Parse surfaces
@@ -148,7 +148,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 		Local boneWeightsStr:String[] = surfaceNode.GetChild("bone_weights", "").value.Split(",")
 
 		'Create surface
-		Local surf:Surface = Surface.Create(materialsMap.Get(materialStr))
+		Local surf:Surface = New Surface(materialsMap.Get(materialStr))
 		Local indicesLen:Int = indicesStr.Length()
 		For Local j:Int = 0 Until indicesLen Step 3
 			surf.AddTriangle(Int(indicesStr[j]), Int(indicesStr[j+1]), Int(indicesStr[j+2]))
@@ -248,7 +248,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 		If invPoseStr.Length <> 16 Then Return Null
 
 		'Create bone
-		Local bone:Bone = Bone.Create(nameStr, mesh.BoneIndex(parentStr))
+		Local bone:Bone = New Bone(nameStr, mesh.BoneIndex(parentStr))
 			
 		'Set inverse pose matrix
 		Local m:Float[] = New Float[16]

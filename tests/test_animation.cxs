@@ -33,20 +33,20 @@ Public
 		mFont = Cache.LoadFont("system.fnt.dat")
 		
 		'Create camera
-		mCam = Camera.Create()
+		mCam = New Camera()
 		mCam.SetPosition(0, 64, -128)
 		mCam.SetRotation(10, 0, 0)
 		mCam.ClearColor = Color.WHITE
 		
 		'Load swat model
-		mSwatModel = Model.Create(Cache.LoadMesh("swat.msh.dat", "swat.skl.dat", "swat.anm.dat"))
+		mSwatModel = New Model(Cache.LoadMesh("swat.msh.dat", "swat.skl.dat", "swat.anm.dat"))
 		mSwatModel.SetPosition(-32, 32, 0)
 		mSwatModel.SetRotation(0, -15, 0)
 		mSwatModel.SetScale(7, 7, 7)
 		mSwatModel.FPS = 16
 		
 		'Load dwarf model
-		mDwarfModel = Model.Create(Cache.LoadMesh("dwarf.msh.dat", "dwarf.skl.dat", "dwarf.anm.dat"))
+		mDwarfModel = New Model(Cache.LoadMesh("dwarf.msh.dat", "dwarf.skl.dat", "dwarf.anm.dat"))
 		mDwarfModel.SetPosition(32, 0, 0)
 		mDwarfModel.SetRotation(0, 15, 0)
 		mDwarfModel.FPS = 16

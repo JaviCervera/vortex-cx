@@ -45,14 +45,14 @@ Public
 		mGui = New Gui
 		
 		'Create camera
-		mCam = Camera.Create()
+		mCam = New Camera()
 		mCam.SetPosition(2, 2, -2)
 		mCam.SetRotation(37, -45, 0)
 		mCam.ClearColor = Color.RGB(100, 100, 100)
 		mCam.Far = 5000
 		
 		'Add directional light
-		mLight = Light.Create(Light.TYPE_DIRECTIONAL)
+		mLight = New Light(Light.TYPE_DIRECTIONAL)
 		
 		mLastMouseX = MouseX()
 		mLastMouseY = MouseY()

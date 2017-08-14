@@ -64,7 +64,7 @@ Function LoadXMLFontString:Font(buffer:String, filename:String)
 	Local tex:Texture = Texture._Load(image, Renderer.FILTER_NONE)
 
 	'Create font
-	Local font:Font = Font.Create(filename, fontSize, tex)
+	Local font:Font = New Font(filename, fontSize, tex)
 
 	'Parse glyphs
 	Local index:Int = 0

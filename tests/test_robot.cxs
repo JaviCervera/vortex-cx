@@ -34,21 +34,21 @@ Public
 		mFont = Cache.LoadFont("system.fnt.dat")
 		
 		'Create camera
-		mCam = Camera.Create()
+		mCam = New Camera()
 		mCam.SetPosition(16, 16, -16)
 		mCam.SetRotation(20, -45, 0)
 		mCam.ClearColor = Color.RGB(15, 15, 15)
 		
 		'Create model
-		mModel = Model.Create(Cache.LoadMesh("robot.msh.dat"))
+		mModel = New Model(Cache.LoadMesh("robot.msh.dat"))
 		'mModel.Yaw = 180.0
 		
 		'Create lights
-		mLights[0] = Light.Create(Light.TYPE_POINT)
+		mLights[0] = New Light(Light.TYPE_POINT)
 		'mLights[0].SetRotation(45, -45, 0)
 		mLights[0].SetPosition(32, 0, 32)
 		mLights[0].Color = Color.RGB(125, 161, 191)
-		mLights[1] = Light.Create(Light.TYPE_POINT)
+		mLights[1] = New Light(Light.TYPE_POINT)
 		mLights[1].SetPosition(-32, 32, -32)
 		mLights[1].Color = Color.RGB(255, 100, 0)
 

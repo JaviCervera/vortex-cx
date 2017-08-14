@@ -29,7 +29,7 @@ Public
 		World.SetShadows(True, 25, 100, 0.003)
 		
 		'Create sphere
-		mBall = Model.Create(Cache.LoadMesh("sphere.msh.dat"))
+		mBall = New Model(Cache.LoadMesh("sphere.msh.dat"))
 		mBall.SetPosition(3.5, 0.5, 2.5)
 		mBall.SetScale(0.5, 0.5, 0.5)
 		mBall.CollisionMode = Entity.COLLISION_SPHERE
@@ -37,7 +37,7 @@ Public
 		mBall.Material.Color = Color.RED
 		
 		'Create camera
-		mCam = Camera.Create(mBall)
+		mCam = New Camera(mBall)
 		mCam.SetPosition(0, 14, -16)
 		mCam.SetRotation(45, 0, 0)
 		mCam.ClearColor = Color.RGB(15, 25, 55)
@@ -46,7 +46,7 @@ Public
 		CreateLevel()
 		
 		'Create light
-		mLight = Light.Create()
+		mLight = New Light()
 		mLight.SetRotation(15, 60, 0)
 
 		Return False
@@ -66,11 +66,14 @@ Public
 		mCam.ViewportWidth = DeviceWidth()
 		mCam.ViewportHeight = DeviceHeight()
 		
-		'Update sphere
+		'Update ball
 		If KeyDown(KEY_UP) Then mBall.Move(0, 0, 2 * Stats.DeltaTime())
 		If KeyDown(KEY_DOWN) Then mBall.Move(0, 0, -2 * Stats.DeltaTime())
 		If KeyDown(KEY_LEFT) Then mBall.Move(-2 * Stats.DeltaTime(), 0, 0)
 		If KeyDown(KEY_RIGHT) Then mBall.Move(2 * Stats.DeltaTime(), 0, 0)
+		
+		'Update camera yaw
+		mCam.Yaw = (mBall.WorldX - 6.5) / 6.5 * -15
 		
 		'Update door
 		mDoor.Move(0, 2 * Stats.DeltaTime() * mDoorDir, 0)
@@ -104,43 +107,43 @@ Public
 		mesh.Translate(0.5, 0.5, 0.5)
 		
 		'Create south wall
-		Local model:Model = Model.Create(mesh)
+		Local model:Model = New Model(mesh)
 		model.CollisionMode = Entity.COLLISION_BOX
 		model.SetScale(13, 1, 1)
 		
 		'Create north wall
-		model = Model.Create(mesh)
+		model = New Model(mesh)
 		model.CollisionMode = Entity.COLLISION_BOX
 		model.SetPosition(0, 0, 13)
 		model.SetScale(13, 1, 1)
 		
 		'Create west wall
-		model = Model.Create(mesh)
+		model = New Model(mesh)
 		model.CollisionMode = Entity.COLLISION_BOX
 		model.SetPosition(0, 0, 1)
 		model.SetScale(1, 1, 12)	
 		
 		'Create east wall
-		model = Model.Create(mesh)
+		model = New Model(mesh)
 		model.CollisionMode = Entity.COLLISION_BOX
 		model.SetPosition(12, 0, 1)
 		model.SetScale(1, 1, 12)
 		
 		'Create middle wall
-		model = Model.Create(mesh)
+		model = New Model(mesh)
 		model.CollisionMode = Entity.COLLISION_BOX
 		model.SetPosition(6, 0, 1)
 		model.SetScale(1, 1, 8)
 		
 		'Create floor
-		model = Model.Create(mesh)
+		model = New Model(mesh)
 		model.CollisionMode = Entity.COLLISION_BOX
 		model.SetPosition(0, -1, 0)
 		model.SetScale(13, 1, 13)
 		model.Material.Color = Color.BROWN
 		
 		'Create door
-		mDoor = Model.Create(mesh)
+		mDoor = New Model(mesh)
 		mDoor.CollisionMode = Entity.COLLISION_BOX
 		mDoor.SetPosition(6, 0, 9)
 		mDoor.SetScale(1, 1, 4)
@@ -148,14 +151,14 @@ Public
 		mDoorDir = 1
 		
 		'Create first blocking sphere
-		model = Model.Create(Cache.LoadMesh("sphere.msh.dat"))
+		model = New Model(Cache.LoadMesh("sphere.msh.dat"))
 		model.CollisionMode = Entity.COLLISION_SPHERE
 		model.Radius = 1.2
 		model.SetPosition(9, 1, 10)
 		model.Material.Color = Color.YELLOW
 		
 		'Create second blocking sphere
-		mBlockBall = Model.Create(Cache.LoadMesh("sphere.msh.dat"))
+		mBlockBall = New Model(Cache.LoadMesh("sphere.msh.dat"))
 		mBlockBall.CollisionMode = Entity.COLLISION_SPHERE
 		mBlockBall.Radius = 1.2
 		mBlockBall.SetPosition(9, 1, 5)

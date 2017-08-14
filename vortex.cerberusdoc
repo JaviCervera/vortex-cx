@@ -31,7 +31,7 @@ An *entity* is anything that exists in your 3D world, and has a position, rotati
 
 A bone contains a list of transformations to be applied to the geometry attached to it when using animations. Meshes can contains bones that animate the surfaces of the mesh (to make it walk, for example).
 
-# Function Create:Bone(name:String, parentIndex)
+# Method New(name:String, parentIndex)
 Creates a new bone with the specified name and parent index.
 
 # Method Name:String() Property
@@ -164,7 +164,7 @@ A camera is a type of `Entity` that represents the player in the 3D world. It ha
 # Const CLEAR_COLOR : Int
 # Const CLEAR_SKYBOX : Int
 
-# Function Create:Camera(parent:Entity = Null)
+# Method New(parent:Entity = Null)
 Creates a new camera entity with the specified parent (if any).
 
 # Method ViewportX:Int() Property
@@ -286,6 +286,9 @@ Returns the blue component of the specified color.
 # Function Alpha:Int(color:Int)
 Returns the alpha component of the specified color.
 
+# Function ChangeAlpha:Int(color:Int, newAlpha:Int)
+Returns the specified color, but replacing the alpha with the value specified in `newAlpha`.
+
 
 
 
@@ -299,7 +302,7 @@ Everything that exists in the 3D world is an entity. Basically, an entity is an 
 
 An entity can have a parent and a list of children. When a parent entity is moved, rotated or scaled, it affects all its children.
 
-# Function Create:Entity(parent:Entity)
+# Method New(parent:Entity)
 Creates a new entity with the specified parent. By default, an entity is an empty object in your world, but it can be used as a reference point.
 
 # Method Discard:Void()
@@ -496,7 +499,7 @@ A font is used to render text in Vortex.
 It is composed by a texture which contains the characters used to render texts, and a set of glyphs which contains the coordinates of each character within the texture and its offset.
 You normally don't generate fonts by hand, but by using the bundled fonttool utility.
 
-# Function Create:Font(filename:String, height:Float, tex:Texture)
+# Method New(filename:String, height:Float, tex:Texture)
 Creates a new font, assigning a filename to it, the heigth in pixels of the font, and the texture map that will be used to render texts with this font. After creating it, you should define its glyphs. You normally don't need to use this function, as `Cache.LoadFont` gives you a ready to use font.
 
 # Method Discard:Void()
@@ -536,7 +539,7 @@ Returns the specified glyph's data. You don't normally need this method.
 
 A framebuffer can be used to perform rendering to a texture. It can also optionally have a depth buffer to perform depth testing when rendering.
 
-# Function Create:Framebuffer(width:Int, height:Int, depthBuffer:Bool)
+# Method New(width:Int, height:Int, depthBuffer:Bool)
 Creates a framebuffer with the specified size and an optional depth buffer.
 
 # Method Discard:Void()
@@ -580,7 +583,7 @@ or can be at one specific place, emitting rays in all directions that attenuate 
 # Const TYPE_DIRECTIONAL : Int
 # Const TYPE_POINT : Int
 
-# Function Create:Light(type:Int = TYPE_DIRECTIONAL, parent:Entity = Null)
+# Method New(type:Int = TYPE_DIRECTIONAL, parent:Entity = Null)
 Creates a new light source with the specified type.
 
 # Method Type:Int() Property
@@ -628,10 +631,10 @@ Returns an available channel number (one that is not currently being used) that 
 A material represents the visual information such as diffuse texture, color, or opacity.
 It is used to render objects with a specific appearance.
 
-# Function Create:Material(diffuseTex:Texture = Null)
+# Method New(diffuseTex:Texture = Null)
 Creates a new material with the specified diffuse texture.
 
-# Function Create:Material(other:Material)
+# Method New(other:Material)
 Creates a new material that is a copy of another one.
 
 # Method DiscardTextures:Void()
@@ -734,10 +737,10 @@ A mesh is the description of a set of geometry (triangles), materials and option
 For every material that we need, there will be a surface in the mesh containing the geometry to be drawn with that material.
 The standard way to draw a mesh on the 3D space is by adding it to a RenderList, together with a transformation matrix that defines its position, rotation and scale. A mesh can be added mutiple times to the same RenderList, using different transformation matrices.
 
-# Function Create:Mesh()
+# Method New()
 Creates a new empty mesh.
 
-# Function Create:Mesh(other:Mesh)
+# Method New(other:Mesh)
 Creates a new mesh that is a copy of the mesh passed as parameter.
 
 # Method LoadSkeletonData:Bool(data:DataBuffer)
@@ -829,8 +832,8 @@ Sets the color of all vertices in the mesh.
 
 This type of entity represents an object with 3D geometry in your world. A model basically renders a triangle mesh with a specific position, rotation and scale, and supports mesh animation. Several models can shader the same mesh.
 
-# Function Create:Model(mesh:Mesh, parent:Entity = Null)
-Creates a new model from the specific mesh and parent. If `mesh` is `Null`, the function will return `Null`.
+# Method New(mesh:Mesh, parent:Entity = Null)
+Creates a new model from the specific mesh and parent. The value of `mesh` should not be `Null`.
 
 # Method Mesh:Mesh() Property
 Returns the mesh that this model uses.
@@ -907,7 +910,7 @@ A sprite is a 2D object in a 3D world. It has width and height, but no depth. It
 # Const MODE_SPHERICAL	: Int
 # Const MODE_CYLINDRICAL	: Int
 
-# Function Create:Sprite(texture:Texture, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
+# Method New(texture:Texture, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
 Creates a new sprite with the specified texture. The size of the sprite will be set to the size of the texture. The value of `orientation` can be:
 
 | Value       | Meaning
@@ -979,10 +982,10 @@ Get the version of the shading language supported by this machine (currently, th
 
 The surface class contains a set of geometry (vertices and indices that form triangles) and a material to draw that geometry.
 
-# Function Create:Surface(material:Material = Null)
+# Method New(material:Material = Null)
 Creates a new surface. If a material is passed, it will be copied. If not, a new material will be created for the surface.
 
-# Function Create:Surface(other:Surface)
+# Method New(other:Surface)
 Creates a new surface that is a copy of the one passed as parameter.
 
 # Method Discard:Void(discardTextures:Bool = False)
@@ -1098,10 +1101,10 @@ Draws the surface. You don't normally need to call this function, because you wi
 A texture represents a buffer in video memory that contains pixel data.
 Textures can be contained in materials and applied to objects together with other information like color and opacity, or drawn to the screen directly (for example to render 2D sprites).
 
-# Function Create:Texture(width:Int, height:Int)
+# Method New(width:Int, height:Int)
 Creates a blank texture with the specified width and height. This function is used by framebuffers to create the texture to render the scene into. Its filtering is set to `Renderer.FILTER_NONE`.
 
-# Function Create:Texture(buffer:DataBuffer, width:Int, height:Int, filter:Int = Renderer.FILTER_TRILINEAR)
+# Method New(buffer:DataBuffer, width:Int, height:Int, filter:Int = Renderer.FILTER_TRILINEAR)
 Creates a texture with the specified size and filter mode, and the pixels stored in the data buffer. The value of `filter` must be one of:
 
 * Renderer.FILTER_NONE

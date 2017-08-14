@@ -14,23 +14,20 @@ End
 
 Class Material Final
 Public
-	Function Create:Material(baseTex:Texture = Null, delegate:IMaterialDelegate = Null)
-		Local mat:Material = New Material
-		mat.mDelegate = delegate
-		mat.mColor = color.Color.WHITE
-		mat.mBaseTex = baseTex
-		mat.mShininess = 0
-		mat.mRefractCoef = 1
-		mat.mBlendMode = Renderer.BLEND_ALPHA
-		mat.mCulling = True
-		mat.mDepthWrite = True
-		Return mat
+	Method New(baseTex:Texture = Null, delegate:IMaterialDelegate = Null)
+		mDelegate = delegate
+		mColor = color.Color.WHITE
+		mBaseTex = baseTex
+		mShininess = 0
+		mRefractCoef = 1
+		mBlendMode = Renderer.BLEND_ALPHA
+		mCulling = True
+		mDepthWrite = True
 	End
 	
-	Function Create:Material(other:Material, delegate:IMaterialDelegate = Null)
-		Local mat:Material = Material.Create(Texture(Null), delegate)
-		mat.Set(other)
-		Return mat
+	Method New(other:Material, delegate:IMaterialDelegate = Null)
+		mDelegate = delegate
+		Set(other)
 	End
 	
 	Method DiscardTextures:Void()
@@ -208,9 +205,6 @@ Public
 		Renderer.SetTextures(baseHandle, normalHandle, lightHandle, reflectHandle, refractHandle, mBaseTex And mBaseTex.IsCubic)
 	End
 Private
-	Method New()
-	End
-
 	Field mDelegate		: IMaterialDelegate
 	Field mColor		: Int
 	Field mBaseTex		: Texture

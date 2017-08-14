@@ -10,17 +10,6 @@ Import mojo.app
 Import mojo.input
 Import vortex
 
-Const PRIM_POINT:Int	= 0
-Const PRIM_LINE:Int		= 1
-Const PRIM_RECT:Int		= 2
-Const PRIM_ELLIPSE:Int	= 3
-
-Class Prim Final
-	Field type%
-	Field x#, y#, z#, w#
-	Field r#, g#, b#
-End
-
 Class TestApp Extends App Final
 Public
 	Method OnCreate:Int()

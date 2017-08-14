@@ -9,24 +9,28 @@ Import renderer
 Public
 Class Surface Final
 Public
-	Function Create:Surface(mat:Material = Null)
-		Local surf:Surface = New Surface
-		surf.mMaterial = surf.Material.Create()	'I need to call the function as surf.Material because the compiler is not capable of finding the correct context
-		If mat Then surf.mMaterial.Set(mat); surf.mMaterial.Delegate = mat.Delegate
-		surf.mIndices = New DataBuffer(INC * 2, True)
-		surf.mVertices = New DataBuffer(INC * VERTEX_SIZE, True)
-		surf.mNumIndices = 0
-		surf.mNumVertices = 0
-		surf.mVertexBuffer = Renderer.CreateVertexBuffer(0)
-		surf.mIndexBuffer = Renderer.CreateIndexBuffer(0)
-		surf.mStatus = STATUS_OK
-		Return surf
+	Method New(mat:Material = Null)
+		mMaterial = New Material
+		If mat Then mMaterial.Set(mat); mMaterial.Delegate = mat.Delegate
+		mIndices = New DataBuffer(INC * 2, True)
+		mVertices = New DataBuffer(INC * VERTEX_SIZE, True)
+		mNumIndices = 0
+		mNumVertices = 0
+		mVertexBuffer = Renderer.CreateVertexBuffer(0)
+		mIndexBuffer = Renderer.CreateIndexBuffer(0)
+		mStatus = STATUS_OK
 	End
 	
-	Function Create:Surface(other:Surface)
-		Local surf:Surface = Surface.Create(other.mMaterial)
-		surf.Set(other)
-		Return surf
+	Method New(other:Surface)
+		mMaterial = New Material
+		mIndices = New DataBuffer(INC * 2, True)
+		mVertices = New DataBuffer(INC * VERTEX_SIZE, True)
+		mNumIndices = 0
+		mNumVertices = 0
+		mVertexBuffer = Renderer.CreateVertexBuffer(0)
+		mIndexBuffer = Renderer.CreateIndexBuffer(0)
+		mStatus = STATUS_OK
+		Set(other)
 	End
 
 	Method Discard:Void(discardTextures:Bool = False)
@@ -321,9 +325,6 @@ Public
 		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, TANGENT_OFFSET, COLOR_OFFSET, TEX0_OFFSET, TEX1_OFFSET, BONEINDICES_OFFSET, BONEWEIGHTS_OFFSET, VERTEX_SIZE)
 	End
 Private
-	Method New()
-	End
-
 	Const POS_OFFSET:Int = 0			'12 bytes
 	Const NORMAL_OFFSET:Int = 12		'12 bytes
 	Const TANGENT_OFFSET:Int = 24		'12 bytes

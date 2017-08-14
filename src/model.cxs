@@ -11,8 +11,20 @@ Public
 Import entity
 
 Class Model Extends Entity Implements IMaterialDelegate Final
-	Function Create:Model(mesh:Mesh, parent:Entity = Null)
-		If mesh Then Return New Model(mesh, parent) Else Return Null
+	Method New(mesh:Mesh, parent:Entity = Null)
+		Super.New(parent)
+		mMesh = mesh
+		mMaterials = New Material[mMesh.NumSurfaces]
+		For Local i:Int = 0 Until mMaterials.Length
+			mMaterials[i] = New Material(mMesh.Surface(i).Material, Self)
+		Next
+		mAnimMatrices = New Mat4[mesh.NumBones]
+		For Local i:Int = 0 Until mAnimMatrices.Length
+			mAnimMatrices[i] = Mat4.Create()
+		Next
+		Visible = True
+		Active = False
+		Active = True
 	End
 	
 	Method Mesh:Mesh() Property
@@ -142,24 +154,4 @@ Private
 	Field mAnimMatrices	: Mat4[]
 	Field mCurrentFrame	: Float
 	Field mAnimFPS		: Float
-	
-	Method New()
-		Super.New(Null)
-	End
-	
-	Method New(mesh:Mesh, parent:Entity)
-		Super.New(parent)
-		mMesh = mesh
-		mMaterials = New Material[mMesh.NumSurfaces]
-		For Local i:Int = 0 Until mMaterials.Length
-			mMaterials[i] = material.Material.Create(mMesh.Surface(i).Material, Self)
-		Next
-		mAnimMatrices = New Mat4[mesh.NumBones]
-		For Local i:Int = 0 Until mAnimMatrices.Length
-			mAnimMatrices[i] = Mat4.Create()
-		Next
-		Visible = True
-		Active = False
-		Active = True
-	End
 End

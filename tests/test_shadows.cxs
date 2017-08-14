@@ -37,16 +37,16 @@ Public
 		mFont = Cache.LoadFont("system.fnt.dat")
 		
 		'Create camera
-		mCam = Camera.Create()
+		mCam = New Camera()
 		mCam.SetPosition(0, 100, -300)
 		mCam.SetRotation(15, 0, 0)
 		mCam.ClearColor = Color.RGB(50, 25, 55)
 		
 		'Create model
-		mModel = Model.Create(Cache.LoadMesh("low-poly-mill.msh.dat"))
+		mModel = New Model(Cache.LoadMesh("low-poly-mill.msh.dat"))
 		
 		'Create light
-		Local light:Light = Light.Create()
+		Local light:Light = New Light()
 		light.SetRotation(45, 225, 0)
 		
 		Return False

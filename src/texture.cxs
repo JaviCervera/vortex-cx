@@ -7,22 +7,18 @@ Import renderer
 Public
 Class Texture Final
 Public
-	Function Create:Texture(width:Int, height:Int)
-		Local tex:Texture = New Texture
-		tex.mHandle = Renderer.CreateTexture(width, height)
-		tex.mWidth = width
-		tex.mHeight = height
-		tex.mIsCubic = False
-		Return tex
+	Method New(width:Int, height:Int)
+		mHandle = Renderer.CreateTexture(width, height)
+		mWidth = width
+		mHeight = height
+		mIsCubic = False
 	End
 
-	Function Create:Texture(buffer:DataBuffer, width:Int, height:Int, filter:Int = Renderer.FILTER_TRILINEAR)
-		Local tex:Texture = New Texture
-		tex.mHandle = Renderer.CreateTexture(buffer, width, height, filter)
-		tex.mWidth = width
-		tex.mHeight = height
-		tex.mIsCubic = False
-		Return tex
+	Method New(buffer:DataBuffer, width:Int, height:Int, filter:Int = Renderer.FILTER_TRILINEAR)
+		mHandle = Renderer.CreateTexture(buffer, width, height, filter)
+		mWidth = width
+		mHeight = height
+		mIsCubic = False
 	End
 
 	Method Discard:Void()

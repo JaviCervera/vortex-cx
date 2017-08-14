@@ -16,8 +16,34 @@ Class Sprite Extends Entity Implements IMaterialDelegate Final
 	Const MODE_SPHERICAL	: Int = 1
 	Const MODE_CYLINDRICAL	: Int = 2
 	
-	Function Create:Sprite(texture:Texture, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
-		Return New Sprite(texture, orientation, parent)
+	Method New(texture:Texture, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
+		Super.New(parent)
+		mOrientation = orientation
+		mMaterial = New Material(texture, Self)
+		mMaterial.Culling = False
+		
+		
+		'Create quad
+		If mSurface = Null
+			mSurface = New Surface()
+			mSurface.AddVertex(-0.5,  0.5, 0,  0, 0, -1,  Color.WHITE,  0, 0)
+			mSurface.AddVertex( 0.5,  0.5, 0,  0, 0, -1,  Color.WHITE,  1, 0)
+			mSurface.AddVertex( 0.5, -0.5, 0,  0, 0, -1,  Color.WHITE,  1, 1)
+			mSurface.AddVertex(-0.5, -0.5, 0,  0, 0, -1,  Color.WHITE,  0, 1)
+			mSurface.AddTriangle(0, 1, 2)
+			mSurface.AddTriangle(0, 2, 3)
+			mSurface.Rebuild()
+		End
+		
+		'Set size
+		If texture <> Null
+			SetSize(texture.Width, texture.Height)
+		Else
+			SetSize(1, 1)
+		End
+		
+		'Make visible
+		Visible = True
 	End
 	
 	Method Visible:Void(visible:Bool) Property
@@ -89,38 +115,4 @@ Private
 	Field mOrientation	: Int
 	Field mMaterial		: Material
 	Global mSurface		: Surface
-	
-	Method New()
-		Super.New(Null)
-	End
-	
-	Method New(texture:Texture, orientation:Int, parent:Entity)
-		Super.New(parent)
-		mOrientation = orientation
-		mMaterial = material.Material.Create(texture, Self)
-		mMaterial.Culling = False
-		
-		
-		'Create quad
-		If mSurface = Null
-			mSurface = Surface.Create()
-			mSurface.AddVertex(-0.5,  0.5, 0,  0, 0, -1,  Color.WHITE,  0, 0)
-			mSurface.AddVertex( 0.5,  0.5, 0,  0, 0, -1,  Color.WHITE,  1, 0)
-			mSurface.AddVertex( 0.5, -0.5, 0,  0, 0, -1,  Color.WHITE,  1, 1)
-			mSurface.AddVertex(-0.5, -0.5, 0,  0, 0, -1,  Color.WHITE,  0, 1)
-			mSurface.AddTriangle(0, 1, 2)
-			mSurface.AddTriangle(0, 2, 3)
-			mSurface.Rebuild()
-		End
-		
-		'Set size
-		If texture <> Null
-			SetSize(texture.Width, texture.Height)
-		Else
-			SetSize(1, 1)
-		End
-		
-		'Make visible
-		Visible = True
-	End
 End

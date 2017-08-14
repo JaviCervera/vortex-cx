@@ -17,8 +17,17 @@ Class Camera Extends Entity Final
 	Const CLEAR_COLOR	: Int = 1
 	Const CLEAR_SKYBOX	: Int = 2
 	
-	Function Create:Camera(parent:Entity = Null)
-		Return New Camera(parent)
+	Method New(parent:Entity = Null)
+		Super.New(parent)
+		SetViewport(0, 0, DeviceWidth(), DeviceHeight())
+		mClearMode = CLEAR_COLOR
+		mClearColor = Color.RGB(55, 155, 255)
+		FovY = 50
+		AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		Near = 1
+		Far = 1000
+		Visible = True
+		If Listener.Instance() = Null Then Listener.SetInstance(Self)
 	End
 	
 	Method Discard:Void()
@@ -192,21 +201,4 @@ Private
 	Global mViewMatrix	: Mat4 = Mat4.Create()
 	Global mTempQuat	: Quat = Quat.Create()
 	Global mTempVec		: Vec3 = Vec3.Create()
-	
-	Method New()
-		Super.New(Null)
-	End
-	
-	Method New(parent:Entity)
-		Super.New(parent)
-		SetViewport(0, 0, DeviceWidth(), DeviceHeight())
-		mClearMode = CLEAR_COLOR
-		mClearColor = Color.RGB(55, 155, 255)
-		FovY = 50
-		AspectRatio = Float(DeviceWidth()) / DeviceHeight()
-		Near = 1
-		Far = 1000
-		Visible = True
-		If Listener.Instance() = Null Then Listener.SetInstance(Self)
-	End
 End

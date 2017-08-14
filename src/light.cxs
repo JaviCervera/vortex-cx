@@ -13,8 +13,12 @@ Class Light Extends Entity Final
 	Const TYPE_DIRECTIONAL	: Int = 0
 	Const TYPE_POINT		: Int = 1
 	
-	Function Create:Light(type:Int = TYPE_DIRECTIONAL, parent:Entity = Null)
-		If type >= 0 And type <= 1 Then Return New Light(type, parent) Else Return Null
+	Method New(type:Int = TYPE_DIRECTIONAL, parent:Entity = Null)
+		Super.New(parent)
+		mType = Clamp(type, TYPE_DIRECTIONAL, TYPE_POINT)
+		mColor = color.Color.WHITE
+		Radius = 100
+		Visible = True
 	End
 	
 	Method Visible:Bool() Property
@@ -84,16 +88,4 @@ Private
 	Field mType			: Int
 	Field mColor		: Int
 	Global mTempQuat	: Quat = Quat.Create()
-	
-	Method New()
-		Super.New(Null)
-	End
-	
-	Method New(type:Int, parent:Entity)
-		Super.New(parent)
-		mType = type
-		mColor = color.Color.WHITE
-		Radius = 100
-		Visible = True
-	End
 End

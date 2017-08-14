@@ -61,7 +61,7 @@ Class World Final
 			SetFogColor(Color.BLACK)
 			SetGlobalPixelLighting(False)
 			SetShadows(False)
-			mFramebuffer = Framebuffer.Create(1024, 1024, True)
+			mFramebuffer = New Framebuffer(1024, 1024, True)
 			Return True
 		Else
 			Return False
@@ -345,7 +345,7 @@ Private
 	Global mVisibleEntities		: List<Entity> = New List<Entity>
 	Global mCameras				: List<Camera> = New List<Camera>
 	Global mLights				: List<Light> = New List<Light>
-	Global mRenderList			: RenderList = RenderList.Create()
+	Global mRenderList			: RenderList = New RenderList()
 	Global mSkybox				: Mesh
 	Global mSkyboxMatrix		: Mat4 = Mat4.Create()
 	Global mAmbient				: Int

@@ -8,39 +8,37 @@ Import surface
 Public
 Class Bone Final
 Public
-	Function Create:Bone(name:String, parentIndex:Int)
-		Local bone:Bone = New Bone
-		bone.mName = name
-		bone.mParentIndex = parentIndex
-		bone.mInvPoseMatrix = Mat4.Create()
-		bone.mPositionKeys = New Int[0]
-		bone.mRotationKeys = New Int[0]
-		bone.mScaleKeys = New Int[0]
-		bone.mPositions = New Vec3[0]
-		bone.mRotations = New Quat[0]
-		bone.mScales = New Vec3[0]
-		Return bone
+	Method New(name:String, parentIndex:Int)
+		mName = name
+		mParentIndex = parentIndex
+		mInvPoseMatrix = Mat4.Create()
+		mPositionKeys = New Int[0]
+		mRotationKeys = New Int[0]
+		mScaleKeys = New Int[0]
+		mPositions = New Vec3[0]
+		mRotations = New Quat[0]
+		mScales = New Vec3[0]
 	End
 	
-	Function Create:Bone(other:Bone)
-		Local bone:Bone = Bone.Create(other.mName, other.mParentIndex)
-		bone.mInvPoseMatrix = Mat4.Create(other.mInvPoseMatrix)
-		bone.mPositionKeys = other.mPositionKeys[..]
-		bone.mRotationKeys = other.mRotationKeys[..]
-		bone.mScaleKeys = other.mScaleKeys[..]
-		bone.mPositions = New Vec3[other.mPositions.Length()]
+	Method New(other:Bone)
+		mName = other.mName
+		mParentIndex = other.mParentIndex
+		mInvPoseMatrix = Mat4.Create(other.mInvPoseMatrix)
+		mPositionKeys = other.mPositionKeys[..]
+		mRotationKeys = other.mRotationKeys[..]
+		mScaleKeys = other.mScaleKeys[..]
+		mPositions = New Vec3[other.mPositions.Length()]
 		For Local i:Int = 0 Until other.mPositions.Length()
-			bone.mPositions[i] = Vec3.Create(other.mPositions[i])
+			mPositions[i] = Vec3.Create(other.mPositions[i])
 		Next
-		bone.mRotations = New Quat[other.mRotations.Length()]
+		mRotations = New Quat[other.mRotations.Length()]
 		For Local i:Int = 0 Until other.mRotations.Length()
-			bone.mRotations[i] = Quat.Create(other.mRotations[i])
+			mRotations[i] = Quat.Create(other.mRotations[i])
 		Next
-		bone.mScales = New Vec3[other.mScales.Length()]
+		mScales = New Vec3[other.mScales.Length()]
 		For Local i:Int = 0 Until other.mScales.Length()
-			bone.mScales[i] = Vec3.Create(other.mScales[i])
+			mScales[i] = Vec3.Create(other.mScales[i])
 		Next
-		Return bone
 	End
 
 	Method Name:String() Property

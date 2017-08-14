@@ -35,6 +35,10 @@ Public
 	Function Alpha:Int(color:Int)
 		Return (color Shr 24) & $FF
 	End
+	
+	Function ChangeAlpha:Int(color:Int, newAlpha:Int)
+		Return (newAlpha Shl 24) | (color & $00FFFFFF)
+	End
 Private
 	Method New()
 	End

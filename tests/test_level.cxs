@@ -33,13 +33,13 @@ Public
 		mFont = Cache.LoadFont("system.fnt.dat")
 		
 		'Create camera
-		mCam = Camera.Create()
+		mCam = New Camera()
 		mCam.ClearColor = Color.BLACK
 		mCam.SetPosition(0, 150, -250)
 		mCam.SetRotation(30, 0, 0)
 		
 		'Create model
-		mModel = Model.Create(Cache.LoadMesh("ruin.msh.dat"))
+		mModel = New Model(Cache.LoadMesh("ruin.msh.dat"))
 		
 		Return False
 	End

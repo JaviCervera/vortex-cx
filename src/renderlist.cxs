@@ -53,7 +53,7 @@ End
 Class RenderOp Final
 Public
 	Method New(material:Material)
-		mMaterial = Material.Create(material)
+		mMaterial = New Material(material)
 		mGeoms = New List<RenderGeom>
 	End
 	
@@ -85,8 +85,9 @@ End
 Public
 Class RenderList Final
 Public
-	Function Create:RenderList()
-		Return New RenderList
+	Method New()
+		mOps = New List<RenderOp>
+		mRenderLists.AddLast(Self)
 	End
 	
 	Method Discard:Void()
@@ -169,11 +170,6 @@ Public
 		Next
 	End
 Private
-	Method New()
-		mOps = New List<RenderOp>
-		mRenderLists.AddLast(Self)
-	End
-	
 	Method RenderOpForMaterial:RenderOp(material:Material)
 		For Local op:RenderOp = Eachin mOps
 			If op.mMaterial.IsEqual(material)

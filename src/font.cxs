@@ -22,15 +22,13 @@ End
 
 Class Font Final
 Public
-	Function Create:Font(filename:String, height:Float, tex:Texture)
-		Local f:Font = New Font
-		f.mFilename = filename
-		f.mHeight = height
-		f.mTexture = tex
-		For Local i:Int = 0 Until f.mGlyphs.Length()
-			f.mGlyphs[i] = New Glyph
+	Method New(filename:String, height:Float, tex:Texture)
+		mFilename = filename
+		mHeight = height
+		mTexture = tex
+		For Local i:Int = 0 Until mGlyphs.Length
+			mGlyphs[i] = New Glyph
 		Next
-		Return f
 	End
 
 	Method Discard:Void()
@@ -143,7 +141,7 @@ Public
 		Local tex:Texture = Cache.LoadTexture(texName, Renderer.FILTER_NONE)
 		
 		'Create font
-		Local font:Font = Font.Create(filename, height, tex)
+		Local font:Font = New Font(filename, height, tex)
 		
 		'Add glyphs
 		For Local i:Int = 0 Until numGlyphs

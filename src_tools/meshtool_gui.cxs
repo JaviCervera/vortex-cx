@@ -277,7 +277,7 @@ Public
 			'Create cube
 			If mCubeRect.IsPointInside(MouseX(), MouseY())
 				ResetProperties()
-				Return Model.Create(mCube)
+				Return New Model(mCube)
 			'Load mesh
 			Elseif mOpenRect.IsPointInside(MouseX(), MouseY())
 				Local filename:String = RequestFile("Load mesh")', "Mesh Files:msh.dat;All Files:*", False)
@@ -286,7 +286,7 @@ Public
 					Local mesh:Mesh = LoadMesh(filename)
 					If mesh <> Null
 						ResetProperties()
-						Return Model.Create(mesh)
+						Return New Model(mesh)
 					Else
 						Notify "Error", "Could not load mesh '" + filename + "'", True
 					End

@@ -36,14 +36,14 @@ Public
 		Local smileTex:Texture = Cache.LoadTexture("smile.png")
 		
 		'Create camera
-		mCam = Camera.Create()
+		mCam = New Camera()
 		mCam.SetRotation(45, -45, 0)
 		mCam.ClearColor = Color.WHITE
 		
 		'Create sprites
 		Local x:Float = -8, z:Float = -8
 		For Local i:Int = 0 Until 64
-			Local spr:Sprite = Sprite.Create(smileTex)
+			Local spr:Sprite = New Sprite(smileTex)
 			spr.SetPosition(x, 0, z)
 			spr.SetSize(1, 1)
 			spr.Material(0).Color = Color.RGB(Rnd(256), Rnd(256), Rnd(256))

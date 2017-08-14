@@ -16,32 +16,28 @@ Import texture
 Public
 Class Mesh Final
 Public
-	Function Create:Mesh()
-		Local mesh:Mesh = New Mesh
-		mesh.mFilename = ""
-		mesh.mSurfaces = New Surface[0]
-		mesh.mBones = New Bone[0]
-		mesh.mNumFrames = 0
-		mesh.mBoxMin = Vec3.Create()
-		mesh.mBoxMax = Vec3.Create()
-		Return mesh
+	Method New()
+		mFilename = ""
+		mSurfaces = New Surface[0]
+		mBones = New Bone[0]
+		mNumFrames = 0
+		mBoxMin = Vec3.Create()
+		mBoxMax = Vec3.Create()
 	End
 	
-	Function Create:Mesh(other:Mesh)
-		Local mesh:Mesh = Mesh.Create()
-		mesh.mFilename = other.mFilename
-		mesh.mSurfaces = New Surface[other.mSurfaces.Length()]
+	Method New(other:Mesh)
+		mFilename = other.mFilename
+		mSurfaces = New Surface[other.mSurfaces.Length()]
 		For Local i:Int = 0 Until other.mSurfaces.Length()
-			mesh.mSurfaces[i] = surface.Surface.Create(other.mSurfaces[i])
+			mSurfaces[i] = New Surface(other.mSurfaces[i])
 		Next
-		mesh.mBones	= New Bone[other.mBones.Length()]
+		mBones	= New Bone[other.mBones.Length()]
 		For Local i:Int = 0 Until other.mBones.Length()
-			mesh.mBones[i] = bone.Bone.Create(other.mBones[i])
+			mBones[i] = New Bone(other.mBones[i])
 		Next
-		mesh.mNumFrames = other.mNumFrames
-		mesh.mBoxMin.Set(other.mBoxMin)
-		mesh.mBoxMax.Set(other.mBoxMax)
-		Return mesh
+		mNumFrames = other.mNumFrames
+		mBoxMin = Vec3.Create(other.mBoxMin)
+		mBoxMax = Vec3.Create(other.mBoxMax)
 	End
 	
 	Method LoadSkeletonData:Bool(data:DataBuffer)
@@ -69,7 +65,7 @@ Public
 			Next
 		
 			'Create and add bone
-			Local bone:Bone = bone.Bone.Create(name, parentIndex)
+			Local bone:Bone = New Bone(name, parentIndex)
 			bone.InversePoseMatrix = mTempMatrix
 			AddBone(bone)
 		Next
@@ -350,13 +346,13 @@ Public
 		If id <> "ME01" Then Return Null
 		
 		'Create mesh
-		Local mesh:Mesh = Mesh.Create()
+		Local mesh:Mesh = New Mesh()
 		mesh.Filename = filename
 		
 		'Surfaces
 		Local numSurfaces:Int = stream.ReadShort()
 		For Local s:Int = 0 Until numSurfaces
-			Local surf:Surface = surface.Surface.Create()
+			Local surf:Surface = New Surface()
 		
 			'Material
 			Local flags:Int = 0
@@ -515,9 +511,6 @@ Public
 		Return mesh
 	End
 Private
-	Method New()
-	End
-
 	Field mFilename		: String
 	Field mSurfaces		: Surface[]
 	Field mBones		: Bone[]

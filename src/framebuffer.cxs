@@ -8,13 +8,11 @@ Import texture
 Public
 Class Framebuffer
 Public
-	Function Create:Framebuffer(width:Int, height:Int, depthBuffer:Bool)
-		Local fb:Framebuffer = New Framebuffer
-		fb.mColorTex = Texture.Create(width, height)
-		If depthBuffer Then fb.mDepthBuffer = Renderer.CreateRenderbuffer(width, height)
-		'If depthEnabled Then fb.mDepthTex = Texture.Create(width, height, True); depthHandle = fb.mDepthTex.Handle
-		fb.mHandle = Renderer.CreateFramebuffer(fb.mColorTex.Handle, fb.mDepthBuffer)
-		Return fb
+	Method New(width:Int, height:Int, depthBuffer:Bool)
+		mColorTex = New Texture(width, height)
+		If depthBuffer Then mDepthBuffer = Renderer.CreateRenderbuffer(width, height)
+		'If depthEnabled Then mDepthTex = Texture.Create(width, height, True); depthHandle = mDepthTex.Handle
+		mHandle = Renderer.CreateFramebuffer(mColorTex.Handle, mDepthBuffer)
 	End
 	
 	Method Discard:Void()

@@ -37,11 +37,11 @@ Public
 		World.SetSkyboxTexture(Cache.LoadTexture("left.jpg", "right.jpg", "front.jpg", "back.jpg", "top.jpg", "bottom.jpg"))
 		
 		'Create camera
-		mCam = Camera.Create()
+		mCam = New Camera()
 		mCam.ClearMode = Camera.CLEAR_SKYBOX
 		
 		'Create box
-		mModel = Model.Create(Cache.LoadMesh("cube.msh.dat"))
+		mModel = New Model(Cache.LoadMesh("cube.msh.dat"))
 		'mModel.Material.Shininess = 1
 		'mModel.Material.DiffuseTexture = Null
 		'mModel.Material.ReflectionTexture = mTexture
@@ -49,7 +49,7 @@ Public
 		'mModel.Material.RefractionCoef = 0.98
 		
 		'Create light attached to camera
-		mLight = Light.Create(Light.TYPE_POINT, mCam)
+		mLight = New Light(Light.TYPE_POINT, mCam)
 		mLight.Radius = 10
 			
 		Return False

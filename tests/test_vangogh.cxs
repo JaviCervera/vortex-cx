@@ -34,11 +34,11 @@ Public
 		mFont = Cache.LoadFont("system.fnt.dat")
 		
 		'Create camera
-		mCam = Camera.Create()
+		mCam = New Camera()
 		mCam.SetPosition(0, 1.5, -6)
 		
 		'Create model
-		mModel = Model.Create(Cache.LoadMesh("vangogh.msh.dat"))
+		mModel = New Model(Cache.LoadMesh("vangogh.msh.dat"))
 		mModel.Yaw = 180
 		
 		Return False

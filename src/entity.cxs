@@ -14,7 +14,7 @@ Class Entity
 	Const COLLISION_SPHERE	: Int = 1
 	Const COLLISION_BOX		: Int = 2
 
-	Method New(parent:Entity)
+	Method New(parent:Entity = Null)
 		Parent = parent
 		mChildren = New List<Entity>
 		mActive = True
@@ -25,10 +25,6 @@ Class Entity
 		mTransform = Mat4.Create()
 		World._AddEntity(Self)
 		_UpdateTransform()
-	End
-	
-	Function Create:Entity(parent:Entity)
-		Return New Entity(parent)
 	End
 	
 	Method Discard:Void()
@@ -433,9 +429,6 @@ Private
 	Field mCollided			: Bool
 	Field mCollidedEntity	: Entity
 	Field mUserData			: Object
-	
-	Method New()
-	End
 	
 	Method _UpdateTransform:Void()
 		'Set entity's transform

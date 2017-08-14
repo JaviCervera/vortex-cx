@@ -37,7 +37,7 @@ Public
 		Local mesh:Mesh = Cache.LoadMesh("sphere.msh.dat")
 		
 		'Create camera
-		mCam = Camera.Create()
+		mCam = New Camera()
 		mCam.ClearColor = Color.BLACK
 		mCam.SetPosition(0, 32, -90)
 		mCam.SetRotation(16, 0, 0)
@@ -45,15 +45,15 @@ Public
 		'Create sphere models
 		Local x:Int = -32, z:Int = -32
 		For Local i:Int = 0 Until 81
-			Local model:Model = Model.Create(mesh)
+			Local model:Model = New Model(mesh)
 			model.SetPosition(x, 0, z)
 			x += 8; If x > 32 Then x = -32; z += 8
 		Next
 		
 		'Create lights
-		mLights[0] = Light.Create(Light.TYPE_POINT)
-		mLights[1] = Light.Create(Light.TYPE_POINT)
-		mLights[2] = Light.Create(Light.TYPE_POINT)
+		mLights[0] = New Light(Light.TYPE_POINT)
+		mLights[1] = New Light(Light.TYPE_POINT)
+		mLights[2] = New Light(Light.TYPE_POINT)
 		mLights[0].Radius = 48
 		mLights[1].Radius = 48
 		mLights[2].Radius = 48
