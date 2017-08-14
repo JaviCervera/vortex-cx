@@ -321,7 +321,7 @@ Sets the parent of the entity.
 Returns the number of children this entity has.
 
 # Method Child:Entity(index:Int)
-Returns the child at the specified `index`, which is a value between `0` and `Entity.NumChildren - 1`.
+Returns the child at the specified `index`, which is a value in the range `0 .. NumChildren - 1`.
 
 # Method Active:Bool() Property
 Returns whether the entity is active or not. Inactive entities are not updated every frame.

@@ -164,30 +164,73 @@ Class Entity
 					'Do not check collisions with itself
 					If other <> Self And other.CollisionMode <> COLLISION_NONE And other.Active
 						If CollisionMode = COLLISION_SPHERE And other.CollisionMode = COLLISION_SPHERE
-							If Collision.SphereSphere(WorldX, WorldY, WorldZ, mSqRadius, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+							If Collision.SphereSphere(WorldX + mTempVec.X, WorldY, WorldZ, mSqRadius, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
-								Exit
+								mTempVec.X = 0
+							End
+							If Collision.SphereSphere(WorldX, WorldY + mTempVec.Y, WorldZ, mSqRadius, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+								mCollided = True
+								mCollidedEntity = other
+								mTempVec.Y = 0
+							End
+							If Collision.SphereSphere(WorldX, WorldY, WorldZ + mTempVec.Z, mSqRadius, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+								mCollided = True
+								mCollidedEntity = other
+								mTempVec.Z = 0
 							End
 						Elseif CollisionMode = COLLISION_SPHERE And other.CollisionMode = COLLISION_BOX
-							If Collision.BoxSphere(other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ, WorldX, WorldY, WorldZ, mSqRadius)
+							If Collision.BoxSphere(other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ, WorldX + mTempVec.X, WorldY, WorldZ, mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
-								Exit
+								mTempVec.X = 0
+							End
+							If Collision.BoxSphere(other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ, WorldX, WorldY + mTempVec.Y, WorldZ, mSqRadius)
+								mCollided = True
+								mCollidedEntity = other
+								mTempVec.Y = 0
+							End
+							If Collision.BoxSphere(other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ, WorldX, WorldY, WorldZ + mTempVec.Z, mSqRadius)
+								mCollided = True
+								mCollidedEntity = other
+								mTempVec.Z = 0
 							End
 						Elseif CollisionMode = COLLISION_BOX And other.CollisionMode = COLLISION_SPHERE
-							If Collision.BoxSphere(BoxMinX, BoxMinY, BoxMinZ, BoxMaxX, BoxMaxY, BoxMaxZ, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+							If Collision.BoxSphere(BoxMinX + mTempVec.X, BoxMinY, BoxMinZ, BoxMaxX + mTempVec.X, BoxMaxY, BoxMaxZ, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
-								Exit
+								mTempVec.X = 0
+							End
+							If Collision.BoxSphere(BoxMinX, BoxMinY + mTempVec.Y, BoxMinZ, BoxMaxX, BoxMaxY + mTempVec.Y, BoxMaxZ, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+								mCollided = True
+								mCollidedEntity = other
+								mTempVec.Y = 0
+							End
+							If Collision.BoxSphere(BoxMinX, BoxMinY, BoxMinZ + mTempVec.Z, BoxMaxX, BoxMaxY, BoxMaxZ + mTempVec.Z, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+								mCollided = True
+								mCollidedEntity = other
+								mTempVec.Z = 0
 							End
 						Elseif CollisionMode = COLLISION_BOX And other.CollisionMode = COLLISION_BOX
-							If Collision.BoxBox(BoxMinX, BoxMinY, BoxMinZ, BoxMaxX, BoxMaxY, BoxMaxZ, other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ)
+							If Collision.BoxBox(BoxMinX + mTempVec.X, BoxMinY, BoxMinZ, BoxMaxX + mTempVec.X, BoxMaxY, BoxMaxZ, other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ)
 								mCollided = True
 								mCollidedEntity = other
-								Exit
+								mTempVec.X = 0
+							End
+							If Collision.BoxBox(BoxMinX, BoxMinY + mTempVec.Y, BoxMinZ, BoxMaxX, BoxMaxY + mTempVec.Y, BoxMaxZ, other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ)
+								mCollided = True
+								mCollidedEntity = other
+								mTempVec.Y = 0
+							End
+							If Collision.BoxBox(BoxMinX, BoxMinY, BoxMinZ + mTempVec.Z, BoxMaxX, BoxMaxY, BoxMaxZ + mTempVec.Z, other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ)
+								mCollided = True
+								mCollidedEntity = other
+								mTempVec.Z = 0
 							End
 						End
+						
+						'If it has collided with an entity, do not check for more collisions
+						If mCollidedEntity <> Null Then Exit
 					End
 				Next
 			End
@@ -295,6 +338,10 @@ Class Entity
 	Method Radius:Void(rad:Float) Property
 		mRadius = rad
 		mSqRadius = rad * rad
+	End
+	
+	Method Collided:Bool() Property
+		Return mCollided
 	End
 	
 	Method CollidedEntity:Entity() Property

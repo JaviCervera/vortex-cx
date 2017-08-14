@@ -26,49 +26,28 @@ Public
 		
 		'Setup world
 		World.SetAmbient(Color.LIGHT_GRAY)
-		World.SetShadows(True, 25, 100, 0.0025)
+		World.SetShadows(True, 25, 100, 0.003)
 		
 		'Create sphere
-		mSphere = Model.Create(Cache.LoadMesh("sphere.msh.dat"))
-		mSphere.SetPosition(3.5, 0.5, 2.5)
-		mSphere.SetScale(0.5, 0.5, 0.5)
-		mSphere.CollisionMode = Entity.COLLISION_SPHERE
-		mSphere.Radius = 0.5
-		mSphere.Material.Color = Color.RED
+		mBall = Model.Create(Cache.LoadMesh("sphere.msh.dat"))
+		mBall.SetPosition(3.5, 0.5, 2.5)
+		mBall.SetScale(0.5, 0.5, 0.5)
+		mBall.CollisionMode = Entity.COLLISION_SPHERE
+		mBall.Radius = 0.5
+		mBall.Material.Color = Color.RED
 		
 		'Create camera
-		mCam = Camera.Create(mSphere)
+		mCam = Camera.Create(mBall)
 		mCam.SetPosition(0, 14, -16)
 		mCam.SetRotation(45, 0, 0)
 		mCam.ClearColor = Color.RGB(15, 25, 55)
 		
 		'Create level
-		Local mesh:Mesh = Primitive.CreateCube()
-		mesh.Surface(0).Material.Color = Color.ORANGE
-		mesh.Translate(0.5, 0.5, 0.5)
-		Local model:Model = Model.Create(mesh)
-		model.CollisionMode = Entity.COLLISION_BOX
-		model.SetScale(13, 1, 1)
-		model = Model.Create(mesh)
-		model.SetPosition(0, 0, 13)
-		model.SetScale(13, 1, 1)
-		model = Model.Create(mesh)
-		model.SetPosition(0, 0, 1)
-		model.SetScale(1, 1, 12)	
-		model = Model.Create(mesh)
-		model.SetPosition(12, 0, 1)
-		model.SetScale(1, 1, 12)
-		model = Model.Create(mesh)
-		model.SetPosition(6, 0, 1)
-		model.SetScale(1, 1, 8)
-		model = Model.Create(mesh)
-		model.SetPosition(0, -1, 0)
-		model.SetScale(13, 1, 13)
-		model.Material.Color = Color.BROWN
+		CreateLevel()
 		
 		'Create light
 		mLight = Light.Create()
-		mLight.SetRotation(45, 45, 0)
+		mLight.SetRotation(15, 60, 0)
 
 		Return False
 	End
@@ -88,10 +67,22 @@ Public
 		mCam.ViewportHeight = DeviceHeight()
 		
 		'Update sphere
-		If KeyDown(KEY_UP) Then mSphere.Move(0, 0, 2 * Stats.DeltaTime())
-		If KeyDown(KEY_DOWN) Then mSphere.Move(0, 0, -2 * Stats.DeltaTime())
-		If KeyDown(KEY_LEFT) Then mSphere.Move(-2 * Stats.DeltaTime(), 0, 0)
-		If KeyDown(KEY_RIGHT) Then mSphere.Move(2 * Stats.DeltaTime(), 0, 0)
+		If KeyDown(KEY_UP) Then mBall.Move(0, 0, 2 * Stats.DeltaTime())
+		If KeyDown(KEY_DOWN) Then mBall.Move(0, 0, -2 * Stats.DeltaTime())
+		If KeyDown(KEY_LEFT) Then mBall.Move(-2 * Stats.DeltaTime(), 0, 0)
+		If KeyDown(KEY_RIGHT) Then mBall.Move(2 * Stats.DeltaTime(), 0, 0)
+		
+		'Update door
+		mDoor.Move(0, 2 * Stats.DeltaTime() * mDoorDir, 0)
+		If mDoor.Y >= 2 Then mDoor.Y = 2; mDoorDir *= -1
+		If mDoor.Y <= 0 Then mDoor.Y = 0; mDoorDir *= -1
+		If mDoor.Collided Then mDoorDir *= -1
+		
+		'Update block ball
+		mBlockBall.Move(0, 2 * Stats.DeltaTime() * mBlockBallDir, 0)
+		If mBlockBall.Y >= 4 Then mBlockBall.Y = 4; mBlockBallDir *= -1
+		If mBlockBall.Y <= 0  Then mBlockBall.Y = 0; mBlockBallDir *= -1
+		If mBlockBall.Collided Then mBlockBallDir *= -1
 		
 		Return False
 	End
@@ -105,10 +96,80 @@ Public
 		
 		Return False
 	End
+	
+	Method CreateLevel:Void()
+		'Create cube mesh
+		Local mesh:Mesh = Primitive.CreateCube()
+		mesh.Surface(0).Material.Color = Color.ORANGE
+		mesh.Translate(0.5, 0.5, 0.5)
+		
+		'Create south wall
+		Local model:Model = Model.Create(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetScale(13, 1, 1)
+		
+		'Create north wall
+		model = Model.Create(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetPosition(0, 0, 13)
+		model.SetScale(13, 1, 1)
+		
+		'Create west wall
+		model = Model.Create(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetPosition(0, 0, 1)
+		model.SetScale(1, 1, 12)	
+		
+		'Create east wall
+		model = Model.Create(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetPosition(12, 0, 1)
+		model.SetScale(1, 1, 12)
+		
+		'Create middle wall
+		model = Model.Create(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetPosition(6, 0, 1)
+		model.SetScale(1, 1, 8)
+		
+		'Create floor
+		model = Model.Create(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetPosition(0, -1, 0)
+		model.SetScale(13, 1, 13)
+		model.Material.Color = Color.BROWN
+		
+		'Create door
+		mDoor = Model.Create(mesh)
+		mDoor.CollisionMode = Entity.COLLISION_BOX
+		mDoor.SetPosition(6, 0, 9)
+		mDoor.SetScale(1, 1, 4)
+		mDoor.Material.Color = Color.CYAN
+		mDoorDir = 1
+		
+		'Create first blocking sphere
+		model = Model.Create(Cache.LoadMesh("sphere.msh.dat"))
+		model.CollisionMode = Entity.COLLISION_SPHERE
+		model.Radius = 1.2
+		model.SetPosition(9, 1, 10)
+		model.Material.Color = Color.YELLOW
+		
+		'Create second blocking sphere
+		mBlockBall = Model.Create(Cache.LoadMesh("sphere.msh.dat"))
+		mBlockBall.CollisionMode = Entity.COLLISION_SPHERE
+		mBlockBall.Radius = 1.2
+		mBlockBall.SetPosition(9, 1, 5)
+		mBlockBall.Material.Color = Color.MAGENTA
+		mBlockBallDir = 1
+	End
 Private
-	Field mCam				: Camera
-	Field mSphere			: Model
-	Field mLight			: Light
+	Field mCam			: Camera
+	Field mBall			: Model
+	Field mDoor			: Model
+	Field mDoorDir		: Float
+	Field mBlockBall	: Model
+	Field mBlockBallDir	: Float
+	Field mLight		: Light
 End
 
 Function Main:Int()

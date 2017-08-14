@@ -1,16 +1,23 @@
 'TODO v2.0:
-'* Add box and sphere collisions
-'- Add previous depth pass to avoid computing redundant fragments (might require a SOLID blend mode).
-'- Add spot lights
-'- Replace number of frames with animation duration?
+'- Add sun light (only one directional light will be supported)
+'- Shadows should only be cast if objects are close enough to the camera
+'- Add PCF to shadows
+'- Add a SOLID blend mode
 '- Add texture matrix in Material
+'- Replace number of frames with animation duration?
 '- Fix render to texture on HTML5
 '- Add Building section to README.md
+'- Remove XML support in tools
 '- Document tools
 'TODO v2.1:
-'- Add several shaders: unlit, vlit, flit, with static and skinned modes
 '- Integrate with Mojo
+'- Add particles
+'- Add previous depth pass to avoid computing redundant fragments
+'- Add spot lights
+'- Add multiple shadows
+'- Add several shaders: unlit, vlit, flit, with static and skinned modes
 '- Write Assimp mesh loader
+'- Write worldtool with lightmapping support
 
 'Enable depth buffer when using this module
 #OPENGL_DEPTH_BUFFER_ENABLED=True

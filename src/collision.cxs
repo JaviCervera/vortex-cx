@@ -28,15 +28,18 @@ Class Collision
 			
 			'Check distance to point
 			mTempVec.Sub(sx, sy, sz)
-			If mTempVec.SqLength() <= sqrad Then Return True
+			If mTempVec.SqLength() < sqrad
+				Return True
+			Else
+				Return False
+			End
 		End
-		Return False
 	End
 	
 	Function SphereSphere:Bool(sx1:Float, sy1:Float, sz1:Float, sqrad1:Float, sx2:Float, sy2:Float, sz2:Float, sqrad2:Float)
 		mTempVec.Set(sx1, sy1, sz1)
 		mTempVec.Sub(sx2, sy2, sz2)
-		If mTempVec.SqLength() <= sqrad1 + sqrad2
+		If mTempVec.SqLength() < sqrad1 + sqrad2
 			Return True
 		Else
 			Return False
@@ -44,7 +47,7 @@ Class Collision
 	End
 	
 	Function IsPointInBox:Bool(x:Float, y:Float, z:Float, minx:Float, miny:Float, minz:Float, maxx:Float, maxy:Float, maxz:Float)
-		If InRange(x, minx, maxx) And InRange(y, miny, maxy) And InRange(z, minz, maxz)
+		If InRangeStrict(x, minx, maxx) And InRangeStrict(y, miny, maxy) And InRangeStrict(z, minz, maxz)
 			Return True
 		Else
 			Return False
@@ -53,6 +56,10 @@ Class Collision
 
 	Function InRange:Bool(val:Float, min:Float, max:Float)
 		If val >= min And val <= max Then Return True Else Return False
+	End
+	
+	Function InRangeStrict:Bool(val:Float, min:Float, max:Float)
+		If val > min And val < max Then Return True Else Return False
 	End
 Private
 	Method New()

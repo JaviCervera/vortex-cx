@@ -13,6 +13,7 @@ Const STD_VARYING_VARS:String = "" +
 "varying vec4 fcolor;" +
 "varying vec2 ftex;" +
 "varying vec2 ftex2;" +
+"varying vec3 fcombinedDiffuse;" +
 "varying vec3 fcombinedSpecular;" +
 "varying float fogFactor;" +
 "varying vec3 fcubeCoords;" +
@@ -168,7 +169,7 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 "		if ( !usePixelLighting && !useNormalTex ) {" +
 			'Calculate lighting
 "			LightingResult lighting = CalcLighting(V, NV, N);" +
-"			fcolor *= vec4(lighting.combinedDiffuse, 1.0);" +
+"			fcombinedDiffuse = lighting.combinedDiffuse;" +
 "			fcombinedSpecular = lighting.combinedSpecular;" +
 "		} else {" +
 "			fpos = V;" +
@@ -198,30 +199,48 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING +
 "void main() {" +
 	'Vars
-"	vec4 combinedColor;" +
-"	vec3 combinedSpecular = vec3(0, 0, 0);" +
+"	vec4 combinedColor = vec4(1, 1, 1, 1);" +
+"	vec4 combinedSpecular = vec4(0, 0, 0, 0);" +
+
+	'Shadows
+"	bool shadowed = false;" +
+"	if ( shadowsEnabled && texture2D(depthSampler, vec2(fdepthCoords)).z < fdepthCoords.z - depthEpsilon ) shadowed = true;" +
 
 	'Lighting
-"	combinedColor = fcolor;" +
-"	if ( numLights > 0 && (usePixelLighting || useNormalTex) ) {" +
-		'Get fragment normal or compute from normal map
-"		vec3 normal = fnormal;" +
-"		if ( useNormalTex ) {" +
-"			vec3 normalTexColor = vec3(texture2D(normalTexSampler, ftex));" +
-"			normal = tbnMatrix * (normalTexColor*2.0 - 1.0);" +
-"		}" +
+"	if ( numLights > 0 ) {" +
+		'Only apply if fragment is not shadowed
+"		if ( !shadowed ) { " +
+			'Per pixel lighting
+"			if ( usePixelLighting || useNormalTex ) {" +
+				'Get fragment normal or compute from normal map
+"				vec3 normal = fnormal;" +
+"				if ( useNormalTex ) {" +
+"					vec3 normalTexColor = vec3(texture2D(normalTexSampler, ftex));" +
+"					normal = tbnMatrix * (normalTexColor*2.0 - 1.0);" +
+"				}" +
 
-		'Calc lighting
-"		LightingResult lighting = CalcLighting(fpos, fposNorm, normal);" +
-"		combinedColor *= vec4(lighting.combinedDiffuse, 1.0);" +
-"		combinedSpecular = lighting.combinedSpecular;" +
-"	}" +
+				'Calc lighting
+"				LightingResult lighting = CalcLighting(fpos, fposNorm, normal);" +
+"				combinedColor = vec4(lighting.combinedDiffuse, 1);" +
+"				combinedSpecular = vec4(lighting.combinedSpecular, 0);" +
+			'Apply vertex lighting
+"			} else {" +
+"				combinedColor = vec4(fcombinedDiffuse, 1);" +
+"				combinedSpecular = vec4(fcombinedSpecular, 0);" +
+"			}" +
+"		} else {" +
+"			combinedColor = vec4(ambient, 1);" +
+"		}" +
+"	}"+
 
 	'Lightmap
 "	if ( useLightmap ) {" +
 "		if ( numLights > 0 ) combinedColor += vec4(vec3(texture2D(lightmapSampler, ftex2)), 0.0);" +
-"		else combinedColor *= texture2D(lightmapSampler, ftex2);" +
+"		else combinedColor = texture2D(lightmapSampler, ftex2);" +
 "	}" +
+
+	'Base color
+"	combinedColor *= fcolor;" +
 
 	'Base texture
 "	if ( baseTexMode == 1 ) combinedColor *= texture2D(baseTexSampler, ftex);" +
@@ -241,14 +260,10 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 "	}" +
 
 	'Add specular
-"	if ( numLights > 0 ) {" +
-"		if ( usePixelLighting || useNormalTex ) combinedColor += vec4(combinedSpecular, 0.0);" +
-"		else combinedColor += vec4(fcombinedSpecular, 0.0);" +
-"		combinedColor = clamp(combinedColor, 0.0, 1.0);" +
-"	}" +
+"	if ( numLights > 0 && !shadowed ) combinedColor = clamp(combinedColor + combinedSpecular, 0.0, 1.0);" +
 
-	'Shadows
-"	if ( shadowsEnabled && texture2D(depthSampler, vec2(fdepthCoords)).z < fdepthCoords.z - depthEpsilon ) combinedColor *= vec4(ambient, 1);" +
+'****
+'"	if ( shadowed ) combinedColor *= vec4(ambient, 1);" +
 
 	'Add fog
 "	if ( fogEnabled ) combinedColor = vec4(mix(fogColor, vec3(combinedColor), fogFactor), combinedColor.a);" +
