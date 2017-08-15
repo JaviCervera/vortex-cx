@@ -187,7 +187,8 @@ Public
 		Return mDepthWrite
 	End
 
-	Method Prepare:Void()
+	Method Prepare:Bool(step_:Int)
+		If step_ = Int(mDepthWrite) Then Return False
 		Local baseHandle:Int = 0
 		Local normalHandle:Int = 0
 		Local lightHandle:Int = 0
@@ -207,6 +208,7 @@ Public
 		If mReflectTex <> Null Then reflectHandle = mReflectTex.Handle
 		If mRefractTex <> Null Then refractHandle = mRefractTex.Handle
 		Renderer.SetTextures(baseHandle, normalHandle, lightHandle, reflectHandle, refractHandle, mBaseTex And mBaseTex.IsCubic)
+		Return True
 	End
 Private
 	'Field mDelegate		: IMaterialDelegate

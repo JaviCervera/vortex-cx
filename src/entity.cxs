@@ -410,7 +410,7 @@ Class Entity
 	Method _PrepareForRender:Void()
 	End
 	
-	Method _Render:Int()
+	Method _Render:Int(step_:Int)
 		Renderer.SetModelMatrix(mTransform)
 		Return 0
 	End

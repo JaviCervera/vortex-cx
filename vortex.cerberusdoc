@@ -725,9 +725,6 @@ Enabled or disables depth buffer writing. When it is disabled, other geometry fu
 # Method DepthWrite:Bool() Property
 Returns whether depth buffer writing is enabled or not.
 
-# Method Prepare:Void()
-Prepares this material for drawing. All subsequent geometry drawn will use the visual properties of this material. You normally do not need to use this method directly.
-
 
 
 

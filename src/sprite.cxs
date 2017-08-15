@@ -117,11 +117,14 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 		End
 	End
 	
-	Method _Render:Int()
-		Super._Render()
-		mMaterial.Prepare()
-		mSurface._Render()
-		Return 1
+	Method _Render:Int(step_:Int)
+		Super._Render(step_)
+		If mMaterial.Prepare(step_)
+			mSurface._Render()
+			Return 1
+		Else
+			Return 0
+		End
 	End
 Private
 	Field mOrientation	: Int

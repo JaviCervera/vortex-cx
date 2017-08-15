@@ -107,10 +107,10 @@ Class World Final
 				Renderer.ClearColorBuffer(Color.WHITE)
 				Renderer.ClearDepthBuffer()
 				
-				'Render entities
+				'Render entities with depth write
 				For Local e:Entity = Eachin mVisibleEntities
 					'e._PrepareForRender()
-					numRenderCalls += e._Render()
+					numRenderCalls += e._Render(0)
 				Next
 				
 				'Render list
@@ -147,11 +147,13 @@ Class World Final
 				Next
 			End
 			
-			'Render entities
-			For Local e:Entity = Eachin mVisibleEntities
-				e._PrepareForRender()
-				numRenderCalls += e._Render()
-			Next
+			'Render entities in two steps
+			For Local step_:Int = 0 Until 2
+				For Local e:Entity = Eachin mVisibleEntities
+					e._PrepareForRender()
+					numRenderCalls += e._Render(step_)
+				Next
+			End
 			
 			'Set num render calls
 			Stats._SetRenderCalls(numRenderCalls)
@@ -354,7 +356,7 @@ Class World Final
 	Function _DrawSkybox:Void(x:Float, y:Float, z:Float)
 		mSkyboxMatrix.SetTransform(x, y, z, 0, 0, 0, 10, 10, 10)
 		Renderer.SetModelMatrix(mSkyboxMatrix)
-		mSkybox.Surface(0).Material.Prepare()
+		mSkybox.Surface(0).Material.Prepare(1)
 		mSkybox.Surface(0)._Render()
 	End
 	

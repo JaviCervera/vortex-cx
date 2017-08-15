@@ -1,5 +1,4 @@
 'TODO v2.0:
-'- Render in two steps
 '- Add sun light (only one directional light will be supported)
 '- Shadows should only be cast if objects are close enough to the camera
 '- Add PCF to shadows
