@@ -11,7 +11,7 @@ Class Surface Final
 Public
 	Method New(mat:Material = Null)
 		mMaterial = New Material
-		If mat Then mMaterial.Set(mat); mMaterial.Delegate = mat.Delegate
+		If mat Then mMaterial.Set(mat)'; mMaterial.Delegate = mat.Delegate
 		mIndices = New DataBuffer(INC * 2, True)
 		mVertices = New DataBuffer(INC * VERTEX_SIZE, True)
 		mNumIndices = 0
@@ -321,7 +321,7 @@ Public
 		mStatus = STATUS_OK
 	End
 	
-	Method Draw:Void()
+	Method _Render:Void()
 		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, TANGENT_OFFSET, COLOR_OFFSET, TEX0_OFFSET, TEX1_OFFSET, BONEINDICES_OFFSET, BONEWEIGHTS_OFFSET, VERTEX_SIZE)
 	End
 Private

@@ -18,7 +18,7 @@ Import math3d
 Import mesh
 Import primitive
 Import renderer
-Import renderlist
+'Import renderlist
 Import stats
 Import surface
 Import texture
@@ -79,7 +79,8 @@ Class World Final
 	Function Render:Void()
 		'Update screen fps
 		Stats._UpdateFPS()
-		Stats._SetRenderCalls(0)
+		'Stats._SetRenderCalls(0)
+		Local numRenderCalls:Int = 0
 		
 		'Get number of lights
 		Local numLights:Int = Min(mLights.Count(), Renderer.MaxLights())
@@ -106,8 +107,14 @@ Class World Final
 				Renderer.ClearColorBuffer(Color.WHITE)
 				Renderer.ClearDepthBuffer()
 				
+				'Render entities
+				For Local e:Entity = Eachin mVisibleEntities
+					'e._PrepareForRender()
+					numRenderCalls += e._Render()
+				Next
+				
 				'Render list
-				Stats._SetRenderCalls(Stats.RenderCalls() + mRenderList.Render())
+				'Stats._SetRenderCalls(Stats.RenderCalls() + mRenderList.Render())
 				
 				'Set screen
 				Framebuffer.SetScreen()
@@ -140,13 +147,17 @@ Class World Final
 				Next
 			End
 			
-			'Prepare entities
+			'Render entities
 			For Local e:Entity = Eachin mVisibleEntities
 				e._PrepareForRender()
+				numRenderCalls += e._Render()
 			Next
 			
+			'Set num render calls
+			Stats._SetRenderCalls(numRenderCalls)
+			
 			'Render list
-			Stats._SetRenderCalls(Stats.RenderCalls() + mRenderList.Render())
+			'Stats._SetRenderCalls(Stats.RenderCalls() + mRenderList.Render())
 		End
 	End
 
@@ -269,7 +280,8 @@ Class World Final
 	
 	Function _FreeEntity:Void(e:Entity)
 		_EntityNeedsUpdate(e, False)
-		_EntityNeedsPrepareRender(e, False)
+		'_EntityNeedsPrepareRender(e, False)
+		_EntitySetVisible(e, False)
 		mEntities.RemoveFirst(e)
 	End
 	
@@ -297,6 +309,15 @@ Class World Final
 		End
 	End
 	
+	Function _EntitySetVisible:Void(e:Entity, visible:Bool)
+		If visible
+			If Not mVisibleEntities.Contains(e) Then mVisibleEntities.AddLast(e)
+		Else
+			mVisibleEntities.RemoveFirst(e)
+		End
+	End
+	
+	#Rem
 	Function _EntityNeedsPrepareRender:Void(e:Entity, prepare:Bool)
 		If prepare
 			If Not mVisibleEntities.Contains(e) Then mVisibleEntities.AddLast(e)
@@ -328,12 +349,13 @@ Class World Final
 			mRenderList.RemoveSurface(surface, transform, overrideMaterial)
 		End
 	End
+	#End
 	
 	Function _DrawSkybox:Void(x:Float, y:Float, z:Float)
 		mSkyboxMatrix.SetTransform(x, y, z, 0, 0, 0, 10, 10, 10)
 		Renderer.SetModelMatrix(mSkyboxMatrix)
 		mSkybox.Surface(0).Material.Prepare()
-		mSkybox.Surface(0).Draw()
+		mSkybox.Surface(0)._Render()
 	End
 	
 	Function _Entities:List<Entity>()
@@ -345,7 +367,7 @@ Private
 	Global mVisibleEntities		: List<Entity> = New List<Entity>
 	Global mCameras				: List<Camera> = New List<Camera>
 	Global mLights				: List<Light> = New List<Light>
-	Global mRenderList			: RenderList = New RenderList()
+	'Global mRenderList			: RenderList = New RenderList()
 	Global mSkybox				: Mesh
 	Global mSkyboxMatrix		: Mat4 = Mat4.Create()
 	Global mAmbient				: Int

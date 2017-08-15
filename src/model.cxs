@@ -4,19 +4,20 @@ Private
 Import material
 Import math3d
 Import mesh
+Import renderer
 Import stats
 Import world
 
 Public
 Import entity
 
-Class Model Extends Entity Implements IMaterialDelegate Final
+Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 	Method New(mesh:Mesh, parent:Entity = Null)
 		Super.New(parent)
 		mMesh = mesh
 		mMaterials = New Material[mMesh.NumSurfaces]
 		For Local i:Int = 0 Until mMaterials.Length
-			mMaterials[i] = New Material(mMesh.Surface(i).Material, Self)
+			mMaterials[i] = New Material(mMesh.Surface(i).Material)', Self)
 		Next
 		mAnimMatrices = New Mat4[mesh.NumBones]
 		For Local i:Int = 0 Until mAnimMatrices.Length
@@ -69,6 +70,8 @@ Class Model Extends Entity Implements IMaterialDelegate Final
 	Method Visible:Void(visible:Bool) Property
 		If visible <> Super.Visible
 			Super.Visible(visible)
+			World._EntitySetVisible(Self, visible)
+			#Rem
 			If visible
 				For Local i:Int = 0 Until mMesh.NumSurfaces
 					World._AddSurfaceToRenderList(mMesh.Surface(i), _Transform, mAnimMatrices, mMaterials[i])
@@ -78,6 +81,7 @@ Class Model Extends Entity Implements IMaterialDelegate Final
 					World._RemoveSurfaceFromRenderList(mMesh.Surface(i), _Transform, mAnimMatrices, mMaterials[i])
 				Next
 			End
+			#End
 		End
 	End
 	
@@ -129,6 +133,7 @@ Class Model Extends Entity Implements IMaterialDelegate Final
 		Return WorldZ + mMesh.BoxMaxZ * ScaleZ
 	End
 	
+	#Rem
 	Method MaterialChanged:Void(mat:Material)
 		Local index:Int = -1
 		For Local i:Int = 0 Until mMaterials.Length
@@ -139,6 +144,7 @@ Class Model Extends Entity Implements IMaterialDelegate Final
 			If Visible Then World._AddSurfaceToRenderList(mMesh.Surface(index), _Transform, mat)
 		End
 	End
+	#End
 	
 	Method _Update:Void()
 		If mAnimFPS <> 0 And mAnimMatrices.Length > 0
@@ -147,6 +153,17 @@ Class Model Extends Entity Implements IMaterialDelegate Final
 			If mCurrentFrame < 0 Then mCurrentFrame += mMesh.NumFrames
 			mMesh.Animate(mAnimMatrices, mCurrentFrame)
 		End
+	End
+	
+	Method _Render:Int()
+		Super._Render()
+		Renderer.SetSkinned(mAnimMatrices.Length > 0)
+		If mAnimMatrices.Length() > 0 Then Renderer.SetBoneMatrices(mAnimMatrices)
+		For Local i:Int = 0 Until mMesh.NumSurfaces
+			mMaterials[i].Prepare()
+			mMesh.Surface(i)._Render()
+		Next
+		Return mMesh.NumSurfaces
 	End
 Private
 	Field mMesh			: Mesh

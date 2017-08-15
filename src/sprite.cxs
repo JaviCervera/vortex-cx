@@ -11,7 +11,7 @@ Import world
 Public
 Import entity
 
-Class Sprite Extends Entity Implements IMaterialDelegate Final
+Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 	Const MODE_STATIC		: Int = 0
 	Const MODE_SPHERICAL	: Int = 1
 	Const MODE_CYLINDRICAL	: Int = 2
@@ -19,7 +19,7 @@ Class Sprite Extends Entity Implements IMaterialDelegate Final
 	Method New(texture:Texture, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
 		Super.New(parent)
 		mOrientation = orientation
-		mMaterial = New Material(texture, Self)
+		mMaterial = New Material(texture)', Self)
 		mMaterial.Culling = False
 		
 		
@@ -49,6 +49,8 @@ Class Sprite Extends Entity Implements IMaterialDelegate Final
 	Method Visible:Void(visible:Bool) Property
 		If visible <> Super.Visible
 			Super.Visible(visible)
+			World._EntitySetVisible(Self, visible)
+			#Rem
 			If visible
 				World._AddSurfaceToRenderList(mSurface, _Transform, mMaterial)
 				World._EntityNeedsPrepareRender(Self, True)
@@ -56,6 +58,7 @@ Class Sprite Extends Entity Implements IMaterialDelegate Final
 				World._RemoveSurfaceFromRenderList(mSurface, _Transform, mMaterial)
 				World._EntityNeedsPrepareRender(Self, False)
 			End
+			#End
 		End
 	End
 	
@@ -99,10 +102,12 @@ Class Sprite Extends Entity Implements IMaterialDelegate Final
 		Return Material(0)
 	End
 	
+	#Rem
 	Method MaterialChanged:Void(mat:Material)
 		World._RemoveSurfaceFromRenderList(mSurface, _Transform)
 		If Visible Then World._AddSurfaceToRenderList(mSurface, _Transform, mat)
 	End
+	#End
 	
 	Method _PrepareForRender:Void()
 		If mOrientation <> MODE_STATIC
@@ -110,6 +115,13 @@ Class Sprite Extends Entity Implements IMaterialDelegate Final
 			If mOrientation = MODE_CYLINDRICAL Then cylindrical = True
 			_Transform.SetBillboardTransformLH(Renderer.ViewMatrix(), WorldX, WorldY, WorldZ, Spin, Width, Height, cylindrical)
 		End
+	End
+	
+	Method _Render:Int()
+		Super._Render()
+		mMaterial.Prepare()
+		mSurface._Render()
+		Return 1
 	End
 Private
 	Field mOrientation	: Int

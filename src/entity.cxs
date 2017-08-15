@@ -410,6 +410,11 @@ Class Entity
 	Method _PrepareForRender:Void()
 	End
 	
+	Method _Render:Int()
+		Renderer.SetModelMatrix(mTransform)
+		Return 0
+	End
+	
 	Method _Transform:Mat4() Property
 		Return mTransform
 	End

@@ -35,7 +35,7 @@ Public
 		If mAnimMatrices.Length() > 0 Then Renderer.SetBoneMatrices(mAnimMatrices)
 		For Local transform:Mat4 = Eachin mTransforms
 			Renderer.SetModelMatrix(transform)
-			mSurface.Draw()
+			mSurface._Render()
 			numRenderCalls += 1
 		Next
 		Return numRenderCalls

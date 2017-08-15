@@ -134,6 +134,9 @@ Public
 	End
 
 	Function Setup2D:Void(x:Int, y:Int, w:Int, h:Int)
+		Local fbHeight:Int = mFramebufferHeight
+		If fbHeight = 0 Then fbHeight = DeviceHeight()
+	
 		'Switch to 2D program
 		UseProgram(m2DProgram)
 
@@ -150,7 +153,7 @@ Public
 		SetColor(1,1,1,1)
 
 		'Setup viewport
-		y = mFramebufferHeight - y - h
+		y = fbHeight - y - h
 		glViewport(x, y, w, h)
 		glScissor(x, y, w, h)
 
@@ -164,6 +167,9 @@ Public
 	End
 
 	Function Setup3D:Void(x:Int, y:Int, w:Int, h:Int, isDepthPass:Bool = False)
+		Local fbHeight:Int = mFramebufferHeight
+		If fbHeight = 0 Then fbHeight = DeviceHeight()
+		
 		'Switch to 3D program
 		If Not isDepthPass
 			UseProgram(mDefaultProgram)
@@ -189,7 +195,7 @@ Public
 		SetSkinned(False)
 
 		'Setup viewport
-		y = mFramebufferHeight - y - h
+		y = fbHeight - y - h
 		glViewport(x, y, w, h)
 		glScissor(x, y, w, h)
 		
@@ -603,7 +609,7 @@ Public
 	
 	Function SetFramebuffer:Void(fb:Int, height:Int)
 		glBindFramebuffer(GL_FRAMEBUFFER, fb)
-		mFramebufferHeight = height
+		If fb <> 0 Then mFramebufferHeight = height Else mFramebufferHeight = 0
 	End
 	
 	'---------------------------------------------------------------------------

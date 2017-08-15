@@ -8,14 +8,16 @@ Import texture
 
 Public
 
+#Rem
 Interface IMaterialDelegate
 	Method MaterialChanged:Void(mat:Material)
 End
+#End
 
 Class Material Final
 Public
-	Method New(baseTex:Texture = Null, delegate:IMaterialDelegate = Null)
-		mDelegate = delegate
+	Method New(baseTex:Texture = Null)', delegate:IMaterialDelegate = Null)
+		'mDelegate = delegate
 		mColor = color.Color.WHITE
 		mBaseTex = baseTex
 		mShininess = 0
@@ -25,8 +27,8 @@ Public
 		mDepthWrite = True
 	End
 	
-	Method New(other:Material, delegate:IMaterialDelegate = Null)
-		mDelegate = delegate
+	Method New(other:Material)', delegate:IMaterialDelegate = Null)
+		'mDelegate = delegate
 		Set(other)
 	End
 	
@@ -60,9 +62,10 @@ Public
 		mBlendMode = other.mBlendMode
 		mCulling = other.mCulling
 		mDepthWrite = other.mDepthWrite
-		If mDelegate Then mDelegate.MaterialChanged(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
+	#Rem
 	Method Delegate:Void(delegate:IMaterialDelegate) Property
 		mDelegate = delegate
 	End
@@ -70,11 +73,12 @@ Public
 	Method Delegate:IMaterialDelegate() Property
 		Return mDelegate
 	End
+	#End
 	
 	Method Color:Void(color:Int) Property
 		If mColor = color Then Return
 		mColor = color
-		If mDelegate Then mDelegate.MaterialChanged(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method Color:Int() Property
@@ -84,7 +88,7 @@ Public
 	Method BaseTexture:Void(tex:Texture) Property
 		If mBaseTex = tex Then Return
 		mBaseTex = tex
-		If mDelegate Then mDelegate.MaterialChanged(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method BaseTexture:Texture() Property
@@ -94,7 +98,7 @@ Public
 	Method NormalTexture:Void(tex:Texture) Property
 		If mNormalTex = tex Then Return
 		mNormalTex = tex
-		If mDelegate Then mDelegate.MaterialChanged(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
 	Method NormalTexture:Texture() Property
@@ -104,7 +108,7 @@ Public
 	Method LightTexture:Void(tex:Texture) Property
 		If mLightTex = tex Then Return
 		mLightTex = tex
-		If mDelegate Then mDelegate.MaterialChanged(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
 	Method LightTexture:Texture() Property
@@ -114,7 +118,7 @@ Public
 	Method ReflectionTexture:Void(tex:Texture) Property
 		If mReflectTex = tex Then Return
 		mReflectTex = tex
-		If mDelegate Then mDelegate.MaterialChanged(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
 	Method ReflectionTexture:Texture() Property
@@ -124,7 +128,7 @@ Public
 	Method RefractionTexture:Void(tex:Texture) Property
 		If mRefractTex = tex Then Return
 		mRefractTex = tex
-		If mDelegate Then mDelegate.MaterialChanged(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
 	Method RefractionTexture:Texture() Property
@@ -135,7 +139,7 @@ Public
 		shininess = Clamp(shininess, 0.0, 1.0)
 		If mShininess = shininess Then Return
 		mShininess = shininess
-		If mDelegate Then mDelegate.MaterialChanged(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method Shininess:Float() Property
@@ -145,7 +149,7 @@ Public
 	Method RefractionCoef:Void(coef:Float) Property
 		If mRefractCoef = coef Then Return
 		mRefractCoef = coef
-		If mDelegate Then mDelegate.MaterialChanged(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
 	Method RefractionCoef:Float() Property
@@ -155,7 +159,7 @@ Public
 	Method BlendMode:Void(mode:Int) Property
 		If mBlendMode = mode Then Return
 		mBlendMode = mode
-		If mDelegate Then mDelegate.MaterialChanged(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method BlendMode:Int() Property
@@ -165,7 +169,7 @@ Public
 	Method Culling:Void(enable:Bool) Property
 		If mCulling = enable Then Return
 		mCulling = enable
-		If mDelegate Then mDelegate.MaterialChanged(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method Culling:Bool() Property
@@ -176,7 +180,7 @@ Public
 		If mDepthWrite = enable Then Return
 		mDepthWrite = enable
 		RenderList.Sort(Self)
-		If mDelegate Then mDelegate.MaterialChanged(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
 	Method DepthWrite:Bool() Property
@@ -205,7 +209,7 @@ Public
 		Renderer.SetTextures(baseHandle, normalHandle, lightHandle, reflectHandle, refractHandle, mBaseTex And mBaseTex.IsCubic)
 	End
 Private
-	Field mDelegate		: IMaterialDelegate
+	'Field mDelegate		: IMaterialDelegate
 	Field mColor		: Int
 	Field mBaseTex		: Texture
 	Field mNormalTex	: Texture
