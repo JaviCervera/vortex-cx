@@ -162,6 +162,7 @@ Public
 		mTempMatrix.SetOrthoLH(0, w, h, 0, 0, 100)
 		Renderer.SetProjectionMatrix(mTempMatrix)
 		mTempMatrix.SetIdentity()
+		Renderer.SetTextureMatrix(mTempMatrix)
 		Renderer.SetViewMatrix(mTempMatrix)
 		Renderer.SetModelMatrix(mTempMatrix)
 	End
@@ -199,8 +200,11 @@ Public
 		glViewport(x, y, w, h)
 		glScissor(x, y, w, h)
 		
-		'Disable shadows by default
+		'Setup texture matrix
 		mTempMatrix.SetIdentity()
+		Renderer.SetTextureMatrix(mTempMatrix)
+		
+		'Disable shadows by default
 		Renderer.SetDepthData(mTempMatrix, mTempMatrix, 0, 0)
 	End
 
@@ -590,6 +594,10 @@ Public
 		glActiveTexture(GL_TEXTURE0)
 	End
 	
+	Function SetTextureMatrix:Void(m:Mat4)
+		If mActiveProgram.mTextureMatrixLoc <> -1 Then glUniformMatrix4fv(mActiveProgram.mTextureMatrixLoc, 1, False, m.M)
+	End
+	
 	'---------------------------------------------------------------------------
 	' Framebuffer
 	'---------------------------------------------------------------------------
@@ -883,6 +891,7 @@ Class GpuProgram
 	Field mNormalMatrixLoc:Int
 	Field mInvViewLoc:Int
 	Field mDepthBiasLoc:Int
+	Field mTextureMatrixLoc:Int
 	Field mBaseTexModeLoc:Int
 	Field mUseNormalTexLoc:Int
 	Field mUseLightmapLoc:Int
@@ -928,6 +937,7 @@ Class GpuProgram
 		mNormalMatrixLoc = glGetUniformLocation(program, "normalMatrix")
 		mInvViewLoc = glGetUniformLocation(program, "invView")
 		mDepthBiasLoc = glGetUniformLocation(program, "depthBias")
+		mTextureMatrixLoc = glGetUniformLocation(program, "textureMatrix")
 		mBaseTexModeLoc = glGetUniformLocation(program, "baseTexMode")
 		mUseNormalTexLoc = glGetUniformLocation(program, "useNormalTex")
 		mUseLightmapLoc = glGetUniformLocation(program, "useLightmap")

@@ -23,8 +23,8 @@ It has been released under the terms of the [**MIT license**](https://en.wikiped
 You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, or download as a zip file and put the vortex folder on that same **<*CerberusFolder*>/modules_ext** location. You should select **Help -> Rebuild Help** on the Cerberus-X IDE (Ted) afterwards, and the documentation will be available in your modules help.
 
 ## Acknowledgments
-* Jon Pittock (skn3) for his XML library that is used by the tools (licensed under the MIT license).
-* The Irrlicht team for the engine used on the mesh tool (Irrlicht is licensed under the Zlib license).
-* Sean T. Barret for his stb_truetype and stb_image_write libraries, used on the tools (these libraries are public domain).
+* **Jon Pittock (skn3)** for his XML library that is used by the tools (licensed under the MIT license).
+* The **Irrlicht team** for the engine used on the mesh tool (Irrlicht is licensed under the Zlib license).
+* **Sean T. Barret** for his **stb_image_write** and **stb_truetype** libraries, used on the tools (these libraries are public domain).
 
 ![meshtool](./stuff/meshtool.jpg)

@@ -844,6 +844,18 @@ Sets the frames per second at which this model animates (default is 0).
 # Method CurrentFrame:Float() Property
 Returns the current animation frame of the model.
 
+# Method FirstFrame:Int() Property
+Returns the first frame in the animation sequence.
+
+# Method FirstFrame:Void(frame:Int) Property
+Sets the first frame in the animation sequence.
+
+# Method LastFrame:Int() Property
+Returns the last frame in the animation sequence.
+
+# Method LastFrame:Void(frame:Int) Property
+Sets the last frame in the animation sequence.
+
 
 
 
@@ -907,8 +919,8 @@ A sprite is a 2D object in a 3D world. It has width and height, but no depth. It
 # Const MODE_SPHERICAL	: Int
 # Const MODE_CYLINDRICAL	: Int
 
-# Method New(texture:Texture, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
-Creates a new sprite with the specified texture. The size of the sprite will be set to the size of the texture. The value of `orientation` can be:
+# Method New(texture:Texture, hframes:Int = 1, vframes:Int = 1, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
+Creates a new sprite with the specified texture. The size of the sprite will be set to the size of the texture. The parameters `hframes` and `vframes` indicate the number of horizontal and vertical animation frames contained in the texture. The value of `orientation` can be:
 
 | Value       | Meaning
 | Sprite.MODE_STATIC | The sprite does not rotate to face the camera.
@@ -934,6 +946,30 @@ Sets the spin rotation of the sprite.
 
 # Method SetSize:Void(width:Float, height:Float)
 Sets the width and height of the sprite.
+
+# Method Frames:Int() Property
+Returns the total number of frames that this sprite has (1 by default).
+
+# Method HFrames:Int() Property
+Returns the number of horizontal frames that this sprite has (1 by default).
+
+# Method VFrames:Int() Property
+Returns the number of vertical frames that this sprite has (1 by default).
+
+# Method SetFrames:Void(horizontal:Int, vertical:Int)
+Sets the number of horizontal and vertical frames that this sprite has.
+
+# Method FPS:Int() Property
+Returns the animation frames per second of the sprite.
+
+# Method FPS:Void(fps:Int) Property
+Sets the animation frames per second of the sprite. To play the sequence backwards, set this to a negative value.
+
+# Method CurrentFrame:Int() Property
+Returns the animation frame currently being displayed by the sprite.
+
+# Method CurrentFrame:Void(frame:Int) Property
+Forces the sprite to show the specified animation frame. This can be used to animate the sprite manually.
 
 
 

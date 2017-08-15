@@ -26,6 +26,7 @@ Const STD_VERTEX_VARS:String = "" +
 "uniform mat4 mvp;" +
 "uniform mat4 modelView;" +
 "uniform mat4 normalMatrix;" +
+"uniform mat4 textureMatrix;" +
 "uniform mat4 invView;" +
 "uniform mat4 depthBias;" +
 "uniform int baseTexMode;" +
@@ -144,7 +145,7 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 "	fcolor = baseColor * vcolor;" +
 
 	'Fragment texture coords
-"	ftex = vtex;" +
+"	ftex = vec2(textureMatrix * vec4(vtex, 0, 1));" +
 "	ftex2 = vtex2;" +
 
 	'Calculate vectors used in lighting and env mapping
@@ -290,12 +291,13 @@ Const DEPTH_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION +
 
 Const _2D_VERTEX_SHADER:String = SHADER_VAR_PRECISION +
 "uniform mat4 mvp;" +
+"uniform mat4 textureMatrix;" +
 "attribute vec3 vpos;" +
 "attribute vec2 vtex;" +
 "varying vec2 ftex;" +
 "void main() {" +
 "	gl_Position = mvp * vec4(vpos, 1.0);" +
-"	ftex = vtex;" +
+"	ftex = vec2(textureMatrix * vec4(vtex, 0, 1));" +
 "}"
 
 Const _2D_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION +

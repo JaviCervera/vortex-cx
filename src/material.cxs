@@ -2,6 +2,7 @@ Strict
 
 Private
 Import color
+Import math3d
 Import renderlist
 Import renderer
 Import texture
@@ -25,10 +26,12 @@ Public
 		mBlendMode = Renderer.BLEND_ALPHA
 		mCulling = True
 		mDepthWrite = True
+		mTextureMatrix = Mat4.Create()
 	End
 	
 	Method New(other:Material)', delegate:IMaterialDelegate = Null)
 		'mDelegate = delegate
+		mTextureMatrix = Mat4.Create()
 		Set(other)
 	End
 	
@@ -62,6 +65,7 @@ Public
 		mBlendMode = other.mBlendMode
 		mCulling = other.mCulling
 		mDepthWrite = other.mDepthWrite
+		mTextureMatrix.Set(other.mTextureMatrix)
 		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
@@ -186,6 +190,10 @@ Public
 	Method DepthWrite:Bool() Property
 		Return mDepthWrite
 	End
+	
+	Method TextureMatrix:Mat4() Property
+		Return mTextureMatrix
+	End
 
 	Method Prepare:Bool(step_:Int)
 		If step_ = Int(mDepthWrite) Then Return False
@@ -202,6 +210,7 @@ Public
 		Renderer.SetBlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)
 		Renderer.SetDepthWrite(mDepthWrite)
+		Renderer.SetTextureMatrix(mTextureMatrix)
 		If mBaseTex <> Null Then baseHandle = mBaseTex.Handle
 		If mNormalTex <> Null Then normalHandle = mNormalTex.Handle
 		If mLightTex <> Null Then lightHandle = mLightTex.Handle
@@ -212,15 +221,16 @@ Public
 	End
 Private
 	'Field mDelegate		: IMaterialDelegate
-	Field mColor		: Int
-	Field mBaseTex		: Texture
-	Field mNormalTex	: Texture
-	Field mLightTex		: Texture
-	Field mReflectTex	: Texture
-	Field mRefractTex	: Texture
-	Field mShininess	: Float
-	Field mRefractCoef	: Float
-	Field mBlendMode	: Int
-	Field mCulling		: Bool
-	Field mDepthWrite	: Bool
+	Field mColor			: Int
+	Field mBaseTex			: Texture
+	Field mNormalTex		: Texture
+	Field mLightTex			: Texture
+	Field mReflectTex		: Texture
+	Field mRefractTex		: Texture
+	Field mShininess		: Float
+	Field mRefractCoef		: Float
+	Field mBlendMode		: Int
+	Field mCulling			: Bool
+	Field mDepthWrite		: Bool
+	Field mTextureMatrix	: Mat4
 End

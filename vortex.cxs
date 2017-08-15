@@ -1,16 +1,18 @@
-'TODO v2.0:
+'TODO v2.0-beta:
 '- Add sun light (only one directional light will be supported)
-'- Shadows should only be cast if objects are close enough to the camera
-'- Add PCF to shadows
 '- Add a SOLID blend mode
-'- Add texture matrix in Material
+'- Add size suffix to fonts in fonttool
 '- Replace number of frames with animation duration?
+'TODO v2.0:
+'- Consider switching to Zlib or another license?
+'- Shadows should only be cast if objects are close enough to the camera
+'- Integrate with Mojo
+'- Add PCF to shadows
 '- Fix render to texture on HTML5
 '- Add Building section to README.md
 '- Remove XML support in tools
 '- Document tools
 'TODO v2.1:
-'- Integrate with Mojo
 '- Add particles
 '- Add previous depth pass to avoid computing redundant fragments
 '- Add spot lights

@@ -24,9 +24,12 @@ Public
 			EndApp()
 		End
 		
+		'Load font
+		mFont = Cache.LoadFont("system.fnt.dat")
+		
 		'Setup world
 		World.SetAmbient(Color.LIGHT_GRAY)
-		World.SetShadows(True, 25, 100, 0.003)
+		ToggleShadows()
 		
 		'Create sphere
 		mBall = New Model(Cache.LoadMesh("sphere.msh.dat"))
@@ -87,6 +90,9 @@ Public
 		If mBlockBall.Y <= 0  Then mBlockBall.Y = 0; mBlockBallDir *= -1
 		If mBlockBall.Collided Then mBlockBallDir *= -1
 		
+		'Toggle shadows
+		If KeyHit(KEY_SPACE) Then ToggleShadows()
+		
 		Return False
 	End
 	
@@ -94,7 +100,22 @@ Public
 		'Render world
 		World.Render()
 		
-		'Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Renderer.SetColor(Color.WHITE)
+		
+		'Draw FPS
+		Local text:String = Stats.FPS() + " FPS"
+		mFont.Draw(2, 2, text)
+		
+		'Draw RenderCalls
+		text = "Render calls: " + Stats.RenderCalls()
+		mFont.Draw(2, 18, text)
+		
+		'Draw shadows message
+		text = "Press SPACE to toggle shadows"
+		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, DeviceHeight() - mFont.TextHeight(text) - 8, text)
+		
 		'World.DepthTexture().Draw(4, 4, 300, -225)
 		
 		Return False
@@ -165,7 +186,16 @@ Public
 		mBlockBall.Material.Color = Color.MAGENTA
 		mBlockBallDir = 1
 	End
+	
+	Method ToggleShadows:Void()
+		If World.Shadows()
+			World.SetShadows(False)
+		Else
+			World.SetShadows(True, 25, 100, 0.003)
+		End
+	End
 Private
+	Field mFont			: Font
 	Field mCam			: Camera
 	Field mBall			: Model
 	Field mDoor			: Model

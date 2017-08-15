@@ -162,7 +162,7 @@ Class Camera Extends Entity Final
 		
 		'Set projection matrix
 		If mOrtho
-			Local height:Float = Near * Tan(mFovY * 0.5)
+			Local height:Float = mFovY * 0.5
 			Local width:Float = height * mRatio
 			mProjMatrix.SetOrthoLH(-width, width, -height, height, mNear, mFar)
 		Else

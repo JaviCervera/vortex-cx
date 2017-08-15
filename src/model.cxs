@@ -24,7 +24,6 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 			mAnimMatrices[i] = Mat4.Create()
 		Next
 		Visible = True
-		Active = False
 		Active = True
 	End
 	
@@ -53,13 +52,7 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 			Super.Active(active)
 			
 			'Only animated models need to care about updating
-			If mAnimMatrices.Length > 0
-				If active
-					World._EntityNeedsUpdate(Self, True)
-				Else
-					World._EntityNeedsUpdate(Self, False)
-				End
-			End
+			If mAnimMatrices.Length > 0 Then World._EntityNeedsUpdate(Self, active)
 		End
 	End
 	

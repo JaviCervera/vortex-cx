@@ -17,7 +17,7 @@ Class Entity
 	Method New(parent:Entity = Null)
 		Parent = parent
 		mChildren = New List<Entity>
-		mActive = True
+		mActive = False		'Subclases should change this if needed
 		mVisible = False	'Subclases should change this if needed
 		mPosition = Vec3.Create()
 		mRotation = Vec3.Create()

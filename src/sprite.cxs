@@ -4,6 +4,7 @@ Private
 Import color
 Import material
 Import renderer
+Import stats
 Import surface
 Import texture
 Import world
@@ -16,7 +17,7 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 	Const MODE_SPHERICAL	: Int = 1
 	Const MODE_CYLINDRICAL	: Int = 2
 	
-	Method New(texture:Texture, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
+	Method New(texture:Texture, hframes:Int = 1, vframes:Int = 1, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
 		Super.New(parent)
 		mOrientation = orientation
 		mMaterial = New Material(texture)', Self)
@@ -37,13 +38,31 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 		
 		'Set size
 		If texture <> Null
-			SetSize(texture.Width, texture.Height)
+			SetSize(texture.Width / hframes, texture.Height / vframes)
 		Else
 			SetSize(1, 1)
 		End
 		
+		'Set frames
+		SetFrames(hframes, vframes)
+		LastFrame = Frames-1
+		
 		'Make visible
 		Visible = True
+		
+		'Make active
+		Active = True
+	End
+	
+	Method Active:Bool() Property
+		Return Super.Active
+	End
+	
+	Method Active:Void(active:Bool) Property
+		If active <> Super.Active
+			Super.Active(active)
+			World._EntityNeedsUpdate(Self, active)
+		End
 	End
 	
 	Method Visible:Void(visible:Bool) Property
@@ -90,6 +109,55 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 		SetScale(width, height, 1)
 	End
 	
+	Method Frames:Int() Property
+		Return HFrames * VFrames
+	End
+	
+	Method HFrames:Int() Property
+		Return mHFrames
+	End
+	
+	Method VFrames:Int() Property
+		Return mVFrames
+	End
+	
+	Method SetFrames:Void(horizontal:Int, vertical:Int)
+		mHFrames = horizontal
+		mVFrames = vertical
+	End
+	
+	Method FPS:Int() Property
+		Return mAnimFPS
+	End
+	
+	Method FPS:Void(fps:Int) Property
+		mAnimFPS = fps
+	End
+	
+	Method CurrentFrame:Int() Property
+		Return mCurrentFrame
+	End
+	
+	Method CurrentFrame:Void(frame:Int) Property
+		mCurrentFrame = frame
+	End
+	
+	Method FirstFrame:Int() Property
+		Return mFirstFrame
+	End
+	
+	Method FirstFrame:Void(frame:Int) Property
+		mFirstFrame = Clamp(frame, 0, Frames-1)
+	End
+	
+	Method LastFrame:Int() Property
+		Return mLastFrame
+	End
+	
+	Method LastFrame:Void(frame:Int) Property
+		mLastFrame = Clamp(frame, 0, Frames-1)
+	End
+	
 	Method NumMaterials:Int() Property
 		Return 1
 	End
@@ -109,12 +177,28 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 	End
 	#End
 	
+	Method _Update:Void()
+		If mAnimFPS <> 0
+			mCurrentFrame += mAnimFPS * Stats.DeltaTime()
+			If Int(mCurrentFrame) > LastFrame Then mCurrentFrame -= (LastFrame - FirstFrame) + 1
+			If Int(mCurrentFrame) < FirstFrame Then mCurrentFrame += (LastFrame - FirstFrame) + 2
+		End
+	End
+	
 	Method _PrepareForRender:Void()
+		'Orientation
 		If mOrientation <> MODE_STATIC
 			Local cylindrical:Bool = False
 			If mOrientation = MODE_CYLINDRICAL Then cylindrical = True
 			_Transform.SetBillboardTransformLH(Renderer.ViewMatrix(), WorldX, WorldY, WorldZ, Spin, Width, Height, cylindrical)
 		End
+		
+		'Texture matrix
+		Local row:Int = Int(mCurrentFrame) / HFrames
+		Local col:Int = Int(mCurrentFrame) Mod HFrames
+		mMaterial.TextureMatrix.SetIdentity()
+		mMaterial.TextureMatrix.Scale(1.0 / HFrames, 1.0 / VFrames, 1.0)
+		mMaterial.TextureMatrix.Translate(col, row, 0)
 	End
 	
 	Method _Render:Int(step_:Int)
@@ -129,5 +213,11 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 Private
 	Field mOrientation	: Int
 	Field mMaterial		: Material
+	Field mHFrames		: Int
+	Field mVFrames		: Int
+	Field mAnimFPS		: Int
+	Field mCurrentFrame	: Float
+	Field mFirstFrame	: Int
+	Field mLastFrame	: Int
 	Global mSurface		: Surface
 End
