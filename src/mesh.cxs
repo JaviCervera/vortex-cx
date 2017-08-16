@@ -88,11 +88,14 @@ Public
 		'Number of frames
 		Local numFrames:Int = stream.ReadShort()
 		
+		'Animation speed
+		_AnimSpeed = stream.ReadFloat()
+		
 		'Number of bones
 		Local numBones:Int = stream.ReadShort()
 		
 		'Bone animations
-		Local firstFrame:Int = NumFrames
+		Local firstFrame:Int = _NumFrames
 		For Local i:Int = 0 Until numBones
 			'Position keys
 			Local numKeys:Int = stream.ReadShort()
@@ -126,7 +129,7 @@ Public
 			Next
 		Next
 		
-		NumFrames += numFrames
+		_NumFrames += numFrames
 		
 		Return True
 	End
@@ -171,13 +174,13 @@ Public
 	Method Material:Material(index:Int)
 		Return mMaterials[index]
 	End
-
-	Method NumFrames:Void(numFrames:Int) Property
-		mNumFrames = numFrames
-	End
-
-	Method NumFrames:Int() Property
-		Return mNumFrames
+	
+	Method AnimDuration:Float() Property
+		If mAnimSpeed = 0
+			Return 0
+		Else
+			Return mNumFrames / mAnimSpeed
+		End
 	End
 	
 	Method AddBone:Void(bone:Bone)
@@ -530,12 +533,29 @@ Public
 		
 		Return mesh
 	End
+	
+	Method _NumFrames:Int() Property
+		Return mNumFrames
+	End
+	
+	Method _NumFrames:Void(num:Int) Property
+		mNumFrames = num
+	End
+	
+	Method _AnimSpeed:Float() Property
+		Return mAnimSpeed
+	End
+	
+	Method _AnimSpeed:Void(speed:Float) Property
+		mAnimSpeed = speed
+	End
 Private
 	Field mFilename		: String
 	Field mSurfaces		: Surface[]
 	Field mMaterials	: Material[]
 	Field mBones		: Bone[]
 	Field mNumFrames	: Int
+	Field mAnimSpeed	: Float
 	Field mBoxMin		: Vec3
 	Field mBoxMax		: Vec3
 	Global mTempMatrix	: Mat4 = Mat4.Create()

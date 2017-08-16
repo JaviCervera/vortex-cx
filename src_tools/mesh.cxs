@@ -58,7 +58,8 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 	'Get arrays
 	Local materialNodes:List<XMLNode> = doc.GetChild("materials").GetChildren("material")
 	Local surfaceNodes:List<XMLNode> = doc.GetChild("surfaces").GetChildren("surface")
-	Local numFramesNode:XMLNode = doc.GetChild("num_frames")
+	Local numFrames:Int = Int(doc.GetChild("num_frames").value)
+	Local animSpeed:Float = Float(doc.GetChild("anim_speed").value)
 	Local boneNodes:List<XMLNode> = doc.GetChild("bones").GetChildren("bone")
 	If surfaceNodes.IsEmpty() Then Return Null
 	
@@ -237,7 +238,8 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 	Next
 
 	'Parse number of frames
-	mesh.NumFrames = Int(numFramesNode.value)
+	mesh._NumFrames = numFrames
+	mesh._AnimSpeed = animSpeed
 
 	'Parse bones
 	For Local boneNode:XMLNode = Eachin boneNodes
@@ -607,6 +609,7 @@ Function AnimationSize:Int(mesh:Mesh)
 	'Fixed header
 	Local size:Int = 4	'Id & version
 	size += 2			'Number of frames
+	size += 4			'Animation speed
 	size += 2			'Number of bones
 	
 	'Animations
@@ -657,7 +660,8 @@ Function CreateAnimationData:DataBuffer(mesh:Mesh)
 	stream.WriteByte("1"[0])
 	
 	'Number of frames
-	stream.WriteShort(mesh.NumFrames)
+	stream.WriteShort(mesh._NumFrames)
+	stream.WriteFloat(mesh._AnimSpeed)
 	
 	'Number of bones
 	stream.WriteShort(mesh.NumBones)

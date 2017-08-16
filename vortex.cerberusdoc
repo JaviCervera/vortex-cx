@@ -746,11 +746,8 @@ Returns a surface contained in the mesh. The value of `index` must be in the ran
 # Method Material:Material(index:Int)
 Returns a material contained in the mesh. The value of `index` must be in the range `0 .. NumSurfaces - 1`.
 
-# Method NumFrames:Void(lastFrame:Int) Property
-Sets the number of animation frames for the mesh. You should call this method only when generating an animated mesh procedurally, but not when loading the mesh from disk.
-
-# Method NumFrames:Int() Property
-Returns the number of animation frames contained in the mesh.
+# Method AnimDuration:Float() Property
+Returns the animation duration of the mesh (in seconds)
 
 # Method AddBone:Void(bone:Bone)
 Adds a new bone to the mesh.
@@ -819,26 +816,14 @@ Creates a new model from the specific mesh and parent. The value of `mesh` shoul
 # Method Mesh:Mesh() Property
 Returns the mesh that this model uses.
 
-# Method FPS:Float() Property
-Returns the frames per second at which this model animates (default is 0).
+Method AnimSpeed:Float() Property
+Returns the animation speed of the mesh.
 
-# Method FPS:Void(fps:Float) Property
-Sets the frames per second at which this model animates (default is 0).
+Method AnimSpeed:Void(speed:Float) Property
+Sets the animation speed of the mesh. Setting it to 0 disables animation, 1 plays it at normal speed, 2 at doueble speed, etc.
 
-# Method CurrentFrame:Float() Property
-Returns the current animation frame of the model.
-
-# Method FirstFrame:Int() Property
-Returns the first frame in the animation sequence.
-
-# Method FirstFrame:Void(frame:Int) Property
-Sets the first frame in the animation sequence.
-
-# Method LastFrame:Int() Property
-Returns the last frame in the animation sequence.
-
-# Method LastFrame:Void(frame:Int) Property
-Sets the last frame in the animation sequence.
+Method AnimTime:Float() Property
+Returns the current time of the animation being played, in seconds.
 
 
 

@@ -1,16 +1,15 @@
 'TODO v2.0-beta:
-'- Replace number of frames with animation duration?
 '- Add size suffix to fonts in fonttool
 'TODO v2.0:
-'- Consider switching to Zlib or another license?
-'- Add previous depth pass to avoid computing redundant fragments
 '- Shadows should only be cast if objects are close enough to the camera
+'- Add previous depth pass to avoid computing redundant fragments
 '- Integrate with Mojo
 '- Add PCF to shadows
 '- Fix render to texture on HTML5
 '- Add Building section to README.md
 '- Remove XML support in tools
 '- Document tools
+'- Consider switching to Zlib or another license?
 'TODO v2.1:
 '- Add particles
 '- Add spot lights

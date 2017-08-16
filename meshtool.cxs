@@ -68,7 +68,7 @@ Public
 		If newModel <> Null
 			If mModel Then mModel.Discard()
 			mModel = newModel
-			mModel.FPS = 16
+			mModel.AnimSpeed = 1
 		End
 		
 		'Update camera view

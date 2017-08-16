@@ -178,7 +178,10 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
     }
 
     // num frames
-    mesh->num_frames = anim_mesh->getFrameCount() + 1;
+    mesh->num_frames = anim_mesh->getFrameCount();
+    
+    // anim duration
+    mesh->anim_speed = anim_mesh->getAnimationSpeed();
   }
 
   // optimize mesh

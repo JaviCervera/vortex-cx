@@ -43,13 +43,13 @@ Public
 		mSwatModel.SetPosition(-32, 32, 0)
 		mSwatModel.SetRotation(0, -15, 0)
 		mSwatModel.SetScale(7, 7, 7)
-		mSwatModel.FPS = 16
+		mSwatModel.AnimSpeed = 1
 		
 		'Load dwarf model
 		mDwarfModel = New Model(Cache.LoadMesh("dwarf.msh.dat", "dwarf.skl.dat", "dwarf.anm.dat"))
 		mDwarfModel.SetPosition(32, 0, 0)
 		mDwarfModel.SetRotation(0, 15, 0)
-		mDwarfModel.FPS = 16
+		mDwarfModel.AnimSpeed = 0.5
 		
 		Return False
 	End
@@ -78,7 +78,7 @@ Public
 		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetColor(Color.WHITE)
-		mFont.Draw(4, DeviceHeight() - 20, "Frame: " + Int(mDwarfModel.CurrentFrame))
+		'mFont.Draw(4, DeviceHeight() - 20, "Time: " + Int(mDwarfModel.AnimTime))
 		
 		'Draw FPS
 		Local text:String = Stats.FPS() + " FPS"

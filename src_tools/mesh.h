@@ -90,6 +90,7 @@ struct mesh_t {
   std::vector<surface_t>  surfaces;
   std::vector<bone_t>     bones;
   int                     num_frames;
+  float                   anim_speed;
 };
 
 extern "C" {

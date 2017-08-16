@@ -31,16 +31,16 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 		Return mMesh
 	End
 	
-	Method FPS:Float() Property
-		Return mAnimFPS
+	Method AnimSpeed:Float() Property
+		Return mAnimSpeed
 	End
 	
-	Method FPS:Void(fps:Float) Property
-		mAnimFPS = fps
+	Method AnimSpeed:Void(speed:Float) Property
+		mAnimSpeed = speed
 	End
 	
-	Method CurrentFrame:Float() Property
-		Return mCurrentFrame
+	Method AnimTime:Float() Property
+		Return mCurrentFrame / mMesh._AnimSpeed
 	End
 	
 	Method Active:Bool() Property
@@ -140,10 +140,10 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 	#End
 	
 	Method _Update:Void()
-		If mAnimFPS <> 0 And mAnimMatrices.Length > 0
-			mCurrentFrame += mAnimFPS * Stats.DeltaTime()
-			If mCurrentFrame > mMesh.NumFrames Then mCurrentFrame -= mMesh.NumFrames
-			If mCurrentFrame < 0 Then mCurrentFrame += mMesh.NumFrames
+		If mAnimSpeed <> 0 And mAnimMatrices.Length > 0
+			mCurrentFrame += mAnimSpeed * mMesh._AnimSpeed * Stats.DeltaTime()
+			If mCurrentFrame > mMesh._NumFrames Then mCurrentFrame -= mMesh._NumFrames
+			If mCurrentFrame < 0 Then mCurrentFrame += mMesh._NumFrames
 			mMesh.Animate(mAnimMatrices, mCurrentFrame)
 		End
 	End
@@ -162,6 +162,6 @@ Private
 	Field mMesh			: Mesh
 	Field mMaterials	: Material[]
 	Field mAnimMatrices	: Mat4[]
+	Field mAnimSpeed	: Float
 	Field mCurrentFrame	: Float
-	Field mAnimFPS		: Float
 End

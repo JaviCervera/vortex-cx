@@ -307,8 +307,11 @@ Public
 			
 			Renderer.SetColor(1, 1, 1)
 			mFont.Draw(8, 34, "Num Surfaces: " + currentModel.Mesh.NumSurfaces)
-			mFont.Draw(8, 50, "Num Frames: " + currentModel.Mesh.NumFrames)
-			mFont.Draw(8, 66, "Num Bones: " + currentModel.Mesh.NumBones)
+			mFont.Draw(8, 50, "Num Bones: " + currentModel.Mesh.NumBones)
+			mFont.Draw(8, 66, "Anim Duration: " + currentModel.Mesh.AnimDuration)
+			If currentModel.Mesh.AnimDuration <> 0
+				mFont.Draw(8, 80, "Anim Time: " + currentModel.AnimTime)
+			End
 			
 			DrawPanel(mMaterialRect)
 			DrawPanel(mMaterialRect.x + mSelMatRect.x, mMaterialRect.y + mSelMatRect.y, mSelMatRect.width, mSelMatRect.height, "Material #" + mSelMat, mFont)
