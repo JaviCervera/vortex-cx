@@ -41,6 +41,9 @@ Public
 		mModel = New Model(Cache.LoadMesh("vangogh.msh.dat"))
 		mModel.Yaw = 180
 		
+		'Disable sun
+		World.SetSunColor(Color.BLACK)
+		
 		Return False
 	End
 	

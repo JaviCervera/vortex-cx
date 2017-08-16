@@ -566,8 +566,7 @@ Indicates whether this framebuffer has a depth buffer or not.
 # Class Light Extends Entity
 
 Vortex supports defining lights sources that can shine on objects.
-The maximum number of lights that can be defined simultaneously is 8.
-All of these can emit one colored light that can be reflected by objects.
+By default, the maximum number of lights that can be defined simultaneously is 4, although this value can be changed when calling `World.Init`.
 
 When a light ray hits an object, the color of the light is combined with the color of the object, and that defines the appearance of the object.
 This is called *diffuse lighting*.
@@ -577,29 +576,10 @@ Also, an object can have a shininess power, which will produce highlights when a
 Finally, independently from how many light rays are hitting an object, every object also receives some amount of residual lighting, produced by all the lights. This is called *ambient lighting*.
 For example, if we are in a sunny open environment, the amount of ambient lighting is much bigger than in a narrow, dark cave, because the intensity of all the lights produce a brighter residual lighting.
 
-Lights can be at infinity, emitting rays in one direction (called *directional lights*; one common example is the sun),
-or can be at one specific place, emitting rays in all directions that attenuate with distance (called *point lights*). Directional light will only take into account their rotation, while point lights will only take into account their position.
+Currently, all light sources are **point lights**, this is, they emit light in all directions. The `World` class controls the sun light, which is a directional light that emits in one specific direction.
 
-# Const TYPE_DIRECTIONAL : Int
-# Const TYPE_POINT : Int
-
-# Method New(type:Int = TYPE_DIRECTIONAL, parent:Entity = Null)
-Creates a new light source with the specified type.
-
-# Method Type:Int() Property
-Returns the type of the specified light. It can take one of the following values:
-
-| Value                | Meaning
-| Light.TYPE_DIRECTIONAL | A directional light. This light behaves as a light source coming from infinity with the direction specified by its rotation. This type of light is commonly used to represent the sun.
-| Light.TYPE_POINT       | A point light. This light is placed at a position in the 3D space, and attenuates with distance based on its maximum radius, which can be set with the `Radius` property.
-
-
-# Method Type:Void(type:Int) Property
-Sets the type of the specified light. It can take one of the following values:
-
-| Value                | Meaning
-| Light.TYPE_DIRECTIONAL | A directional light. This light behaves as a light source coming from infinity with the direction specified by its rotation. This type of light is commonly used to represent the sun.
-| Light.TYPE_POINT       | A point light. This light is placed at a position in the 3D space, and attenuates with distance based on its maximum radius, which can be set with the `Radius` property.
+# Method New(parent:Entity = Null)
+Creates a new point light.
 
 # Method Color:Int() Property
 Returns the color of the light.
@@ -1197,6 +1177,21 @@ Returns the entity with the specified index, which goes in the range `0 ... NumE
 
 # Function FindEntity:Entity(name:String)
 Returns the entitiy with the specified name, or `Null` if it does not exist.
+
+# Function SunPitch:Float()
+Returns the pitch rotation of the sun.
+
+# Function SunYaw:Float()
+Returns the yaw rotation of the sun.
+
+# Function SetSunRotation:Void(pitch:Float, yaw:Float)
+Sets the rotation of the sun.
+
+# Function SunColor:Int()
+Returns the color of the sun. Default is `Color.WHITE`.
+
+# Function SetSunColor:Void(color:Int)
+Sets the color of the sun. Setting it to `Color.BLACK` disables the sun light.
 
 # Function Ambient:Int()
 Returns the ambient color of the world (this is, the lighting that will be received by all geometry independent from the light sources).

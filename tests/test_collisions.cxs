@@ -48,9 +48,8 @@ Public
 		'Create level
 		CreateLevel()
 		
-		'Create light
-		mLight = New Light()
-		mLight.SetRotation(15, 60, 0)
+		'Setup lighting
+		World.SetSunRotation(15, 60)
 
 		Return False
 	End

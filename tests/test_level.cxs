@@ -41,6 +41,9 @@ Public
 		'Create model
 		mModel = New Model(Cache.LoadMesh("ruin.msh.dat"))
 		
+		'Disable sun
+		World.SetSunColor(Color.BLACK)
+		
 		Return False
 	End
 	

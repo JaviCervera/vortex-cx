@@ -47,6 +47,9 @@ Public
 		mSprite.LastFrame -= 3	'Skip the last three frames in the animation, since they are empty
 		mSprite.FPS = 16
 		
+		'Disable sun
+		World.SetSunColor(Color.BLACK)
+		
 		Return False
 	End
 	

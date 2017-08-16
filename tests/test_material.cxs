@@ -28,7 +28,6 @@ Public
 		Print "API version name: " + Stats.APIVersionName()
 		Print "Shading version name: " + Stats.ShadingVersionName()
 		Print "Shader compilation: " + Stats.ShaderError()
-		World.SetAmbient(Color.WHITE)
 		
 		'Load font
 		mFont = Cache.LoadFont("system.fnt.dat")
@@ -49,8 +48,12 @@ Public
 		'mModel.Material.RefractionCoef = 0.98
 		
 		'Create light attached to camera
-		mLight = New Light(Light.TYPE_POINT, mCam)
+		mLight = New Light(mCam)
 		mLight.Radius = 10
+		
+		'Disable sun and setup lighting
+		World.SetSunColor(Color.BLACK)
+		World.SetAmbient(Color.WHITE)
 			
 		Return False
 	End

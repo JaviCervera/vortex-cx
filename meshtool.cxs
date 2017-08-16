@@ -51,9 +51,6 @@ Public
 		mCam.ClearColor = Color.RGB(100, 100, 100)
 		mCam.Far = 5000
 		
-		'Add directional light
-		mLight = New Light(Light.TYPE_DIRECTIONAL)
-		
 		mLastMouseX = MouseX()
 		mLastMouseY = MouseY()
 		mFreeLook = False
@@ -98,8 +95,7 @@ Public
 		'Update light rotation
 		mTempVec.Set(-mCam.WorldX, -mCam.WorldY, -mCam.WorldZ)
 		mTempVec.Normalize()
-		mLight.Pitch = mTempVec.Pitch
-		mLight.Yaw = mTempVec.Yaw
+		World.SetSunRotation(mTempVec.Pitch, mTempVec.Yaw)
 		
 		'Update mouse
 		mLastMouseX = MouseX()
@@ -119,7 +115,6 @@ Public
 	End
 Private
 	Field mCam			: Camera
-	Field mLight		: Light
 	Field mModel		: Model
 	Field mGui			: Gui
 	Field mLastMouseX	: Float

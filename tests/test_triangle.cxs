@@ -41,9 +41,9 @@ Public
 		Local tri:Surface = New Surface()
 		tri.Material.Culling = False
 		tri.AddTriangle(0, 1, 2)
-		tri.AddVertex(0,0.5,0,     0,0,-1, Color.RED,		0,0)
+		tri.AddVertex(0,0.5,0,     0,0,-1, Color.RED,	0,0)
 		tri.AddVertex(0.5,-0.5,0,  0,0,-1, Color.GREEN,	0,0)
-		tri.AddVertex(-0.5,-0.5,0, 0,0,-1, Color.BLUE,		0,0)
+		tri.AddVertex(-0.5,-0.5,0, 0,0,-1, Color.BLUE,	0,0)
 		
 		'Create mesh
 		Local mesh:Mesh = New Mesh()
@@ -51,6 +51,9 @@ Public
 		
 		'Create triangle model
 		mModel = New Model(mesh)
+		
+		'Disable sun
+		World.SetSunColor(Color.BLACK)
 		
 		Return False
 	End

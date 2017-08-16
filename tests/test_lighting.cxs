@@ -51,9 +51,9 @@ Public
 		Next
 		
 		'Create lights
-		mLights[0] = New Light(Light.TYPE_POINT)
-		mLights[1] = New Light(Light.TYPE_POINT)
-		mLights[2] = New Light(Light.TYPE_POINT)
+		mLights[0] = New Light
+		mLights[1] = New Light
+		mLights[2] = New Light
 		mLights[0].Radius = 48
 		mLights[1].Radius = 48
 		mLights[2].Radius = 48
@@ -63,6 +63,9 @@ Public
 		mLights[0].Yaw = 0
 		mLights[1].Yaw = 120
 		mLights[2].Yaw = 240
+		
+		'Disable sun
+		World.SetSunColor(Color.BLACK)
 		
 		Return False
 	End

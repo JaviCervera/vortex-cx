@@ -36,7 +36,7 @@ Public
 		mCam = New Camera()
 		mCam.SetPosition(0, 64, -128)
 		mCam.SetRotation(10, 0, 0)
-		mCam.ClearColor = Color.WHITE
+		mCam.ClearColor = Color.RGB(15, 15, 15)
 		
 		'Load swat model
 		mSwatModel = New Model(Cache.LoadMesh("swat.msh.dat", "swat.skl.dat", "swat.anm.dat"))
@@ -77,12 +77,11 @@ Public
 		
 		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.SetColor(Color.BLACK)
+		Renderer.SetColor(Color.WHITE)
 		mFont.Draw(4, DeviceHeight() - 20, "Frame: " + Int(mDwarfModel.CurrentFrame))
 		
 		'Draw FPS
-		Renderer.SetColor(Color.BLACK)
-		Local text$ = Stats.FPS() + " FPS"
+		Local text:String = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls

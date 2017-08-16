@@ -50,6 +50,9 @@ Public
 			x += 2; If x >= 8 Then x = -8; z += 2
 		Next
 		
+		'Disable sun
+		World.SetSunColor(Color.BLACK)
+		
 		Return False
 	End
 	

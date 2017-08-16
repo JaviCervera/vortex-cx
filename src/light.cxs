@@ -10,12 +10,12 @@ Public
 Import entity
 
 Class Light Extends Entity Final
-	Const TYPE_DIRECTIONAL	: Int = 0
-	Const TYPE_POINT		: Int = 1
+	'Const TYPE_DIRECTIONAL	: Int = 0
+	'Const TYPE_POINT		: Int = 1
 	
-	Method New(type:Int = TYPE_DIRECTIONAL, parent:Entity = Null)
+	Method New(parent:Entity = Null)
 		Super.New(parent)
-		mType = Clamp(type, TYPE_DIRECTIONAL, TYPE_POINT)
+		'mType = Clamp(type, TYPE_DIRECTIONAL, TYPE_POINT)
 		mColor = color.Color.WHITE
 		Radius = 100
 		Visible = True
@@ -48,6 +48,7 @@ Class Light Extends Entity Final
 		Return 0
 	End
 	
+	#Rem
 	Method Type:Int() Property
 		Return mType
 	End
@@ -55,6 +56,7 @@ Class Light Extends Entity Final
 	Method Type:Void(type:Int) Property
 		mType = type
 	End
+	#End
 	
 	Method Color:Int() Property
 		Return mColor
@@ -65,15 +67,17 @@ Class Light Extends Entity Final
 	End
 	
 	Method _PrepareForRender:Void()
+		#Rem
 		If mType = TYPE_DIRECTIONAL
 			mTempQuat.SetEuler(Pitch, Yaw, Roll)
 			mTempQuat.Mul(0, 0, -1)
 			Renderer.ViewMatrix().Mul(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, 0.0)
 			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 0.0, color.Color.Red(mColor) / 255.0, color.Color.Green(mColor) / 255.0, color.Color.Blue(mColor) / 255.0, Radius)
 		Else
+		#End
 			Renderer.ViewMatrix().Mul(WorldX, WorldY, WorldZ, 1.0)
 			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 1.0, color.Color.Red(mColor) / 255.0, color.Color.Green(mColor) / 255.0, color.Color.Blue(mColor) / 255.0, Radius)
-		End
+		'End
 	End
 	
 	Method _Number:Int() Property

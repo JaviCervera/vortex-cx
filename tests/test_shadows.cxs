@@ -29,25 +29,23 @@ Public
 		Print "Shading version name: " + Stats.ShadingVersionName()
 		Print "Shader compilation: " + Stats.ShaderError()
 		
-		'Enable shadows
-		World.SetShadows(True, 250, 500, 0.005)
-		World.SetAmbient(Color.RGB(155, 155, 155))
-		
 		'Load font
 		mFont = Cache.LoadFont("system.fnt.dat")
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.SetPosition(0, 100, -300)
+		mCam.SetPosition(0, 100, -260)
 		mCam.SetRotation(15, 0, 0)
 		mCam.ClearColor = Color.RGB(50, 25, 55)
 		
 		'Create model
 		mModel = New Model(Cache.LoadMesh("low-poly-mill.msh.dat"))
+		mModel.Yaw = 100
 		
-		'Create light
-		Local light:Light = New Light()
-		light.SetRotation(45, 225, 0)
+		'Setup lighting
+		World.SetSunRotation(45, 225)
+		World.SetAmbient(Color.RGB(155, 155, 155))
+		World.SetShadows(True, 250, 500, 0.005)
 		
 		Return False
 	End
@@ -67,7 +65,10 @@ Public
 		mCam.ViewportHeight = DeviceHeight()
 		
 		'Update model rotation
-		mModel.Yaw -= 32 * Stats.DeltaTime()
+		'mModel.Yaw -= 32 * Stats.DeltaTime()
+		
+		'Update sun rotation
+		World.SetSunRotation(World.SunPitch(), World.SunYaw() + 32 * Stats.DeltaTime())
 		
 		Return False
 	End
@@ -84,7 +85,7 @@ Public
 		
 		'Draw FPS
 		Renderer.SetColor(Color.YELLOW)
-		Local text$ = Stats.FPS() + " FPS"
+		Local text:String = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls

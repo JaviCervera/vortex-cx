@@ -44,13 +44,16 @@ Public
 		'mModel.Yaw = 180.0
 		
 		'Create lights
-		mLights[0] = New Light(Light.TYPE_POINT)
+		mLights[0] = New Light
 		'mLights[0].SetRotation(45, -45, 0)
 		mLights[0].SetPosition(32, 0, 32)
 		mLights[0].Color = Color.RGB(125, 161, 191)
-		mLights[1] = New Light(Light.TYPE_POINT)
+		mLights[1] = New Light
 		mLights[1].SetPosition(-32, 32, -32)
 		mLights[1].Color = Color.RGB(255, 100, 0)
+		
+		'Disable sun
+		World.SetSunColor(Color.BLACK)
 
 		Return False
 	End
