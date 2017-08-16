@@ -17,7 +17,7 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 		mMesh = mesh
 		mMaterials = New Material[mMesh.NumSurfaces]
 		For Local i:Int = 0 Until mMaterials.Length
-			mMaterials[i] = New Material(mMesh.Surface(i).Material)', Self)
+			mMaterials[i] = New Material(mMesh.Material(i))', Self)
 		Next
 		mAnimMatrices = New Mat4[mesh.NumBones]
 		For Local i:Int = 0 Until mAnimMatrices.Length

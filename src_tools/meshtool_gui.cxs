@@ -62,18 +62,12 @@ Public
 				Local filename:String = currentModel.Mesh.Filename
 				If filename = ""
 					filename = RequestFile("Save mesh", "Mesh Files:msh.dat;All Files:*", True)
-					currentModel.Mesh.Filename = filename
-				Else
-					filename = StripExt(StripExt(filename)) + ".msh.dat"
+					If filename <> "" Then currentModel.Mesh.Filename = filename
 				End
 				'If filename <> "" Then SaveMeshXML(currentMesh, filename, mExportAnimations)
 				If filename <> ""
 					'Save mesh
-					If mExportAnimations And currentModel.Mesh.NumBones > 0
-						SaveMesh(currentModel.Mesh, filename, True)
-					Else
-						SaveMesh(currentModel.Mesh, filename, False)
-					End
+					SaveMesh(currentModel.Mesh, StripExt(StripExt(filename)) + ".msh.dat", mExportAnimations And currentModel.Mesh.NumBones > 0)
 					
 					'Save skeleton and animations
 					If mExportAnimations And currentModel.Mesh.NumBones > 0
@@ -268,8 +262,8 @@ Public
 				currentModel.Material(mSelMat).DepthWrite = Not currentModel.Material(mSelMat).DepthWrite
 			End
 			
-			'Set the original surface material, because that's used by the exporter
-			currentModel.Mesh.Surface(mSelMat).Material.Set(currentModel.Material(mSelMat))
+            'Set the original mesh material, because that's used by the exporter
+            currentModel.Mesh.Material(mSelMat).Set(currentModel.Material(mSelMat))
 		End
 		
 		'This events can be responded if there is no loaded mesh

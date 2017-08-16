@@ -686,7 +686,8 @@ Sets the blend mode of the material. This defines how the final look of the geom
 It takes one of the following values:
 
 | Value             | Meaning
-| Renderer.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background. This is the default value.
+| Renderer.BLEND_SOLID | The object is solid and it is not blended with the background. This is the default value.
+| Renderer.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
 | Renderer.BLEND_ADD   | The computed color of the material is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
 | Renderer.BLEND_MUL   | The computed color of the material is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
 
@@ -711,8 +712,7 @@ Returns whether depth buffer writing is enabled or not.
 # Class Mesh
 
 A mesh is the description of a set of geometry (triangles), materials and optional animations that belong to one object.
-For every material that we need, there will be a surface in the mesh containing the geometry to be drawn with that material.
-The standard way to draw a mesh on the 3D space is by adding it to a RenderList, together with a transformation matrix that defines its position, rotation and scale. A mesh can be added mutiple times to the same RenderList, using different transformation matrices.
+For every material that we have, there will be a surface in the mesh containing the geometry to be drawn with that material.
 
 # Method New()
 Creates a new empty mesh.
@@ -727,20 +727,24 @@ Loads the skeleton data from the specified DataBuffer and adds it to the mesh. Y
 Loads the animation data from the specified DataBuffer and adds it to the mesh. You can call this funcion several times to add different animation sequences.
 
 # Method Discard:Void(discardTextures:Bool = True)
-When you don't need to use this mesh anymore (for example, if you have removed it from all render lists and won't add it ever again), you should use this function to deallocate its resources. The parameter `discardTextures` indicates whether the textures used by this mesh should be discarded too. You don't need to call this method for meshes loaded with the `Cache` class.
+When you don't need to use this mesh anymore, you should use this function to deallocate its resources. The parameter `discardTextures` indicates whether the textures used by this mesh should be discarded too. You don't need to call this method for meshes loaded with the `Cache` class.
 
 # Method Filename:String() Property
 Returns the filename assigned to this mesh when it was created.
 
-# Method AddSurface:Void(surf:Surface)
+# Method AddSurface:Void(surf:Surface, mat:Material = Null)
 Creates a new surface on the mesh and returns its handle.
 A surface is a set of geometry that use the same material and it's attached to a same bone (if the mesh is animated).
+If you don't provide a material, a new one will be created automatically for the surface.
 
 # Method NumSurfaces:Int() Property
 Returns the number of surfaces that this mesh contains.
 
 # Method Surface:Surface(index:Int) Property
-Returns a surface contained in the mesh. The value of `index` must be in the range `[0, GetNumSurfaces()-1]`.
+Returns a surface contained in the mesh. The value of `index` must be in the range `0 .. NumSurfaces - 1`.
+
+# Method Material:Material(index:Int)
+Returns a material contained in the mesh. The value of `index` must be in the range `0 .. NumSurfaces - 1`.
 
 # Method NumFrames:Void(lastFrame:Int) Property
 Sets the number of animation frames for the mesh. You should call this method only when generating an animated mesh procedurally, but not when loading the mesh from disk.
@@ -866,7 +870,8 @@ Setup the context for 2D painting. The parameters define the rectangle within th
 Sets the blend mode to use when painting. Possible values are:
 
 | Value       | Meaning
-| Renderer.BLEND_ALPHA | The computed alpha value (taking into account both opacity and texture alpha values) is used to blend with the background. This is the default value.
+| Renderer.BLEND_SOLID | The object is solid and it is not blended with the background. This is the default value.
+| Renderer.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
 | Renderer.BLEND_ADD   | The computed color is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
 | Renderer.BLEND_MUL   | The computed color is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
 
@@ -995,20 +1000,17 @@ Get the version of the shading language supported by this machine (currently, th
 
 The surface class contains a set of geometry (vertices and indices that form triangles) and a material to draw that geometry.
 
-# Method New(material:Material = Null)
-Creates a new surface. If a material is passed, it will be copied. If not, a new material will be created for the surface.
+# Method New()
+Creates a new surface.
 
 # Method New(other:Surface)
 Creates a new surface that is a copy of the one passed as parameter.
 
-# Method Discard:Void(discardTextures:Bool = False)
-Deallocates all the resources used by this surface. You don't normally need to call this method directly, since meshes call this method on all their surfaces when the mesh itself is freed. The parameter `discardTextures` indicates whether the textures used by this mesh should be discarded too.
+# Method Discard:Void()
+Deallocates all the resources used by this surface. You don't normally need to call this method directly, since meshes call this method on all their surfaces when the mesh itself is freed.
 
 # Method Set:Void(other:Surface)
 Sets this surface's material and geometry data to copy those of the mesh passed as parameter. The surface is automatically rebuilt.
-
-# Method Material:Material() Property
-Returns the material that this surface uses.
 
 # Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
 Adds a new triangle to the surface. A triangle contains three indices, that reference the vertices in the surface. Returns the index of the triangle within the surface.

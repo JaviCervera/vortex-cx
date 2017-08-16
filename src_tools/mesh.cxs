@@ -149,7 +149,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 		Local boneWeightsStr:String[] = surfaceNode.GetChild("bone_weights", "").value.Split(",")
 
 		'Create surface
-		Local surf:Surface = New Surface(materialsMap.Get(materialStr))
+		Local surf:Surface = New Surface
 		Local indicesLen:Int = indicesStr.Length()
 		For Local j:Int = 0 Until indicesLen Step 3
 			surf.AddTriangle(Int(indicesStr[j]), Int(indicesStr[j+1]), Int(indicesStr[j+2]))
@@ -233,7 +233,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 			surf.SetVertexBone(vertex, 3, b3, w3)
 		Next
 
-		mesh.AddSurface(surf)
+		mesh.AddSurface(surf, materialsMap.Get(materialStr))
 	Next
 
 	'Parse number of frames
@@ -373,8 +373,7 @@ End
 
 Function SurfaceSize:Int(surf:Surface, includeBones:Bool)
 	'Header
-	Local size:Int = MaterialSize(surf.Material)	'Material
-	size += 4										'NumIndices
+	Local size:Int = 4								'NumIndices
 	size += 2										'NumVertices
 	size += 1										'Vertex flags
 	
@@ -398,6 +397,7 @@ Function MeshSize:Int(mesh:Mesh, includeBones:Bool)
 	
 	'Surfaces
 	For Local i:Int = 0 Until mesh.NumSurfaces
+		size += MaterialSize(mesh.Material(i))
 		size += SurfaceSize(mesh.Surface(i), includeBones)
 	Next
 	
@@ -443,9 +443,6 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 End
 
 Function WriteSurfaceData:Void(stream:DataStream, surf:Surface, includeBones:Bool)
-	'Material
-	WriteMaterialData(stream, surf.Material)
-	
 	'Number of indices and vertices
 	stream.WriteInt(surf.NumTriangles * 3)
 	stream.WriteShort(surf.NumVertices)
@@ -526,6 +523,7 @@ Function CreateMeshData:DataBuffer(mesh:Mesh, includeBones:Bool)
 	
 	'Surfaces
 	For Local i:Int = 0 Until mesh.NumSurfaces
+		WriteMaterialData(stream, mesh.Material(i))
 		WriteSurfaceData(stream, mesh.Surface(i), includeBones)
 	Next
 	

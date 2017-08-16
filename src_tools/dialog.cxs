@@ -32,7 +32,7 @@ Global _requestedBlue:Int
 Public
 
 Function RequestColor:Bool(title:String, red:Int, green:Int, blue:Int)
-	Local col:Int = (red & $FF Shl 16) | (green & $FF Shl 8) | (blue & $FF)
+	Local col:Int = ((red & $FF) Shl 16) | ((green & $FF) Shl 8) | (blue & $FF)
 	Local newCol:Int = _RequestColor(title, col)
 	If newCol = col Then Return False
 	_requestedRed = (newCol Shr 16) & $FF

@@ -35,11 +35,10 @@ Public
 		'Create camera
 		mCam = New Camera()
 		mCam.ClearColor = Color.WHITE
-		mCam.SetPosition(0, 0, -3)
+		mCam.SetPosition(0, 0, -2)
 		
 		'Create surface
 		Local tri:Surface = New Surface()
-		tri.Material.Culling = False
 		tri.AddTriangle(0, 1, 2)
 		tri.AddVertex(0,0.5,0,     0,0,-1, Color.RED,	0,0)
 		tri.AddVertex(0.5,-0.5,0,  0,0,-1, Color.GREEN,	0,0)
@@ -48,6 +47,7 @@ Public
 		'Create mesh
 		Local mesh:Mesh = New Mesh()
 		mesh.AddSurface(tri)
+		mesh.Material(0).Culling = False
 		
 		'Create triangle model
 		mModel = New Model(mesh)

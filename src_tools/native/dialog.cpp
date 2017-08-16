@@ -39,7 +39,7 @@ String RequestFile(String title, String filters, bool save, String file) {
   if ( !save ) {
     fname = tinyfd_openFileDialog(title.ToCString<char>(), file.ToCString<char>(), 0, NULL, NULL, 0);
   } else {
-    fname = tinyfd_openFileDialog(title.ToCString<char>(), file.ToCString<char>(), 0, NULL, NULL, 0);
+    fname = tinyfd_saveFileDialog(title.ToCString<char>(), file.ToCString<char>(), 0, NULL, NULL);
   }
   
   if ( fname != NULL) {

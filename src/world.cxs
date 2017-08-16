@@ -31,7 +31,7 @@ Class World Final
 			Cache.Push()
 			Stats._Init()
 			mSkybox = Primitive.CreateSkybox()
-			mSkybox.Surface(0).Material.DepthWrite = False
+			mSkybox.Material(0).DepthWrite = False
 			SetSunRotation(45, -45)
 			SetSunColor(Color.WHITE)
 			SetAmbient(Color.RGB(75, 75, 75))
@@ -164,8 +164,8 @@ Class World Final
 	End
 	
 	Function SetSkyboxTexture:Void(tex:Texture)
-		mSkybox.Surface(0).Material.DiscardTextures()
-		mSkybox.Surface(0).Material.BaseTexture = tex
+		mSkybox.Material(0).DiscardTextures()
+		mSkybox.Material(0).BaseTexture = tex
 	End
 	
 	Function NumEntities:Int()
@@ -373,7 +373,7 @@ Class World Final
 	Function _DrawSkybox:Void(x:Float, y:Float, z:Float)
 		mSkyboxMatrix.SetTransform(x, y, z, 0, 0, 0, 10, 10, 10)
 		Renderer.SetModelMatrix(mSkyboxMatrix)
-		mSkybox.Surface(0).Material.Prepare(1)
+		mSkybox.Material(0).Prepare(1)
 		mSkybox.Surface(0)._Render()
 	End
 	

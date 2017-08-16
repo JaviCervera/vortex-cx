@@ -1,8 +1,6 @@
 'TODO v2.0-beta:
-'- Surfaces will not have a material anymore (a mesh will have an array of surfaces and an array of materials)
-'- add a BUILD_FOR_MONKEY const to support Monkey apart from Cerberus
-'- Add size suffix to fonts in fonttool
 '- Replace number of frames with animation duration?
+'- Add size suffix to fonts in fonttool
 'TODO v2.0:
 '- Consider switching to Zlib or another license?
 '- Add previous depth pass to avoid computing redundant fragments

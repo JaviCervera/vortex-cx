@@ -3,15 +3,12 @@ Strict
 Private
 Import brl.databuffer
 Import color
-Import material
 Import renderer
 
 Public
 Class Surface Final
 Public
-	Method New(mat:Material = Null)
-		mMaterial = New Material
-		If mat Then mMaterial.Set(mat)'; mMaterial.Delegate = mat.Delegate
+	Method New()
 		mIndices = New DataBuffer(INC * 2, True)
 		mVertices = New DataBuffer(INC * VERTEX_SIZE, True)
 		mNumIndices = 0
@@ -22,7 +19,6 @@ Public
 	End
 	
 	Method New(other:Surface)
-		mMaterial = New Material
 		mIndices = New DataBuffer(INC * 2, True)
 		mVertices = New DataBuffer(INC * VERTEX_SIZE, True)
 		mNumIndices = 0
@@ -33,12 +29,11 @@ Public
 		Set(other)
 	End
 
-	Method Discard:Void(discardTextures:Bool = False)
+	Method Discard:Void()
 		mIndices.Discard()
 		mVertices.Discard()
 		Renderer.FreeBuffer(mIndexBuffer)
 		Renderer.FreeBuffer(mVertexBuffer)
-		If discardTextures Then mMaterial.DiscardTextures()
 	End
 	
 	Method Set:Void(other:Surface)
@@ -46,7 +41,6 @@ Public
 		mStatus = STATUS_V_DIRTY | STATUS_I_DIRTY
 		If mNumIndices <> other.mNumIndices Then mStatus |= STATUS_I_RESIZED
 		If mNumVertices <> other.mNumVertices Then mStatus |= STATUS_V_RESIZED
-		mMaterial.Set(other.mMaterial)
 		If mIndices.Length <> other.mIndices.Length
 			mIndices.Discard()
 			mIndices = New DataBuffer(other.mIndices.Length, True)
@@ -60,10 +54,6 @@ Public
 		mNumIndices = other.mNumIndices
 		mNumVertices = other.mNumVertices
 		Rebuild()
-	End
-
-	Method Material:Material() Property
-		Return mMaterial
 	End
 
 	Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
@@ -342,7 +332,6 @@ Private
 	Const STATUS_I_DIRTY	: Int = 4
 	Const STATUS_I_RESIZED	: Int = 8
 
-	Field mMaterial		: Material
 	Field mIndices		: DataBuffer
 	Field mVertices		: DataBuffer
 	Field mNumIndices	: Int

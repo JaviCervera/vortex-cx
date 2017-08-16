@@ -19,6 +19,7 @@ Public
 	Method New()
 		mFilename = ""
 		mSurfaces = New Surface[0]
+		mMaterials = New Material[0]
 		mBones = New Bone[0]
 		mNumFrames = 0
 		mBoxMin = Vec3.Create()
@@ -27,12 +28,16 @@ Public
 	
 	Method New(other:Mesh)
 		mFilename = other.mFilename
-		mSurfaces = New Surface[other.mSurfaces.Length()]
-		For Local i:Int = 0 Until other.mSurfaces.Length()
+		mSurfaces = New Surface[other.mSurfaces.Length]
+		For Local i:Int = 0 Until other.mSurfaces.Length
 			mSurfaces[i] = New Surface(other.mSurfaces[i])
 		Next
-		mBones	= New Bone[other.mBones.Length()]
-		For Local i:Int = 0 Until other.mBones.Length()
+		mMaterials = New Material[other.mMaterials.Length]
+		For Local i:Int = 0 Until other.mMaterials.Length
+			mMaterials[i] = New Material(other.mMaterials[i])
+		Next
+		mBones	= New Bone[other.mBones.Length]
+		For Local i:Int = 0 Until other.mBones.Length
 			mBones[i] = New Bone(other.mBones[i])
 		Next
 		mNumFrames = other.mNumFrames
@@ -128,8 +133,13 @@ Public
 
 	Method Discard:Void(discardTextures:Bool = True)
 		For Local surf:Surface = Eachin mSurfaces
-			surf.Discard(discardTextures)
+			surf.Discard()
 		Next
+		If discardTextures
+			For Local mat:Material = Eachin mMaterials
+				mat.DiscardTextures()
+			Next
+		End
 	End
 	
 	Method Filename:Void(filename:String) Property
@@ -140,19 +150,26 @@ Public
 		Return mFilename
 	End
 
-	Method AddSurface:Void(surf:Surface)
-		mSurfaces = mSurfaces.Resize(mSurfaces.Length() + 1)
-		mSurfaces[mSurfaces.Length()-1] = surf
+	Method AddSurface:Void(surf:Surface, mat:Material = Null)
+		If mat = Null Then mat = New Material
+		mSurfaces = mSurfaces.Resize(mSurfaces.Length + 1)
+		mSurfaces[mSurfaces.Length-1] = surf
 		UpdateBoundingBox()
 		surf.Rebuild()
+		mMaterials = mMaterials.Resize(mMaterials.Length + 1)
+		mMaterials[mMaterials.Length-1] = mat
 	End
 
 	Method NumSurfaces:Int() Property
-		Return mSurfaces.Length()
+		Return mSurfaces.Length
 	End
 
 	Method Surface:Surface(index:Int)
 		Return mSurfaces[index]
+	End
+	
+	Method Material:Material(index:Int)
+		Return mMaterials[index]
 	End
 
 	Method NumFrames:Void(numFrames:Int) Property
@@ -352,17 +369,16 @@ Public
 		'Surfaces
 		Local numSurfaces:Int = stream.ReadShort()
 		For Local s:Int = 0 Until numSurfaces
-			Local surf:Surface = New Surface()
-		
 			'Material
+			Local mat:Material = New Material
 			Local flags:Int = 0
-			surf.Material.Color = stream.ReadInt()
-			surf.Material.BlendMode = stream.ReadByte()
+			mat.Color = stream.ReadInt()
+			mat.BlendMode = stream.ReadByte()
 			flags = stream.ReadByte()
-			If flags & 1 Then surf.Material.Culling = True Else surf.Material.Culling = False
-			If flags & 2 Then surf.Material.DepthWrite = True Else surf.Material.DepthWrite = False
-			surf.Material.Shininess = stream.ReadFloat()
-			surf.Material.RefractionCoef = stream.ReadFloat()
+			If flags & 1 Then mat.Culling = True Else mat.Culling = False
+			If flags & 2 Then mat.DepthWrite = True Else mat.DepthWrite = False
+			mat.Shininess = stream.ReadFloat()
+			mat.RefractionCoef = stream.ReadFloat()
 			
 			'Material textures
 			Local usedTexs:Int = 0
@@ -371,7 +387,7 @@ Public
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
-				surf.Material.BaseTexture = Cache.LoadTexture(str, texFilter)
+				mat.BaseTexture = Cache.LoadTexture(str, texFilter)
 			End
 			If usedTexs & 2
 				Local strLen:Int = stream.ReadInt()
@@ -379,19 +395,19 @@ Public
 				For Local t:Int = 0 Until cubeTexs.Length
 					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
 				Next
-				surf.Material.BaseTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				mat.BaseTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
 			End
 			If usedTexs & 4
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
-				surf.Material.NormalTexture = Cache.LoadTexture(str, texFilter)
+				mat.NormalTexture = Cache.LoadTexture(str, texFilter)
 			End
 			If usedTexs & 8
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
-				surf.Material.LightTexture = Cache.LoadTexture(str, texFilter)
+				mat.LightTexture = Cache.LoadTexture(str, texFilter)
 			End
 			If usedTexs & 16
 				Local strLen:Int = stream.ReadInt()
@@ -399,7 +415,7 @@ Public
 				For Local t:Int = 0 Until cubeTexs.Length
 					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
 				Next
-				surf.Material.ReflectionTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				mat.ReflectionTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
 			End
 			If usedTexs & 32
 				Local strLen:Int = stream.ReadInt()
@@ -407,8 +423,11 @@ Public
 				For Local t:Int = 0 Until cubeTexs.Length
 					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
 				Next
-				surf.Material.RefractionTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				mat.RefractionTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
 			End
+			
+			'Surface
+			Local surf:Surface = New Surface
 			
 			'Number of indices and vertices
 			Local numIndices:Int = stream.ReadInt()
@@ -501,7 +520,8 @@ Public
 				surf.SetVertexBone(v, 3, b3, w3)
 			Next
 			
-			mesh.AddSurface(surf)
+			'Add to mesh
+			mesh.AddSurface(surf, mat)
 		Next
 		
 		stream.Close()
@@ -513,6 +533,7 @@ Public
 Private
 	Field mFilename		: String
 	Field mSurfaces		: Surface[]
+	Field mMaterials	: Material[]
 	Field mBones		: Bone[]
 	Field mNumFrames	: Int
 	Field mBoxMin		: Vec3
