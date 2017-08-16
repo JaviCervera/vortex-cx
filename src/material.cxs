@@ -23,7 +23,7 @@ Public
 		mBaseTex = baseTex
 		mShininess = 0
 		mRefractCoef = 1
-		mBlendMode = Renderer.BLEND_ALPHA
+		mBlendMode = Renderer.BLEND_SOLID
 		mCulling = True
 		mDepthWrite = True
 		mTextureMatrix = Mat4.Create()

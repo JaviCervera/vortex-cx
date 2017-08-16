@@ -3,9 +3,10 @@ Strict
 Private
 Import collision
 Import listener
+Import material
+Import math3d
 Import mojo.audio
-Import vortex
-Import vortex.src.math3d
+Import renderer
 Import world
 
 Public

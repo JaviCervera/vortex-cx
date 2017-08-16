@@ -374,6 +374,8 @@ Public
 			DrawPanel(mMaterialRect.x + mShininessRect.x, mMaterialRect.y + mShininessRect.y, mShininessRect.width, mShininessRect.height, "Shininess: " + String(currentModel.Material(mSelMat).Shininess)[..4], mFont)
 			Local blendStr:String = ""
 			Select currentModel.Material(mSelMat).BlendMode
+			Case Renderer.BLEND_SOLID
+				blendStr = "Solid"
 			Case Renderer.BLEND_ALPHA
 				blendStr = "Alpha"
 			Case Renderer.BLEND_ADD

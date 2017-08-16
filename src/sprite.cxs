@@ -21,6 +21,7 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 		Super.New(parent)
 		mOrientation = orientation
 		mMaterial = New Material(texture)', Self)
+		mMaterial.BlendMode = Renderer.BLEND_ALPHA
 		mMaterial.Culling = False
 		
 		

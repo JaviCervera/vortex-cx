@@ -1,9 +1,11 @@
 'TODO v2.0-beta:
-'- Add a SOLID blend mode
+'- Surfaces will not have a material anymore (a mesh will have an array of surfaces and an array of materials)
+'- add a BUILD_FOR_MONKEY const to support Monkey apart from Cerberus
 '- Add size suffix to fonts in fonttool
 '- Replace number of frames with animation duration?
 'TODO v2.0:
 '- Consider switching to Zlib or another license?
+'- Add previous depth pass to avoid computing redundant fragments
 '- Shadows should only be cast if objects are close enough to the camera
 '- Integrate with Mojo
 '- Add PCF to shadows
@@ -13,7 +15,6 @@
 '- Document tools
 'TODO v2.1:
 '- Add particles
-'- Add previous depth pass to avoid computing redundant fragments
 '- Add spot lights
 '- Add multiple shadows
 '- Add several shaders: unlit, vlit, flit, with static and skinned modes

@@ -20,31 +20,12 @@ Import stats
 Import surface
 Import texture
 
-Class Box	
-	Method New()
-		mMin = Vec3.Create()
-		mMax = Vec3.Create()
-	End
-	
-	Method New(x0:Float, y0:Float, z0:Float, x1:Float, y1:Float, z1:Float)
-		Self.mMin = Vec3.Create(x0, y0, z0)
-		Self.mMax = Vec3.Create(x1, y1, z1)
-	End
-	
-	Method Min:Vec3() Property
-		Return mMin
-	End
-	
-	Method Max:Vec3() Property
-		Return mMax
-	End
-Private
-	Field mMin	: Vec3
-	Field mMax	: Vec3
-End
-
 Public
 Class World Final
+	'Const STEP_SOLID:Int = 0	'Objects in solid blend with depth writing
+	'Const STEP_DEPTH:Int = 1	'Objects in non solid blend with depth writing
+	'Const STEP_NODEPTH:Int = 1	'Object without depth writing
+	
 	Function Init:Bool(numLights:Int = 4, numBones:Int = 75)
 		If Renderer.Init(numLights, numBones)
 			Cache.Push()
@@ -80,6 +61,11 @@ Class World Final
 		Stats._UpdateFPS()
 		'Stats._SetRenderCalls(0)
 		Local numRenderCalls:Int = 0
+		
+		'Clear render lists
+		'mSolidList.Clear()
+		'mDepthList.Clear()
+		'mNoDepthList.Clear()
 		
 		'Is there sun light?
 		Local sunLightEnabled:Bool = False
@@ -419,9 +405,73 @@ Private
 	Global mDepthEpsilon		: Float
 	Global mDepthProj			: Mat4 = Mat4.Create()
 	Global mDepthView			: Mat4 = Mat4.Create()
+	'Global mSolidList			: List<RenderCall> = New List<RenderCall>
+	'Global mDepthList			: List<RenderCall> = New List<RenderCall>
+	'Global mNoDepthList			: List<RenderCall> = New List<RenderCall>
 	Global mColBoxes			: Box[0]
 	Global mTempQuat			: Quat = Quat.Create()
 	
 	Method New()
 	End
 End
+
+Private
+
+Class Box	
+	Method New()
+		mMin = Vec3.Create()
+		mMax = Vec3.Create()
+	End
+	
+	Method New(x0:Float, y0:Float, z0:Float, x1:Float, y1:Float, z1:Float)
+		Self.mMin = Vec3.Create(x0, y0, z0)
+		Self.mMax = Vec3.Create(x1, y1, z1)
+	End
+	
+	Method Min:Vec3() Property
+		Return mMin
+	End
+	
+	Method Max:Vec3() Property
+		Return mMax
+	End
+Private
+	Field mMin	: Vec3
+	Field mMax	: Vec3
+End
+
+#Rem
+Class RenderCall
+Public
+	Method New(surf:Surface, mat:Material, transform:Mat4, animMatrices:Mat4[])
+		mSurface = New List<Surface>
+		mSurface.AddLast(surf)
+		mMaterial = mat
+		mTransform = transform
+		mAnimMatrices = animMatrices
+	End
+	
+	Method New(surfs:List<Surface>, mat:Material, transform:Mat4, animMatrices:Mat4[])
+		mSurfaces = surfs
+		mMaterial = mat
+		mTransform = transform
+		mAnimMatrices = animMatrices
+	End
+	
+	Method Render:Int()
+		Local numRenders:Int = 0
+		Renderer.SetModelMatrix(mTransform)
+		Renderer.SetSkinned(mAnimMatrices.Length > 0)
+		If mAnimMatrices.Length() > 0 Then Renderer.SetBoneMatrices(mAnimMatrices)
+		For Local i:Int = 0 Until mMesh.NumSurfaces
+			If mMaterials[i].Prepare(step_) Then mMesh.Surface(i)._Render(); numRenders += 1
+		Next
+		Return numRenders
+	End
+Private
+	Field mSurfaces		: List<Surface>
+	Field mMaterials	: List<Material>
+	Field mTransform	: Mat4
+	Field mAnimMatrices	: Mat4[]
+End
+#Rem

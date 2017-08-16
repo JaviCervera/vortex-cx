@@ -14,12 +14,15 @@ std::string GenXML(const mesh_t* mesh) {
     buffer += "\t\t\t<blend>";
     switch ( mat.blend ) {
     case 0:
-      buffer += "alpha";
+      buffer += "solid";
       break;
     case 1:
-      buffer += "add";
+      buffer += "alpha";
       break;
     case 2:
+      buffer += "add";
+      break;
+    case 3:
       buffer += "mul";
       break;
     }

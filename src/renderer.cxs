@@ -22,16 +22,19 @@ Public
 
 Class Renderer Final
 Public
-	Const BLEND_ALPHA:Int = 0
-	Const BLEND_ADD:Int = 1
-	Const BLEND_MUL:Int = 2
-	Const ELLIPSEPOINTS:Int = 64
+	Const BLEND_SOLID:Int = 0
+	Const BLEND_ALPHA:Int = 1
+	Const BLEND_ADD:Int = 2
+	Const BLEND_MUL:Int = 3
+	
 	Const FILTER_NONE:Int = 0
 	Const FILTER_LINEAR:Int = 1
 	Const FILTER_BILINEAR:Int = 2
 	Const FILTER_TRILINEAR:Int = 3
-	Const TEXTURE_DISABLED:Int = 0
-	Const TEXTURE_2D:Int = 1
+	
+	'Const TEXTURE_DISABLED:Int = 0
+	'Const TEXTURE_2D:Int = 1
+	
 	Const BASETEX_UNIT:Int = 0
 	Const BASECUBE_UNIT:Int = 1
 	Const NORMALTEX_UNIT:Int = 2
@@ -39,6 +42,8 @@ Public
 	Const REFLECTTEX_UNIT:Int = 4
 	Const REFRACTTEX_UNIT:Int = 5
 	Const DEPTHTEX_UNIT:Int = 6
+	
+	Const ELLIPSEPOINTS:Int = 64
 
 	'---------------------------------------------------------------------------
 	'Setup
@@ -191,7 +196,7 @@ Public
 		SetCulling(True)
 		glFrontFace(GL_CW)
 		SetDepthWrite(True)
-		SetBlendMode(BLEND_ALPHA)
+		SetBlendMode(BLEND_SOLID)
 		SetColor(1,1,1,1)
 		SetSkinned(False)
 
@@ -307,6 +312,8 @@ Public
 
 	Function SetBlendMode:Void(mode:Int)
 		Select mode
+		Case BLEND_SOLID
+			glBlendFunc(GL_ONE, GL_ZERO)
 		Case BLEND_ALPHA
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 		Case BLEND_ADD

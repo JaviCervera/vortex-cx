@@ -119,6 +119,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 		'Create material
 		Local material:Material = New Material(diffuseTex)
 		material.LightTexture = lightmap
+		If blendStr.ToLower() = "solid" Then material.BlendMode = Renderer.BLEND_SOLID
 		If blendStr.ToLower() = "alpha" Then material.BlendMode = Renderer.BLEND_ALPHA
 		If blendStr.ToLower() = "add" Then material.BlendMode = Renderer.BLEND_ADD
 		If blendStr.ToLower() = "mul" Then material.BlendMode = Renderer.BLEND_MUL
@@ -704,6 +705,8 @@ Function SaveMeshXML:Void(mesh:Mesh, filename:String, exportAnimations:Bool)
 		buffer += "~t~t~t<name>Material #" + i + "</name>~n"
 		buffer += "~t~t~t<blend>"
 		Select mat.BlendMode
+		Case Renderer.BLEND_SOLID
+			buffer += "solid"
 		Case Renderer.BLEND_ALPHA
 			buffer += "alpha"
 		Case Renderer.BLEND_ADD
