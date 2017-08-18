@@ -57,6 +57,7 @@ Const STD_VERTEX_VARS:String = "" +
 STD_VARYING_VARS
 
 Const STD_FRAGMENT_VARS:String = "" +
+"uniform bool solidMode;" +
 "uniform int baseTexMode;" +
 "uniform bool useNormalTex;" +
 "uniform bool useLightmap;" +
@@ -199,13 +200,22 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 
 Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING +
 "void main() {" +
+	'First, we read the base texture to discard the fragment immediately if it is transparent
+"	vec4 baseTexture = vec4(1, 1, 1, 1);" +
+"	if ( baseTexMode == 1 ) baseTexture = texture2D(baseTexSampler, ftex);" +
+"	else if ( baseTexMode == 2 ) baseTexture = textureCube(baseCubeSampler, fcubeCoords);" +
+
+	'Reject fragment with low alpha
+"	if ( !solidMode && (fcolor.a <= 0.004 || baseTexture.a <= 0.004) ) discard;" +
+	
 	'Vars
 "	vec4 combinedColor = vec4(1, 1, 1, 1);" +
 "	vec4 combinedSpecular = vec4(0, 0, 0, 0);" +
 
 	'Shadows
 "	bool shadowed = false;" +
-"	if ( shadowsEnabled && texture2D(depthSampler, vec2(fdepthCoords)).z < fdepthCoords.z - depthEpsilon ) shadowed = true;" +
+"	if ( shadowsEnabled && texture2D(depthSampler, vec2(fdepthCoords)).z < fdepthCoords.z - depthEpsilon && fdepthCoords.x >= 0.0 && fdepthCoords.x <= 1.0 && fdepthCoords.y >= 0.0 && fdepthCoords.y <= 1.0 ) shadowed = true;" +
+'"	if ( fdepthCoords.x < 0 || fdepthCoords.x > 1 || fdepthCoords.y < 0 || fdepthCoords.y > 1 ) { gl_FragColor = vec4(1, 0, 1, 1); return; }" +
 
 	'Lighting
 "	if ( numLights > 0 ) {" +
@@ -244,11 +254,7 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 "	combinedColor *= fcolor;" +
 
 	'Base texture
-"	if ( baseTexMode == 1 ) combinedColor *= texture2D(baseTexSampler, ftex);" +
-"	else if ( baseTexMode == 2 ) combinedColor *= textureCube(baseCubeSampler, fcubeCoords);" +
-
-	'Reject fragment with low alpha
-"	if ( combinedColor.a <= 0.004 ) discard;" +
+"	combinedColor *= baseTexture;" +
 
 	'Reflection texture
 "	if ( useReflectTex ) {" +
@@ -262,9 +268,6 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 
 	'Add specular
 "	if ( numLights > 0 && !shadowed ) combinedColor = clamp(combinedColor + combinedSpecular, 0.0, 1.0);" +
-
-'****
-'"	if ( shadowed ) combinedColor *= vec4(ambient, 1);" +
 
 	'Add fog
 "	if ( fogEnabled ) combinedColor = vec4(mix(fogColor, vec3(combinedColor), fogFactor), combinedColor.a);" +

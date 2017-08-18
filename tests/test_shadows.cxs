@@ -45,7 +45,7 @@ Public
 		'Setup lighting
 		World.SetSunRotation(45, 225)
 		World.SetAmbient(Color.RGB(155, 155, 155))
-		World.SetShadows(True, 250, 500, 0.005)
+		World.SetShadows(True, 300)
 		
 		Return False
 	End
@@ -81,7 +81,7 @@ Public
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Render thumbnail of depth view (the closer a fragment is to camera, the darker it looks)
-		World.DepthTexture().Draw(DeviceWidth() - DeviceWidth()/3 - 4, DeviceHeight() - DeviceHeight()/3 - 4, DeviceWidth()/3, -DeviceHeight()/3)
+		'World.DepthTexture().Draw(DeviceWidth() - DeviceWidth()/3 - 4, DeviceHeight() - DeviceHeight()/3 - 4, DeviceWidth()/3, -DeviceHeight()/3)
 		
 		'Draw FPS
 		Renderer.SetColor(Color.YELLOW)

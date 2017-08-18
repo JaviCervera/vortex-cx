@@ -13,7 +13,6 @@ Import listener
 Import material
 Import math3d
 Import mesh
-Import primitive
 Import renderer
 'Import renderlist
 Import stats
@@ -22,15 +21,14 @@ Import texture
 
 Public
 Class World Final
-	'Const STEP_SOLID:Int = 0	'Objects in solid blend with depth writing
-	'Const STEP_DEPTH:Int = 1	'Objects in non solid blend with depth writing
-	'Const STEP_NODEPTH:Int = 1	'Object without depth writing
-	
-	Function Init:Bool(numLights:Int = 4, numBones:Int = 75)
+	Function Init:Bool(numLights:Int = 4, numBones:Int = 75, shadowTexSize:Int = -1)
+		If numLights <= 0 Then numLights = 1
+		If numBones <= 0 Then numBones = 1
 		If Renderer.Init(numLights, numBones)
+			If shadowTexSize = -1 Then shadowTexSize = Min(1024, Stats.MaxTextureSize())
 			Cache.Push()
 			Stats._Init()
-			mSkybox = Primitive.CreateSkybox()
+			mSkybox = Mesh.CreateSkybox()
 			mSkybox.Material(0).DepthWrite = False
 			SetSunRotation(45, -45)
 			SetSunColor(Color.WHITE)
@@ -41,7 +39,7 @@ Class World Final
 			SetFogColor(Color.BLACK)
 			SetGlobalPixelLighting(False)
 			SetShadows(False)
-			mFramebuffer = New Framebuffer(1024, 1024, True)
+			mFramebuffer = New Framebuffer(shadowTexSize, shadowTexSize, True)
 			Return True
 		Else
 			Return False
@@ -59,13 +57,7 @@ Class World Final
 	Function Render:Void()
 		'Update screen fps
 		Stats._UpdateFPS()
-		'Stats._SetRenderCalls(0)
 		Local numRenderCalls:Int = 0
-		
-		'Clear render lists
-		'mSolidList.Clear()
-		'mDepthList.Clear()
-		'mNoDepthList.Clear()
 		
 		'Is there sun light?
 		Local sunLightEnabled:Bool = False
@@ -77,13 +69,20 @@ Class World Final
 		For Local c:Camera = Eachin mCameras
 			'If shadows are enabled, setup shadows
 			If mShadowsEnabled
-				'Setup depth view matrix
+				'Find the point the camera is looking at
+				mTempQuat.SetEuler(c.Pitch, c.Yaw, c.Roll)
+				mTempQuat.Mul(0, 0, mShadowsDistance/2)
+				mTempVec.Set(c.WorldX, c.WorldY, c.WorldZ)
+				mTempVec.Sum(mTempQuat.ResultVector())
+				
+				'Move from that point to the light source
 				mTempQuat.SetEuler(mSunPitch, mSunYaw, 0)
-				mTempQuat.Mul(0, 0, -mDepthFar/2)
-				'mTempQuat.ResultVector().Sum(c.WorldX, c.WorldY, c.WorldZ)
-				mDepthProj.SetOrthoLH(mDepthHeight, c.AspectRatio, 0, mDepthFar)
-				'mDepthView.LookAtLH(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, c.WorldX, c.WorldY, c.WorldZ, 0, 1, 0)
-				mDepthView.LookAtLH(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, 0, 0, 0, 0, 1, 0)
+				mTempQuat.Mul(0, 0, -mShadowsDistance)
+				mTempQuat.ResultVector().Sum(mTempVec)
+				
+				'Setup depth matrices
+				mDepthProj.SetOrthoLH(mShadowsDistance, 1, 0, mShadowsDistance*2)
+				mDepthView.LookAtLH(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, mTempVec.X, mTempVec.Y, mTempVec.Z, 0, 1, 0)
 			
 				'Set framebuffer
 				mFramebuffer.Set()
@@ -95,14 +94,11 @@ Class World Final
 				Renderer.ClearColorBuffer(Color.WHITE)
 				Renderer.ClearDepthBuffer()
 				
-				'Render entities with depth write
+				'Render entities for shadow step
 				For Local e:Entity = Eachin mVisibleEntities
 					'e._PrepareForRender()
-					numRenderCalls += e._Render(0)
+					numRenderCalls += e._Render(Renderer.STEP_SHADOWS)
 				Next
-				
-				'Render list
-				'Stats._SetRenderCalls(Stats.RenderCalls() + mRenderList.Render())
 				
 				'Set screen
 				Framebuffer.SetScreen()
@@ -117,9 +113,9 @@ Class World Final
 			
 			'Set depth data
 			If mShadowsEnabled
-				Renderer.SetDepthData(mDepthProj, mDepthView, DepthTexture().Handle, mDepthEpsilon)
+				Renderer.SetDepthData(mDepthProj, mDepthView, DepthTexture().Handle, mShadowsDistance / 10000.0)
 			Else
-				Renderer.SetDepthData(mDepthProj, mDepthView, 0, mDepthEpsilon)
+				Renderer.SetDepthData(mDepthProj, mDepthView, 0, 0)
 			End
 			
 			'Prepare lighting
@@ -143,24 +139,21 @@ Class World Final
 				Next
 			End
 			
-			'Render entities in two steps
-			For Local step_:Int = 0 Until 2
+			'Render all steps
+			For Local step_:Int = Renderer.STEP_SOLID Until Renderer.STEP_COUNT
 				For Local e:Entity = Eachin mVisibleEntities
-					e._PrepareForRender()
+					If step_ = Renderer.STEP_SOLID Then e._PrepareForRender()
 					numRenderCalls += e._Render(step_)
 				Next
 			End
 			
 			'Set num render calls
 			Stats._SetRenderCalls(numRenderCalls)
-			
-			'Render list
-			'Stats._SetRenderCalls(Stats.RenderCalls() + mRenderList.Render())
 		End
 	End
 
 	Function SkyboxTexture:Texture()
-		Return mSkybox.Surface(0).Material.BaseTexture
+		Return mSkybox.Material(0).BaseTexture
 	End
 	
 	Function SetSkyboxTexture:Void(tex:Texture)
@@ -262,11 +255,9 @@ Class World Final
 		Return mShadowsEnabled
 	End
 	
-	Function SetShadows:Void(enable:Bool, depthHeight:Float = 500, depthFar:Float = 1000, depthEpsilon:Float = 0.009)
+	Function SetShadows:Void(enable:Bool, maxDistance:Float = 100)
 		mShadowsEnabled = enable
-		mDepthHeight = depthHeight
-		mDepthFar = depthFar
-		mDepthEpsilon = depthEpsilon
+		mShadowsDistance = maxDistance
 	End
 	
 	Function DepthTexture:Texture()
@@ -370,10 +361,10 @@ Class World Final
 	End
 	#End
 	
-	Function _DrawSkybox:Void(x:Float, y:Float, z:Float)
+	Function _RenderSkybox:Void(x:Float, y:Float, z:Float)
 		mSkyboxMatrix.SetTransform(x, y, z, 0, 0, 0, 10, 10, 10)
 		Renderer.SetModelMatrix(mSkyboxMatrix)
-		mSkybox.Material(0).Prepare(1)
+		mSkybox.Material(0)._Prepare(Renderer.STEP_NODEPTHWRITE)
 		mSkybox.Surface(0)._Render()
 	End
 	
@@ -400,15 +391,11 @@ Private
 	Global mGlobalPixelLighting	: Bool
 	Global mFramebuffer			: Framebuffer
 	Global mShadowsEnabled		: Bool
-	Global mDepthHeight			: Float
-	Global mDepthFar			: Float
-	Global mDepthEpsilon		: Float
+	Global mShadowsDistance		: Float
 	Global mDepthProj			: Mat4 = Mat4.Create()
 	Global mDepthView			: Mat4 = Mat4.Create()
-	'Global mSolidList			: List<RenderCall> = New List<RenderCall>
-	'Global mDepthList			: List<RenderCall> = New List<RenderCall>
-	'Global mNoDepthList			: List<RenderCall> = New List<RenderCall>
 	Global mColBoxes			: Box[0]
+	Global mTempVec				: Vec3 = Vec3.Create()
 	Global mTempQuat			: Quat = Quat.Create()
 	
 	Method New()
@@ -439,39 +426,3 @@ Private
 	Field mMin	: Vec3
 	Field mMax	: Vec3
 End
-
-#Rem
-Class RenderCall
-Public
-	Method New(surf:Surface, mat:Material, transform:Mat4, animMatrices:Mat4[])
-		mSurface = New List<Surface>
-		mSurface.AddLast(surf)
-		mMaterial = mat
-		mTransform = transform
-		mAnimMatrices = animMatrices
-	End
-	
-	Method New(surfs:List<Surface>, mat:Material, transform:Mat4, animMatrices:Mat4[])
-		mSurfaces = surfs
-		mMaterial = mat
-		mTransform = transform
-		mAnimMatrices = animMatrices
-	End
-	
-	Method Render:Int()
-		Local numRenders:Int = 0
-		Renderer.SetModelMatrix(mTransform)
-		Renderer.SetSkinned(mAnimMatrices.Length > 0)
-		If mAnimMatrices.Length() > 0 Then Renderer.SetBoneMatrices(mAnimMatrices)
-		For Local i:Int = 0 Until mMesh.NumSurfaces
-			If mMaterials[i].Prepare(step_) Then mMesh.Surface(i)._Render(); numRenders += 1
-		Next
-		Return numRenders
-	End
-Private
-	Field mSurfaces		: List<Surface>
-	Field mMaterials	: List<Material>
-	Field mTransform	: Mat4
-	Field mAnimMatrices	: Mat4[]
-End
-#Rem

@@ -1,0 +1,101 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Level Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+
+Import mojo.app
+Import mojo.input
+Import vortex
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init()
+			Print "Error: " + Stats.ShaderError()
+			EndApp()
+		End
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
+		
+		'Load font
+		mFont = Cache.LoadFont("system.fnt.dat")
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.ClearColor = Color.RGB(15, 15, 15)
+		mCam.SetPosition(0, 15, -25)
+		mCam.SetRotation(30, 0, 0)
+		
+		'Create model
+		mModel = New Model(Cache.LoadMesh("swamp.msh.dat"))
+		
+		'Disable sun
+		World.SetSunColor(Color.BLACK)
+		
+		Return False
+	End
+	
+	Method OnUpdate:Int()	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		'Update camera
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		'Update rotation
+		mModel.Yaw -= 32 * Stats.DeltaTime()
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw FPS
+		Renderer.SetColor(Color.WHITE)
+		Local text$ = Stats.FPS() + " FPS"
+		mFont.Draw(2, 2, text)
+		
+		'Draw RenderCalls
+		text = "Render calls: " + Stats.RenderCalls()
+		mFont.Draw(2, 18, text)
+		
+		'Draw mesh attribution
+		text = "swamp location by bocharova is licensed under CC Attribution-NonCommercial"
+		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 2, text)
+	
+		Return False
+	End
+Private
+	Field mFont		: Font
+	Field mCam		: Camera
+	Field mModel	: Model
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
+End

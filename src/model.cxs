@@ -154,7 +154,7 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 		Renderer.SetSkinned(mAnimMatrices.Length > 0)
 		If mAnimMatrices.Length() > 0 Then Renderer.SetBoneMatrices(mAnimMatrices)
 		For Local i:Int = 0 Until mMesh.NumSurfaces
-			If mMaterials[i].Prepare(step_) Then mMesh.Surface(i)._Render(); numRenders += 1
+			If mMaterials[i]._Prepare(step_) Then mMesh.Surface(i)._Render(); numRenders += 1
 		Next
 		Return numRenders
 	End
@@ -164,4 +164,7 @@ Private
 	Field mAnimMatrices	: Mat4[]
 	Field mAnimSpeed	: Float
 	Field mCurrentFrame	: Float
+	
+	Method New()
+	End
 End

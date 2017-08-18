@@ -204,7 +204,7 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 	
 	Method _Render:Int(step_:Int)
 		Super._Render(step_)
-		If mMaterial.Prepare(step_)
+		If mMaterial._Prepare(step_)
 			mSurface._Render()
 			Return 1
 		Else
@@ -221,4 +221,7 @@ Private
 	Field mFirstFrame	: Int
 	Field mLastFrame	: Int
 	Global mSurface		: Surface
+	
+	Method New()
+	End
 End

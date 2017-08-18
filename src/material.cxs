@@ -26,6 +26,7 @@ Public
 		mBlendMode = Renderer.BLEND_SOLID
 		mCulling = True
 		mDepthWrite = True
+		mCastShadows = True
 		mTextureMatrix = Mat4.Create()
 	End
 	
@@ -45,7 +46,7 @@ Public
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mColor = other.mColor And mBaseTex = other.mBaseTex And mNormalTex = other.mNormalTex And mLightTex = other.mLightTex And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite
+		If mColor = other.mColor And mBaseTex = other.mBaseTex And mNormalTex = other.mNormalTex And mLightTex = other.mLightTex And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows
 			Return True
 		Else
 			Return False
@@ -65,6 +66,7 @@ Public
 		mBlendMode = other.mBlendMode
 		mCulling = other.mCulling
 		mDepthWrite = other.mDepthWrite
+		mCastShadows = other.mCastShadows
 		mTextureMatrix.Set(other.mTextureMatrix)
 		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
@@ -183,7 +185,7 @@ Public
 	Method DepthWrite:Void(enable:Bool) Property
 		If mDepthWrite = enable Then Return
 		mDepthWrite = enable
-		RenderList.Sort(Self)
+		'RenderList.Sort(Self)
 		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 
@@ -191,12 +193,26 @@ Public
 		Return mDepthWrite
 	End
 	
+	Method CastShadows:Void(enable:Bool) Property
+		If mCastShadows = enable Then Return
+		mCastShadows = enable
+	End
+	
+	Method CastShadows:Bool() Property
+		Return mCastShadows
+	End
+	
 	Method TextureMatrix:Mat4() Property
 		Return mTextureMatrix
 	End
 
-	Method Prepare:Bool(step_:Int)
-		If step_ = Int(mDepthWrite) Then Return False
+	Method _Prepare:Bool(step_:Int)
+		'Abort if this material does not render in this step
+		If step_ = Renderer.STEP_SHADOWS And (mBlendMode <> Renderer.BLEND_SOLID Or Not CastShadows) Then Return False
+		If step_ = Renderer.STEP_SOLID And (mBlendMode <> Renderer.BLEND_SOLID Or Not mDepthWrite) Then Return False
+		If step_ = Renderer.STEP_DEPTHWRITE And (mBlendMode = Renderer.BLEND_SOLID Or Not mDepthWrite) Then Return False
+		If step_ = Renderer.STEP_NODEPTHWRITE And mDepthWrite Then Return False
+	
 		Local baseHandle:Int = 0
 		Local normalHandle:Int = 0
 		Local lightHandle:Int = 0
@@ -204,6 +220,7 @@ Public
 		Local refractHandle:Int = 0
 		'Local shininess:Int = 0
 		'If mShininess > 0 Then shininess = Int(mShininess * 128)
+
 		Renderer.SetColor(mColor)
 		Renderer.SetShininess(mShininess)
 		Renderer.SetRefractCoef(mRefractCoef)
@@ -232,5 +249,6 @@ Private
 	Field mBlendMode		: Int
 	Field mCulling			: Bool
 	Field mDepthWrite		: Bool
+	Field mCastShadows		: Bool
 	Field mTextureMatrix	: Mat4
 End

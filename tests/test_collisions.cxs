@@ -19,7 +19,7 @@ Public
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not World.Init()
+		If Not World.Init(1, 0, 2048)
 			Print "Error: " + Stats.ShaderError()
 			EndApp()
 		End
@@ -122,7 +122,7 @@ Public
 	
 	Method CreateLevel:Void()
 		'Create cube mesh
-		Local mesh:Mesh = Primitive.CreateCube()
+		Local mesh:Mesh = Mesh.CreateCube()
 		mesh.Material(0).Color = Color.ORANGE
 		mesh.Translate(0.5, 0.5, 0.5)
 		
@@ -181,16 +181,16 @@ Public
 		mBlockBall = New Model(Cache.LoadMesh("sphere.msh.dat"))
 		mBlockBall.CollisionMode = Entity.COLLISION_SPHERE
 		mBlockBall.Radius = 1.2
-		mBlockBall.SetPosition(9, 1, 5)
+		mBlockBall.SetPosition(9, 3, 5)
 		mBlockBall.Material.Color = Color.MAGENTA
-		mBlockBallDir = 1
+		mBlockBallDir = -1
 	End
 	
 	Method ToggleShadows:Void()
 		If World.Shadows()
 			World.SetShadows(False)
 		Else
-			World.SetShadows(True, 25, 100, 0.003)
+			World.SetShadows(True, 50)
 		End
 	End
 Private

@@ -9,7 +9,7 @@ Vortex uses a left handed coordinate system where X points right, Y points up, a
 Rotations are using euler angles expressed in degrees.
 
 >>> Screen coordinates
-In Vortex, coordinates 0,0 represent the top left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the bottom right. This is a common convention in many graphics libraries (like Cerberus' Mojo).
+In Vortex, coordinates 0,0 represent the top left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the bottom right. This is a common convention in many graphics libraries (like Mojo).
 
 >>> Texture coordinates
 Texture coordinates are mapped from the top left (coordinates 0,0) to the bottom right (coordinates 1,1).
@@ -698,13 +698,19 @@ Returns the blend mode of the material.
 Enables or disables backface culling. When it is enabled, internal faces of the geometry using this material will not be rendered. It is enabled by default.
 
 # Method Culling:Bool() Property
-Returns whether backface culling is enabled or not.
+Returns whether backface culling is enabled.
 
 # Method DepthWrite:Void(enable:Bool) Property
-Enabled or disables depth buffer writing. When it is disabled, other geometry further away from the viewer may occlude the geometry that uses this material. It is enabled by default.
+Enables or disables depth buffer writing. When it is disabled, other geometry further away from the viewer may occlude the geometry that uses this material. It is enabled by default.
 
 # Method DepthWrite:Bool() Property
-Returns whether depth buffer writing is enabled or not.
+Returns whether depth buffer writing is enabled.
+
+# Method CastShadows:Void(enable:Bool) Property
+Enables or disables shadow casting. It is enabled by default. Only used if blend mode is `Renderer.BLEND_SOLID`.
+
+# Method CastShadows:Bool() Property
+Returns whether shadow casting is enabled.
 
 
 
@@ -803,6 +809,15 @@ Flips all triangles in the mesh and inverts its normals.
 # Method SetColor:Void(color:Int)
 Sets the color of all vertices in the mesh.
 
+# Function CreateCube:Mesh()
+Creates a cube mesh with a width, height and depth of 1.
+
+# Function CreateSkybox:Mesh()
+Creates a skybox with a width, height and depth of 1.
+
+# Function CreateWedge:Mesh()
+Creates a wedge mesh with a width, height and depth of 1.
+
 
 
 
@@ -824,22 +839,6 @@ Sets the animation speed of the mesh. Setting it to 0 disables animation, 1 play
 
 Method AnimTime:Float() Property
 Returns the current time of the animation being played, in seconds.
-
-
-
-
-# Class Primitive
-
-This class allows you to create meshes that represent primitive objects such as cubes.
-
-# Function CreateCube:Mesh()
-Creates a cube mesh with a width, height and depth of 1.
-
-# Function CreateSkybox:Mesh()
-Creates a skybox with a width, height and depth of 1.
-
-# Function CreateWedge:Mesh()
-Creates a wedge mesh with a width, height and depth of 1.
 
 
 
@@ -977,6 +976,9 @@ Get the version of the API supported by this machine (currently, the version of 
 
 # Function ShadingVersion:Float()
 Get the version of the shading language supported by this machine (currently, the version of GLSL supported by the implementation).
+
+# Function MaxTextureSize:Int()
+Returns the maximum texture size supported by the device.
 
 
 
@@ -1141,8 +1143,10 @@ You can also specifY a width and a height different than its original size, and 
 
 # Class World
 
-# Function Init:Bool(numLights:Int = 4, numBones:Int = 75)
-Initializes the Vortex library. This should be called before any other function in the library. You can override the maximum number of lights in the world and the maximum number of bones per mesh.
+# Function Init:Bool(numLights:Int = 4, numBones:Int = 75, shadowTexSize:Int = -1)
+Initializes the Vortex library. This should be called before any other function in the library.
+You can override the maximum number of lights in the world and the maximum number of bones per mesh.
+You can also set the size of the texture used for shadows calculation (if you leave it as -1, a texture of 1024 pixels of with and height will be used if possible).
 
 # Function Update:Void()
 Updates all entities in the world. This should be called on the app's `OnUpdate` method.
@@ -1219,8 +1223,8 @@ Enables or disables per-pixel lighting for the entire world (by default, only no
 # Function Shadows:Bool()
 Returns whether shadows are enabled or not.
 
-# Function SetShadows:Void(enable:Bool, depthHeight:Float = 500, depthFar:Float = 1000, depthEpsilon:Float = 0.009)
-Enables or disables shadow casting. Shadows will be cast from the first light in the world.
+# Function SetShadows:Void(enable:Bool, maxDistance:Float = 100)
+Enables or disables shadow casting. Shadows will be cast from the first light in the world. The value of `maxDistance` indicates the maximum distance at which the shadow will be visible.
 
 # Function AddStaticCollisionBox:Void(x:Float, y:Float, z:Float, width:Float, height:Float, depth:Float)
 Adds a box to the static collision list. This list contains global world collisions that do not belong to any entity.

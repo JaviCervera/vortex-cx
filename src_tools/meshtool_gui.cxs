@@ -17,7 +17,7 @@ Public
 		mCubeTex = Cache.LoadTexture("cube.png", Renderer.FILTER_NONE)
 		mOpenTex = Cache.LoadTexture("folder.png", Renderer.FILTER_NONE)
 		mSaveTex = Cache.LoadTexture("disk.png", Renderer.FILTER_NONE)
-		mCube = Primitive.CreateCube()
+		mCube = Mesh.CreateCube()
 	
 		mPanelRect = New Rect(8, 8, 64, 24)
 		mCubeRect = New Rect(8 + 4, 8 + 4, 16, 16)

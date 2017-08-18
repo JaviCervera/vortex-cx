@@ -22,6 +22,12 @@ Public
 
 Class Renderer Final
 Public
+	Const STEP_SHADOWS:Int = 0			'Shadow render
+	Const STEP_SOLID:Int = 1			'Solid blend with depth writing
+	Const STEP_DEPTHWRITE:Int = 2		'Other blends with depth writing
+	Const STEP_NODEPTHWRITE:Int = 3		'All entitites with no depth writing
+	Const STEP_COUNT:Int = 4
+
 	Const BLEND_SOLID:Int = 0
 	Const BLEND_ALPHA:Int = 1
 	Const BLEND_ADD:Int = 2
@@ -320,6 +326,11 @@ Public
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE)
 		Case BLEND_MUL
 			glBlendFunc(GL_DST_COLOR, GL_ZERO)
+		End
+		
+		'Indicate to the shader whether the blend mode is solid or not
+		If mActiveProgram.mSolidModeLoc <> -1
+			If mode = BLEND_SOLID Then glUniform1i(mActiveProgram.mSolidModeLoc, True) Else glUniform1i(mActiveProgram.mSolidModeLoc, False)
 		End
 	End
 	
@@ -818,6 +829,11 @@ Public
 			Return ""
 		End
 	End
+	
+	Function MaxTextureSize:Int()
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE, mTempArray)
+		Return mTempArray[0]
+	End
 Private
 	Method New()
 	End
@@ -862,7 +878,7 @@ Private
 	Global mMaxLights	: Int
 	Global mMaxBones	: Int
 
-	'GL and GLSL version
+	'Info
 	Global mVendor:String
 	Global mRenderer:String
 	Global mVersionStr:String
@@ -898,6 +914,7 @@ Class GpuProgram
 	Field mNormalMatrixLoc:Int
 	Field mInvViewLoc:Int
 	Field mDepthBiasLoc:Int
+	Field mSolidModeLoc:Int
 	Field mTextureMatrixLoc:Int
 	Field mBaseTexModeLoc:Int
 	Field mUseNormalTexLoc:Int
@@ -944,6 +961,7 @@ Class GpuProgram
 		mNormalMatrixLoc = glGetUniformLocation(program, "normalMatrix")
 		mInvViewLoc = glGetUniformLocation(program, "invView")
 		mDepthBiasLoc = glGetUniformLocation(program, "depthBias")
+		mSolidModeLoc = glGetUniformLocation(program, "solidMode")
 		mTextureMatrixLoc = glGetUniformLocation(program, "textureMatrix")
 		mBaseTexModeLoc = glGetUniformLocation(program, "baseTexMode")
 		mUseNormalTexLoc = glGetUniformLocation(program, "useNormalTex")

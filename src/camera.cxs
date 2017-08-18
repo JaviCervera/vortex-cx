@@ -180,7 +180,7 @@ Class Camera Extends Entity Final
 		Case CLEAR_COLOR
 			Renderer.ClearColorBuffer(ClearColor)
 		Case CLEAR_SKYBOX
-			World._DrawSkybox(WorldX, WorldY, WorldZ)
+			World._RenderSkybox(WorldX, WorldY, WorldZ)
 		End
 	End
 Private

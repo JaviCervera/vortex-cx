@@ -129,7 +129,7 @@ Public
 		Local texName:String = stream.ReadString(texLen)
 		
 		'Font height
-		Local height:Int = stream.ReadShort()
+		Local height:Int = stream.ReadShort() & $FFFF
 		
 		'Num glyphs
 		Local numGlyphs:Int = stream.ReadInt()

@@ -47,6 +47,10 @@ Public
 		Return Renderer.ShadingVersion()
 	End
 	
+	Function MaxTextureSize:Int()
+		Return Renderer.MaxTextureSize()
+	End
+	
 	Function _Init:Void()
 		mLastMillisecs = Millisecs()
 		mFpsCounter = 0

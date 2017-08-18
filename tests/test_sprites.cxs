@@ -46,7 +46,7 @@ Public
 			Local spr:Sprite = New Sprite(smileTex)
 			spr.SetPosition(x, 0, z)
 			spr.SetSize(1, 1)
-			spr.Material(0).Color = Color.RGB(Rnd(256), Rnd(256), Rnd(256))
+			spr.Material.Color = Color.RGB(Rnd(256), Rnd(256), Rnd(256))
 			x += 2; If x >= 8 Then x = -8; z += 2
 		Next
 		

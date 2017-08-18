@@ -1,0 +1,122 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Mars One"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+
+Import mojo.app
+Import mojo.input
+Import vortex
+
+Const ROT_SPEED:Int = 32
+Const MOVE_SPEED:Int = 256
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init()
+			Print "Error: " + Stats.ShaderError()
+			EndApp()
+		End
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
+		
+		'Load font
+		mFont = Cache.LoadFont("system.fnt.dat")
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.ClearColor = Color.RGB(15, 15, 15)
+		mCam.SetPosition(0, 50, 150)
+		mCam.Yaw = 180
+		mCam.Far = 5000
+		
+		'Create model
+		mModel = New Model(Cache.LoadMesh("mars_one_base.msh.dat"))
+		
+		'Disable sun and enable fog
+		World.SetSunColor(Color.BLACK)
+		World.SetFogEnabled(True)
+		World.SetFogColor(Color.RGB(15, 15, 15))
+		World.SetFogMinDistance(1000)
+		World.SetFogMaxDistance(5000)
+		
+		Return False
+	End
+	
+	Method OnUpdate:Int()	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		'Update camera
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		If KeyDown(KEY_Q) Then mCam.Move(0, MOVE_SPEED * Stats.DeltaTime(), 0)
+		If KeyDown(KEY_A) Then mCam.Move(0, -MOVE_SPEED * Stats.DeltaTime(), 0)
+		
+		If KeyDown(KEY_W) Then mCam.Turn(-ROT_SPEED * Stats.DeltaTime(), 0, 0)
+		If KeyDown(KEY_S) Then mCam.Turn(ROT_SPEED * Stats.DeltaTime(), 0, 0)
+		
+		If KeyDown(KEY_UP) Then mCam.Move(0, 0, MOVE_SPEED * Stats.DeltaTime())
+		If KeyDown(KEY_DOWN) Then mCam.Move(0, 0, -MOVE_SPEED * Stats.DeltaTime())
+		If KeyDown(KEY_SHIFT)
+			If KeyDown(KEY_LEFT) Then mCam.Move(-MOVE_SPEED * Stats.DeltaTime(), 0, 0)
+			If KeyDown(KEY_RIGHT) Then mCam.Move(MOVE_SPEED * Stats.DeltaTime(), 0, 0)
+		Else
+			If KeyDown(KEY_LEFT) Then mCam.Turn(0, -ROT_SPEED * Stats.DeltaTime(), 0)
+			If KeyDown(KEY_RIGHT) Then mCam.Turn(0, ROT_SPEED * Stats.DeltaTime(), 0)
+		End
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw FPS
+		Renderer.SetColor(Color.WHITE)
+		Local text$ = Stats.FPS() + " FPS"
+		mFont.Draw(2, 2, text)
+		
+		'Draw RenderCalls
+		text = "Render calls: " + Stats.RenderCalls()
+		mFont.Draw(2, 18, text)
+		
+		'Draw mesh attribution
+		text = "~qMars One~q Mission - Base by admone is licensed under CC Attribution"
+		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 2, text)
+	
+		Return False
+	End
+Private
+	Field mFont		: Font
+	Field mCam		: Camera
+	Field mModel	: Model
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
+End
