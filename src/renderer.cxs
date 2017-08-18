@@ -288,9 +288,11 @@ Public
 		mDepthBiasMatrix.Mul(depthProj)
 		mDepthBiasMatrix.Mul(depthView)
 	
-		glActiveTexture(GL_TEXTURE0 + DEPTHTEX_UNIT)
-		glBindTexture(GL_TEXTURE_2D, depthTex)
-		glActiveTexture(GL_TEXTURE0)
+		If depthTex <> 0
+			glActiveTexture(GL_TEXTURE0 + DEPTHTEX_UNIT)
+			glBindTexture(GL_TEXTURE_2D, depthTex)
+			glActiveTexture(GL_TEXTURE0)
+		End
 		
 		If mActiveProgram.mShadowsEnabledLoc <> -1 And mActiveProgram.mDepthEpsilonLoc <> -1
 			If depthTex <> 0
