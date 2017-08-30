@@ -103,6 +103,6 @@ Private
 End
 
 Function Main:Int()
-	New TestApp()
+	New TestApp
 	Return False
 End

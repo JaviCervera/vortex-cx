@@ -848,7 +848,10 @@ Returns the current time of the animation being played, in seconds.
 The Renderer is the class used to draw graphics on the screen in immediate mode, and the direct link with the underlying rendering API (OpenGL). For most stuff, you do not need to deal with this class directly, but for example if you want to draw your 2D graphics above the 3D scene, after drawing all your 3D geometry, you must call `Renderer.Setup2D` to setup the context for 2D drawing, and then perform your drawing operations.
 
 # Function Setup2D:Void(x:Int, y:Int, width:Int, height:Int)
-Setup the context for 2D painting. The parameters define the rectangle within the screen where drawing will take place. You must call this function before doing any 2D drawing.
+Setups the context for 2D drawing. The parameters define the rectangle within the screen where drawing will take place. You must call this function before doing any 2D drawing.
+
+# Function SetupMojo:Void()
+Setups the context for drawing with Mojo2.
 
 # Function SetBlendMode:Void(mode:Int)
 Sets the blend mode to use when painting. Possible values are:

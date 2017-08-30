@@ -218,6 +218,24 @@ Public
 		'Disable shadows by default
 		Renderer.SetDepthData(mTempMatrix, mTempMatrix, 0, 0)
 	End
+	
+	Function SetupMojo:Void()
+		'Disable 3D states
+		SetCulling(False)
+		glDisable(GL_DEPTH_TEST)
+
+		'Setup 2D
+		glEnable(GL_BLEND)
+		glEnable(GL_SCISSOR_TEST)
+		glFrontFace(GL_CCW)
+		SetBlendMode(BLEND_ALPHA)
+		SetColor(1,1,1,1)
+		
+		glEnableVertexAttribArray 0 ; glVertexAttribPointer 0,2,GL_FLOAT,False,28,0
+		glEnableVertexAttribArray 1 ; glVertexAttribPointer 1,2,GL_FLOAT,False,28,8
+		glEnableVertexAttribArray 2 ; glVertexAttribPointer 2,2,GL_FLOAT,False,28,16
+		glEnableVertexAttribArray 3 ; glVertexAttribPointer 3,4,GL_UNSIGNED_BYTE,True,28,24
+	End
 
 	Function SetProjectionMatrix:Void(m:Mat4)
 		mProjectionMatrix.Set(m)
@@ -701,6 +719,13 @@ Public
 	End
 
 	Function DrawBuffers:Void(vertexBuffer:Int, indexBuffer:Int, numIndices:Int, coordsOffset:Int, normalsOffset:Int, tangentsOffset:Int, colorsOffset:Int, texCoordsOffset:Int, texCoords2Offset:Int, boneIndicesOffset:Int, boneWeightsOffset:Int, stride:Int)
+		'Get currently bound buffers
+		glGetIntegerv(GL_ARRAY_BUFFER_BINDING, mTempArray)
+		Local prevVertexBuffer:Int = mTempArray[0]
+		glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, mTempArray)
+		Local prevIndexBuffer:Int = mTempArray[0]
+		
+		'Bind buffers and setup
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer)
 		If coordsOffset >= 0 And mActiveProgram.mVPosLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVPosLoc); glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, stride, coordsOffset)
@@ -711,7 +736,11 @@ Public
 		If texCoords2Offset >= 0 And mActiveProgram.mVTex2Loc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVTex2Loc); glVertexAttribPointer(mActiveProgram.mVTex2Loc, 2, GL_FLOAT, False, stride, texCoords2Offset)
 		If boneIndicesOffset >= 0 And mActiveProgram.mVBoneIndicesLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVBoneIndicesLoc); glVertexAttribPointer(mActiveProgram.mVBoneIndicesLoc, 4, GL_FLOAT, False, stride, boneIndicesOffset)
 		If boneWeightsOffset >= 0 And mActiveProgram.mVBoneWeightsLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVBoneWeightsLoc); glVertexAttribPointer(mActiveProgram.mVBoneWeightsLoc, 4, GL_FLOAT, False, stride, boneWeightsOffset)
+		
+		'Draw
 		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0)
+		
+		'Disable arrays
 		If mActiveProgram.mVPosLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVPosLoc)
 		If mActiveProgram.mVNormalLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVNormalLoc)
 		If mActiveProgram.mVTangentLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVTangentLoc)
@@ -720,8 +749,10 @@ Public
 		If mActiveProgram.mVTex2Loc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVTex2Loc)
 		If mActiveProgram.mVBoneIndicesLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVBoneIndicesLoc)
 		If mActiveProgram.mVBoneWeightsLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVBoneWeightsLoc)
-		glBindBuffer(GL_ARRAY_BUFFER, 0)
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+		
+		'Bind previously bound buffers (in case they are the Mojo2 ones)
+		glBindBuffer(GL_ARRAY_BUFFER, prevVertexBuffer)
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prevIndexBuffer)
 	End
 
 	'---------------------------------------------------------------------------

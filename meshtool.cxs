@@ -22,6 +22,13 @@ Import src_tools.meshtool_gui
 Import vortex
 Import src.math3d
 
+'Constants
+Const CAM_DEFX		: Float = 2
+Const CAM_DEFY		: Float = 2
+Const CAM_DEFZ		: Float = -2
+Const CAM_DEFPITCH	: Float = 37
+Const CAM_DEFYAW	: Float = -45
+
 Class MeshToolApp Extends App Final
 Public
 	Method OnCreate:Int()
@@ -46,8 +53,8 @@ Public
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.SetPosition(2, 2, -2)
-		mCam.SetRotation(37, -45, 0)
+		mCam.SetPosition(CAM_DEFX, CAM_DEFY, CAM_DEFZ)
+		mCam.SetRotation(CAM_DEFPITCH, CAM_DEFYAW, 0)
 		mCam.ClearColor = Color.RGB(100, 100, 100)
 		mCam.Far = 5000
 		
@@ -94,6 +101,12 @@ Public
 			If KeyDown(KEY_S) Then mCam.Move(0, 0, -32 * Stats.DeltaTime())
 			If KeyDown(KEY_A) Then mCam.Move(-32 * Stats.DeltaTime(), 0, 0)
 			If KeyDown(KEY_D) Then mCam.Move(32 * Stats.DeltaTime(), 0, 0)
+		End
+		
+		'Reset camera with R
+		If KeyHit(KEY_R)
+			mCam.SetPosition(CAM_DEFX, CAM_DEFY, CAM_DEFZ)
+			mCam.SetRotation(CAM_DEFPITCH, CAM_DEFYAW, 0)
 		End
 		
 		'Update light rotation

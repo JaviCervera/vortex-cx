@@ -1,0 +1,141 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Mojo2 Integration Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+
+Import mojo2
+Import vortex
+
+Class TestApp Extends App	
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init()
+			Print "Error: " + Stats.ShaderError()
+			EndApp()
+		End
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
+		
+		'Create framebuffer
+		mFramebuffer = New Framebuffer(512, 512, False)
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.ClearColor = Color.WHITE
+		mCam.SetPosition(0, 0, -2)
+		
+		'Create surface
+		Local quad:Surface = New Surface()
+		quad.AddVertex(-0.5,  0.5, 0,  0,0,-1, Color.WHITE, 0, 0)
+		quad.AddVertex( 0.5,  0.5, 0,  0,0,-1, Color.WHITE,	1, 0)
+		quad.AddVertex(-0.5, -0.5, 0,  0,0,-1, Color.WHITE,	0, 1)
+		quad.AddVertex( 0.5, -0.5, 0,  0,0,-1, Color.WHITE,	1, 1)
+		quad.AddTriangle(0, 1, 2)
+		quad.AddTriangle(2, 1, 3)
+		
+		'Create mesh
+		Local mesh:Mesh = New Mesh()
+		mesh.AddSurface(quad)
+		mesh.Material(0).BaseTexture = mFramebuffer.ColorTexture
+		mesh.Material(0).Culling = False
+		
+		'Create triangle model
+		mModel = New Model(mesh)
+		
+		'Disable sun
+		World.SetSunColor(Color.BLACK)
+		
+		'Create Mojo2 stuff
+		mCanvas = New Canvas
+		mCanvas.SetAmbientLight(0.2, 0.2, 0.2)
+		mTile = Image.Load("t3.png", 0, 0)
+
+		Return False
+	End
+	
+	Method OnUpdate:Int()
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		'Update camera view
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		'Rotate quad
+		mModel.Yaw += 64 * Stats.DeltaTime()
+		mModel.Yaw = ((MouseX() * 2 / DeviceWidth()) - 1) * -20
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Prepare Mojo rendering to the framebuffer
+		vortex.Renderer.SetupMojo()
+		mFramebuffer.Set()
+		
+		'Render to framebuffer with Mojo
+		mCanvas.SetProjection2d(0, DeviceWidth(), DeviceHeight(), 0) 'top and bottom are flipped to render into a Vortex framebuffer
+		mCanvas.SetLightType 0, 1
+		mCanvas.SetLightColor 0, .3, .3, .3
+		mCanvas.SetLightPosition 0, MouseX(), MouseY(), -100
+		mCanvas.SetLightRange 0,200
+		mCanvas.SetColor(1, 1, 1)
+		For Local x:Int = 0 Until DeviceWidth() Step 128
+			For Local y:Int = 0 Until DeviceHeight() Step 128	
+				mCanvas.DrawImage mTile, x, y
+			Next
+		Next
+		mCanvas.Flush
+		
+		'It is required to ALWAYS call this after rendering to a framebuffer using Mojo,
+		'even if no rendering is performed after
+		Framebuffer.SetScreen()
+		
+		'Draw text with mojo
+		mCanvas.SetProjection2d(0, DeviceWidth(), 0, DeviceHeight()) 'now we are rendering to the screen, so top and bottom are set correctly
+		Local text:String = Stats.FPS() + " FPS"
+		mCanvas.SetBlendMode(BlendMode.Alpha)
+		mCanvas.SetColor(0, 0, 0)
+		mCanvas.DrawText(text, 2, 2)
+		text = "Render calls: " + Stats.RenderCalls()
+		mCanvas.DrawText(text, 2, 18)
+		
+		'Flush pending rendering operations
+		mCanvas.Flush
+		
+		Return False
+	End
+Private
+	Field mFramebuffer		: Framebuffer
+	Field mCam				: Camera
+	Field mModel			: Model
+	
+	'Mojo2 stuff
+	Field mCanvas			: Canvas
+	Field mTile				: Image
+End
+
+Function Main:Int()
+	New TestApp
+	Return False
+End
