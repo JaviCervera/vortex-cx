@@ -1,5 +1,5 @@
 #CMake folders
-meshtool/_BUILD/
+meshtool/_CMAKE/
 
 # Tests build folders
 *.build*/
@@ -11,7 +11,11 @@ meshtool/_BUILD/
 # Tools
 meshtool
 fonttool
+*.bin
 *.exe
+*.dll
+*.dylib
+*.so
 
 # Qt
 /.qmake.cache

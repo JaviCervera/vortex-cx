@@ -1,0 +1,69 @@
+Strict
+
+Private
+Import math3d
+
+Public
+Class Collision
+	Function BoxBox:Bool(minx1:Float, miny1:Float, minz1:Float, maxx1:Float, maxy1:Float, maxz1:Float, minx2:Float, miny2:Float, minz2:Float, maxx2:Float, maxy2:Float, maxz2:Float)
+		If IsPointInBox(minx1, miny1, minz1, minx2, miny2, minz2, maxx2, maxy2, maxz2) Or
+			IsPointInBox(maxx1, maxy1, maxz1, minx2, miny2, minz2, maxx2, maxy2, maxz2) Or
+			IsPointInBox(minx2, miny2, minz2, minx1, miny1, minz1, maxx1, maxy1, maxz1) Or
+			IsPointInBox(maxx2, maxy2, maxz2, minx1, miny1, minz1, maxx1, maxy1, maxz1)
+			Return True
+		Else
+			Return False
+		End
+	End
+	
+	Function BoxSphere:Bool(minx:Float, miny:Float, minz:Float, maxx:Float, maxy:Float, maxz:Float, sx:Float, sy:Float, sz:Float, sqrad:Float)		
+		'Check if point is in box
+		If IsPointInBox(minx, miny, minz, maxx, maxy, maxz, sx, sy, sz)
+			Return True
+		Else
+			'Find closest point on the surface of the box
+			If sx < minx Then mTempVec.X = minx Elseif sx > maxx Then mTempVec.X = maxx Else mTempVec.X = sx
+			If sy < miny Then mTempVec.Y = miny Elseif sy > maxy Then mTempVec.Y = maxy Else mTempVec.Y = sy
+			If sz < minz Then mTempVec.Z = minz Elseif sz > maxz Then mTempVec.Z = maxz Else mTempVec.Z = sz
+			
+			'Check distance to point
+			mTempVec.Sub(sx, sy, sz)
+			If mTempVec.SqLength() < sqrad
+				Return True
+			Else
+				Return False
+			End
+		End
+	End
+	
+	Function SphereSphere:Bool(sx1:Float, sy1:Float, sz1:Float, sqrad1:Float, sx2:Float, sy2:Float, sz2:Float, sqrad2:Float)
+		mTempVec.Set(sx1, sy1, sz1)
+		mTempVec.Sub(sx2, sy2, sz2)
+		If mTempVec.SqLength() < sqrad1 + sqrad2
+			Return True
+		Else
+			Return False
+		End
+	End
+	
+	Function IsPointInBox:Bool(x:Float, y:Float, z:Float, minx:Float, miny:Float, minz:Float, maxx:Float, maxy:Float, maxz:Float)
+		If InRangeStrict(x, minx, maxx) And InRangeStrict(y, miny, maxy) And InRangeStrict(z, minz, maxz)
+			Return True
+		Else
+			Return False
+		End
+	End
+
+	Function InRange:Bool(val:Float, min:Float, max:Float)
+		If val >= min And val <= max Then Return True Else Return False
+	End
+	
+	Function InRangeStrict:Bool(val:Float, min:Float, max:Float)
+		If val > min And val < max Then Return True Else Return False
+	End
+Private
+	Method New()
+	End
+	
+	Global mTempVec	: Vec3 = Vec3.Create()
+End

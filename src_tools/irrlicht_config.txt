@@ -1,0 +1,61 @@
+Irrlicht version 1.8.4 has been used.
+
+On Windows, it has been compiled
+with the MinGW version that ships with Code::Blocks 16.01.
+In Project / Build Options..., Target x86 (32bit) [-m32] has been selected.
+The Win32 - Release - fast math - static target has been used.
+It links correctly with TDM-GCC-64 v5.1.0, which is what I use
+to build the dlls used in the tools.
+
+On macOS, architecture has been changed to Universal(32/64-bit Intel).
+On macOS Deployment Target, it has been set to 10.6
+On the top of the file CIrrDeviceMacOSX.mm, the following needed to be added:
+
+#include <Carbon/Carbon.h>
+
+On that same file, the line 499
+
+[NSApp setDelegate:(id<NSFileManagerDelegate>)[[[AppDelegate alloc] initWithDevice:this] autorelease]];
+
+was changed to
+
+[NSApp setDelegate:(id<NSApplicationDelegate>)[[[AppDelegate alloc] initWithDevice:this] autorelease]];
+
+and the line 500
+
+[NSBundle loadNibNamed:@"MainMenu" owner:[NSApp delegate]];
+
+was commented.
+
+Irrlicht preprocessor definitions
+(defined in include/IrrCompileConfig.h):
+#define NO_IRR_COMPILE_WITH_SDL_DEVICE_
+//#define NO_IRR_COMPILE_WITH_CONSOLE_DEVICE_
+#define NO_IRR_COMPILE_WITH_JOYSTICK_EVENTS_
+#define NO_IRR_COMPILE_WITH_DIRECT3D_8_
+#define NO_IRR_COMPILE_WITH_DIRECT3D_9_
+#define NO_IRR_COMPILE_WITH_OPENGL_
+#define NO_IRR_COMPILE_WITH_SOFTWARE_
+#define NO_IRR_COMPILE_WITH_BURNINGSVIDEO_
+#define NO_IRR_COMPILE_WITH_X11_
+#define NO_IRR_LINUX_XCURSOR_
+#define NO_IRR_COMPILE_WITH_GUI_
+#define NO_IRR_WCHAR_FILESYSTEM
+//#define NO_IRR_COMPILE_WITH_LIBJPEG_
+//#define NO_IRR_COMPILE_WITH_LIBPNG_
+#define NO_IRR_COMPILE_WITH_CG_
+#define NO_IRR_COMPILE_WITH_IRR_SCENE_LOADER_
+#define NO_IRR_COMPILE_WITH_IRR_MESH_LOADER_
+#define NO_IRR_COMPILE_WITH_MY3D_LOADER_
+#define NO_IRR_COMPILE_WITH_IRR_WRITER_
+#define NO_IRR_COMPILE_WITH_COLLADA_WRITER_
+#define NO_IRR_COMPILE_WITH_STL_WRITER_
+#define NO_IRR_COMPILE_WITH_OBJ_WRITER_
+#define NO_IRR_COMPILE_WITH_PLY_WRITER_
+#define NO_IRR_COMPILE_WITH_BMP_WRITER_
+#define NO_IRR_COMPILE_WITH_JPG_WRITER_
+#define NO_IRR_COMPILE_WITH_PCX_WRITER_
+#define NO_IRR_COMPILE_WITH_PNG_WRITER_
+#define NO_IRR_COMPILE_WITH_PPM_WRITER_
+#define NO_IRR_COMPILE_WITH_PSD_WRITER_
+#define NO_IRR_COMPILE_WITH_TGA_WRITER_

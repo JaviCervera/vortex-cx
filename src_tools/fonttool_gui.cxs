@@ -1,0 +1,110 @@
+Strict
+
+Private
+Import brl.filepath
+Import dialog
+Import font
+Import guifuncs
+Import mojo.app
+Import mojo.input
+
+Public
+Class Gui
+Public
+	Method New()
+		'Load resources
+		mFont = Cache.LoadFont("system.fnt.dat")
+	
+		mFontRect = New Rect(8, 8, 300, 24)
+		mSizeRect = New Rect(312, 8, 100, 24)
+		mCustomSizeRect = New Rect(416, 8, 24, 24)
+		
+		mFontSizes = [8, 16, 32, 64, 128]
+		mSelSize = 1
+		mDisplayText = "The quick brown fox jumps over the lazy dog"
+	End
+	
+	Method Update:Font(currentFont:Font)
+		'Update GUI controls
+		If MouseHit(MOUSE_LEFT)
+			'Load font
+			If mFontRect.IsPointInside(MouseX(), MouseY())
+				Local filename:String = RequestFile("Load font")
+				If filename <> ""
+					filename = filename.Replace("\", "/")
+					Local font:Font = LoadFont(filename, mFontSizes[mSelSize])
+					If font <> Null
+						If ExtractExt(filename).ToLower() <> "dat" Then SaveFont(font, StripExt(filename) + ".fnt.dat")
+						Return font
+					Else
+						Notify "Error", "Could not load font '" + filename + "'", True
+					End
+				End
+			'Size
+			Elseif mSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "dat" And ExtractExt(currentFont.Filename).ToLower() <> "xml"
+				mSelSize += 1
+				If mSelSize = mFontSizes.Length Then mSelSize = 0
+				Local font:Font = LoadFont(currentFont.Filename, mFontSizes[mSelSize])
+				If font <> Null
+					SaveFont(font, StripExt(currentFont.Filename) + ".fnt.dat")
+					Return font
+				End
+			'Custom size
+			Elseif mCustomSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "dat" And ExtractExt(currentFont.Filename).ToLower() <> "xml"
+				Local sizeStr:String = RequestInput("Font size", "Enter custom font size", Int(currentFont.Height))
+				Local newSize:Int = Int(sizeStr)
+				If newSize <> 0 And newSize <> currentFont.Height
+					Local font:Font = LoadFont(currentFont.Filename, newSize)
+					If font <> Null
+						SaveFont(font, StripExt(currentFont.Filename) + ".fnt.dat")
+						Return font
+					End
+				End
+			End
+		End
+		
+		Return Null
+	End
+	
+	Method Render:Void(currentFont:Font)
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Renderer.SetBlendMode(Renderer.BLEND_ALPHA)
+		Renderer.ClearColorBuffer(Color.RGB(50, 50, 50))
+		If currentFont
+			DrawPanel(mFontRect, "Font: " + StripDir(StripExt(StripExt(currentFont.Filename))), mFont)
+		Else
+			DrawPanel(mFontRect, "Load Font", mFont)
+		End
+		
+		If currentFont
+			DrawPanel(mSizeRect, "Size: " + currentFont.Height, mFont)
+			If ExtractExt(currentFont.Filename).ToLower() <> "dat" And ExtractExt(currentFont.Filename).ToLower() <> "xml" Then DrawPanel(mCustomSizeRect, "...", mFont)
+		End
+		
+		If currentFont
+			Local rectWidth:Int = Min(currentFont.Texture.Width, 512)
+			Local rectHeight:Int = Min(currentFont.Texture.Height, 512)
+		
+			Renderer.SetColor(1, 1, 1)
+			currentFont.Texture.Draw((DeviceWidth() - rectWidth)/2, (DeviceHeight() - rectHeight)/2, rectWidth, rectHeight)
+			
+			Renderer.SetColor(0.1, 0.1, 0.1)
+			Renderer.DrawRect(4, 40, DeviceWidth() - 8, currentFont.TextHeight(mDisplayText) * 2)
+			Renderer.SetColor(1, 1, 1)
+			currentFont.Draw(8, 40, mDisplayText)
+		End
+	End
+Private
+	'Resources
+	Field mFont				: Font
+	
+	'Widgets
+	Field mFontRect			: Rect
+	Field mSizeRect			: Rect
+	Field mCustomSizeRect	: Rect
+	
+	'Misc
+	Field mFontSizes		: Int[]
+	Field mSelSize			: Int
+	Field mDisplayText		: String
+End

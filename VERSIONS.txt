@@ -1,0 +1,74 @@
+V1.2
+I have separated the project into two different branches: vortex1 (the default) will
+have non-API breaking changes, while vortex2 will use a different API and much
+improved features. This release contains the last commmits I added to Vortex1, which
+do not add any big new features, but a few fixes and small improvements:
+- Added fog support through the Viewer_SetFog function.
+- Improved font spacing.
+- Changed fonttool to export glyph data as properties in XML file
+  (reduces file size of generated fonts).
+- Export_shaders (the tool that generates the shader code constants
+  from the glsl files) has been ported from BlitzMax to Monkey.
+- Updated structure so a mesh has a linear array of bones instead of a tree
+  (does not need recursion to iterate through all bones).
+- Bone's default matrix has been renamed to pose matrix, and defines a
+  global transform (relative to model matrix, not to parent's pose matrix)
+- Bone's current matrix has been renamed to anim matrix, and contains a global
+  transform to animate the bone for some specific frame.
+- The bone's anim matrix has been moved to the Drawable class, which contains
+  an array of matrices, one for each bone in its mesh.
+- To animate a drawable, before calling Drawable_Draw, you must call Drawable_Animate now.
+
+I am not attaching binary files this time, so you'll have to build yourself. The meshtool
+has not been updated, so the binary from version 1.1 will work, but fonttool has been
+updated, so you will need to build it (on Windows, you should install a recent version
+of the compiler TDM-GCC).
+
+
+V1.1
+- Now Vortex supports changing handedness. To do that, you can write this at the
+  beginning of your program:
+
+    Import vortex.src.handedness
+    #VORTEX_HANDEDNESS=Mode
+
+    Where Mode can be one of:
+    VORTEX_LH: Left handed coordinate system (the default now)
+    VORTEX_RH_Y: Right handed coordinate system, with Y as up vector
+    VORTEX_RH_Z: Right handed coordinate system, with Z as up vector
+                 (the default in previous versions of Vortex)
+
+    Left handed system uses clockwise order for rotations and triangle winding,
+    and maps textures from the top left to the bottom right.
+    Right handed systems use counter clockwise order for rotations and triangle
+    winding, and maps textures from the bottom left to the top right.
+- Possibility to switch the vertical axis of screen coordinates for 2D. Now
+  the default is that Y increases downwards (opposite from previous versions).
+  To select the screen coordinates mode, write this at the beginning of
+  your program:
+
+    Import vortex.src.config
+    #VORTEX_SCREENCOORDS=Mode
+
+    Where Mode can be one of:
+    VORTEX_YDOWN: Y goes down (default)
+    VORTEX_YUP:   Y goes up (the default in previous versions of Vortex)
+
+- Added procedural API. Despite differences in implementation on the Object
+  Oriented layer, the procedural API should offer the same functions as a
+  future implementation of Vortex in C++
+- Added Vortex_GetAPIVersion and Vortex_GetShadingVersion
+- Support for JSON meshes and fonts replaced by XML versions
+- Meshtool replaced by Irrlicht-based version
+- Fonttool and meshtool are now build from a .bat file (requires TDM-GCC-32
+  on Windows)
+- Removed animation sequences from the engine. Now animations are a simple
+  linear of keyframes, and you decide the first and last frame for the
+  animation. This helps keeping Vortex a bit simpler, and it is not hard to add
+  sequence support on a higher level engine
+- Several bug fixes
+
+V1.0
+- First public release
+- Platform specific versions contain precompiled tools
+- Source versions require Qt Creator 3.3.0 or higher to build the tools

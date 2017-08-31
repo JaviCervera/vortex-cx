@@ -1,0 +1,428 @@
+Strict
+
+Private
+
+Import cache
+Import camera
+Import collision
+Import color
+Import entity
+Import framebuffer
+Import light
+Import listener
+Import material
+Import math3d
+Import mesh
+Import renderer
+'Import renderlist
+Import stats
+Import surface
+Import texture
+
+Public
+Class World Final
+	Function Init:Bool(numLights:Int = 4, numBones:Int = 75, shadowTexSize:Int = -1)
+		If numLights <= 0 Then numLights = 1
+		If numBones <= 0 Then numBones = 1
+		If Renderer.Init(numLights, numBones)
+			If shadowTexSize = -1 Then shadowTexSize = Min(1024, Stats.MaxTextureSize())
+			Cache.Push()
+			Stats._Init()
+			mSkybox = Mesh.CreateSkybox()
+			mSkybox.Material(0).DepthWrite = False
+			SetSunRotation(45, -45)
+			SetSunColor(Color.WHITE)
+			SetAmbient(Color.RGB(75, 75, 75))
+			SetFogEnabled(False)
+			SetFogMinDistance(600)
+			SetFogMaxDistance(1000)
+			SetFogColor(Color.BLACK)
+			SetGlobalPixelLighting(False)
+			SetShadows(False)
+			mFramebuffer = New Framebuffer(shadowTexSize, shadowTexSize, True)
+			Return True
+		Else
+			Return False
+		End
+	End
+	
+	Function Update:Void()
+		Stats._UpdateDeltaTime()
+		For Local e:Entity = Eachin mEnabledEntities
+			e._Update()
+		Next
+		Listener._Update()
+	End
+	
+	Function Render:Void()
+		'Update screen fps
+		Stats._UpdateFPS()
+		Local numRenderCalls:Int = 0
+		
+		'Is there sun light?
+		Local sunLightEnabled:Bool = False
+		If mSunColor <> Color.BLACK Then sunLightEnabled = True
+		
+		'Get number of lights
+		Local numLights:Int = Min(mLights.Count() + sunLightEnabled, Renderer.MaxLights())
+
+		For Local c:Camera = Eachin mCameras
+			'If shadows are enabled, setup shadows
+			If mShadowsEnabled
+				'Find the point the camera is looking at
+				mTempQuat.SetEuler(c.Pitch, c.Yaw, c.Roll)
+				mTempQuat.Mul(0, 0, mShadowsDistance/2)
+				mTempVec.Set(c.WorldX, c.WorldY, c.WorldZ)
+				mTempVec.Sum(mTempQuat.ResultVector())
+				
+				'Move from that point to the light source
+				mTempQuat.SetEuler(mSunPitch, mSunYaw, 0)
+				mTempQuat.Mul(0, 0, -mShadowsDistance)
+				mTempQuat.ResultVector().Sum(mTempVec)
+				
+				'Setup depth matrices
+				mDepthProj.SetOrthoLH(mShadowsDistance, 1, 0, mShadowsDistance*2)
+				mDepthView.LookAtLH(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, mTempVec.X, mTempVec.Y, mTempVec.Z, 0, 1, 0)
+			
+				'Set framebuffer
+				mFramebuffer.Set()
+				
+				'Setup renderer
+				Renderer.Setup3D(0, 0, mFramebuffer.ColorTexture.Width, mFramebuffer.ColorTexture.Height, True)
+				Renderer.SetProjectionMatrix(mDepthProj)
+				Renderer.SetViewMatrix(mDepthView)
+				Renderer.ClearColorBuffer(Color.WHITE)
+				Renderer.ClearDepthBuffer()
+				
+				'Render entities for shadow step
+				For Local e:Entity = Eachin mVisibleEntities
+					'e._PrepareForRender()
+					numRenderCalls += e._Render(Renderer.STEP_SHADOWS)
+				Next
+				
+				'Set screen
+				Framebuffer.SetScreen()
+			End
+			
+			'Prepare camera
+			c._PrepareForRender()
+			
+			'Set fog and number of lights
+			Renderer.SetFog(mFogEnabled, mFogMin, mFogMax, Color.Red(mFogColor) / 255.0, Color.Green(mFogColor) / 255.0, Color.Blue(mFogColor) / 255.0)
+			Renderer.SetNumLights(numLights)
+			
+			'Set depth data
+			If mShadowsEnabled
+				Renderer.SetDepthData(mDepthProj, mDepthView, DepthTexture().Handle, mShadowsDistance / 10000.0)
+			Else
+				Renderer.SetDepthData(mDepthProj, mDepthView, 0, 0)
+			End
+			
+			'Prepare lighting
+			If numLights > 0
+				Renderer.SetPixelLighting(GlobalPixelLighting())
+				Renderer.SetAmbient(Color.Red(mAmbient) / 255.0, Color.Green(mAmbient) / 255.0, Color.Blue(mAmbient) / 255.0)
+			End
+			If sunLightEnabled
+				mTempQuat.SetEuler(mSunPitch, mSunYaw, 0)
+				mTempQuat.Mul(0, 0, -1)
+				Renderer.ViewMatrix().Mul(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, 0.0)
+				Renderer.SetLight(0, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 0.0, color.Color.Red(mSunColor) / 255.0, color.Color.Green(mSunColor) / 255.0, color.Color.Blue(mSunColor) / 255.0, 0)
+			End
+			If numLights > sunLightEnabled
+				Local i:Int = sunLightEnabled
+				For Local l:Light = Eachin mLights
+					If i >= numLights Then Exit
+					l._Number = i
+					l._PrepareForRender()
+					i += 1
+				Next
+			End
+			
+			'Render all steps
+			For Local step_:Int = Renderer.STEP_SOLID Until Renderer.STEP_COUNT
+				For Local e:Entity = Eachin mVisibleEntities
+					If step_ = Renderer.STEP_SOLID Then e._PrepareForRender()
+					numRenderCalls += e._Render(step_)
+				Next
+			End
+			
+			'Set num render calls
+			Stats._SetRenderCalls(numRenderCalls)
+		End
+	End
+
+	Function SkyboxTexture:Texture()
+		Return mSkybox.Material(0).BaseTexture
+	End
+	
+	Function SetSkyboxTexture:Void(tex:Texture)
+		mSkybox.Material(0).DiscardTextures()
+		mSkybox.Material(0).BaseTexture = tex
+	End
+	
+	Function NumEntities:Int()
+		Return mEntities.Count()
+	End
+	
+	Function Entity:Entity(index:Int)
+		Local i:Int = 0
+		Local node:list.Node<Entity> = mEntities.FirstNode()
+		While node And i < index
+			node = node.NextNode()
+			i += 1
+		Wend
+		If node And i = index Then Return node.Value() Else Return Null
+	End
+	
+	Function FindEntity:Entity(name:String)
+		For Local e:Entity = Eachin mEntities
+			If e.Name = name Then Return e
+		Next
+		Return Null
+	End
+	
+	Function SunPitch:Float()
+		Return mSunPitch
+	End
+	
+	Function SunYaw:Float()
+		Return mSunYaw
+	End
+	
+	Function SetSunRotation:Void(pitch:Float, yaw:Float)
+		mSunPitch = pitch
+		mSunYaw = yaw
+	End
+	
+	Function SunColor:Int()
+		Return mSunColor
+	End
+	
+	Function SetSunColor:Void(color:Int)
+		mSunColor = color
+	End
+	
+	Function Ambient:Int()
+		Return mAmbient
+	End
+	
+	Function SetAmbient:Void(amb:Int)
+		mAmbient = amb
+	End
+	
+	Function FogEnabled:Bool()
+		Return mFogEnabled
+	End
+	
+	Function SetFogEnabled:Void(enabled:Bool)
+		mFogEnabled = enabled
+	End
+	
+	Function FogMinDistance:Float()
+		Return mFogMin
+	End
+	
+	Function SetFogMinDistance:Void(minDist:Float)
+		mFogMin = minDist
+	End
+	
+	Function FogMaxDistance:Float()
+		Return mFogMax
+	End
+	
+	Function SetFogMaxDistance:Void(maxDist:Float)
+		mFogMax = maxDist
+	End
+	
+	Function FogColor:Int()
+		Return mFogColor
+	End
+	
+	Function SetFogColor:Void(color:Int)
+		mFogColor = color
+	End
+	
+	Function GlobalPixelLighting:Bool()
+		Return mGlobalPixelLighting
+	End
+	
+	Function SetGlobalPixelLighting:Void(enable:Bool)
+		mGlobalPixelLighting = enable
+	End
+	
+	Function Shadows:Bool()
+		Return mShadowsEnabled
+	End
+	
+	Function SetShadows:Void(enable:Bool, maxDistance:Float = 100)
+		mShadowsEnabled = enable
+		mShadowsDistance = maxDistance
+	End
+	
+	Function DepthTexture:Texture()
+		Return mFramebuffer.ColorTexture
+	End
+	
+	Function AddStaticCollisionBox:Void(x:Float, y:Float, z:Float, width:Float, height:Float, depth:Float)
+		mColBoxes = mColBoxes.Resize(mColBoxes.Length + 1)
+		mColBoxes[mColBoxes.Length - 1] = New Box(x, y, z, x+width, y+height, z+depth)
+	End
+	
+	Function ClearStaticCollisions:Void()
+		mColBoxes = New Box[0]
+	End
+	
+	Function _CheckStaticCollision:Bool(x:Float, y:Float, z:Float, sqRadius:Float)
+		'Iterate through all collision boxes
+		For Local box:Box = Eachin mColBoxes
+			If Collision.BoxSphere(box.Min.X, box.Min.Y, box.Min.Z, box.Max.X, box.Max.Y, box.Max.Z, x, y, z, sqRadius)
+				Return True
+			End
+		Next
+		
+		Return False
+	End
+	
+	Function _AddEntity:Void(e:Entity)
+		mEntities.AddLast(e)
+	End
+	
+	Function _FreeEntity:Void(e:Entity)
+		_EntityNeedsUpdate(e, False)
+		'_EntityNeedsPrepareRender(e, False)
+		_EntitySetVisible(e, False)
+		mEntities.RemoveFirst(e)
+	End
+	
+	Function _AddCamera:Void(c:Camera)
+		mCameras.AddLast(c)
+	End
+	
+	Function _FreeCamera:Void(c:Camera)
+		mCameras.RemoveFirst(c)
+	End
+	
+	Function _AddLight:Void(l:Light)
+		mLights.AddLast(l)
+	End
+	
+	Function _FreeLight:Void(l:Light)
+		mLights.RemoveFirst(l)
+	End
+	
+	Function _EntityNeedsUpdate:Void(e:Entity, update:Bool)
+		If update
+			If Not mEnabledEntities.Contains(e) Then mEnabledEntities.AddLast(e)
+		Else
+			mEnabledEntities.RemoveFirst(e)
+		End
+	End
+	
+	Function _EntitySetVisible:Void(e:Entity, visible:Bool)
+		If visible
+			If Not mVisibleEntities.Contains(e) Then mVisibleEntities.AddLast(e)
+		Else
+			mVisibleEntities.RemoveFirst(e)
+		End
+	End
+	
+	#Rem
+	Function _EntityNeedsPrepareRender:Void(e:Entity, prepare:Bool)
+		If prepare
+			If Not mVisibleEntities.Contains(e) Then mVisibleEntities.AddLast(e)
+		Else
+			mVisibleEntities.RemoveFirst(e)
+		End
+	End
+	
+	Function _AddSurfaceToRenderList:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
+		mRenderList.AddSurface(surface, transform, overrideMaterial)
+	End
+	
+	Function _RemoveSurfaceFromRenderList:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
+		mRenderList.RemoveSurface(surface, transform, overrideMaterial)
+	End
+	
+	Function _AddSurfaceToRenderList:Void(surface:Surface, transform:Mat4, animMatrices:Mat4[], overrideMaterial:Material = Null)
+		If animMatrices.Length > 0
+			mRenderList.AddSurface(surface, transform, animMatrices, overrideMaterial)
+		Else
+			mRenderList.AddSurface(surface, transform, overrideMaterial)
+		End
+	End
+	
+	Function _RemoveSurfaceFromRenderList:Void(surface:Surface, transform:Mat4, animMatrices:Mat4[], overrideMaterial:Material = Null)
+		If animMatrices.Length > 0
+			mRenderList.RemoveSurface(surface, transform, animMatrices, overrideMaterial)
+		Else
+			mRenderList.RemoveSurface(surface, transform, overrideMaterial)
+		End
+	End
+	#End
+	
+	Function _RenderSkybox:Void(x:Float, y:Float, z:Float)
+		mSkyboxMatrix.SetTransform(x, y, z, 0, 0, 0, 10, 10, 10)
+		Renderer.SetModelMatrix(mSkyboxMatrix)
+		mSkybox.Material(0)._Prepare(Renderer.STEP_NODEPTHWRITE)
+		mSkybox.Surface(0)._Render()
+	End
+	
+	Function _Entities:List<Entity>()
+		Return mEntities
+	End
+Private
+	Global mEntities			: List<Entity> = New List<Entity>
+	Global mEnabledEntities		: List<Entity> = New List<Entity>
+	Global mVisibleEntities		: List<Entity> = New List<Entity>
+	Global mCameras				: List<Camera> = New List<Camera>
+	Global mLights				: List<Light> = New List<Light>
+	'Global mRenderList			: RenderList = New RenderList()
+	Global mSkybox				: Mesh
+	Global mSkyboxMatrix		: Mat4 = Mat4.Create()
+	Global mSunPitch			: Float
+	Global mSunYaw				: Float
+	Global mSunColor			: Int
+	Global mAmbient				: Int
+	Global mFogEnabled			: Bool
+	Global mFogMin				: Float
+	Global mFogMax				: Float
+	Global mFogColor			: Int
+	Global mGlobalPixelLighting	: Bool
+	Global mFramebuffer			: Framebuffer
+	Global mShadowsEnabled		: Bool
+	Global mShadowsDistance		: Float
+	Global mDepthProj			: Mat4 = Mat4.Create()
+	Global mDepthView			: Mat4 = Mat4.Create()
+	Global mColBoxes			: Box[0]
+	Global mTempVec				: Vec3 = Vec3.Create()
+	Global mTempQuat			: Quat = Quat.Create()
+	
+	Method New()
+	End
+End
+
+Private
+
+Class Box	
+	Method New()
+		mMin = Vec3.Create()
+		mMax = Vec3.Create()
+	End
+	
+	Method New(x0:Float, y0:Float, z0:Float, x1:Float, y1:Float, z1:Float)
+		Self.mMin = Vec3.Create(x0, y0, z0)
+		Self.mMax = Vec3.Create(x1, y1, z1)
+	End
+	
+	Method Min:Vec3() Property
+		Return mMin
+	End
+	
+	Method Max:Vec3() Property
+		Return mMax
+	End
+Private
+	Field mMin	: Vec3
+	Field mMax	: Vec3
+End

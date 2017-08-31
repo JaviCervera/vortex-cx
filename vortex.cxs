@@ -1,0 +1,41 @@
+'TODO v2.0:
+'- Add previous depth pass to avoid computing redundant fragments
+'- Add size suffix to fonts in fonttool
+'- Fix render to texture on HTML5
+'- Add Building section to README.md
+'- Remove XML support in tools
+'- Change mesh in shadows demo
+'- Document tools
+'- Add PCF to shadows
+'- Consider switching to Zlib or another license?
+'TODO v2.1:
+'- Add particles
+'- Add spot lights
+'- Add multiple shadows
+'- Add several shaders: unlit, vlit, flit, with static and skinned modes
+'- Write Assimp mesh loader
+'- Write worldtool with lightmapping support
+
+'Enable depth buffer when using this module
+#OPENGL_DEPTH_BUFFER_ENABLED=True
+
+Strict
+
+Import src.bone
+Import src.cache
+Import src.camera
+Import src.color
+Import src.entity
+Import src.font
+Import src.framebuffer
+Import src.light
+Import src.listener
+Import src.material
+Import src.mesh
+Import src.model
+Import src.renderer
+Import src.sprite
+Import src.stats
+Import src.surface
+Import src.texture
+Import src.world

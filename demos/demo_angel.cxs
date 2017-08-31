@@ -1,0 +1,112 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Angel"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+'#GLFW_GCC_MSIZE_WINNT="32"
+
+Import mojo.app
+Import mojo.input
+Import vortex
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init()
+			Print "Error: " + Stats.ShaderError()
+			EndApp()
+		End
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
+		
+		'Load font
+		mFont = Cache.LoadFont("system.fnt.dat")
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.SetPosition(7, 7, -7)
+		mCam.SetRotation(37.5, -45, 0)
+		mCam.ClearColor = Color.RGB(15, 15, 15)
+		
+		'Create model
+		mModel = New Model(Cache.LoadMesh("angel.msh.dat"))
+		mModel.Yaw = 180.0
+		
+		'Create lights
+		World.SetAmbient(Color.RGB(15, 15, 15))
+		World.SetSunColor(Color.RGB(100, 100, 100))
+		mLights[0] = New Light()
+		mLights[1] = New Light()
+		mLights[0].SetPosition(0, 0, -2)
+		mLights[1].SetPosition(0, 8, 4)
+		mLights[0].Color = Color.RGB(255, 100, 0)
+		mLights[1].Color = Color.RGB(0, 100, 255)
+
+		Return False
+	End
+	
+	Method OnUpdate:Int()	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		'Update camera view
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		'Update model
+		mModel.Yaw += 32 * Stats.DeltaTime()
+		mModel.Move(0, 0, 0)
+		
+		'Update lighting
+		mValue += Stats.DeltaTime()
+		Local sinVal:Float = 0.5 + Abs(Sinr(mValue)) * 0.5
+		Local cosVal:Float = 0.5 + Abs(Cosr(mValue)) * 0.5
+		mLights[0].Radius = 2 * sinVal
+		mLights[1].Radius = 10 * cosVal
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw
+		Local text:String = "Frank by misterdevious is licensed under CC Attribution-NonCommercial-ShareAlike"
+		Renderer.SetColor(Color.RGB(240, 240, 240))
+		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 8, text)
+	
+		Return False
+	End
+Private
+	Field mFont				: Font
+	Field mCam				: Camera
+	Field mModel			: Model
+	Field mLights			: Light[2]
+	Field mValue			: Float
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
+End

@@ -1,0 +1,254 @@
+Strict
+
+Private
+Import color
+Import math3d
+Import renderlist
+Import renderer
+Import texture
+
+Public
+
+#Rem
+Interface IMaterialDelegate
+	Method MaterialChanged:Void(mat:Material)
+End
+#End
+
+Class Material Final
+Public
+	Method New(baseTex:Texture = Null)', delegate:IMaterialDelegate = Null)
+		'mDelegate = delegate
+		mColor = color.Color.WHITE
+		mBaseTex = baseTex
+		mShininess = 0
+		mRefractCoef = 1
+		mBlendMode = Renderer.BLEND_SOLID
+		mCulling = True
+		mDepthWrite = True
+		mCastShadows = True
+		mTextureMatrix = Mat4.Create()
+	End
+	
+	Method New(other:Material)', delegate:IMaterialDelegate = Null)
+		'mDelegate = delegate
+		mTextureMatrix = Mat4.Create()
+		Set(other)
+	End
+	
+	Method DiscardTextures:Void()
+		If mBaseTex Then mBaseTex.Discard()
+		If mNormalTex Then mNormalTex.Discard()
+		If mLightTex Then mLightTex.Discard()
+		If mReflectTex Then mReflectTex.Discard()
+		If mReflectTex Then mRefractTex.Discard()
+	End
+	
+	Method IsEqual:Bool(other:Material)
+		If Self = other Then Return True
+		If mColor = other.mColor And mBaseTex = other.mBaseTex And mNormalTex = other.mNormalTex And mLightTex = other.mLightTex And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows
+			Return True
+		Else
+			Return False
+		End
+	End
+
+	Method Set:Void(other:Material)
+		If Self.IsEqual(other) Then Return
+		mColor = other.mColor
+		mBaseTex = other.mBaseTex
+		mNormalTex = other.mNormalTex
+		mLightTex = other.mLightTex
+		mReflectTex = other.mReflectTex
+		mRefractTex = other.mRefractTex
+		mShininess = other.mShininess
+		mRefractCoef = other.mRefractCoef
+		mBlendMode = other.mBlendMode
+		mCulling = other.mCulling
+		mDepthWrite = other.mDepthWrite
+		mCastShadows = other.mCastShadows
+		mTextureMatrix.Set(other.mTextureMatrix)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+	
+	#Rem
+	Method Delegate:Void(delegate:IMaterialDelegate) Property
+		mDelegate = delegate
+	End
+	
+	Method Delegate:IMaterialDelegate() Property
+		Return mDelegate
+	End
+	#End
+	
+	Method Color:Void(color:Int) Property
+		If mColor = color Then Return
+		mColor = color
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+
+	Method Color:Int() Property
+		Return mColor
+	End
+	
+	Method BaseTexture:Void(tex:Texture) Property
+		If mBaseTex = tex Then Return
+		mBaseTex = tex
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+
+	Method BaseTexture:Texture() Property
+		Return mBaseTex
+	End
+	
+	Method NormalTexture:Void(tex:Texture) Property
+		If mNormalTex = tex Then Return
+		mNormalTex = tex
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+	
+	Method NormalTexture:Texture() Property
+		Return mNormalTex
+	End
+	
+	Method LightTexture:Void(tex:Texture) Property
+		If mLightTex = tex Then Return
+		mLightTex = tex
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+	
+	Method LightTexture:Texture() Property
+		Return mLightTex
+	End
+	
+	Method ReflectionTexture:Void(tex:Texture) Property
+		If mReflectTex = tex Then Return
+		mReflectTex = tex
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+	
+	Method ReflectionTexture:Texture() Property
+		Return mReflectTex
+	End
+	
+	Method RefractionTexture:Void(tex:Texture) Property
+		If mRefractTex = tex Then Return
+		mRefractTex = tex
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+	
+	Method RefractionTexture:Texture() Property
+		Return mRefractTex
+	End
+
+	Method Shininess:Void(shininess:Float) Property
+		shininess = Clamp(shininess, 0.0, 1.0)
+		If mShininess = shininess Then Return
+		mShininess = shininess
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+
+	Method Shininess:Float() Property
+		Return mShininess
+	End
+	
+	Method RefractionCoef:Void(coef:Float) Property
+		If mRefractCoef = coef Then Return
+		mRefractCoef = coef
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+	
+	Method RefractionCoef:Float() Property
+		Return mRefractCoef
+	End
+
+	Method BlendMode:Void(mode:Int) Property
+		If mBlendMode = mode Then Return
+		mBlendMode = mode
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+
+	Method BlendMode:Int() Property
+		Return mBlendMode
+	End
+
+	Method Culling:Void(enable:Bool) Property
+		If mCulling = enable Then Return
+		mCulling = enable
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+
+	Method Culling:Bool() Property
+		Return mCulling
+	End
+
+	Method DepthWrite:Void(enable:Bool) Property
+		If mDepthWrite = enable Then Return
+		mDepthWrite = enable
+		'RenderList.Sort(Self)
+		'If mDelegate Then mDelegate.MaterialChanged(Self)
+	End
+
+	Method DepthWrite:Bool() Property
+		Return mDepthWrite
+	End
+	
+	Method CastShadows:Void(enable:Bool) Property
+		If mCastShadows = enable Then Return
+		mCastShadows = enable
+	End
+	
+	Method CastShadows:Bool() Property
+		Return mCastShadows
+	End
+	
+	Method TextureMatrix:Mat4() Property
+		Return mTextureMatrix
+	End
+
+	Method _Prepare:Bool(step_:Int)
+		'Abort if this material does not render in this step
+		If step_ = Renderer.STEP_SHADOWS And (mBlendMode <> Renderer.BLEND_SOLID Or Not CastShadows) Then Return False
+		If step_ = Renderer.STEP_SOLID And (mBlendMode <> Renderer.BLEND_SOLID Or Not mDepthWrite) Then Return False
+		If step_ = Renderer.STEP_DEPTHWRITE And (mBlendMode = Renderer.BLEND_SOLID Or Not mDepthWrite) Then Return False
+		If step_ = Renderer.STEP_NODEPTHWRITE And mDepthWrite Then Return False
+	
+		Local baseHandle:Int = 0
+		Local normalHandle:Int = 0
+		Local lightHandle:Int = 0
+		Local reflectHandle:Int = 0
+		Local refractHandle:Int = 0
+		'Local shininess:Int = 0
+		'If mShininess > 0 Then shininess = Int(mShininess * 128)
+
+		Renderer.SetColor(mColor)
+		Renderer.SetShininess(mShininess)
+		Renderer.SetRefractCoef(mRefractCoef)
+		Renderer.SetBlendMode(mBlendMode)
+		Renderer.SetCulling(mCulling)
+		Renderer.SetDepthWrite(mDepthWrite)
+		Renderer.SetTextureMatrix(mTextureMatrix)
+		If mBaseTex <> Null Then baseHandle = mBaseTex.Handle
+		If mNormalTex <> Null Then normalHandle = mNormalTex.Handle
+		If mLightTex <> Null Then lightHandle = mLightTex.Handle
+		If mReflectTex <> Null Then reflectHandle = mReflectTex.Handle
+		If mRefractTex <> Null Then refractHandle = mRefractTex.Handle
+		Renderer.SetTextures(baseHandle, normalHandle, lightHandle, reflectHandle, refractHandle, mBaseTex And mBaseTex.IsCubic)
+		Return True
+	End
+Private
+	'Field mDelegate		: IMaterialDelegate
+	Field mColor			: Int
+	Field mBaseTex			: Texture
+	Field mNormalTex		: Texture
+	Field mLightTex			: Texture
+	Field mReflectTex		: Texture
+	Field mRefractTex		: Texture
+	Field mShininess		: Float
+	Field mRefractCoef		: Float
+	Field mBlendMode		: Int
+	Field mCulling			: Bool
+	Field mDepthWrite		: Bool
+	Field mCastShadows		: Bool
+	Field mTextureMatrix	: Mat4
+End

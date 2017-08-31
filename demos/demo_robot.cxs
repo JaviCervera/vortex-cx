@@ -1,0 +1,106 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Robot"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+'#GLFW_GCC_MSIZE_WINNT="32"
+
+Import mojo.app
+Import mojo.input
+Import vortex
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init()
+			Print "Error: " + Stats.ShaderError()
+			EndApp()
+		End
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
+		
+		'Load font
+		mFont = Cache.LoadFont("system.fnt.dat")
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.SetPosition(16, 16, -16)
+		mCam.SetRotation(20, -45, 0)
+		mCam.ClearColor = Color.RGB(15, 15, 15)
+		
+		'Create model
+		mModel = New Model(Cache.LoadMesh("robot.msh.dat"))
+		'mModel.Yaw = 180.0
+		
+		'Create lights
+		mLights[0] = New Light
+		'mLights[0].SetRotation(45, -45, 0)
+		mLights[0].SetPosition(32, 0, 32)
+		mLights[0].Color = Color.RGB(125, 161, 191)
+		mLights[1] = New Light
+		mLights[1].SetPosition(-32, 32, -32)
+		mLights[1].Color = Color.RGB(255, 100, 0)
+		
+		'Disable sun
+		World.SetSunColor(Color.BLACK)
+
+		Return False
+	End
+	
+	Method OnUpdate:Int()	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		'Update camera
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		'Update model
+		mModel.Yaw += 32 * Stats.DeltaTime()
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw
+		Local text:String = "Robo_OBJ_pose4 by Artem Shupa-Dubrova is licensed under CC Attribution-NoDerivs"
+		Renderer.SetColor(Color.RGB(240, 240, 240))
+		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 8, text)
+	
+		Return False
+	End
+Private
+	Field mFont				: Font
+	Field mCam				: Camera
+	Field mModel			: Model
+	Field mLights			: Light[2]
+	Field mValue			: Float
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
+End

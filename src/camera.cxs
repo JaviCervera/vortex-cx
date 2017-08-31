@@ -1,0 +1,204 @@
+Strict
+
+Private
+Import color
+Import framebuffer
+Import listener
+Import math3d
+Import mojo.app
+Import renderer
+Import world
+
+Public
+Import entity
+
+Class Camera Extends Entity Final
+	Const CLEAR_NONE	: Int = 0
+	Const CLEAR_COLOR	: Int = 1
+	Const CLEAR_SKYBOX	: Int = 2
+	
+	Method New(parent:Entity = Null)
+		Super.New(parent)
+		SetViewport(0, 0, DeviceWidth(), DeviceHeight())
+		mClearMode = CLEAR_COLOR
+		mClearColor = Color.RGB(55, 155, 255)
+		FovY = 50
+		AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		Near = 1
+		Far = 1000
+		Visible = True
+		If Listener.Instance() = Null Then Listener.SetInstance(Self)
+	End
+	
+	Method Discard:Void()
+		Super.Discard()
+		If Listener.Instance() = Self Then Listener.SetInstance(Null)
+	End
+	
+	Method Visible:Void(visible:Bool) Property
+		If visible <> Super.Visible
+			Super.Visible(visible)
+			If visible
+				World._AddCamera(Self)
+			Else
+				World._FreeCamera(Self)
+			End
+		End
+	End
+	
+	Method ViewportX:Int() Property
+		Return mVX
+	End
+	
+	Method ViewportY:Int() Property
+		Return mVY
+	End
+	
+	Method ViewportWidth:Int() Property
+		Return mVW
+	End
+	
+	Method ViewportHeight:Int() Property
+		Return mVH
+	End
+	
+	Method ViewportX:Void(val:Int) Property
+		mVX = val
+	End
+	
+	Method ViewportY:Void(val:Int) Property
+		mVY = val
+	End
+	
+	Method ViewportWidth:Void(val:Int) Property
+		mVW = val
+	End
+	
+	Method ViewportHeight:Void(val:Int) Property
+		mVH = val
+	End
+	
+	Method SetViewport:Void(x:Int, y:Int, width:Int, height:Int)
+		mVX = x
+		mVY = y
+		mVW = width
+		mVH = height
+	End
+	
+	Method ClearMode:Int() Property
+		Return mClearMode
+	End
+	
+	Method ClearMode:Void(mode:Int) Property
+		mClearMode = Clamp(mode, CLEAR_NONE, CLEAR_SKYBOX)
+	End
+	
+	Method ClearColor:Int() Property
+		Return mClearColor
+	End
+	
+	Method ClearColor:Void(color:Int) Property
+		mClearColor = color
+	End
+	
+	Method Orthographic:Bool() Property
+		Return mOrtho
+	End
+	
+	Method Orthographic:Void(ortho:Bool) Property
+		mOrtho = ortho
+	End
+	
+	Method FovY:Float() Property
+		Return mFovY
+	End
+	
+	Method FovY:Void(fovy:Float) Property
+		mFovY = fovy
+	End
+	
+	Method AspectRatio:Float() Property
+		Return mRatio
+	End
+	
+	Method AspectRatio:Void(ratio:Float) Property
+		mRatio = ratio
+	End
+	
+	Method Near:Float() Property
+		Return mNear
+	End
+	
+	Method Near:Void(near:Float) Property
+		mNear = near
+	End
+	
+	Method Far:Float() Property
+		Return mFar
+	End
+	
+	Method Far:Void(far:Float) Property
+		mFar = far
+	End
+	
+	Method Framebuffer:Framebuffer() Property
+		Return mFramebuffer
+	End
+	
+	Method Framebuffer:Void(fb:Framebuffer) Property
+		mFramebuffer = fb
+	End
+	
+	Method _PrepareForRender:Void()
+		'Set framebuffer
+		If mFramebuffer
+			mFramebuffer.Set()
+		Else
+			Framebuffer.SetScreen()
+		End
+	
+		'Set viewport
+		Renderer.Setup3D(mVX, mVY, mVW, mVH)
+		
+		'Set projection matrix
+		If mOrtho
+			Local height:Float = mFovY * 0.5
+			Local width:Float = height * mRatio
+			mProjMatrix.SetOrthoLH(-width, width, -height, height, mNear, mFar)
+		Else
+			mProjMatrix.SetPerspectiveLH(mFovY, mRatio, mNear, mFar)
+		End
+		Renderer.SetProjectionMatrix(mProjMatrix)
+		
+		'Set view matrix
+		mViewMatrix.SetViewerTransform(WorldX, WorldY, WorldZ, Pitch, Yaw, Roll)
+		Renderer.SetViewMatrix(mViewMatrix)
+		
+		'Clear buffers
+		Renderer.ClearDepthBuffer()
+		Select mClearMode
+		Case CLEAR_COLOR
+			Renderer.ClearColorBuffer(ClearColor)
+		Case CLEAR_SKYBOX
+			World._RenderSkybox(WorldX, WorldY, WorldZ)
+		End
+	End
+Private
+	Field mVX			: Int
+	Field mVY			: Int
+	Field mVW			: Int
+	Field mVH			: Int
+	Field mClearMode	: Int
+	Field mClearColor	: Int
+	Field mOrtho		: Bool
+	Field mFovY			: Float
+	Field mRatio		: Float
+	Field mNear			: Float
+	Field mFar			: Float
+	Field mFramebuffer	: Framebuffer
+	
+	Global mProjMatrix	: Mat4 = Mat4.Create()
+	Global mViewMatrix	: Mat4 = Mat4.Create()
+	Global mTempQuat	: Quat = Quat.Create()
+	Global mTempVec		: Vec3 = Vec3.Create()
+End

@@ -1,0 +1,45 @@
+Strict
+
+Class Color
+Public
+	Const RED			: Int = $FFFF0000
+	Const GREEN			: Int = $FF00FF00
+	Const BLUE			: Int = $FF0000FF
+	Const CYAN			: Int = $FF00FFFF
+	Const MAGENTA		: Int = $FFFF00FF
+	Const YELLOW		: Int = $FFFFFF00
+	Const BLACK			: Int = $FF000000
+	Const WHITE			: Int = $FFFFFFFF
+	Const GRAY			: Int = $FF808080
+	Const LIGHT_GRAY	: Int = $FFBFBFBF
+	Const DARK_GRAY		: Int = $FF404040
+	Const ORANGE		: Int = $FFFFA500
+	Const BROWN			: Int = $FF8B4513
+
+	Function RGB:Int(r:Int, g:Int, b:Int, a:Int = 255)
+		Return (a Shl 24) | (r Shl 16) | (g Shl 8) | b
+	End
+
+	Function Red:Int(color:Int)
+		Return (color Shr 16) & $FF
+	End
+
+	Function Green:Int(color:Int)
+		Return (color Shr 8) & $FF
+	End
+
+	Function Blue:Int(color:Int)
+		Return color & $FF
+	End
+
+	Function Alpha:Int(color:Int)
+		Return (color Shr 24) & $FF
+	End
+	
+	Function ChangeAlpha:Int(color:Int, newAlpha:Int)
+		Return (newAlpha Shl 24) | (color & $00FFFFFF)
+	End
+Private
+	Method New()
+	End
+End

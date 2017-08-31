@@ -1,0 +1,89 @@
+Strict
+
+Private
+Import mojo.app
+Import renderer
+
+Public
+Class Stats Final
+Public	
+	Function DeltaTime:Float()
+		Return mDeltaTime
+	End
+	
+	Function FPS:Int()
+		Return mFps
+	End
+	
+	Function RenderCalls:Int()
+		Return mRenderCalls
+	End
+	
+	Function ShaderError:String()
+		Return Renderer.ProgramError()
+	End
+	
+	Function VendorName:String()
+		Return Renderer.VendorName()
+	End
+	
+	Function RendererName:String()
+		Return Renderer.RendererName()
+	End
+	
+	Function APIVersionName:String()
+		Return Renderer.APIVersionName()
+	End
+	
+	Function ShadingVersionName:String()
+		Return Renderer.ShadingVersionName()
+	End
+
+	Function APIVersion:Float()
+		Return Renderer.APIVersion()
+	End
+
+	Function ShadingVersion:Float()
+		Return Renderer.ShadingVersion()
+	End
+	
+	Function MaxTextureSize:Int()
+		Return Renderer.MaxTextureSize()
+	End
+	
+	Function _Init:Void()
+		mLastMillisecs = Millisecs()
+		mFpsCounter = 0
+		mFpsAccum = 0
+	End
+	
+	Function _UpdateDeltaTime:Void()
+		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
+		mLastMillisecs = Millisecs()
+	End
+	
+	Function _UpdateFPS:Void()
+		mFpsCounter += 1
+		mFpsAccum += mDeltaTime
+		If mFpsAccum >= 1
+			mFps = mFpsCounter
+			mFpsCounter = 0
+			mFpsAccum = 0
+		End
+	End
+	
+	Function _SetRenderCalls:Void(num:Int)
+		mRenderCalls = num
+	End
+Private
+	Global mLastMillisecs	: Int
+	Global mDeltaTime		: Float
+	Global mFpsCounter		: Int
+	Global mFpsAccum		: Float
+	Global mFps				: Int
+	Global mRenderCalls		: Int
+	
+	'Hide default constructor
+	Method New()
+	End
+End

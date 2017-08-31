@@ -1,0 +1,210 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Collisions Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+
+Import mojo.app
+Import mojo.input
+Import vortex
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init(1, 0, 2048)
+			Print "Error: " + Stats.ShaderError()
+			EndApp()
+		End
+		
+		'Load font
+		mFont = Cache.LoadFont("system.fnt.dat")
+		
+		'Setup world
+		World.SetAmbient(Color.LIGHT_GRAY)
+		ToggleShadows()
+		
+		'Create sphere
+		mBall = New Model(Cache.LoadMesh("sphere.msh.dat"))
+		mBall.SetPosition(3.5, 0.5, 2.5)
+		mBall.SetScale(0.5, 0.5, 0.5)
+		mBall.CollisionMode = Entity.COLLISION_SPHERE
+		mBall.Radius = 0.5
+		mBall.Material.Color = Color.RED
+		
+		'Create camera
+		mCam = New Camera(mBall)
+		mCam.SetPosition(0, 14, -16)
+		mCam.SetRotation(45, 0, 0)
+		mCam.ClearColor = Color.RGB(15, 25, 55)
+		
+		'Create level
+		CreateLevel()
+		
+		'Setup lighting
+		World.SetSunRotation(15, 60)
+
+		Return False
+	End
+	
+	Method OnUpdate:Int()	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		'Update camera view
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		'Update ball
+		If KeyDown(KEY_UP) Then mBall.Move(0, 0, 2 * Stats.DeltaTime())
+		If KeyDown(KEY_DOWN) Then mBall.Move(0, 0, -2 * Stats.DeltaTime())
+		If KeyDown(KEY_LEFT) Then mBall.Move(-2 * Stats.DeltaTime(), 0, 0)
+		If KeyDown(KEY_RIGHT) Then mBall.Move(2 * Stats.DeltaTime(), 0, 0)
+		
+		'Update camera yaw
+		mCam.Yaw = (mBall.WorldX - 6.5) / 6.5 * -15
+		
+		'Update door
+		mDoor.Move(0, 2 * Stats.DeltaTime() * mDoorDir, 0)
+		If mDoor.Y >= 2 Then mDoor.Y = 2; mDoorDir *= -1
+		If mDoor.Y <= 0 Then mDoor.Y = 0; mDoorDir *= -1
+		If mDoor.Collided Then mDoorDir *= -1
+		
+		'Update block ball
+		mBlockBall.Move(0, 2 * Stats.DeltaTime() * mBlockBallDir, 0)
+		If mBlockBall.Y >= 4 Then mBlockBall.Y = 4; mBlockBallDir *= -1
+		If mBlockBall.Y <= 0  Then mBlockBall.Y = 0; mBlockBallDir *= -1
+		If mBlockBall.Collided Then mBlockBallDir *= -1
+		
+		'Toggle shadows
+		If KeyHit(KEY_SPACE) Then ToggleShadows()
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Renderer.SetColor(Color.WHITE)
+		
+		'Draw FPS
+		Local text:String = Stats.FPS() + " FPS"
+		mFont.Draw(2, 2, text)
+		
+		'Draw RenderCalls
+		text = "Render calls: " + Stats.RenderCalls()
+		mFont.Draw(2, 18, text)
+		
+		'Draw shadows message
+		text = "Press SPACE to toggle shadows"
+		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, DeviceHeight() - mFont.TextHeight(text) - 8, text)
+		
+		'World.DepthTexture().Draw(4, 4, 300, -225)
+		
+		Return False
+	End
+	
+	Method CreateLevel:Void()
+		'Create cube mesh
+		Local mesh:Mesh = Mesh.CreateCube()
+		mesh.Material(0).Color = Color.ORANGE
+		mesh.Translate(0.5, 0.5, 0.5)
+		
+		'Create south wall
+		Local model:Model = New Model(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetScale(13, 1, 1)
+		
+		'Create north wall
+		model = New Model(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetPosition(0, 0, 13)
+		model.SetScale(13, 1, 1)
+		
+		'Create west wall
+		model = New Model(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetPosition(0, 0, 1)
+		model.SetScale(1, 1, 12)	
+		
+		'Create east wall
+		model = New Model(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetPosition(12, 0, 1)
+		model.SetScale(1, 1, 12)
+		
+		'Create middle wall
+		model = New Model(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetPosition(6, 0, 1)
+		model.SetScale(1, 1, 8)
+		
+		'Create floor
+		model = New Model(mesh)
+		model.CollisionMode = Entity.COLLISION_BOX
+		model.SetPosition(0, -1, 0)
+		model.SetScale(13, 1, 13)
+		model.Material.Color = Color.BROWN
+		
+		'Create door
+		mDoor = New Model(mesh)
+		mDoor.CollisionMode = Entity.COLLISION_BOX
+		mDoor.SetPosition(6, 0, 9)
+		mDoor.SetScale(1, 1, 4)
+		mDoor.Material.Color = Color.CYAN
+		mDoorDir = 1
+		
+		'Create first blocking sphere
+		model = New Model(Cache.LoadMesh("sphere.msh.dat"))
+		model.CollisionMode = Entity.COLLISION_SPHERE
+		model.Radius = 1.2
+		model.SetPosition(9, 1, 10)
+		model.Material.Color = Color.YELLOW
+		
+		'Create second blocking sphere
+		mBlockBall = New Model(Cache.LoadMesh("sphere.msh.dat"))
+		mBlockBall.CollisionMode = Entity.COLLISION_SPHERE
+		mBlockBall.Radius = 1.2
+		mBlockBall.SetPosition(9, 3, 5)
+		mBlockBall.Material.Color = Color.MAGENTA
+		mBlockBallDir = -1
+	End
+	
+	Method ToggleShadows:Void()
+		If World.Shadows()
+			World.SetShadows(False)
+		Else
+			World.SetShadows(True, 50)
+		End
+	End
+Private
+	Field mFont			: Font
+	Field mCam			: Camera
+	Field mBall			: Model
+	Field mDoor			: Model
+	Field mDoorDir		: Float
+	Field mBlockBall	: Model
+	Field mBlockBallDir	: Float
+	Field mLight		: Light
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
+End

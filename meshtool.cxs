@@ -1,0 +1,148 @@
+'NOTE: To build on Win32 GCC, you need to go to the Makefile (i.e. glfw3/gcc_winnt/Makefile)
+'and add -lole32 to the LDLIBS property
+
+Strict
+
+'Config settings
+#GLFW_WINDOW_TITLE="Vortex2 Mesh Tool"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+'#GLFW_GCC_MSIZE_WINNT="32"
+#If HOST = "winnt"
+#BINARY_FILES += "*.exe"
+#End
+
+'Imports
+Import mojo.app
+Import mojo.input
+Import src_tools.dialog
+Import src_tools.meshtool_gui
+Import vortex
+Import src.math3d
+
+'Constants
+Const CAM_DEFX		: Float = 2
+Const CAM_DEFY		: Float = 2
+Const CAM_DEFZ		: Float = -2
+Const CAM_DEFPITCH	: Float = 37
+Const CAM_DEFYAW	: Float = -45
+
+Class MeshToolApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(30)
+		SetSwapInterval(1)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init()
+			Notify "Error", Stats.ShaderError(), True
+			EndApp()
+		End
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
+		
+		'Create gui
+		mGui = New Gui
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.SetPosition(CAM_DEFX, CAM_DEFY, CAM_DEFZ)
+		mCam.SetRotation(CAM_DEFPITCH, CAM_DEFYAW, 0)
+		mCam.ClearColor = Color.RGB(100, 100, 100)
+		mCam.Far = 5000
+		
+		'Create look point
+		mLookPoint = New Entity(mCam)
+		mLookPoint.SetPosition(0, 0, 1)
+		
+		mLastMouseX = MouseX()
+		mLastMouseY = MouseY()
+		mFreeLook = False
+		mTempVec = Vec3.Create()
+		
+		Return False
+	End
+	
+	Method OnUpdate:Int()
+		'Update world
+		World.Update()
+		
+		'Update GUI
+		Local newModel:Model = mGui.Update(mModel)
+		If newModel <> Null
+			If mModel Then mModel.Discard()
+			mModel = newModel
+			mModel.AnimSpeed = 1
+		End
+		
+		'Update camera view
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		
+		'Update camera controls
+		If MouseHit(MOUSE_RIGHT)
+			mFreeLook = Not mFreeLook
+			'If mFreeLook Then HideMouse() Else ShowMouse()
+		End
+		If mFreeLook
+			mCam.Pitch += (MouseY() - mLastMouseY) * 90 * Stats.DeltaTime()
+			mCam.Yaw += (MouseX() - mLastMouseX) * 90 * Stats.DeltaTime()
+			If mCam.Pitch > 89 Then mCam.Pitch = 89
+			If mCam.Pitch < -89 Then mCam.Pitch = -89
+			If KeyDown(KEY_W) Then mCam.Move(0, 0, 32 * Stats.DeltaTime())
+			If KeyDown(KEY_S) Then mCam.Move(0, 0, -32 * Stats.DeltaTime())
+			If KeyDown(KEY_A) Then mCam.Move(-32 * Stats.DeltaTime(), 0, 0)
+			If KeyDown(KEY_D) Then mCam.Move(32 * Stats.DeltaTime(), 0, 0)
+		End
+		
+		'Reset camera with R
+		If KeyHit(KEY_R)
+			mCam.SetPosition(CAM_DEFX, CAM_DEFY, CAM_DEFZ)
+			mCam.SetRotation(CAM_DEFPITCH, CAM_DEFYAW, 0)
+		End
+		
+		'Update light rotation
+		mTempVec.Set(mLookPoint.WorldX, mLookPoint.WorldY, mLookPoint.WorldZ)
+		mTempVec.Sub(mCam.WorldX, mCam.WorldY, mCam.WorldZ)
+		mTempVec.Normalize()
+		World.SetSunRotation(mTempVec.Pitch, mTempVec.Yaw)
+		
+		'Update mouse
+		mLastMouseX = MouseX()
+		mLastMouseY = MouseY()
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Render GUI
+		mGui.Render(mModel)
+	
+		Return False
+	End
+Private
+	Field mCam			: Camera
+	Field mLookPoint	: Entity
+	Field mModel		: Model
+	Field mGui			: Gui
+	Field mLastMouseX	: Float
+	Field mLastMouseY	: Float
+	Field mFreeLook		: Bool
+	Field mTempVec		: Vec3
+End
+
+Function Main:Int()
+	New MeshToolApp()
+	Return False
+End

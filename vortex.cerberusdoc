@@ -1,0 +1,1236 @@
+# Module vortex
+
+The Vortex module adds an easy to use 3D rendering engine based on OpenGL ES 2.
+It is inspired by the design of the Blitz3D engine, but it uses many object oriented patterns.
+
+>>> Coordinate system and rotations
+Vortex uses a left handed coordinate system where X points right, Y points up, and Z points away from the viewer.
+
+Rotations are using euler angles expressed in degrees.
+
+>>> Screen coordinates
+In Vortex, coordinates 0,0 represent the top left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the bottom right. This is a common convention in many graphics libraries (like Mojo).
+
+>>> Texture coordinates
+Texture coordinates are mapped from the top left (coordinates 0,0) to the bottom right (coordinates 1,1).
+
+>>> Triangle order
+Front facing triangles are those that are mapped to the screen in clockwise order.
+
+>>> Surfaces, meshes, and entities
+A *surface* is a list of vertices and indices that when connected define a 3 dimensional shape. A surface also has a *material*, which defines its visual properties like color, textures used and shininess.
+
+A *mesh* is a collection of surfaces that make up a single object. Basically, a mesh has as many surfaces as materials. A mesh can also have animation information (an array of bones).
+
+An *entity* is anything that exists in your 3D world, and has a position, rotation and scale. There are many types of entities, such as cameras, lights and models. An entity by itself does not draw anything in your world, but some special types of entities do. For example, a *model* is a type of entity that puts a mesh in the world. Since a mesh could appear at many places in your world, you can have a single mesh object that can be used by several models.
+
+
+
+
+# Class Bone
+
+A bone contains a list of transformations to be applied to the geometry attached to it when using animations. Meshes can contains bones that animate the surfaces of the mesh (to make it walk, for example).
+
+# Method New(name:String, parentIndex)
+Creates a new bone with the specified name and parent index.
+
+# Method Name:String() Property
+Return the name of the bone.
+
+# Method ParentIndex:Int() Property
+Returns the parent index of the bone in the array of bones of the mesh that this bone belongs to, or -1 if it is the root bone in the mesh.
+
+# Method InversePoseMatrix:Void(m:Mat4) Property
+Sets the inverse pose matrix.
+You don't normally need to use this property.
+It is used internally when loading the mesh and generating the bone hierarchy.
+
+# Method InversePoseMatrix:Mat4() Property
+Returns the inverse pose matrix.
+You don't normally need to use this property.
+It is used internally when rendering the geometry attached to the bone.
+
+# Method AddPositionKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
+Adds a new position transformation to the bone at the specified keyframe.
+
+# Method AddRotationKey:Void(keyframe:Int, w:Float, x:Float, y:Float, z:Float)
+Adds a new rotation quaternion to the bone at the specified keyframe.
+
+# Method AddScaleKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
+Adds a new scale transformation to the bone at the specified keyframe.
+
+# Method NumPositionKeys:Int() Property
+Returns the number of position keyframes in the bone.
+
+# Method PositionKeyFrame:Int(index:Int)
+Returns the frame number of the specified position keyframe. The value of `index` goes in the range `0 .. NumPositionKeys - 1`.
+
+# Method PositionKeyX:Float(index:Int)
+Returns the X coordinate of the specified position keyframe. The value of `index` goes in the range `0 .. NumPositionKeys - 1`.
+
+# Method PositionKeyY:Float(index:Int)
+Returns the Y coordinate of the specified position keyframe. The value of `index` goes in the range `0 .. NumPositionKeys - 1`.
+
+# Method PositionKeyZ:Float(index:Int)
+Returns the Z coordinate of the specified position keyframe. The value of `index` goes in the range `0 .. NumPositionKeys - 1`.
+
+# Method NumRotationKeys:Int() Property
+Returns the number of rotation keyframes in the bone.
+
+# Method RotationKeyFrame:Int(index:Int)
+Returns the frame number of the specified rotation keyframe. The value of `index` goes in the range `0 .. NumRotationKeys - 1`.
+
+# Method RotationKeyW:Float(index:Int)
+Returns the W quaternion coordinate of the specified rotation keyframe. The value of `index` goes in the range `0 .. NumRotationKeys - 1`.
+
+# Method RotationKeyX:Float(index:Int)
+Returns the X quaternion coordinate of the specified rotation keyframe. The value of `index` goes in the range `0 .. NumRotationKeys - 1`.
+
+# Method RotationKeyY:Float(index:Int)
+Returns the Y quaternion coordinate of the specified rotation keyframe. The value of `index` goes in the range `0 .. NumRotationKeys - 1`.
+
+# Method RotationKeyZ:Float(index:Int)
+Returns the Z quaternion coordinate of the specified rotation keyframe. The value of `index` goes in the range `0 .. NumRotationKeys - 1`.
+
+# Method NumScaleKeys:Int() Property
+Returns the number of scale keyframes in the bone.
+
+# Method ScaleKeyFrame:Int(index:Int)
+Returns the frame number of the specified scale keyframe. The value of `index` goes in the range `0 .. NumRotationKeys - 1`.
+
+# Method ScaleKeyX:Float(index:Int)
+Returns the X coordinate of the specified scale keyframe. The value of `index` goes in the range `0 .. NumRotationKeys - 1`.
+
+# Method ScaleKeyY:Float(index:Int)
+Returns the Y coordinate of the specified scale keyframe. The value of `index` goes in the range `0 .. NumRotationKeys - 1`.
+
+# Method ScaleKeyZ:Float(index:Int)
+Returns the Z coordinate of the specified scale keyframe. The value of `index` goes in the range `0 .. NumRotationKeys - 1`.
+
+
+
+
+# Class Cache
+
+The cache is used to avoid loading resources from disk more that once.
+When you want to load a resource from disk (a texture, a mesh, or a font), Vortex will check if the resource was already loaded, in which case the same instance is returned to you, so it is not loaded multiple times in memory.
+
+Internally, Vortex holds a stack of cache objects. You can add a new cache with the `Cache.Push` function, and all the resources loaded afterwards will be deallocated when the cache object is removed from the stack with `Cache.Pop`.
+For example, on game initialization you could push a new cache object, and then load all the resources that are used throughout the entire game (menu textures and fonts, for example).
+Then, when you are loading a new level, you push a new cache object and load all the resource of the level.
+When you exit the level, you pop the cache object from the stack, deallocating all level resources, but the menu resources remain intact.
+When you exit the game, you pop the last cache object, and all the resources allocated are cleared.
+
+When calling `World.Init`, a cache object is created automatically.
+
+# Function Push:Void()
+Pushes a new cache object onto the stack. All resources loaded afterwards are handled by this cache object. When you pop this stack object with the `Cache.Pop` function, all the resources are deallocated.
+
+# Function Pop:Void()
+Pops the last pushed cache object from the stack, deallocating all the resources that were loaded after the creation of the cache object.
+
+# Function LoadFont:Font(filename:String)
+Returns the font with the specified filename, or Null if it could not be found.
+If the font has been loaded previously by any cache object, that same object will be returned.
+Otherwise, the last pushed cache object will load and return a new font.
+
+# Function LoadMesh:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
+Returns the mesh with the specified filename, or Null if it could not be found. You can also specify a skeleton and animation files that will be loaded with the mesh.
+If the mesh has been loaded previously by any cache object, that same object will be returned. Otherwise, the last pushed cache object will load and return a new mesh.
+
+# Function LoadSound:Sound(filename:String)
+Returns the sound with the specified filename, or Null if it could not be found.
+If the sound has been loaded previously by any cache object, that same object will be returned.
+Otherwise, the last pushed cache object will load and return a new sound.
+
+# Function LoadTexture:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
+Returns the texture with the specified filename, or Null if the texture was not found.
+If the texture has been loaded previously by any cache object, that same object will be returned.
+Otherwise, the last pushed cache object will load and return a new texture.
+
+# Function LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
+Returns the cubemap texture with the specified filenames (one for each face of the cube), or Null if the texture was not found.
+If the texture has been loaded previously by any cache object, that same object will be returned.
+Otherwise, the last pushed cache object will load and return a new texture.
+
+
+
+
+# Class Camera Extends Entity
+
+A camera is a type of `Entity` that represents the player in the 3D world. It has a position and rotation, a viewport that will indicate the region of the screen where the camera will be renderer, and other properties like the clear mode and projection settings.
+
+# Const CLEAR_NONE : Int
+# Const CLEAR_COLOR : Int
+# Const CLEAR_SKYBOX : Int
+
+# Method New(parent:Entity = Null)
+Creates a new camera entity with the specified parent (if any).
+
+# Method ViewportX:Int() Property
+Returns the origin X coordinate of the region of the screen that the camera will be drawn to.
+
+# Method ViewportY:Int() Property
+Returns the origin Y coordinate of the region of the screen that the camera will be drawn to.
+
+# Method ViewportWidth:Int() Property
+Returns the width of the region of the screen that the camera will be drawn to.
+
+# Method ViewportHeight:Int() Property
+Returns the height of the region of the screen that the camera will be drawn to.
+
+# Method ViewportX:Void(val:Int) Property
+Sets the origin X coordinate of the region of the screen that the camera will be drawn to.
+
+# Method ViewportY:Void(val:Int) Property
+Sets the origin Y coordinate of the region of the screen that the camera will be drawn to.
+
+# Method ViewportWidth:Void(val:Int) Property
+Sets the width of the region of the screen that the camera will be drawn to.
+
+# Method ViewportHeight:Void(val:Int) Property
+Sets the height of the region of the screen that the camera will be drawn to.
+
+# Method SetViewport:Void(x:Int, y:Int, width:Int, height:Int)
+Sets the region of the screen that the camera will be drawn to.
+
+# Method ClearMode:Int() Property
+Returns the clear mode for this camera. Depending on the value of this property, the viewport will be cleared with a plain color or a textured skybox before performing rendering.
+| Value | Meaning
+| Camera.CLEAR_NONE | Does not clear the viewport before rendering.
+| Camera.CLEAR_COLOR | Clears the viewport with the color defined by the `ClearColor` property.
+| Camera.CLEAR_SKYBOX | Clears the viewport with the skybox defined by the `World.SetSkyboxTexture` function (defaults to `Null`).
+
+# Method ClearMode:Void(mode:Int) Property
+Sets the clear mode for this camera. Depending on the value of this property, the viewport will be cleared with a plain color or a textured skybox before performing rendering.
+| Value | Meaning
+| Camera.CLEAR_NONE | Does not clear the viewport before rendering.
+| Camera.CLEAR_COLOR | Clears the viewport with the color defined by the `ClearColor` property.
+| Camera.CLEAR_SKYBOX | Clears the viewport with the skybox defined by the `World.SetSkyboxTexture` function (defaults to `Null`).
+
+# Method ClearColor:Int() Property
+Returns the clear color used by this camera in case that the `ClearMode` property is set to `Camera.CLEAR_COLOR`.
+
+# Method ClearColor:Void(color:Int) Property
+Sets the clear color used by this camera in case that the `ClearMode` property is set to `Camera.CLEAR_COLOR`.
+
+# Method Orthographic:Bool() Property
+Returns whether this camera uses an orthogrsphic projection.
+
+# Method Orthographic:Void(ortho:Bool) Property
+Sets the camera to use an orthographics instead of a perspective projection.
+
+# Method FovY:Float() Property
+Returns the vertical focal angle of the camera.
+
+# Method FovY:Void(fovy:Float) Property
+Sets the vertical focal angle of the camera.
+
+# Method AspectRatio:Float() Property
+Returns the aspect ratio of the camera.
+
+# Method AspectRatio:Void(ratio:Float) Property
+Sets the aspect ratio of the camera, usually the width of the viewport cast to float divided by the height.
+
+# Method Near:Float() Property
+Returns the distance of the near frustum plane of the camera.
+
+# Method Near:Void(near:Float) Property
+Sets the distance of the near frustum plane of the camera. Anything closer to the camera than this plane will not be drawn.
+
+# Method Far:Float() Property
+Returns the distance of the far frustum plane of the camera.
+
+# Method Far:Void(far:Float) Property
+Sets the distance of the far frustum plane of the camera. Anything further to the camera than this plane will not be drawn.
+
+# Method Framebuffer:Framebuffer() Property
+Returns the framebuffer into which this camera renders, or `Null` if it renders to the screen.
+
+# Method Framebuffer:Void(fb:Framebuffer) Property
+Sets the framebuffer into which this camera renders. Set it to `Null` to render to the screen.
+
+
+
+
+# Class Color
+
+While internally a color is treated as 4 float values (red, green, blue, alpha), this information is packed inside a single integer, and we work with color components that go from 0 to 255. This class allows you to pack the color components into a single color integer, and extract each component from the color. It also has a set of predefined constants with some commonly used colors.
+
+# Const RED			: Int
+# Const GREEN			: Int
+# Const BLUE			: Int
+# Const CYAN			: Int
+# Const MAGENTA		: Int
+# Const YELLOW		: Int
+# Const BLACK			: Int
+# Const WHITE			: Int
+# Const GRAY			: Int
+# Const LIGHT_GRAY	: Int
+# Const DARK_GRAY		: Int
+# Const ORANGE		: Int
+# Const BROWN			: Int
+
+# Function RGB:Int(r:Int, g:Int, b:Int, a:Int = 255)
+Returns a color with the specified RGBA components.
+
+# Function Red:Int(color:Int)
+Returns the red component of the specified color.
+
+# Function Green:Int(color:Int)
+Returns the green component of the specified color.
+
+# Function Blue:Int(color:Int)
+Returns the blue component of the specified color.
+
+# Function Alpha:Int(color:Int)
+Returns the alpha component of the specified color.
+
+# Function ChangeAlpha:Int(color:Int, newAlpha:Int)
+Returns the specified color, but replacing the alpha with the value specified in `newAlpha`.
+
+
+
+
+# Class Entity
+
+# Const COLLISION_NONE		: Int
+# Const COLLISION_SPHERE	: Int
+# Const COLLISION_BOX		: Int
+
+Everything that exists in the 3D world is an entity. Basically, an entity is an object which has a position, rotation and scale. This is the base class for all the types of elements that can be part of your world, like cameras, models, lights and sprites.
+
+An entity can have a parent and a list of children. When a parent entity is moved, rotated or scaled, it affects all its children.
+
+# Method New(parent:Entity)
+Creates a new entity with the specified parent. By default, an entity is an empty object in your world, but it can be used as a reference point.
+
+# Method Discard:Void()
+Removes the entity from the world and deallocates its resources.
+
+# Method Name:String() Property
+Returns the name of the entity.
+
+# Method Name:Void(name:String) Property
+Sets the name of the entity.
+
+# Method Parent:Entity() Property
+Returns the parent of the entity.
+
+# Method Parent:Void(p:Entity) Property
+Sets the parent of the entity.
+
+# Method NumChildren:Int() Property
+Returns the number of children this entity has.
+
+# Method Child:Entity(index:Int)
+Returns the child at the specified `index`, which is a value in the range `0 .. NumChildren - 1`.
+
+# Method Active:Bool() Property
+Returns whether the entity is active or not. Inactive entities are not updated every frame.
+
+# Method Active:Void(active:Bool) Property
+Sets whether the entitiy is active or not. Inactive entities are not updated every frame.
+
+# Method Visible:Bool() Property
+Returns whether an entity is visible or not. Invisible entities are not drawn.
+
+# Method Visible:Void(visible:Bool) Property
+Sets whether the entity is visible or not. Invisible entities are not drawn.
+
+# Method X:Float() Property
+Returns the local X position of the entity (this is, not taking its parent transformation into account).
+
+# Method Y:Float() Property
+Returns the local Y position of the entity (this is, not taking its parent transformation into account).
+
+# Method Z:Float() Property
+Returns the local Z position of the entity (this is, not taking its parent transformation into account).
+
+# Method X:Void(val:Float) Property
+Sets the X position of an entity (relative to its parent).
+
+# Method Y:Void(val:Float) Property
+Sets the Y position of an entity (relative to its parent).
+
+# Method Z:Void(val:Float) Property
+Sets the Z position of an entity (relative to its parent).
+
+# Method WorldX:Float() Property
+Returns the X position of the entity in the world.
+
+# Method WorldY:Float() Property
+Returns the Y position of the entity in the world.
+
+# Method WorldZ:Float() Property
+Returns the Z position of the entity in the world.
+
+# Method SetPosition:Void(x:Float, y:Float, z:Float)
+Sets the local position of the entity.
+
+# Method Move:Void(x:Float, y:Float, z:Float, collideWithEntities:Bool = True)
+Moves the entity from its current location, taking its orientation into account. If `collideWithEntities`is set to `True` and `CollisionMode` is different to `Entity.COLLISION_NONE`, then collision woth other entities will be performed during movement. Static collisions will always be checked if the entitiy's `CollisionMode` is different to `Entity.COLLISION_NONE`. The entity will not reach its destination point if a collision is detected.
+
+# Method Pitch:Float() Property
+Returns the pitch of X rotation of the entity.
+
+# Method Yaw:Float() Property
+Returns the yaw of Y rotation of the entity.
+
+# Method Roll:Float() Property
+Returns the roll of Z rotation of the entity.
+
+# Method Pitch:Void(val:Float) Property
+Sets the pitch or X rotation of the entity.
+
+# Method Yaw:Void(val:Float) Property
+Sets the yaw or Y rotation of the entity.
+
+# Method Roll:Void(val:Float) Property
+Sets the roll or Z rotation of the entity.
+
+# Method SetRotation:Void(pitch:Float, yaw:Float, roll:Float)
+Sets the rotation of the entity.
+
+# Method Turn:Void(pitch:Float, yaw:Float, roll:Float)
+Adds a rotation to the entity.
+
+# Method Width:Float() Property
+Returns the total width of the entity.
+
+# Method Height:Float() Property
+Returns the total height of the entity.
+
+# Method Depth:Float() Property
+Returns the total depth of the entity.
+
+# Method ScaleX:Float() Property
+Returns the X scale factor of the entity.
+
+# Method ScaleY:Float() Property
+Returns the Y scale factor of the entity.
+
+# Method ScaleZ:Float() Property
+Returns the Z scale factor of the entity.
+
+# Method ScaleX:Void(val:Float) Property
+Sets the X scale factor of the entity.
+
+# Method ScaleY:Void(val:Float) Property
+Sets the Y scale factor of the entity.
+
+# Method ScaleZ:Void(val:Float) Property
+Sets the Z scale factor of the entity.
+
+# Method SetScale:Void(x:Float, y:Float, z:Float)
+Sets the scale factor of the entity.
+
+# Method CollisionMode:Int() Property
+Returns the collision mode for the entity. Default is `Entity.COLLISION_NONE`.
+
+# Method CollisionMode:Void(mode:Int) Property
+Sets the collision mode for the entity. Possible values are:
+
+| Value | Meaning
+| Entity.COLLISION_NONE | Do not check for collisions.
+| Entity.COLLISION_SPHERE | Check for collisions using the entity's radius.
+| Entity.COLLISION_BOX | Check for collisions using the entity's bounding box.
+
+# Method Radius:Float() Property
+Returns the radius of the entity. This is used for collision detection when `CollisionMode` is set to `Entity.COLLISION_SPHERE`.
+
+# Method Radius:Void(rad:Float) Property
+Sets the radius of the entity. This is used for collision detection when `CollisionMode` is set to `Entity.COLLISION_SPHERE`.
+
+# Method Collided:Bool() Property
+Returns whether the entity collided on the last movement or not.
+
+# Method CollidedEntity:Entity() Property
+Returns the entity that was collided on the last movement.
+
+# Method Distance:Float(other:Entity)
+Returns the distance to another entity.
+
+# Method NumMaterials:Int() Property
+Returns the number of materials that this entity has.
+
+# Method Material:Material(index:Int)
+Returns the entity's material with the specified index, which is a value between `0` and `NumMaterials - 1`.
+
+# Method Material:Material() Property
+Returns the first material of this entity.
+
+# Method ReplaceMaterials:Void(mat:Material)
+Replaces all materials in the entity with the specified one.
+
+# Method EmitSound:Void(sound:Sound, radius:Float, channel:Int)
+Emits a sound from the entity's position. The value of `radius` will be the maximum distance at which the sound can be heard.
+
+# Method BoxMinX:Float() Property
+Returns the origin X coordinate of the bounding box that wraps the entity.
+
+# Method BoxMinY:Float() Property
+Returns the origin Y coordinate of the bounding box that wraps the entity.
+
+# Method BoxMinZ:Float() Property
+Returns the origin Z coordinate of the bounding box that wraps the entity.
+
+# Method BoxMaxX:Float() Property
+Returns the final X coordinate of the bounding box that wraps the entity.
+
+# Method BoxMaxY:Float() Property
+Returns the final Y coordinate of the bounding box that wraps the entity.
+
+# Method BoxMaxZ:Float() Property
+Returns the final Z coordinate of the bounding box that wraps the entity.
+
+# Method UserData:Object() Property
+Returns the custom object associated with this entity.
+
+# Method UserData:Void(data:Object) Property
+Associates a custom object with this entity. This can be any object that you might want to associate with the entity (for example, an object with physics or gameplay information).
+
+
+
+
+# Class Font
+
+A font is used to render text in Vortex.
+It is composed by a texture which contains the characters used to render texts, and a set of glyphs which contains the coordinates of each character within the texture and its offset.
+You normally don't generate fonts by hand, but by using the bundled fonttool utility.
+
+# Method New(filename:String, height:Float, tex:Texture)
+Creates a new font, assigning a filename to it, the heigth in pixels of the font, and the texture map that will be used to render texts with this font. After creating it, you should define its glyphs. You normally don't need to use this function, as `Cache.LoadFont` gives you a ready to use font.
+
+# Method Discard:Void()
+When you are not going to render text usign this font anymore, you should call this method to deallocate its resources.
+
+# Method Filename:String() Property
+Returns the filename of the font.
+
+# Method Height:Float() Property
+Returns the height in pixels of the font.
+
+# Method Texture:Texture() Property
+Returns the texture map for this font.
+
+# Method TextWidth:Float(text:String)
+Returns the width in pixels that the specified text needs to be rendered with the font.
+
+# Method TextHeight:Float(text:String)
+Returns the width in pixels that the specified text needs to be rendered with the font.
+
+# Method NumGlyphs:Int() Property
+Returns the number of glyphs that this font has
+
+# Method Draw:Void(x:Float, y:Float, text:String)
+Draws the specified text at the given x, y screen coordinates.
+
+# Method SetGlyphData:Void(index:Int, x:Float, y:Float, w:Float, h:Float, yoffset:Float)
+Sets the rectangle within the font texture where the character with the specified index (it's ASCII code) is located, and the Y offset to render the character relative to the Y drawing coordinate. You don't normally need this method.
+
+# Method GlyphData:Glyph(index:Int)
+Returns the specified glyph's data. You don't normally need this method.
+
+
+
+
+# Class Framebuffer
+
+A framebuffer can be used to perform rendering to a texture. It can also optionally have a depth buffer to perform depth testing when rendering.
+
+# Method New(width:Int, height:Int, depthBuffer:Bool)
+Creates a framebuffer with the specified size and an optional depth buffer.
+
+# Method Discard:Void()
+When you no longer need a framebuffer, you should call this method.
+
+# Method Set:Void()
+Enables rendering to the textures in this framebuffer.
+
+# Function SetScreen:Void()
+Reactivates rendering on the screen.
+
+# Method Handle:Int() Property
+Returns the internal handle of this framebuffer. This is an identifier in video memory, and you don't normally need to use this value.
+
+# Method ColorTexture:Texture() Property
+Returns the texture where this framebuffer renders the scene.
+
+# Method HasDepthBuffer:Bool() Property
+Indicates whether this framebuffer has a depth buffer or not.
+
+
+
+
+# Class Light Extends Entity
+
+Vortex supports defining lights sources that can shine on objects.
+By default, the maximum number of lights that can be defined simultaneously is 4, although this value can be changed when calling `World.Init`.
+
+When a light ray hits an object, the color of the light is combined with the color of the object, and that defines the appearance of the object.
+This is called *diffuse lighting*.
+
+Also, an object can have a shininess power, which will produce highlights when a light ray hits the objects. This gives the appearance of a shiny object, like a metal surface, and is called *specular lighting*.
+
+Finally, independently from how many light rays are hitting an object, every object also receives some amount of residual lighting, produced by all the lights. This is called *ambient lighting*.
+For example, if we are in a sunny open environment, the amount of ambient lighting is much bigger than in a narrow, dark cave, because the intensity of all the lights produce a brighter residual lighting.
+
+Currently, all light sources are **point lights**, this is, they emit light in all directions. The `World` class controls the sun light, which is a directional light that emits in one specific direction.
+
+# Method New(parent:Entity = Null)
+Creates a new point light.
+
+# Method Color:Int() Property
+Returns the color of the light.
+
+# Method Color:Void(color:Int) Property
+Sets the color that the specified light emits. White by default.
+
+
+
+
+# Class Listener
+
+Vortex can simulate positional 3D sound by using the standard `mojo.audio` module. The `Listener` class is used to indicate which entity is the listener in your 3D world. The first camera that is created automatically becomes the active listener.
+
+# Function Instance:Entity()
+Returns the instance that is the active listener.
+
+# Function SetInstance:Void(e:Entity)
+Sets the instance that is the active listener. The first camera that is created automatically becomes the active listener.
+
+# Function AvailableChannel:Int()
+Returns an available channel number (one that is not currently being used) that you can use with `Entity.EmitSound`.
+
+
+
+
+# Class Material
+
+A material represents the visual information such as diffuse texture, color, or opacity.
+It is used to render objects with a specific appearance.
+
+# Method New(diffuseTex:Texture = Null)
+Creates a new material with the specified diffuse texture.
+
+# Method New(other:Material)
+Creates a new material that is a copy of another one.
+
+# Method DiscardTextures:Void()
+Frees the textures used by this material. If the textures of the material are not shared by other material, you should call this method to free the textures memory when the material is no longer needed.
+
+# Method IsEqual:Bool(other:Material)
+Returns whether the material has the same propierties as the one passed as parameter or not.
+
+# Method Set:Void(other:Material)
+Sets the properties of the material to be those of the one passed as parameter.
+
+# Method Color:Void(color:Int) Property
+Sets the color of the material.
+
+# Method Color:Int() Property
+Returns the color of the material.
+
+# Method BaseTexture:Void(tex:Texture) Property
+Sets the base texture of the material. It can be either a 2D or cubemap texture.
+
+# Method BaseTexture:Texture() Property
+Returns the base texture of the material, or `Null` if there is no diffuse texture.
+
+# Method NormalTexture:Void(tex:Texture) Property
+Sets the normal texture of the material.
+
+# Method NormalTexture:Texture() Property
+Returns the normal texture of the material, or `Null` if there is no normal texture.
+
+# Method LightTexture:Void(tex:Texture) Property
+Sets the light texture of the material.
+
+# Method LightTexture:Texture() Property
+Returns the light texture of the material, or `Null` if there is no light texture.
+
+# Method ReflectionTexture:Void(tex:Texture) Property
+Sets the reflection texture of the material. It must be a cubemap.
+
+# Method ReflectionTexture:Texture() Property
+Returns the relfection texture of the material, or `Null` if there is no reflection texture.
+
+# Method RefractionTexture:Void(tex:Texture) Property
+Sets the refraction texture of the material. It must be a cubemap.
+
+# Method RefractionTexture:Texture() Property
+Returns the refraction texture of the material, or `Null` if there is no refraction texture.
+
+# Method Opacity:Void(opacity:Float) Property
+Sets the opacity of the material, with 0 being completely transparent and 1 being completely opaque. The default value is 1.
+
+# Method Opacity:Float() Property
+Returns the opacity of the material, in the range 0 (transparent) .. 1 (opaque).
+
+# Method Shininess:Void(shininess:Float) Property
+Sets the specular shininess of the material. A value of 0 will disable specular reflections entirely, whereas a value in the range (0,1] will indicate the strength of the specular reflection.
+
+# Method Shininess:Float() Property
+Returns the specular shininess of the material.
+
+# Method RefractionCoef:Void(coef:Float) Property
+Sets the refraction coefficient of the material. This should be the refraction value of the source medium divided by the refraction value of the destination medium. For example, to define the refraction of light entering water from air, it would be 1.0 / 1.33.
+
+# Method RefractionCoef:Float() Property
+Returns the refraction coefficiente of the material.
+
+# Method BlendMode:Void(mode:Int) Property
+Sets the blend mode of the material. This defines how the final look of the geometry using this material blends with the background, after computing texture, color and lighting information.
+
+It takes one of the following values:
+
+| Value             | Meaning
+| Renderer.BLEND_SOLID | The object is solid and it is not blended with the background. This is the default value.
+| Renderer.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
+| Renderer.BLEND_ADD   | The computed color of the material is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
+| Renderer.BLEND_MUL   | The computed color of the material is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
+
+# Method BlendMode:Int() Property
+Returns the blend mode of the material.
+
+# Method Culling:Void(enable:Bool) Property
+Enables or disables backface culling. When it is enabled, internal faces of the geometry using this material will not be rendered. It is enabled by default.
+
+# Method Culling:Bool() Property
+Returns whether backface culling is enabled.
+
+# Method DepthWrite:Void(enable:Bool) Property
+Enables or disables depth buffer writing. When it is disabled, other geometry further away from the viewer may occlude the geometry that uses this material. It is enabled by default.
+
+# Method DepthWrite:Bool() Property
+Returns whether depth buffer writing is enabled.
+
+# Method CastShadows:Void(enable:Bool) Property
+Enables or disables shadow casting. It is enabled by default. Only used if blend mode is `Renderer.BLEND_SOLID`.
+
+# Method CastShadows:Bool() Property
+Returns whether shadow casting is enabled.
+
+
+
+
+# Class Mesh
+
+A mesh is the description of a set of geometry (triangles), materials and optional animations that belong to one object.
+For every material that we have, there will be a surface in the mesh containing the geometry to be drawn with that material.
+
+# Method New()
+Creates a new empty mesh.
+
+# Method New(other:Mesh)
+Creates a new mesh that is a copy of the mesh passed as parameter.
+
+# Method LoadSkeletonData:Bool(data:DataBuffer)
+Loads the skeleton data from the specified DataBuffer and adds it to the mesh. You should only use this method once on each mesh.
+
+# Method LoadAnimationData:Bool(data:DataBuffer)
+Loads the animation data from the specified DataBuffer and adds it to the mesh. You can call this funcion several times to add different animation sequences.
+
+# Method Discard:Void(discardTextures:Bool = True)
+When you don't need to use this mesh anymore, you should use this function to deallocate its resources. The parameter `discardTextures` indicates whether the textures used by this mesh should be discarded too. You don't need to call this method for meshes loaded with the `Cache` class.
+
+# Method Filename:String() Property
+Returns the filename assigned to this mesh when it was created.
+
+# Method AddSurface:Void(surf:Surface, mat:Material = Null)
+Creates a new surface on the mesh and returns its handle.
+A surface is a set of geometry that use the same material and it's attached to a same bone (if the mesh is animated).
+If you don't provide a material, a new one will be created automatically for the surface.
+
+# Method NumSurfaces:Int() Property
+Returns the number of surfaces that this mesh contains.
+
+# Method Surface:Surface(index:Int) Property
+Returns a surface contained in the mesh. The value of `index` must be in the range `0 .. NumSurfaces - 1`.
+
+# Method Material:Material(index:Int)
+Returns a material contained in the mesh. The value of `index` must be in the range `0 .. NumSurfaces - 1`.
+
+# Method AnimDuration:Float() Property
+Returns the animation duration of the mesh (in seconds)
+
+# Method AddBone:Void(bone:Bone)
+Adds a new bone to the mesh.
+
+# Method NumBones:Int() Property
+Gets the number of bones in the mesh.
+
+# Method Bone:Bone(index:Int)
+Gets the bone at the specified `index`, which is a value between `0` and `NumBones - 1`.
+
+# Method Width:Float() Property
+Returns the width of the mesh.
+
+# Method Height:Float() Property
+Returns the height of the mesh.
+
+# Method Depth:Float() Property
+Returns the depth of the mesh.
+
+# Method UpdateBoundingBox:Void()
+Updates the bounding box of the mesh. This method should be called if you have added vertices or modified the position of any vertex in the mesh.
+
+# Method BoxMinX:Float() Property
+Returns the origin X coordinate of the bounding box that wraps the mesh.
+
+# Method BoxMinY:Float() Property
+Returns the origin Y coordinate of the bounding box that wraps the mesh.
+
+# Method BoxMinZ:Float() Property
+Returns the origin Z coordinate of the bounding box that wraps the mesh.
+
+# Method BoxMaxX:Float() Property
+Returns the final X coordinate of the bounding box that wraps the mesh.
+
+# Method BoxMaxY:Float() Property
+Returns the final Y coordinate of the bounding box that wraps the mesh.
+
+# Method BoxMaxZ:Float() Property
+Returns the final Z coordinate of the bounding box that wraps the mesh.
+
+# Method Translate:Void(x:Float, y:Float, z:Float)
+Translates all vertices in the mesh.
+
+# Method Rotate:Void(pitch:Float, yaw:Float, roll:Float)
+Rotates all vertices on the mesh.
+
+# Method Scale:Void(x:Float, y:Float, z:Float)
+Scales all vertices on the mesh.
+
+# Method Flip:Void()
+Flips all triangles in the mesh and inverts its normals.
+
+# Method SetColor:Void(color:Int)
+Sets the color of all vertices in the mesh.
+
+# Function CreateCube:Mesh()
+Creates a cube mesh with a width, height and depth of 1.
+
+# Function CreateSkybox:Mesh()
+Creates a skybox with a width, height and depth of 1.
+
+# Function CreateWedge:Mesh()
+Creates a wedge mesh with a width, height and depth of 1.
+
+
+
+
+# Class Model Extends Entity
+
+This type of entity represents an object with 3D geometry in your world. A model basically renders a triangle mesh with a specific position, rotation and scale, and supports mesh animation. Several models can shader the same mesh.
+
+# Method New(mesh:Mesh, parent:Entity = Null)
+Creates a new model from the specific mesh and parent. The value of `mesh` should not be `Null`.
+
+# Method Mesh:Mesh() Property
+Returns the mesh that this model uses.
+
+Method AnimSpeed:Float() Property
+Returns the animation speed of the mesh.
+
+Method AnimSpeed:Void(speed:Float) Property
+Sets the animation speed of the mesh. Setting it to 0 disables animation, 1 plays it at normal speed, 2 at doueble speed, etc.
+
+Method AnimTime:Float() Property
+Returns the current time of the animation being played, in seconds.
+
+
+
+
+# Class Renderer
+
+The Renderer is the class used to draw graphics on the screen in immediate mode, and the direct link with the underlying rendering API (OpenGL). For most stuff, you do not need to deal with this class directly, but for example if you want to draw your 2D graphics above the 3D scene, after drawing all your 3D geometry, you must call `Renderer.Setup2D` to setup the context for 2D drawing, and then perform your drawing operations.
+
+# Function Setup2D:Void(x:Int, y:Int, width:Int, height:Int)
+Setups the context for 2D drawing. The parameters define the rectangle within the screen where drawing will take place. You must call this function before doing any 2D drawing.
+
+# Function SetupMojo:Void()
+Setups the context for drawing with Mojo2.
+
+# Function SetBlendMode:Void(mode:Int)
+Sets the blend mode to use when painting. Possible values are:
+
+| Value       | Meaning
+| Renderer.BLEND_SOLID | The object is solid and it is not blended with the background. This is the default value.
+| Renderer.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
+| Renderer.BLEND_ADD   | The computed color is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
+| Renderer.BLEND_MUL   | The computed color is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
+
+# Function SetColor:Void(color:Int)
+Sets the drawing color.
+
+# Function ClearColorBuffer:Void(color:Int = Color.BLACK)
+Clears the background (actually, the area defined when the call to `Renderer.Setup2D` was made) with the specified color.
+
+# Function DrawPoint:Void(x:Float, y:Float, z:Float)
+Draws a point at the specified coordinates. For 2D graphics, `z` should be 0.
+
+# Function DrawLine:Void(x1:Float, y1:Float, z1:Float, x2:Float, y2:Float, z2:Float)
+Draws a line that goes from x1, y1 to x2, y2. For 2D graphics, both `z1` and `z2` should be 0.
+
+# Function DrawRect:Void(x:Float, y:Float, z:Float, width:Float, height:Float)
+Draws a filled rectangle at the specified coordinates, with the given width and height. For 2D graphics, `z` should be 0.
+
+# Function DrawEllipse:Void(x:Float, y:Float, z:Float, width:Float, height:Float)
+Draw a filled ellipse at the specified coordinates, with the given width and height. For 2D graphics, `z` should be 0.
+
+
+
+
+# Class Sprite Extends Entity
+
+A sprite is a 2D object in a 3D world. It has width and height, but no depth. It can be oriented automatically so that it always faces the camera.
+
+# Const MODE_STATIC		: Int
+# Const MODE_SPHERICAL	: Int
+# Const MODE_CYLINDRICAL	: Int
+
+# Method New(texture:Texture, hframes:Int = 1, vframes:Int = 1, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
+Creates a new sprite with the specified texture. The size of the sprite will be set to the size of the texture. The parameters `hframes` and `vframes` indicate the number of horizontal and vertical animation frames contained in the texture. The value of `orientation` can be:
+
+| Value       | Meaning
+| Sprite.MODE_STATIC | The sprite does not rotate to face the camera.
+| Sprite.MODE_SPHERICAL   | The sprite rotates freely to face the camera.
+| Sprite.MODE_CYLINDRICAL   | The sprite rotates on its Y axis to face the camera.
+
+# Method Orientation:Int() Property
+Returns the orientation mode of the sprite.
+
+# Method Orientation:Void(orientation:Int) Property
+Sets the orientation mode of the sprite. It can be one of the following values:
+
+| Value       | Meaning
+| Sprite.MODE_STATIC | The sprite does not rotate to face the camera.
+| Sprite.MODE_SPHERICAL   | The sprite rotates freely to face the camera.
+| Sprite.MODE_CYLINDRICAL   | The sprite rotates on its Y axis to face the camera.
+
+# Method Spin:Float() Property
+Returns the spin rotation of the sprite.
+
+# Method Spin:Void(spin:Float) Property
+Sets the spin rotation of the sprite.
+
+# Method SetSize:Void(width:Float, height:Float)
+Sets the width and height of the sprite.
+
+# Method Frames:Int() Property
+Returns the total number of frames that this sprite has (1 by default).
+
+# Method HFrames:Int() Property
+Returns the number of horizontal frames that this sprite has (1 by default).
+
+# Method VFrames:Int() Property
+Returns the number of vertical frames that this sprite has (1 by default).
+
+# Method SetFrames:Void(horizontal:Int, vertical:Int)
+Sets the number of horizontal and vertical frames that this sprite has.
+
+# Method FPS:Int() Property
+Returns the animation frames per second of the sprite.
+
+# Method FPS:Void(fps:Int) Property
+Sets the animation frames per second of the sprite. To play the sequence backwards, set this to a negative value.
+
+# Method CurrentFrame:Int() Property
+Returns the animation frame currently being displayed by the sprite.
+
+# Method CurrentFrame:Void(frame:Int) Property
+Forces the sprite to show the specified animation frame. This can be used to animate the sprite manually.
+
+
+
+
+# Class Stats
+
+This class stores some statistics like the elapsed time since the last update and the screen FPS.
+
+# Function DeltaTime:Float()
+Returns the elapsed time since the last update.
+
+# Function FPS:Int()
+Returns the current screen FPS.
+
+# Function RenderCalls:Int()
+Returns the number of render calls performed in the last call to `World.Render`.
+
+# Function ShaderError:String()
+Reports any errors that took place while compiling the shaders on initialization.
+
+# Function VendorName:String()
+Returns the name of the vendor of the renderer implementation.
+	
+# Function RendererName:String()
+Returns the name of the renderer implementation.
+	
+# Function APIVersionName:String()
+Returns the API version name as provided by the driver.
+	
+# Function ShadingVersionName:String()
+Returns the shading language version name as provided by the driver.
+
+# Function APIVersion:Float()
+Get the version of the API supported by this machine (currently, the version of OpenGL supported by the implementation).
+
+# Function ShadingVersion:Float()
+Get the version of the shading language supported by this machine (currently, the version of GLSL supported by the implementation).
+
+# Function MaxTextureSize:Int()
+Returns the maximum texture size supported by the device.
+
+
+
+
+# Class Surface
+
+The surface class contains a set of geometry (vertices and indices that form triangles) and a material to draw that geometry.
+
+# Method New()
+Creates a new surface.
+
+# Method New(other:Surface)
+Creates a new surface that is a copy of the one passed as parameter.
+
+# Method Discard:Void()
+Deallocates all the resources used by this surface. You don't normally need to call this method directly, since meshes call this method on all their surfaces when the mesh itself is freed.
+
+# Method Set:Void(other:Surface)
+Sets this surface's material and geometry data to copy those of the mesh passed as parameter. The surface is automatically rebuilt.
+
+# Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
+Adds a new triangle to the surface. A triangle contains three indices, that reference the vertices in the surface. Returns the index of the triangle within the surface.
+
+# Method NumTriangles:Int() Property
+Returns the number of triangles in the surface.
+
+# Method SetTriangleVertices:Void(index:Int, v0:Int, v1:Int, v2:Int)
+Changes the vertex indices used by a specified triangle.
+
+# Method TriangleV0:Int(index:Int)
+Returns the index of the first vertex in the specified triangle.
+
+# Method TriangleV1:Int(index:Int)
+Returns the index of the second vertex in the specified triangle.
+
+# Method TriangleV2:Int(index:Int)
+Returns the index of the third vertex in the specified triangle.
+
+# Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, color:Int, u:Float, v:Float)
+Adds a new vertex to the surface, with the given position, normal, color, and texture coordinates. Returns the index of the vertex within the surface.
+
+# Method NumVertices:Int() Property
+Returns the number of vertices in the surface.
+
+# Method SetVertexPosition:Void(index:Int, x:Float, y:Float, z:Float)
+Sets the position of the specified vertex.
+
+# Method SetVertexNormal:Void(index:Int, nx:Float, ny:Float, nz:Float)
+Sets the normal vector of the specified vertex.
+
+# Method SetVertexColor:Void(index:Int, color:Int)
+Sets the color of the specified vertex.
+
+# Method SetVertexTexCoords:Void(index:Int, u:Float, v:Float, set:Int = 0)
+Sets the texture coordinates of the specified vertex.
+
+# Method SetVertexBone:Void(vertex:Int, index:Int, bone:Int, weight:Float)
+Sets one of the bones that the vertex is attached to, and the weight that the bone has on the vertex (between 0 and 1).
+A vertex can be attached to a maximum of four bones, specified in the `index` parameter with a value between 0 and 3.
+Bone is the index within the mesh of the specified bone.
+
+# Method VertexX:Float(index:Int)
+Returns the X position of the specified vertex.
+
+# Method VertexY:Float(index:Int)
+Returns the Y position of the specified vertex.
+
+# Method VertexZ:Float(index:Int)
+Returns the Z position of the specified vertex.
+
+# Method VertexNX:Float(index:Int)
+Returns the X component of the normal of the specified vertex.
+
+# Method VertexNY:Float(index:Int)
+Returns the Y component of the normal of the specified vertex.
+
+# Method VertexNZ:Float(index:Int)
+Returns the Z component of the normal of the specified vertex.
+
+# Method VertexColor:Int(index:Int)
+Returns the color of the specified vertex.
+
+# Method VertexU:Float(index:Int, set:Int = 0)
+Returns the U texture coordinate of the specified vertex.
+
+# Method VertexV:Float(index:Int, set:Int = 0)
+Returns the V texture coordinate of the specified vertex.
+
+# Method VertexBoneIndex:Int(vertex:Int, index:Int)
+Returns the specified vertex bone index.
+
+# Method VertexBoneWeight:Float(vertex:Int, index:Int)
+Return the specified vertex bone weight.
+
+# Method Translate:Void(x:Float, y:Float, z:Float)
+Translates all vertices in the surface.
+
+# Method Rotate:Void(pitch:Float, yaw:Float, roll:Float)
+Rotates all vertices on the surface.
+
+# Method Scale:Void(x:Float, y:Float, z:Float)
+Scales all vertices on the surface.
+
+# Method Flip:Void()
+Flips all triangles in the surface and inverts its normals.
+
+# Method SetColor:Void(color:Int)
+Sets the color of all vertices in the surface.
+
+# Method Rebuild:Void()
+Rebuilds the internal representation of the geometry in the surface.
+To increase rendering performance, Vortex holds a copy of the data of all surfaces in video memory, so whenever you make a change to the geometry of a surface, you must call this function so the video memory is updated.
+
+# Method Draw:Void()
+Draws the surface. You don't normally need to call this function, because you will draw surfaces through a `RenderBatch`.
+
+
+
+
+# Class Texture
+
+A texture represents a buffer in video memory that contains pixel data.
+Textures can be contained in materials and applied to objects together with other information like color and opacity, or drawn to the screen directly (for example to render 2D sprites).
+
+# Method New(width:Int, height:Int)
+Creates a blank texture with the specified width and height. This function is used by framebuffers to create the texture to render the scene into. Its filtering is set to `Renderer.FILTER_NONE`.
+
+# Method New(buffer:DataBuffer, width:Int, height:Int, filter:Int = Renderer.FILTER_TRILINEAR)
+Creates a texture with the specified size and filter mode, and the pixels stored in the data buffer. The value of `filter` must be one of:
+
+* Renderer.FILTER_NONE
+* Renderer.FILTER_LINEAR
+* Renderer.FILTER_BILINEAR
+* Renderer.FILTER_TRILINEAR
+
+# Method Discard:Void()
+Discards the resources used by this texture.
+If you created the texture with the `Cache.LoadTexture` function, then you must not call this function.
+If you created the texture with `Texture.Create`, then you must call this function when you no longer need the texture.
+
+# Method Filename:String() Property
+Returns the filename that this texture was created from.
+
+# Method Handle:Int() Property
+Returns the internal handle of this texture. This is an identifier in video memory, and you don't normally need to use this value.
+
+# Method Width:Int() Property
+Returns the width, in pixels, of the texture.
+
+# Method Height:Int() Property
+Returns the height, in pixels, of the texture.
+
+# Method IsCubic:Bool() Property
+Returns whether the texture is a cube map.
+
+# Method Draw:Void(x:Float, y:Float, width:Float = 0, height:Float = 0, rectx:Float = 0, recty:Float = 0, rectwidth:Float = 0, rectheight:Float = 0)
+Draws the texture to the specified screen coordinates.
+You can also specifY a width and a height different than its original size, and a rectangle within the texture to draw instead of the whole thing.
+
+
+
+
+# Class World
+
+# Function Init:Bool(numLights:Int = 4, numBones:Int = 75, shadowTexSize:Int = -1)
+Initializes the Vortex library. This should be called before any other function in the library.
+You can override the maximum number of lights in the world and the maximum number of bones per mesh.
+You can also set the size of the texture used for shadows calculation (if you leave it as -1, a texture of 1024 pixels of with and height will be used if possible).
+
+# Function Update:Void()
+Updates all entities in the world. This should be called on the app's `OnUpdate` method.
+
+# Function Render:Void()
+Renders the world. This should be called on the app's `OnRender` method.
+
+# Function SkyboxTexture:Texture()
+Returns the cubemap texture that is used as background on camera's that have the `ClearMode` property set to `Camera.CLEAR_SKYBOX`. Defaults to `Null`.
+
+# Function SetSkyboxTexture:Void(tex:Texture)
+Sets the cubemap texture that is used as background on camera's that have the `ClearMode` property set to `Camera.CLEAR_SKYBOX`. Defaults to `Null`.
+
+# Function NumEntities:Int()
+Returns the number of entities that exist in the world.
+
+# Function Entity:Entity(index:Int)
+Returns the entity with the specified index, which goes in the range `0 ... NumEntities - 1`.
+
+# Function FindEntity:Entity(name:String)
+Returns the entitiy with the specified name, or `Null` if it does not exist.
+
+# Function SunPitch:Float()
+Returns the pitch rotation of the sun.
+
+# Function SunYaw:Float()
+Returns the yaw rotation of the sun.
+
+# Function SetSunRotation:Void(pitch:Float, yaw:Float)
+Sets the rotation of the sun.
+
+# Function SunColor:Int()
+Returns the color of the sun. Default is `Color.WHITE`.
+
+# Function SetSunColor:Void(color:Int)
+Sets the color of the sun. Setting it to `Color.BLACK` disables the sun light.
+
+# Function Ambient:Int()
+Returns the ambient color of the world (this is, the lighting that will be received by all geometry independent from the light sources).
+
+# Function SetAmbient:Void(amb:Int)
+Sets the ambient color of the world (this is, the lighting that will be received by all geometry independent from the light sources).
+
+# Function FogEnabled:Bool()
+Returns whether fog is enabled or not.
+
+# Function SetFogEnabled:Void(enabled:Bool)
+Enables or disables fog.
+
+# Function FogMinDistance:Float()
+Returns the distance at which the fog starts to be visible.
+
+# Function SetFogMinDistance:Void(minDist:Float)
+Sets the distance at which the fog starts to be visible.
+
+# Function FogMaxDistance:Float()
+Returns the distance at which the fog is completely opaque.
+
+# Function SetFogMaxDistance:Void(maxDist:Float)
+Sets the distance at which the fog is completely opaque.
+
+# Function FogColor:Int()
+Returns the color of the fog
+
+# Function SetFogColor:Void(color:Int)
+Sets the color of the fog.
+
+# Function GlobalPixelLighting:Bool()
+Returns whether global pixel lighting is enabled or not.
+
+# Function SetGlobalPixelLighting:Void(enable:Bool)
+Enables or disables per-pixel lighting for the entire world (by default, only normal mapped surfaces use per-pixel lighting).
+
+# Function Shadows:Bool()
+Returns whether shadows are enabled or not.
+
+# Function SetShadows:Void(enable:Bool, maxDistance:Float = 100)
+Enables or disables shadow casting. Shadows will be cast from the first light in the world. The value of `maxDistance` indicates the maximum distance at which the shadow will be visible.
+
+# Function AddStaticCollisionBox:Void(x:Float, y:Float, z:Float, width:Float, height:Float, depth:Float)
+Adds a box to the static collision list. This list contains global world collisions that do not belong to any entity.
+
+# Function ClearStaticCollisions:Void()
+Clears the static collision list.

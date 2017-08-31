@@ -1,0 +1,119 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Primitives Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+
+Import mojo.app
+Import mojo.input
+Import vortex
+
+Const PRIM_POINT:Int = 0
+Const PRIM_LINE:Int = 1
+Const PRIM_RECT:Int = 2
+Const PRIM_ELLIPSE:Int = 3
+
+Class Prim Final
+	Field type:Int
+	Field x:Float, y:Float, z:Float, w:Float
+	Field color:Int
+End
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init()
+			Print "Error: " + Stats.ShaderError()
+			EndApp()
+		End
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
+		
+		'Init primitives
+		mNumPrimitives = 0
+		For Local i:Int = 0 Until mPrimitives.Length()
+			mPrimitives[i] = New Prim
+		Next
+		
+		'Load font
+		mFont = Cache.LoadFont("system.fnt.dat")
+		
+		Return False
+	End
+	
+	Method OnUpdate:Int()	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+
+		'Add a new primitive up until a max of 1000
+		mNumPrimitives += 1
+		If mNumPrimitives > mPrimitives.Length() Then mNumPrimitives = mPrimitives.Length()
+		mPrimitives[mNumPrimitives-1].type =Int(Rnd(0, 4))
+		mPrimitives[mNumPrimitives-1].x = Rnd(DeviceWidth())
+		mPrimitives[mNumPrimitives-1].y = Rnd(DeviceHeight())
+		mPrimitives[mNumPrimitives-1].z = Rnd(DeviceWidth())
+		mPrimitives[mNumPrimitives-1].w = Rnd(DeviceHeight())
+		mPrimitives[mNumPrimitives-1].color = Color.RGB(Rnd(256), Rnd(256), Rnd(256))
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world (it actually renders nothing here, but sets the screen fps)
+		World.Render()
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Renderer.ClearColorBuffer()
+		For Local i:Int = 0 Until mNumPrimitives
+			Local prim:Prim = mPrimitives[i]
+			Renderer.SetColor(prim.color)
+			Select prim.type
+				Case PRIM_POINT
+					Renderer.DrawPoint(prim.x, prim.y)
+				Case PRIM_LINE
+					Renderer.DrawLine(prim.x, prim.y, prim.z, prim.w)
+				Case PRIM_RECT
+					Renderer.DrawRect(prim.x, prim.y, prim.z, prim.w)
+				Case PRIM_ELLIPSE
+					Renderer.DrawEllipse(prim.x, prim.y, prim.z, prim.w)
+			End
+		Next
+		
+		'Draw FPS
+		Renderer.SetColor(Color.WHITE)
+		Local text$ = Stats.FPS() + " FPS"
+		mFont.Draw(2, 2, text)
+		
+		'Draw RenderCalls
+		text = "Num primitives: " + mNumPrimitives
+		mFont.Draw(2, 18, text)
+	
+		Return False
+	End
+Private
+	Field mFont				: Font
+	Field mNumPrimitives	: Int
+	Field mPrimitives		: Prim[1000]
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
+End

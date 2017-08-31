@@ -1,0 +1,106 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Shadows Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+
+Import mojo.app
+Import mojo.input
+Import vortex
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init()
+			Print "Error: " + Stats.ShaderError()
+			EndApp()
+		End
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
+		
+		'Load font
+		mFont = Cache.LoadFont("system.fnt.dat")
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.SetPosition(0, 100, -260)
+		mCam.SetRotation(15, 0, 0)
+		mCam.ClearColor = Color.RGB(50, 25, 55)
+		
+		'Create model
+		mModel = New Model(Cache.LoadMesh("low-poly-mill.msh.dat"))
+		mModel.Yaw = 100
+		
+		'Setup lighting
+		World.SetSunRotation(45, 225)
+		World.SetAmbient(Color.RGB(155, 155, 155))
+		World.SetShadows(True, 300)
+		
+		Return False
+	End
+	
+	Method OnUpdate:Int()	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		'Update camera view
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		'Update model rotation
+		'mModel.Yaw -= 32 * Stats.DeltaTime()
+		
+		'Update sun rotation
+		World.SetSunRotation(World.SunPitch(), World.SunYaw() + 32 * Stats.DeltaTime())
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Render thumbnail of depth view (the closer a fragment is to camera, the darker it looks)
+		'World.DepthTexture().Draw(DeviceWidth() - DeviceWidth()/3 - 4, DeviceHeight() - DeviceHeight()/3 - 4, DeviceWidth()/3, -DeviceHeight()/3)
+		
+		'Draw FPS
+		Renderer.SetColor(Color.YELLOW)
+		Local text:String = Stats.FPS() + " FPS"
+		mFont.Draw(2, 2, text)
+		
+		'Draw RenderCalls
+		text = "Render calls: " + Stats.RenderCalls()
+		mFont.Draw(2, 18, text)
+	
+		Return False
+	End
+Private
+	Field mFont		: Font
+	Field mCam		: Camera
+	Field mModel	: Model
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
+End

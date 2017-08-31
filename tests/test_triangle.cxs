@@ -1,0 +1,108 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Triangle Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+
+Import mojo.app
+Import mojo.input
+Import vortex
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init()
+			Print "Error: " + Stats.ShaderError()
+			EndApp()
+		End
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
+		
+		'Load font
+		mFont = Cache.LoadFont("system.fnt.dat")
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.ClearColor = Color.WHITE
+		mCam.SetPosition(0, 0, -2)
+		
+		'Create surface
+		Local tri:Surface = New Surface()
+		tri.AddTriangle(0, 1, 2)
+		tri.AddVertex(0,0.5,0,     0,0,-1, Color.RED,	0,0)
+		tri.AddVertex(0.5,-0.5,0,  0,0,-1, Color.GREEN,	0,0)
+		tri.AddVertex(-0.5,-0.5,0, 0,0,-1, Color.BLUE,	0,0)
+		
+		'Create mesh
+		Local mesh:Mesh = New Mesh()
+		mesh.AddSurface(tri)
+		mesh.Material(0).Culling = False
+		
+		'Create triangle model
+		mModel = New Model(mesh)
+		
+		'Disable sun
+		World.SetSunColor(Color.BLACK)
+		
+		Return False
+	End
+	
+	Method OnUpdate:Int()	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		'Update camera view
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		'Rotate triangle
+		mModel.Yaw += 64 * Stats.DeltaTime()
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw FPS
+		Renderer.SetColor(Color.BLACK)
+		Local text:String = Stats.FPS() + " FPS"
+		mFont.Draw(2, 2, text)
+		
+		'Draw RenderCalls
+		text = "Render calls: " + Stats.RenderCalls()
+		mFont.Draw(2, 18, text)
+	
+		Return False
+	End
+Private
+	Field mFont				: Font
+	Field mCam				: Camera
+	Field mModel			: Model
+End
+
+Function Main:Int()
+	New TestApp
+	Return False
+End
