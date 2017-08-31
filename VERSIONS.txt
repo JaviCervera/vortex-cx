@@ -1,3 +1,7 @@
+V2.0-beta
+Completely new object-oriented API, tons of changes and new features.
+You should check the documentation, tests and demos.
+
 V1.2
 I have separated the project into two different branches: vortex1 (the default) will
 have non-API breaking changes, while vortex2 will use a different API and much
