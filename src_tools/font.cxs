@@ -89,7 +89,7 @@ Function FontSize:Int(font:Font)
 	Local size:Int = 4
 	
 	'Texture name
-	size += 4 + font.Texture.Filename.Length
+	size += 4 + StripDir(font.Texture.Filename).Length
 	
 	'Font height
 	size += 2
@@ -125,8 +125,8 @@ Function CreateFontData:DataBuffer(font:Font)
 	stream.WriteByte("1"[0])
 	
 	'Texture name
-	stream.WriteInt(font.Texture.Filename.Length)
-	stream.WriteString(font.Texture.Filename)
+	stream.WriteInt(StripDir(font.Texture.Filename).Length)
+	stream.WriteString(StripDir(font.Texture.Filename))
 	
 	'Font height
 	stream.WriteShort(font.Height)
