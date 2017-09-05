@@ -21,11 +21,10 @@ Import texture
 
 Public
 Class World Final
-	Function Init:Bool(numLights:Int = 4, numBones:Int = 75, shadowTexSize:Int = -1)
+	Function Init:Bool(numLights:Int = 4, numBones:Int = 75)
 		If numLights <= 0 Then numLights = 1
 		If numBones <= 0 Then numBones = 1
 		If Renderer.Init(numLights, numBones)
-			If shadowTexSize = -1 Then shadowTexSize = Min(1024, Stats.MaxTextureSize())
 			Cache.Push()
 			Stats._Init()
 			mSkybox = Mesh.CreateSkybox()
@@ -39,7 +38,6 @@ Class World Final
 			SetFogColor(Color.BLACK)
 			SetGlobalPixelLighting(False)
 			SetShadows(False)
-			mFramebuffer = New Framebuffer(shadowTexSize, shadowTexSize, True)
 			Return True
 		Else
 			Return False
@@ -71,17 +69,17 @@ Class World Final
 			If mShadowsEnabled
 				'Find the point the camera is looking at
 				mTempQuat.SetEuler(c.Pitch, c.Yaw, c.Roll)
-				mTempQuat.Mul(0, 0, mShadowsDistance/2)
+				mTempQuat.Mul(0, 0, mShadowsRange/2)
 				mTempVec.Set(c.WorldX, c.WorldY, c.WorldZ)
 				mTempVec.Sum(mTempQuat.ResultVector())
 				
 				'Move from that point to the light source
 				mTempQuat.SetEuler(mSunPitch, mSunYaw, 0)
-				mTempQuat.Mul(0, 0, -mShadowsDistance)
+				mTempQuat.Mul(0, 0, -mShadowsSunDist)
 				mTempQuat.ResultVector().Sum(mTempVec)
 				
 				'Setup depth matrices
-				mDepthProj.SetOrthoLH(mShadowsDistance, 1, 0, mShadowsDistance*2)
+				mDepthProj.SetOrthoLH(mShadowsRange, 1, 0, mShadowsSunDist*2)
 				mDepthView.LookAtLH(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, mTempVec.X, mTempVec.Y, mTempVec.Z, 0, 1, 0)
 			
 				'Set framebuffer
@@ -113,7 +111,7 @@ Class World Final
 			
 			'Set depth data
 			If mShadowsEnabled
-				Renderer.SetDepthData(mDepthProj, mDepthView, DepthTexture().Handle, mShadowsDistance / 10000.0)
+				Renderer.SetDepthData(mDepthProj, mDepthView, DepthTexture().Handle, mShadowsRange / 10000.0)
 			Else
 				Renderer.SetDepthData(mDepthProj, mDepthView, 0, 0)
 			End
@@ -255,13 +253,19 @@ Class World Final
 		Return mShadowsEnabled
 	End
 	
-	Function SetShadows:Void(enable:Bool, maxDistance:Float = 100)
+	Function SetShadows:Void(enable:Bool, range:Float = 500, sunDistance:Float = 0, shadowTexSize:Int = 1024)
+		If sunDistance = 0 Then sunDistance = range * 0.5
+		If shadowTexSize <= 0 Then shadowTexSize = 1024
+		If mFramebuffer Then mFramebuffer.Discard()
 		mShadowsEnabled = enable
-		mShadowsDistance = maxDistance
+		mShadowsRange = range
+		mShadowsSunDist = sunDistance
+		shadowTexSize = Min(shadowTexSize, Stats.MaxTextureSize())
+		mFramebuffer = New Framebuffer(shadowTexSize, shadowTexSize, True)
 	End
 	
 	Function DepthTexture:Texture()
-		Return mFramebuffer.ColorTexture
+		If mFramebuffer Then Return mFramebuffer.ColorTexture Else Return Null
 	End
 	
 	Function AddStaticCollisionBox:Void(x:Float, y:Float, z:Float, width:Float, height:Float, depth:Float)
@@ -384,14 +388,15 @@ Private
 	Global mSunYaw				: Float
 	Global mSunColor			: Int
 	Global mAmbient				: Int
-	Global mFogEnabled			: Bool
+	Global mFogEnabled		: Bool
 	Global mFogMin				: Float
 	Global mFogMax				: Float
 	Global mFogColor			: Int
 	Global mGlobalPixelLighting	: Bool
-	Global mFramebuffer			: Framebuffer
-	Global mShadowsEnabled		: Bool
-	Global mShadowsDistance		: Float
+	Global mFramebuffer					: Framebuffer
+	Global mShadowsEnabled			: Bool
+	Global mShadowsRange				: Float
+	Global mShadowsSunDist			: Float
 	Global mDepthProj			: Mat4 = Mat4.Create()
 	Global mDepthView			: Mat4 = Mat4.Create()
 	Global mColBoxes			: Box[0]

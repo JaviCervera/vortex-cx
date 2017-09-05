@@ -214,8 +214,9 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 
 	'Shadows
 "	bool shadowed = false;" +
-"	if ( shadowsEnabled && texture2D(depthSampler, vec2(fdepthCoords)).z < fdepthCoords.z - depthEpsilon && fdepthCoords.x >= 0.0 && fdepthCoords.x <= 1.0 && fdepthCoords.y >= 0.0 && fdepthCoords.y <= 1.0 ) shadowed = true;" +
-'"	if ( fdepthCoords.x < 0 || fdepthCoords.x > 1 || fdepthCoords.y < 0 || fdepthCoords.y > 1 ) { gl_FragColor = vec4(1, 0, 1, 1); return; }" +
+"	if ( shadowsEnabled && fdepthCoords.x >= 0.0 && fdepthCoords.x <= 1.0 && fdepthCoords.y >= 0.0 && fdepthCoords.y <= 1.0 && fdepthCoords.z >= 0.0 && fdepthCoords.z <= 1.0 && texture2D(depthSampler, vec2(fdepthCoords)).z < fdepthCoords.z - depthEpsilon ) shadowed = true;" +
+'"	if ( fdepthCoords.x < 0.0 || fdepthCoords.x > 1.0 || fdepthCoords.y < 0.0 || fdepthCoords.y > 1.0 ) { gl_FragColor = vec4(1, 0, 1, 1); return; }" +
+'"	if ( fdepthCoords.z < 0.0 || fdepthCoords.z > 1.0 ) { gl_FragColor = vec4(1, 1, 0, 1); return; }" +
 
 	'Lighting
 "	if ( numLights > 0 ) {" +

@@ -16,15 +16,15 @@ Class Collision
 		End
 	End
 	
-	Function BoxSphere:Bool(minx:Float, miny:Float, minz:Float, maxx:Float, maxy:Float, maxz:Float, sx:Float, sy:Float, sz:Float, sqrad:Float)		
+	Function BoxSphere:Bool(minx:Float, miny:Float, minz:Float, maxx:Float, maxy:Float, maxz:Float, sx:Float, sy:Float, sz:Float, sqrad:Float)
 		'Check if point is in box
 		If IsPointInBox(minx, miny, minz, maxx, maxy, maxz, sx, sy, sz)
 			Return True
 		Else
 			'Find closest point on the surface of the box
-			If sx < minx Then mTempVec.X = minx Elseif sx > maxx Then mTempVec.X = maxx Else mTempVec.X = sx
-			If sy < miny Then mTempVec.Y = miny Elseif sy > maxy Then mTempVec.Y = maxy Else mTempVec.Y = sy
-			If sz < minz Then mTempVec.Z = minz Elseif sz > maxz Then mTempVec.Z = maxz Else mTempVec.Z = sz
+			mTempVec.X = Clamp(sx, minx, maxx)
+			mTempVec.Y = Clamp(sy, miny, maxy)
+			mTempVec.Z = Clamp(sz, minz, maxz)
 			
 			'Check distance to point
 			mTempVec.Sub(sx, sy, sz)

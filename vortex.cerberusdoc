@@ -1146,10 +1146,9 @@ You can also specifY a width and a height different than its original size, and 
 
 # Class World
 
-# Function Init:Bool(numLights:Int = 4, numBones:Int = 75, shadowTexSize:Int = -1)
+# Function Init:Bool(numLights:Int = 4, numBones:Int = 75)
 Initializes the Vortex library. This should be called before any other function in the library.
 You can override the maximum number of lights in the world and the maximum number of bones per mesh.
-You can also set the size of the texture used for shadows calculation (if you leave it as -1, a texture of 1024 pixels of with and height will be used if possible).
 
 # Function Update:Void()
 Updates all entities in the world. This should be called on the app's `OnUpdate` method.
@@ -1226,8 +1225,13 @@ Enables or disables per-pixel lighting for the entire world (by default, only no
 # Function Shadows:Bool()
 Returns whether shadows are enabled or not.
 
-# Function SetShadows:Void(enable:Bool, maxDistance:Float = 100)
-Enables or disables shadow casting. Shadows will be cast from the first light in the world. The value of `maxDistance` indicates the maximum distance at which the shadow will be visible.
+# Function SetShadows:Void(enable:Bool, range:Float = 500, sunDistance:Float = 0, shadowTexSize:Int = 1024)
+Enables or disables shadow casting. Shadows will be cast from the sun light.
+The value of `range` indicates the maximum distance from the camera at which the shadow will be visible.
+The value of `sunDistance` indicate the distance from the camera at which the sun will be placed to calculate shadows (the bigger this value, the smaller the precision of the calculations).
+If you leave this value to `0`, the sun distance will be half of the range.
+
+You can also set the size of the texture used for shadows calculation (quality increases with this value, but calculations will be slower).
 
 # Function AddStaticCollisionBox:Void(x:Float, y:Float, z:Float, width:Float, height:Float, depth:Float)
 Adds a box to the static collision list. This list contains global world collisions that do not belong to any entity.

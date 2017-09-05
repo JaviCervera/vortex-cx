@@ -19,7 +19,7 @@ Public
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not World.Init(1, 0, 2048)
+		If Not World.Init()
 			Print "Error: " + Stats.ShaderError()
 			EndApp()
 		End
@@ -86,7 +86,7 @@ Public
 		'Update block ball
 		mBlockBall.Move(0, 2 * Stats.DeltaTime() * mBlockBallDir, 0)
 		If mBlockBall.Y >= 4 Then mBlockBall.Y = 4; mBlockBallDir *= -1
-		If mBlockBall.Y <= 0  Then mBlockBall.Y = 0; mBlockBallDir *= -1
+		If mBlockBall.Y <= 0 Then mBlockBall.Y = 0; mBlockBallDir *= -1
 		If mBlockBall.Collided Then mBlockBallDir *= -1
 		
 		'Toggle shadows
@@ -190,7 +190,7 @@ Public
 		If World.Shadows()
 			World.SetShadows(False)
 		Else
-			World.SetShadows(True, 50)
+			World.SetShadows(True, 50, 0, 2048)
 		End
 	End
 Private
