@@ -85,12 +85,12 @@ Public
 			Local rectWidth:Int = Min(currentFont.Texture.Width, 512)
 			Local rectHeight:Int = Min(currentFont.Texture.Height, 512)
 		
-			Renderer.SetColor(1, 1, 1)
+			Renderer.SetColor(Color.WHITE)
 			currentFont.Texture.Draw((DeviceWidth() - rectWidth)/2, (DeviceHeight() - rectHeight)/2, rectWidth, rectHeight)
 			
-			Renderer.SetColor(0.1, 0.1, 0.1)
+			Renderer.SetColor(Color.RGB(25, 25, 25))
 			Renderer.DrawRect(4, 40, DeviceWidth() - 8, currentFont.TextHeight(mDisplayText) * 2)
-			Renderer.SetColor(1, 1, 1)
+			Renderer.SetColor(Color.WHITE)
 			currentFont.Draw(8, 40, mDisplayText)
 		End
 	End

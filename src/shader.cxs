@@ -1,0 +1,272 @@
+Strict
+
+Private
+
+'#If TARGET="html5"
+Const GLSL_VERSION : String = ""
+'#Else
+'Const GLSL_VERSION:String = "#version 120~n"
+'#EndIf
+
+Class ShaderAttribs Final
+Public
+	Field mVertexPosition			: Int
+	Field mVertexNormal				: Int
+	Field mVertexTangent			: Int
+	Field mVertexColor				: Int
+	Field mVertexTexCoords		: Int
+	Field mVertexTexCoords2		: Int
+	Field mVertexBoneIndices	: Int
+	Field mVertexBoneWeights	: Int
+	
+	Method New(shader:Int)
+		mVertexPosition = Renderer.ShaderAttribLocation(shader, "vpos")
+		mVertexNormal = Renderer.ShaderAttribLocation(shader, "vnormal")
+		mVertexTangent = Renderer.ShaderAttribLocation(shader, "vtangent")
+		mVertexColor = Renderer.ShaderAttribLocation(shader, "vcolor")
+		mVertexTexCoords = Renderer.ShaderAttribLocation(shader, "vtex")
+		mVertexTexCoords2 = Renderer.ShaderAttribLocation(shader, "vtex2")
+		mVertexBoneIndices = Renderer.ShaderAttribLocation(shader, "vboneIndices")
+		mVertexBoneWeights = Renderer.ShaderAttribLocation(shader, "vboneWeights")
+	End
+	
+	#Rem
+	Method Prepare:Void()
+		If vertexPosition <> -1
+			glEnableVertexAttribArray(vertexPosition)
+			glVertexAttribPointer(vertexPosition, 3, GL_FLOAT, False, Vertex.Size(), Vertex.PositionOffset())
+		End
+		If vertexNormal <> -1
+			glEnableVertexAttribArray(vertexNormal)
+			glVertexAttribPointer(vertexNormal, 3, GL_FLOAT, False, Vertex.Size(), Vertex.NormalOffset())
+		End
+		If vertexColor <> -1
+			glEnableVertexAttribArray(vertexColor)
+			glVertexAttribPointer(vertexColor, 4, GL_FLOAT, False, Vertex.Size(), Vertex.ColorOffset())
+		End
+		If vertexTexCoords <> -1
+			glEnableVertexAttribArray(vertexTexCoords)
+			glVertexAttribPointer(vertexTexCoords, 2, GL_FLOAT, False, Vertex.Size(), Vertex.TexCoordsOffset())
+		End
+		If vertexBoneIndices <> -1
+			glEnableVertexAttribArray(vertexBoneIndices)
+			glVertexAttribPointer(vertexBoneIndices, 4, GL_FLOAT, False, Vertex.Size(), Vertex.BoneIndicesOffset())
+		End
+		If vertexBoneWeights <> -1
+			glEnableVertexAttribArray(vertexBoneWeights)
+			glVertexAttribPointer(vertexBoneWeights, 4, GL_FLOAT, False, Vertex.Size(), Vertex.BoneWeightsOffset())
+		End
+	End
+	#End
+End
+
+Class ShaderUniforms Final
+Public
+	Field mMVP:Int
+	Field mModelView:Int
+	Field mNormalMatrix:Int
+	Field mInvView:Int
+	Field mDepthBias:Int
+	Field mSolidMode:Int
+	Field mTextureMatrix:Int
+	Field mBaseTexMode:Int
+	Field mUseNormalTex:Int
+	Field mUseLightmap:Int
+	Field mUseReflectTex:Int
+	Field mUseRefractTex:Int
+	Field mBaseTexSampler:Int
+	Field mBaseCubeSampler:Int
+	Field mNormalTexSampler:Int
+	Field mLightmapSampler:Int
+	Field mReflectCubeSampler:Int
+	Field mRefractCubeSampler:Int
+	Field mDepthSampler:Int
+	Field mUsePixelLighting:Int
+	Field mNumLights:Int
+	Field mLightPos:Int[Renderer.MaxLights()]
+	Field mLightColor:Int[Renderer.MaxLights()]
+	Field mLightRadius:Int[Renderer.MaxLights()]
+	Field mBaseColor:Int
+	Field mAmbient:Int
+	Field mShininess:Int
+	Field mRefractCoef:Int
+	Field mFogEnabled:Int
+	Field mFogDist:Int
+	Field mFogColor:Int
+	Field mShadowsEnabled:Int
+	Field mDepthEpsilon:Int
+	Field mSkinned:Int
+	Field mBones:Int[Renderer.MaxBones()]
+	
+	Method New(shader:Int)
+		mMVP = Renderer.ShaderLocation(program, "mvp")
+		mModelView = Renderer.ShaderLocation(program, "modelView")
+		mNormalMatrix = Renderer.ShaderLocation(program, "normalMatrix")
+		mInvView = Renderer.ShaderLocation(program, "invView")
+		mDepthBias = Renderer.ShaderLocation(program, "depthBias")
+		mSolidMode = Renderer.ShaderLocation(program, "solidMode")
+		mTextureMatrix = Renderer.ShaderLocation(program, "textureMatrix")
+		mBaseTexMode = Renderer.ShaderLocation(program, "baseTexMode")
+		mUseNormalTex = Renderer.ShaderLocation(program, "useNormalTex")
+		mUseLightmap = Renderer.ShaderLocation(program, "useLightmap")
+		mUseReflectTex = Renderer.ShaderLocation(program, "useReflectTex")
+		mUseRefractTex = Renderer.ShaderLocation(program, "useRefractTex")
+		mUsePixelLighting = Renderer.ShaderLocation(program, "usePixelLighting")
+		mNumLights = Renderer.ShaderLocation(program, "numLights")
+		For Local i:Int = 0 Until Renderer.MaxLights()
+			mLightPos[i] = Renderer.ShaderLocation(program, "lightPos[" + i + "]")
+			mLightColor[i] = Renderer.ShaderLocation(program, "lightColor[" + i + "]")
+			mLightRadius[i] = Renderer.ShaderLocation(program, "lightRadius[" + i + "]")
+		Next
+		mBaseColor = Renderer.ShaderLocation(program, "baseColor")
+		mAmbient = Renderer.ShaderLocation(program, "ambient")
+		mShininess = Renderer.ShaderLocation(program, "shininess")
+		mRefractCoef = Renderer.ShaderLocation(program, "refractCoef")
+		mFogEnabled = Renderer.ShaderLocation(program, "fogEnabled")
+		mFogDist = Renderer.ShaderLocation(program, "fogDist")
+		mFogColor = Renderer.ShaderLocation(program, "fogColor")
+		mShadowsEnabled = Renderer.ShaderLocation(program, "shadowsEnabled")
+		mDepthEpsilon = Renderer.ShaderLocation(program, "depthEpsilon")
+		mSkinned = Renderer.ShaderLocation(program, "skinned")
+		For Local i:Int = 0 Until Renderer.MaxBones()
+			mBones[i] = Renderer.ShaderLocation(program, "bones[" + i + "]")
+		Next
+		mBaseTexSampler = Renderer.ShaderLocation(program, "baseTexSampler")
+		mBaseCubeSampler = Renderer.ShaderLocation(program, "baseCubeSampler")
+		mNormalTexSampler = Renderer.ShaderLocation(program, "normalTexSampler")
+		mLightmapSampler = Renderer.ShaderLocation(program, "lightmapSampler")
+		mReflectCubeSampler = Renderer.ShaderLocation(program, "reflectCubeSampler")
+		mRefractCubeSampler = Renderer.ShaderLocation(program, "refractCubeSampler")
+		mDepthSampler = Renderer.ShaderLocation(program, "depthSampler")
+	End
+	
+	Method Prepare:Void()
+		'Get state
+		Local state:RendererState = Renderer.State()
+	
+		'Calculate ModelView
+		If mModelView <> -1 Or mNormalMatrix <> -1
+			mTempMatrix.Set(state.ViewMatrix)
+			mTempMatrix.Mul(state.ModelMatrix)
+			Renderer.SetShaderMat4(mModelView, mTempMatrix)
+		End
+
+		'Calculate normal
+		If mNormalMatrix <> -1
+			mTempMatrix.Invert()
+			mTempMatrix.Transpose()
+			Renderer.SetShaderMat4(mNormalMatrix, mTempMatrix)
+		End
+		
+		'Set inverse view
+		If mInvView <> -1 Then Renderer.SetShaderMat4(mInvView, state.InverseViewMatrix)
+
+		'Calculate MVP
+		If mMVP <> -1
+			mTempMatrix.Set(state.ProjectionMatrix)
+			mTempMatrix.Mul(state.ViewMatrix)
+			mTempMatrix.Mul(state.ModelMatrix)
+			Renderer.SetShaderMat4(mMVP, mTempMatrix)
+		End
+		
+		'Calculate depth bias
+		If mDepthBias <> -1
+			mTempMatrix.Set(state.DepthBiasMatrix)
+			mTempMatrix.Mul(state.ModelMatrix)
+			Renderer.SetShaderMat4(mDepthBias, mTempMatrix)
+		End
+		
+		'Set shadow data
+		If mShadowsEnabled <> -1 Then SetShaderInt(mActiveShader.mShadowsEnabledLoc, state.ShadowsEnabled)
+		If mDepthEpsilon <> -1 Then SetShaderFloat(mActiveShader.mDepthEpsilonLoc, state.DepthEpsilon)
+		
+		'Set animation data
+		If mSkinned <> -1 Then SetShaderInt(mSkinned, state.Skinned)
+		If mBones[0] <> -1
+			Local lastIndex:Int = Min(Renderer.MaxBones(), state.BoneMatrices.Length())
+			For Local i:Int = 0 Until lastIndex
+				If mBones[i] <> -1 Then SetShaderMat4(mBones[i], state.BoneMatrices[i])
+			Next
+		End
+		
+		'Set solid mode
+		If mSolidMode <> -1
+			If state.BlendMode = BLEND_SOLID Then SetShaderInt(mSolidMode, True) Else SetShaderInt(mSolidMode, False)
+		End
+		
+		'Set color
+		If mBaseColor <> -1 Then SetShaderVec4(mBaseColor, Color.Red(state.Color) / 255.0, Color.Green(state.Color) / 255.0, Color.Blue(state.Color) / 255.0, Color.Alpha(state.Color) / 255.0)
+		
+		'Set ambient
+		If mAmbient <> -1 Then SetShaderVec3(mAmbient, Color.Red(state.Ambient) / 255.0, Color.Green(state.Ambient) / 255.0, Color.Blue(state.Ambient) / 255.0)
+	
+		'Set shininess
+		If mShininess <> -1 Then SetShaderFloat(mShininess, state.Shininess)
+		
+		'Set fog
+		If mFogEnabled <> -1 Then SetShaderInt(mFogEnabled, state.FogEnabled)
+		If state.FogEnabled
+			If mFogDist <> -1 Then SetShaderVec2(mFogDist, state.FogMinDistance, state.FogMaxDistance)
+			If mFogDist <> -1 Then SetShaderVec3(mFogColor, Color.Red(state.FogColor) / 255.0, Color.Green(state.FogColor) / 255.0, Color.Blue(state.FogColor) / 255.0)
+		End
+		
+		'Set refract coef
+		If mRefractCoef <> -1 Then SetShaderFloat(mRefractCoef, state.RefractCoef)
+		
+		'Set lighting
+		If mUsePixelLighting <> -1 Then SetShaderInt(mUsePixelLighting, state.PixelLighting)
+		If mNumLights <> -1 Then SetShaderInt(mNumLights, state.NumLights)
+		For Local i:Int = 0 Until state.NumLights
+			If mLightPos[i] <> -1 Then SetShaderVec4(mLightPos[i], state.LightPos[i].X, state.LightPos[i].Y, state.LightPos[i].X, state.LightW[i])
+			If mLightColor[i] <> -1 Then SetShaderVec3(mLightColor[i], Color.Red(color) / 255.0, Color.Green(color) / 255.0, Color.Blue(color) / 255.0)
+			If mLightRadius[i] <> -1 Then SetShaderFloat(mLightRadius[i], state.LightRadius[i])
+		Next
+		
+		'Set textures
+		If mBaseTexMode <> -1 Then SetShaderInt(mBaseTexMode, state.BaseTexMode)
+		If mUseNormalTex <> -1 Then SetShaderInt(mUseNormalTex, state.UseNormalTex)
+		If mUseLightmap <> -1 Then SetShaderInt(mUseLightmap, state.UseLightTex)
+		If mUseReflectTex <> -1 Then SetShaderInt(mUseReflectTex, state.UseReflectTex)
+		If mUseRefractTex <> -1 Then SetShaderInt(mUseRefractTex, state.UseRefractTex)
+	
+		'Set texture matrix
+		If mTextureMatrix <> -1 Then SetShaderMat4(mTextureMatrix, state.TextureMatrix)
+	End
+End
+
+Public
+
+Class Shader Final
+Public
+	Method New(vertex:String, fragment:String)
+		vertex = GLSL_VERSION + "#define MAX_LIGHTS " + mMaxLights + "~n#define MAX_BONES " + mMaxBones + "~n" + vertex
+		fragment = GLSL_VERSION + "#define MAX_LIGHTS " + mMaxLights + "~n" + fragment
+		mHandle = Renderer.CreateShader(vertex, fragment)
+		If mHandle <> 0
+			mAttribs = New ShaderAttribs(mHandle)
+			mUniforms = New ShaderUniforms(mHandle)
+		End
+	End
+	
+	Method Discard:Void()
+		If mHandle <> 0 Then Renderer.FreeShader(mHandle)
+		mHandle = 0
+	End
+	
+	Method Handle:Int() Property
+		Return mHandle
+	End
+	
+	Method Prepare:Void()
+		Renderer.UseShader(mHandle)
+		'mAttribs.Prepare()
+		mUniforms.Prepare()
+	End
+Private
+	Field mHandle			: Int
+	Field mAttribs		: ShaderAttribs
+	Field mUniforms		: ShaderUniforms
+	
+	Method New()
+	End
+End

@@ -106,7 +106,7 @@ Class World Final
 			c._PrepareForRender()
 			
 			'Set fog and number of lights
-			Renderer.SetFog(mFogEnabled, mFogMin, mFogMax, Color.Red(mFogColor) / 255.0, Color.Green(mFogColor) / 255.0, Color.Blue(mFogColor) / 255.0)
+			Renderer.SetFog(mFogEnabled, mFogColor, mFogMin, mFogMax)
 			Renderer.SetNumLights(numLights)
 			
 			'Set depth data
@@ -119,13 +119,13 @@ Class World Final
 			'Prepare lighting
 			If numLights > 0
 				Renderer.SetPixelLighting(GlobalPixelLighting())
-				Renderer.SetAmbient(Color.Red(mAmbient) / 255.0, Color.Green(mAmbient) / 255.0, Color.Blue(mAmbient) / 255.0)
+				Renderer.SetAmbient(mAmbient)
 			End
 			If sunLightEnabled
 				mTempQuat.SetEuler(mSunPitch, mSunYaw, 0)
 				mTempQuat.Mul(0, 0, -1)
-				Renderer.ViewMatrix().Mul(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, 0.0)
-				Renderer.SetLight(0, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 0.0, color.Color.Red(mSunColor) / 255.0, color.Color.Green(mSunColor) / 255.0, color.Color.Blue(mSunColor) / 255.0, 0)
+				Renderer.State().ViewMatrix.Mul(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, 0.0)
+				Renderer.SetLight(0, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 0.0, mSunColor, 0)
 			End
 			If numLights > sunLightEnabled
 				Local i:Int = sunLightEnabled

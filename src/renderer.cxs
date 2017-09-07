@@ -20,6 +20,56 @@ Const GLSL_VERSION : String = ""
 
 Public
 
+Class RendererState Final
+	Field ProjectionMatrix	: Mat4
+	Field ViewMatrix				: Mat4
+	Field ModelMatrix				: Mat4
+	Field InverseViewMatrix	: Mat4
+	Field DepthBiasMatrix		: Mat4
+	Field TextureMatrix			: Mat4
+	Field BoneMatrices			: Mat4[]
+	Field Skinned						: Bool
+	Field BlendMode					: Int
+	Field Color							: Int
+	Field Ambient						: Int
+	Field Shininess					: Float
+	Field FogEnabled				: Bool
+	Field FogColor					: Int
+	Field FogMinDistance		: Float
+	Field FogMaxDistance		: Float
+	Field ShadowsEnabled		: Bool
+	Field DepthEpsilon			: Float
+	Field RefractCoef				: Float
+	Field PixelLighting			: Bool
+	Field NumLights					: Int
+	Field LightPos					: Vec3[]
+	Field LightW						: Float[]
+	Field LightColor				: Int[]
+	Field LightRadius				: Float[]
+	Field BaseTexMode				: Int
+	Field UseNormalTex			: Bool
+	Field UseLightTex				: Bool
+	Field UseReflectTex			: Bool
+	Field UseRefractTex			: Bool
+	
+	Method New(maxLights:Int)
+		ProjectionMatrix = Mat4.Create()
+		ViewMatrix = Mat4.Create()
+		ModelMatrix = Mat4.Create()
+		InverseViewMatrix = Mat4.Create()
+		DepthBiasMatrix = Mat4.Create()
+		TextureMatrix = Mat4.Create()
+		LightPos = New Vec3[maxLights]
+		For Local i:Int = 0 Until maxLights
+			LightPos[i] = Vec3.Create()
+		Next
+		LightW = New Float[maxLights]
+		LightColor = New Int[maxLights]
+		LightRadius = New Float[maxLights]
+		Color = color.Color.WHITE
+	End
+End
+
 Class Renderer Final
 Public
 	Const STEP_SHADOWS:Int = 0			'Shadow render
@@ -56,6 +106,9 @@ Public
 	'---------------------------------------------------------------------------
 
 	Function Init:Bool(numLights:Int, numBones:Int)
+		'Create renderer state
+		mState = New RendererState(numLights)
+	
 		'Set the max number of lights and bones supported
 		mMaxLights = numLights
 		mMaxBones = numBones
@@ -75,20 +128,20 @@ Public
 		mShadingVersion = Float(mShadingVersionStr.Split(" ")[0])
 #End
 
-		'Prepare default program
-		mDefaultProgram = CreateProgram(STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
-		If mDefaultProgram = Null Then Return False
+		'Prepare default shader
+		mDefaultShader = CreateProgram(STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
+		If mDefaultShader = Null Then Return False
 		
-		'Prepare depth program
-		mDepthProgram = CreateProgram(DEPTH_VERTEX_SHADER, DEPTH_FRAGMENT_SHADER)
-		If mDepthProgram = Null Then Return False
+		'Prepare depth shader
+		mDepthShader = CreateProgram(DEPTH_VERTEX_SHADER, DEPTH_FRAGMENT_SHADER)
+		If mDepthShader = Null Then Return False
 		
-		'Prepare 2D program
-		m2DProgram = CreateProgram(_2D_VERTEX_SHADER, _2D_FRAGMENT_SHADER)
-		If m2DProgram = Null Then Return False
+		'Prepare 2D shader
+		m2DShader = CreateProgram(_2D_VERTEX_SHADER, _2D_FRAGMENT_SHADER)
+		If m2DShader = Null Then Return False
 		
-		'Use default program
-		UseProgram(mDefaultProgram)
+		'Use default shader
+		UseProgram(mDefaultShader)
 		
 		'Delete old buffers if they exist
 		If mEllipseBuffer <> 0 Then FreeBuffer(mEllipseBuffer)
@@ -139,17 +192,22 @@ Public
 		SetVertexBufferData(mRectBuffer, 0, dataBuffer.Length, dataBuffer)
 		dataBuffer.Discard()
 		
+		'Default framebuffer height
 		mFramebufferHeight = DeviceHeight()
 
 		Return True
+	End
+	
+	Function State:RendererState()
+		Return mState
 	End
 
 	Function Setup2D:Void(x:Int, y:Int, w:Int, h:Int)
 		Local fbHeight:Int = mFramebufferHeight
 		If fbHeight = 0 Then fbHeight = DeviceHeight()
 	
-		'Switch to 2D program
-		UseProgram(m2DProgram)
+		'Switch to 2D shader
+		UseProgram(m2DShader)
 
 		'Disable 3D states
 		SetCulling(False)
@@ -161,7 +219,7 @@ Public
 		glEnable(GL_SCISSOR_TEST)
 		glFrontFace(GL_CCW)
 		SetBlendMode(BLEND_ALPHA)
-		SetColor(1,1,1,1)
+		SetColor(Color.WHITE)
 
 		'Setup viewport
 		y = fbHeight - y - h
@@ -182,11 +240,11 @@ Public
 		Local fbHeight:Int = mFramebufferHeight
 		If fbHeight = 0 Then fbHeight = DeviceHeight()
 		
-		'Switch to 3D program
+		'Switch to 3D shader
 		If Not isDepthPass
-			UseProgram(mDefaultProgram)
+			UseProgram(mDefaultShader)
 		Else
-			UseProgram(mDepthProgram)
+			UseProgram(mDepthShader)
 		End
 
 		'Disable 2D & mojo states
@@ -203,7 +261,7 @@ Public
 		glFrontFace(GL_CW)
 		SetDepthWrite(True)
 		SetBlendMode(BLEND_SOLID)
-		SetColor(1,1,1,1)
+		SetColor(Color.WHITE)
 		SetSkinned(False)
 
 		'Setup viewport
@@ -229,7 +287,7 @@ Public
 		glEnable(GL_SCISSOR_TEST)
 		glFrontFace(GL_CCW)
 		SetBlendMode(BLEND_ALPHA)
-		SetColor(1,1,1,1)
+		SetColor(Color.WHITE)
 		
 		glEnableVertexAttribArray 0 ; glVertexAttribPointer 0,2,GL_FLOAT,False,28,0
 		glEnableVertexAttribArray 1 ; glVertexAttribPointer 1,2,GL_FLOAT,False,28,8
@@ -238,73 +296,64 @@ Public
 	End
 
 	Function SetProjectionMatrix:Void(m:Mat4)
-		mProjectionMatrix.Set(m)
-	End
-
-	Function ProjectionMatrix:Mat4()
-		Return mProjectionMatrix
+		mState.ProjectionMatrix.Set(m)
 	End
 
 	Function SetViewMatrix:Void(m:Mat4)
-		mViewMatrix.Set(m)
-		mInvViewMatrix.Set(m)
-		mInvViewMatrix.Invert()
-	End
-
-	Function ViewMatrix:Mat4()
-		Return mViewMatrix
+		mState.ViewMatrix.Set(m)
+		mState.InverseViewMatrix.Set(m)
+		mState.InverseViewMatrix.Invert()
 	End
 
 	Function SetModelMatrix:Void(m:Mat4)
-		If m <> mModelMatrix Then mModelMatrix.Set(m)
+		If m <> mState.ModelMatrix Then mState.ModelMatrix.Set(m)
 
 		'Calculate ModelView
-		If mActiveProgram.mModelViewLoc <> -1 Or mActiveProgram.mNormalMatrixLoc <> -1
-			mTempMatrix.Set(mViewMatrix)
-			mTempMatrix.Mul(mModelMatrix)
-			glUniformMatrix4fv(mActiveProgram.mModelViewLoc, 1, False, mTempMatrix.M)
+		If mActiveShader.mModelViewLoc <> -1 Or mActiveShader.mNormalMatrixLoc <> -1
+			mTempMatrix.Set(mState.ViewMatrix)
+			mTempMatrix.Mul(mState.ModelMatrix)
+			SetShaderMat4(mActiveShader.mModelViewLoc, mTempMatrix)
 		End
 
 		'Calculate normal
-		If mActiveProgram.mNormalMatrixLoc <> -1
+		If mActiveShader.mNormalMatrixLoc <> -1
 			mTempMatrix.Invert()
 			mTempMatrix.Transpose()
-			glUniformMatrix4fv(mActiveProgram.mNormalMatrixLoc, 1, False, mTempMatrix.M)
+			SetShaderMat4(mActiveShader.mNormalMatrixLoc, mTempMatrix)
 		End
 		
 		'Set inverse view
-		If mActiveProgram.mInvViewLoc <> -1 Then glUniformMatrix4fv(mActiveProgram.mInvViewLoc, 1, False, mInvViewMatrix.M)
+		If mActiveShader.mInvViewLoc <> -1 Then SetShaderMat4(mActiveShader.mInvViewLoc, mState.InverseViewMatrix)
 
 		'Calculate MVP
-		If mActiveProgram.mMVPLoc <> -1
-			mTempMatrix.Set(mProjectionMatrix)
-			mTempMatrix.Mul(mViewMatrix)
-			mTempMatrix.Mul(mModelMatrix)
-			glUniformMatrix4fv(mActiveProgram.mMVPLoc, 1, False, mTempMatrix.M)
+		If mActiveShader.mMVPLoc <> -1
+			mTempMatrix.Set(mState.ProjectionMatrix)
+			mTempMatrix.Mul(mState.ViewMatrix)
+			mTempMatrix.Mul(mState.ModelMatrix)
+			SetShaderMat4(mActiveShader.mMVPLoc, mTempMatrix)
 		End
 		
 		'Calculate depth bias
-		If mActiveProgram.mDepthBiasLoc <> -1
-			mTempMatrix.Set(mDepthBiasMatrix)
-			mTempMatrix.Mul(mModelMatrix)
-			glUniformMatrix4fv(mActiveProgram.mDepthBiasLoc, 1, False, mTempMatrix.M)
+		If mActiveShader.mDepthBiasLoc <> -1
+			mTempMatrix.Set(mState.DepthBiasMatrix)
+			mTempMatrix.Mul(mState.ModelMatrix)
+			SetShaderMat4(mActiveShader.mDepthBiasLoc, mTempMatrix)
 		End
-	End
-
-	Function ModelMatrix:Mat4()
-		Return mModelMatrix
 	End
 	
 	Function SetDepthData:Void(depthProj:Mat4, depthView:Mat4, depthTex:Int, depthEpsilon:Float)
-		mDepthBiasMatrix.SetIdentity()
-		mDepthBiasMatrix.M[0] = 0.5
-		mDepthBiasMatrix.M[5] = 0.5
-		mDepthBiasMatrix.M[10] = 0.5
-		mDepthBiasMatrix.M[12] = 0.5
-		mDepthBiasMatrix.M[13] = 0.5
-		mDepthBiasMatrix.M[14] = 0.5
-		mDepthBiasMatrix.Mul(depthProj)
-		mDepthBiasMatrix.Mul(depthView)
+		mState.DepthBiasMatrix.SetIdentity()
+		mState.DepthBiasMatrix.M[0] = 0.5
+		mState.DepthBiasMatrix.M[5] = 0.5
+		mState.DepthBiasMatrix.M[10] = 0.5
+		mState.DepthBiasMatrix.M[12] = 0.5
+		mState.DepthBiasMatrix.M[13] = 0.5
+		mState.DepthBiasMatrix.M[14] = 0.5
+		mState.DepthBiasMatrix.Mul(depthProj)
+		mState.DepthBiasMatrix.Mul(depthView)
+		
+		mState.ShadowsEnabled = (depthTex <> 0)
+		mState.DepthEpsilon = depthEpsilon
 	
 		If depthTex <> 0
 			glActiveTexture(GL_TEXTURE0 + DEPTHTEX_UNIT)
@@ -312,28 +361,25 @@ Public
 			glActiveTexture(GL_TEXTURE0)
 		End
 		
-		If mActiveProgram.mShadowsEnabledLoc <> -1 And mActiveProgram.mDepthEpsilonLoc <> -1
-			If depthTex <> 0
-				glUniform1i(mActiveProgram.mShadowsEnabledLoc, True)
-				glUniform1f(mActiveProgram.mDepthEpsilonLoc, depthEpsilon)
-			Else
-				glUniform1i(mActiveProgram.mShadowsEnabledLoc, False)
-				glUniform1f(mActiveProgram.mDepthEpsilonLoc, depthEpsilon)
-			End
+		If mActiveShader.mShadowsEnabledLoc <> -1 And mActiveShader.mDepthEpsilonLoc <> -1
+			SetShaderInt(mActiveShader.mShadowsEnabledLoc, depthTex <> 0)
+			SetShaderFloat(mActiveShader.mDepthEpsilonLoc, depthEpsilon)
 		End
 	End
 	
 	Function SetBoneMatrices:Void(matrices:Mat4[])
-		If mActiveProgram.mBonesLoc[0] <> -1
+		mState.BoneMatrices = matrices
+		If mActiveShader.mBonesLoc[0] <> -1
 			Local lastIndex:Int = Min(mMaxBones, matrices.Length())
 			For Local i:Int = 0 Until lastIndex
-				If mActiveProgram.mBonesLoc[i] <> -1 Then glUniformMatrix4fv(mActiveProgram.mBonesLoc[i], 1, False, matrices[i].M)
+				If mActiveShader.mBonesLoc[i] <> -1 Then SetShaderMat4(mActiveShader.mBonesLoc[i], matrices[i])
 			Next
 		End
 	End
 	
 	Function SetSkinned:Void(enable:Bool)
-		If mActiveProgram.mSkinnedLoc <> -1 Then glUniform1i(mActiveProgram.mSkinnedLoc, enable)
+		mState.Skinned = enable
+		If mActiveShader.mSkinnedLoc <> -1 Then SetShaderInt(mActiveShader.mSkinnedLoc, enable)
 	End
 
 	Function SetBlendMode:Void(mode:Int)
@@ -349,32 +395,37 @@ Public
 		End
 		
 		'Indicate to the shader whether the blend mode is solid or not
-		If mActiveProgram.mSolidModeLoc <> -1
-			If mode = BLEND_SOLID Then glUniform1i(mActiveProgram.mSolidModeLoc, True) Else glUniform1i(mActiveProgram.mSolidModeLoc, False)
+		If mActiveShader.mSolidModeLoc <> -1
+			If mode = BLEND_SOLID Then SetShaderInt(mActiveShader.mSolidModeLoc, True) Else SetShaderInt(mActiveShader.mSolidModeLoc, False)
 		End
+		
+		mState.BlendMode = mode
 	End
 	
 	Function SetColor:Void(color:Int)
-		SetColor(Color.Red(color) / 255.0, Color.Green(color) / 255.0, Color.Blue(color) / 255.0, Color.Alpha(color) / 255.0)
+		mState.Color = color
+		If mActiveShader.mBaseColorLoc <> -1 Then SetShaderVec4(mActiveShader.mBaseColorLoc, Color.Red(color) / 255.0, Color.Green(color) / 255.0, Color.Blue(color) / 255.0, Color.Alpha(color) / 255.0)
 	End
-
-	Function SetColor:Void(r:Float, g:Float, b:Float, a:Float = 1)
-		If mActiveProgram.mBaseColorLoc <> -1 Then glUniform4f(mActiveProgram.mBaseColorLoc, r, g, b, a)
-	End
-
-	Function SetAmbient:Void(r:Float, g:Float, b:Float)
-		If mActiveProgram.mAmbientLoc <> -1 Then glUniform3f(mActiveProgram.mAmbientLoc, r, g, b)
+	
+	Function SetAmbient:Void(color:Int)
+		mState.Ambient = color
+		If mActiveShader.mAmbientLoc <> -1 Then SetShaderVec3(mActiveShader.mAmbientLoc, Color.Red(color) / 255.0, Color.Green(color) / 255.0, Color.Blue(color) / 255.0)
 	End
 
 	Function SetShininess:Void(shininess:Float)
-		If mActiveProgram.mShininessLoc <> -1 Then glUniform1f(mActiveProgram.mShininessLoc, shininess)
+		mState.Shininess = shininess
+		If mActiveShader.mShininessLoc <> -1 Then SetShaderFloat(mActiveShader.mShininessLoc, shininess)
 	End
 	
-	Function SetFog:Void(enable:Bool, minDist:Float, maxDist:Float, r:Float, g:Float, b:Float)
-		If mActiveProgram.mFogEnabledLoc <> -1 Then glUniform1i(mActiveProgram.mFogEnabledLoc, enable)
+	Function SetFog:Void(enable:Bool, color:Int, minDist:Float, maxDist:Float)
+		mState.FogEnabled = enable
+		mState.FogColor = color
+		mState.FogMinDistance = minDist
+		mState.FogMaxDistance = maxDist
+		If mActiveShader.mFogEnabledLoc <> -1 Then SetShaderInt(mActiveShader.mFogEnabledLoc, enable)
 		If enable
-			If mActiveProgram.mFogDistLoc <> -1 Then glUniform2f(mActiveProgram.mFogDistLoc, minDist, maxDist)
-			If mActiveProgram.mFogDistLoc <> -1 Then glUniform3f(mActiveProgram.mFogColorLoc, r, g, b)
+			If mActiveShader.mFogDistLoc <> -1 Then SetShaderVec2(mActiveShader.mFogDistLoc, minDist, maxDist)
+			If mActiveShader.mFogDistLoc <> -1 Then SetShaderVec3(mActiveShader.mFogColorLoc, Color.Red(color) / 255.0, Color.Green(color) / 255.0, Color.Blue(color) / 255.0)
 		End
 	End
 
@@ -387,21 +438,28 @@ Public
 	End
 	
 	Function SetRefractCoef:Void(coef:Float)
-		If mActiveProgram.mRefractCoefLoc <> -1 Then glUniform1f(mActiveProgram.mRefractCoefLoc, coef)
+		mState.RefractCoef = coef
+		If mActiveShader.mRefractCoefLoc <> -1 Then SetShaderFloat(mActiveShader.mRefractCoefLoc, coef)
 	End
 	
 	Function SetPixelLighting:Void(enable:Bool)
-		If mActiveProgram.mUsePixelLightingLoc <> -1 Then glUniform1i(mActiveProgram.mUsePixelLightingLoc, enable)
+		mState.PixelLighting = enable
+		If mActiveShader.mUsePixelLightingLoc <> -1 Then SetShaderInt(mActiveShader.mUsePixelLightingLoc, enable)
 	End
 
 	Function SetNumLights:Void(num:Int)
-		If mActiveProgram.mNumLightsLoc <> -1 Then glUniform1i(mActiveProgram.mNumLightsLoc, num)
+		mState.NumLights = num
+		If mActiveShader.mNumLightsLoc <> -1 Then SetShaderInt(mActiveShader.mNumLightsLoc, num)
 	End
 
-	Function SetLight:Void(index:Int, x:Float, y:Float, z:Float, w:Float, r:Float, g:Float, b:Float, radius:Float)
-		If mActiveProgram.mLightPosLoc[index] <> -1 Then glUniform4f(mActiveProgram.mLightPosLoc[index], x, y, z, w)
-		If mActiveProgram.mLightColorLoc[index] <> -1 Then glUniform3f(mActiveProgram.mLightColorLoc[index], r, g, b)
-		If mActiveProgram.mLightRadiusLoc[index] <> -1 Then glUniform1f(mActiveProgram.mLightRadiusLoc[index], radius)
+	Function SetLight:Void(index:Int, x:Float, y:Float, z:Float, w:Float, color:Int, radius:Float)
+		mState.LightPos[index].Set(x, y, z)
+		mState.LightW[index] = w
+		mState.LightColor[index] = color
+		mState.LightRadius[index] = radius
+		If mActiveShader.mLightPosLoc[index] <> -1 Then SetShaderVec4(mActiveShader.mLightPosLoc[index], x, y, z, w)
+		If mActiveShader.mLightColorLoc[index] <> -1 Then SetShaderVec3(mActiveShader.mLightColorLoc[index], Color.Red(color) / 255.0, Color.Green(color) / 255.0, Color.Blue(color) / 255.0)
+		If mActiveShader.mLightRadiusLoc[index] <> -1 Then SetShaderFloat(mActiveShader.mLightRadiusLoc[index], radius)
 	End
 	
 	Function MaxLights:Int()
@@ -429,10 +487,10 @@ Public
 		mTempMatrix.SetTransform(x1, y1, 0, 0, 0, 0, x2-x1, y2-y1, 1)
 		SetModelMatrix(mTempMatrix)
 		glBindBuffer(GL_ARRAY_BUFFER, mLineBuffer)
-		glEnableVertexAttribArray(mActiveProgram.mVPosLoc)
-		glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
+		glEnableVertexAttribArray(mActiveShader.mVPosLoc)
+		glVertexAttribPointer(mActiveShader.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
 		glDrawArrays(GL_LINES, 0, 2)
-		glDisableVertexAttribArray(mActiveProgram.mVPosLoc)
+		glDisableVertexAttribArray(mActiveShader.mVPosLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
 
@@ -440,10 +498,10 @@ Public
 		mTempMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
 		SetModelMatrix(mTempMatrix)
 		glBindBuffer(GL_ARRAY_BUFFER, mRectBuffer)
-		glEnableVertexAttribArray(mActiveProgram.mVPosLoc)
-		glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
+		glEnableVertexAttribArray(mActiveShader.mVPosLoc)
+		glVertexAttribPointer(mActiveShader.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4)
-		glDisableVertexAttribArray(mActiveProgram.mVPosLoc)
+		glDisableVertexAttribArray(mActiveShader.mVPosLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
 
@@ -451,10 +509,10 @@ Public
 		mTempMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
 		SetModelMatrix(mTempMatrix)
 		glBindBuffer(GL_ARRAY_BUFFER, mEllipseBuffer)
-		glEnableVertexAttribArray(mActiveProgram.mVPosLoc)
-		glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
+		glEnableVertexAttribArray(mActiveShader.mVPosLoc)
+		glVertexAttribPointer(mActiveShader.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
 		glDrawArrays(GL_TRIANGLE_FAN, 0, ELLIPSEPOINTS)
-		glDisableVertexAttribArray(mActiveProgram.mVPosLoc)
+		glDisableVertexAttribArray(mActiveShader.mVPosLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
 	
@@ -471,13 +529,13 @@ Public
 		mTempMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
 		SetModelMatrix(mTempMatrix)
 		glBindBuffer(GL_ARRAY_BUFFER, mRectBuffer)
-		glEnableVertexAttribArray(mActiveProgram.mVPosLoc)
-		glEnableVertexAttribArray(mActiveProgram.mVTexLoc)
-		glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
-		glVertexAttribPointer(mActiveProgram.mVTexLoc, 2, GL_FLOAT, False, 0, 48)
+		glEnableVertexAttribArray(mActiveShader.mVPosLoc)
+		glEnableVertexAttribArray(mActiveShader.mVTexLoc)
+		glVertexAttribPointer(mActiveShader.mVPosLoc, 3, GL_FLOAT, False, 0, 0)
+		glVertexAttribPointer(mActiveShader.mVTexLoc, 2, GL_FLOAT, False, 0, 48)
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4)
-		glDisableVertexAttribArray(mActiveProgram.mVPosLoc)
-		glDisableVertexAttribArray(mActiveProgram.mVTexLoc)
+		glDisableVertexAttribArray(mActiveShader.mVPosLoc)
+		glDisableVertexAttribArray(mActiveShader.mVTexLoc)
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
 	End
 
@@ -615,25 +673,33 @@ Public
 			glBindTexture(GL_TEXTURE_CUBE_MAP, refractionTex)
 		End
 		
-		If mActiveProgram.mBaseTexModeLoc <> -1
+		If mActiveShader.mBaseTexModeLoc <> -1
 			If diffuseTex = 0
-				glUniform1i(mActiveProgram.mBaseTexModeLoc, 0)
+				mState.BaseTexMode = 0
+				SetShaderInt(mActiveShader.mBaseTexModeLoc, 0)
 			Elseif Not isDiffuseCubic
-				glUniform1i(mActiveProgram.mBaseTexModeLoc, 1)
+				mState.BaseTexMode = 1
+				SetShaderInt(mActiveShader.mBaseTexModeLoc, 1)
 			Else
-				glUniform1i(mActiveProgram.mBaseTexModeLoc, 2)
+				mState.BaseTexMode = 2
+				SetShaderInt(mActiveShader.mBaseTexModeLoc, 2)
 			End
 		End
-		If mActiveProgram.mUseNormalTexLoc <> -1 Then glUniform1i(mActiveProgram.mUseNormalTexLoc, normalTex <> 0)
-		If mActiveProgram.mUseLightmapLoc <> -1 Then glUniform1i(mActiveProgram.mUseLightmapLoc, lightmap <> 0)
-		If mActiveProgram.mUseReflectTexLoc <> -1 Then glUniform1i(mActiveProgram.mUseReflectTexLoc, reflectionTex <> 0)
-		If mActiveProgram.mUseRefractTexLoc <> -1 Then glUniform1i(mActiveProgram.mUseRefractTexLoc, refractionTex <> 0)
+		mState.UseNormalTex = normalTex <> 0
+		mState.UseLightTex = lightmap <> 0
+		mState.UseReflectTex = reflectionTex <> 0
+		mState.UseRefractTex = refractionTex <> 0
+		If mActiveShader.mUseNormalTexLoc <> -1 Then SetShaderInt(mActiveShader.mUseNormalTexLoc, normalTex <> 0)
+		If mActiveShader.mUseLightmapLoc <> -1 Then SetShaderInt(mActiveShader.mUseLightmapLoc, lightmap <> 0)
+		If mActiveShader.mUseReflectTexLoc <> -1 Then SetShaderInt(mActiveShader.mUseReflectTexLoc, reflectionTex <> 0)
+		If mActiveShader.mUseRefractTexLoc <> -1 Then SetShaderInt(mActiveShader.mUseRefractTexLoc, refractionTex <> 0)
 		
 		glActiveTexture(GL_TEXTURE0)
 	End
 	
 	Function SetTextureMatrix:Void(m:Mat4)
-		If mActiveProgram.mTextureMatrixLoc <> -1 Then glUniformMatrix4fv(mActiveProgram.mTextureMatrixLoc, 1, False, m.M)
+		mState.TextureMatrix.Set(m)
+		If mActiveShader.mTextureMatrixLoc <> -1 Then SetShaderMat4(mActiveShader.mTextureMatrixLoc, m)
 	End
 	
 	'---------------------------------------------------------------------------
@@ -728,27 +794,27 @@ Public
 		'Bind buffers and setup
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer)
-		If coordsOffset >= 0 And mActiveProgram.mVPosLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVPosLoc); glVertexAttribPointer(mActiveProgram.mVPosLoc, 3, GL_FLOAT, False, stride, coordsOffset)
-		If normalsOffset >= 0 And mActiveProgram.mVNormalLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVNormalLoc); glVertexAttribPointer(mActiveProgram.mVNormalLoc, 3, GL_FLOAT, False, stride, normalsOffset)
-		If tangentsOffset >= 0 And mActiveProgram.mVTangentLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVTangentLoc); glVertexAttribPointer(mActiveProgram.mVTangentLoc, 3, GL_FLOAT, False, stride, tangentsOffset)
-		If colorsOffset >= 0 And mActiveProgram.mVColorLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVColorLoc); glVertexAttribPointer(mActiveProgram.mVColorLoc, 4, GL_FLOAT, False, stride, colorsOffset)
-		If texCoordsOffset >= 0 And mActiveProgram.mVTexLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVTexLoc); glVertexAttribPointer(mActiveProgram.mVTexLoc, 2, GL_FLOAT, False, stride, texCoordsOffset)
-		If texCoords2Offset >= 0 And mActiveProgram.mVTex2Loc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVTex2Loc); glVertexAttribPointer(mActiveProgram.mVTex2Loc, 2, GL_FLOAT, False, stride, texCoords2Offset)
-		If boneIndicesOffset >= 0 And mActiveProgram.mVBoneIndicesLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVBoneIndicesLoc); glVertexAttribPointer(mActiveProgram.mVBoneIndicesLoc, 4, GL_FLOAT, False, stride, boneIndicesOffset)
-		If boneWeightsOffset >= 0 And mActiveProgram.mVBoneWeightsLoc > -1 Then glEnableVertexAttribArray(mActiveProgram.mVBoneWeightsLoc); glVertexAttribPointer(mActiveProgram.mVBoneWeightsLoc, 4, GL_FLOAT, False, stride, boneWeightsOffset)
+		If coordsOffset >= 0 And mActiveShader.mVPosLoc > -1 Then glEnableVertexAttribArray(mActiveShader.mVPosLoc); glVertexAttribPointer(mActiveShader.mVPosLoc, 3, GL_FLOAT, False, stride, coordsOffset)
+		If normalsOffset >= 0 And mActiveShader.mVNormalLoc > -1 Then glEnableVertexAttribArray(mActiveShader.mVNormalLoc); glVertexAttribPointer(mActiveShader.mVNormalLoc, 3, GL_FLOAT, False, stride, normalsOffset)
+		If tangentsOffset >= 0 And mActiveShader.mVTangentLoc > -1 Then glEnableVertexAttribArray(mActiveShader.mVTangentLoc); glVertexAttribPointer(mActiveShader.mVTangentLoc, 3, GL_FLOAT, False, stride, tangentsOffset)
+		If colorsOffset >= 0 And mActiveShader.mVColorLoc > -1 Then glEnableVertexAttribArray(mActiveShader.mVColorLoc); glVertexAttribPointer(mActiveShader.mVColorLoc, 4, GL_FLOAT, False, stride, colorsOffset)
+		If texCoordsOffset >= 0 And mActiveShader.mVTexLoc > -1 Then glEnableVertexAttribArray(mActiveShader.mVTexLoc); glVertexAttribPointer(mActiveShader.mVTexLoc, 2, GL_FLOAT, False, stride, texCoordsOffset)
+		If texCoords2Offset >= 0 And mActiveShader.mVTex2Loc > -1 Then glEnableVertexAttribArray(mActiveShader.mVTex2Loc); glVertexAttribPointer(mActiveShader.mVTex2Loc, 2, GL_FLOAT, False, stride, texCoords2Offset)
+		If boneIndicesOffset >= 0 And mActiveShader.mVBoneIndicesLoc > -1 Then glEnableVertexAttribArray(mActiveShader.mVBoneIndicesLoc); glVertexAttribPointer(mActiveShader.mVBoneIndicesLoc, 4, GL_FLOAT, False, stride, boneIndicesOffset)
+		If boneWeightsOffset >= 0 And mActiveShader.mVBoneWeightsLoc > -1 Then glEnableVertexAttribArray(mActiveShader.mVBoneWeightsLoc); glVertexAttribPointer(mActiveShader.mVBoneWeightsLoc, 4, GL_FLOAT, False, stride, boneWeightsOffset)
 		
 		'Draw
 		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0)
 		
 		'Disable arrays
-		If mActiveProgram.mVPosLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVPosLoc)
-		If mActiveProgram.mVNormalLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVNormalLoc)
-		If mActiveProgram.mVTangentLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVTangentLoc)
-		If mActiveProgram.mVColorLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVColorLoc)
-		If mActiveProgram.mVTexLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVTexLoc)
-		If mActiveProgram.mVTex2Loc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVTex2Loc)
-		If mActiveProgram.mVBoneIndicesLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVBoneIndicesLoc)
-		If mActiveProgram.mVBoneWeightsLoc > -1 Then glDisableVertexAttribArray(mActiveProgram.mVBoneWeightsLoc)
+		If mActiveShader.mVPosLoc > -1 Then glDisableVertexAttribArray(mActiveShader.mVPosLoc)
+		If mActiveShader.mVNormalLoc > -1 Then glDisableVertexAttribArray(mActiveShader.mVNormalLoc)
+		If mActiveShader.mVTangentLoc > -1 Then glDisableVertexAttribArray(mActiveShader.mVTangentLoc)
+		If mActiveShader.mVColorLoc > -1 Then glDisableVertexAttribArray(mActiveShader.mVColorLoc)
+		If mActiveShader.mVTexLoc > -1 Then glDisableVertexAttribArray(mActiveShader.mVTexLoc)
+		If mActiveShader.mVTex2Loc > -1 Then glDisableVertexAttribArray(mActiveShader.mVTex2Loc)
+		If mActiveShader.mVBoneIndicesLoc > -1 Then glDisableVertexAttribArray(mActiveShader.mVBoneIndicesLoc)
+		If mActiveShader.mVBoneWeightsLoc > -1 Then glDisableVertexAttribArray(mActiveShader.mVBoneWeightsLoc)
 		
 		'Bind previously bound buffers (in case they are the Mojo2 ones)
 		glBindBuffer(GL_ARRAY_BUFFER, prevVertexBuffer)
@@ -762,30 +828,40 @@ Public
 	Function CreateProgram:GpuProgram(vertex:String, fragment:String)
 		vertex = GLSL_VERSION + "#define MAX_LIGHTS " + mMaxLights + "~n#define MAX_BONES " + mMaxBones + "~n" + vertex
 		fragment = GLSL_VERSION + "#define MAX_LIGHTS " + mMaxLights + "~n" + fragment
-
+		Local id:Int = CreateShader(vertex, fragment)
+		If id <> 0 Then Return New GpuProgram(id) Else Return Null
+	End
+	
+	Function UseProgram:Void(shader:GpuProgram)
+		If shader = Null Then shader = mDefaultShader
+		shader.Use()
+		mActiveShader = shader
+	End
+	
+	Function CreateShader:Int(vertex:String, fragment:String)
 		Local retCode:Int[1]
 
 		'Create vertex shader
 		Local vshader:Int = glCreateShader(GL_VERTEX_SHADER)
 		glShaderSource(vshader, vertex)
 		glCompileShader(vshader)
-		mProgramError = glGetShaderInfoLog(vshader)
+		mShaderError = glGetShaderInfoLog(vshader)
 		glGetShaderiv(vshader, GL_COMPILE_STATUS, retCode)
 		If retCode[0] = GL_FALSE
 			glDeleteShader(vshader)
-			Return Null
+			Return 0
 		End
 
 		'Create fragment shader
 		Local fshader:Int = glCreateShader(GL_FRAGMENT_SHADER)
 		glShaderSource(fshader, fragment)
 		glCompileShader(fshader)
-		mProgramError += "~n" + glGetShaderInfoLog(fshader)
+		mShaderError += "~n" + glGetShaderInfoLog(fshader)
 		glGetShaderiv(fshader, GL_COMPILE_STATUS, retCode)
 		If retCode[0] = GL_FALSE
 			glDeleteShader(vshader)
 			glDeleteShader(fshader)
-			Return Null
+			Return 0
 		End
 
 		'Create program
@@ -797,26 +873,52 @@ Public
 		glDeleteShader(fshader)
 		glGetProgramiv(program, GL_LINK_STATUS, retCode)
 		If retCode[0] = GL_FALSE
-			mProgramError = glGetProgramInfoLog(program)
-			FreeProgram(program)
-			Return Null
+			mShaderError = glGetProgramInfoLog(program)
+			FreeShader(program)
+			Return 0
 		End
 		
-		Return New GpuProgram(program)
+		Return program
 	End
 
-	Function FreeProgram:Void(program:GpuProgram)
-		program.Free()
+	Function FreeShader:Void(shader:Int)
+		glDeleteProgram(shader)
+	End
+	
+	Function UseShader:Void(shader:Int)
+		glUseProgram(shader)
+	End
+	
+	Function ShaderLocation:Int(shader:Int, name:String)
+		Return glGetUniformLocation(shader, name)
+	End
+	
+	Function SetShaderInt:Void(loc:Int, x:Int)
+		glUniform1i(loc, x)
+	End
+	
+	Function SetShaderFloat:Void(loc:Int, x:Float)
+		glUniform1f(loc, x)
+	End
+	
+	Function SetShaderVec2:Void(loc:Int, x:Float, y:Float)
+		glUniform2f(loc, x, y)
+	End
+	
+	Function SetShaderVec3:Void(loc:Int, x:Float, y:Float, z:Float)
+		glUniform3f(loc, x, y, z)
+	End
+	
+	Function SetShaderVec4:Void(loc:Int, x:Float, y:Float, z:Float, w:Float)
+		glUniform4f(loc, x, y, z, w)
+	End
+	
+	Function SetShaderMat4:Void(loc:Int, m:Mat4)
+		glUniformMatrix4fv(loc, 1, False, m.M)
 	End
 
-	Function UseProgram:Void(program:GpuProgram)
-		If program = Null Then program = mDefaultProgram
-		program.Use()
-		mActiveProgram = program
-	End
-
-	Function ProgramError:String()
-		Return mProgramError
+	Function ShaderError:String()
+		Return mShaderError
 	End
 	
 	Function VendorName:String()
@@ -919,22 +1021,18 @@ Private
 	Global mVersion:Float
 	Global mShadingVersion:Float
 
+	Global mState:RendererState
 	Global mEllipseBuffer:Int
 	Global mLineBuffer:Int
 	Global mRectBuffer:Int
 	Global mFramebufferHeight:Int
 	Global mTexDataBuffer:DataBuffer = New DataBuffer(32, True)
-	Global mModelMatrix:Mat4 = Mat4.Create()
-	Global mViewMatrix:Mat4 = Mat4.Create()
-	Global mProjectionMatrix:Mat4 = Mat4.Create()
-	Global mInvViewMatrix:Mat4 = Mat4.Create()
-	Global mDepthBiasMatrix:Mat4 = Mat4.Create()
 	Global mTempMatrix:Mat4 = Mat4.Create()
-	Global mDefaultProgram:GpuProgram			'Default program id
-	Global mDepthProgram:GpuProgram				'Depth program id
-	Global m2DProgram:GpuProgram				'Default 2D program id
-	Global mActiveProgram:GpuProgram			'Currently active program
-	Global mProgramError:String					'Last error occured when compiling or linking a shader
+	Global mDefaultShader:GpuProgram			'Default program id
+	Global mDepthShader:GpuProgram				'Depth program id
+	Global m2DShader:GpuProgram				'Default 2D program id
+	Global mActiveShader:GpuProgram			'Currently active program
+	Global mShaderError:String					'Last error occured when compiling or linking a shader
 	Global mTempArray:Int[1]					'Array used when requesting parameters to OpenGL
 End
 
@@ -989,37 +1087,37 @@ Class GpuProgram
 	Method New(program:Int)
 		mProgramId = program
 		glUseProgram(program)
-		mMVPLoc = glGetUniformLocation(program, "mvp")
-		mModelViewLoc = glGetUniformLocation(program, "modelView")
-		mNormalMatrixLoc = glGetUniformLocation(program, "normalMatrix")
-		mInvViewLoc = glGetUniformLocation(program, "invView")
-		mDepthBiasLoc = glGetUniformLocation(program, "depthBias")
-		mSolidModeLoc = glGetUniformLocation(program, "solidMode")
-		mTextureMatrixLoc = glGetUniformLocation(program, "textureMatrix")
-		mBaseTexModeLoc = glGetUniformLocation(program, "baseTexMode")
-		mUseNormalTexLoc = glGetUniformLocation(program, "useNormalTex")
-		mUseLightmapLoc = glGetUniformLocation(program, "useLightmap")
-		mUseReflectTexLoc = glGetUniformLocation(program, "useReflectTex")
-		mUseRefractTexLoc = glGetUniformLocation(program, "useRefractTex")
-		mUsePixelLightingLoc = glGetUniformLocation(program, "usePixelLighting")
-		mNumLightsLoc = glGetUniformLocation(program, "numLights")
+		mMVPLoc = Renderer.ShaderLocation(program, "mvp")
+		mModelViewLoc = Renderer.ShaderLocation(program, "modelView")
+		mNormalMatrixLoc = Renderer.ShaderLocation(program, "normalMatrix")
+		mInvViewLoc = Renderer.ShaderLocation(program, "invView")
+		mDepthBiasLoc = Renderer.ShaderLocation(program, "depthBias")
+		mSolidModeLoc = Renderer.ShaderLocation(program, "solidMode")
+		mTextureMatrixLoc = Renderer.ShaderLocation(program, "textureMatrix")
+		mBaseTexModeLoc = Renderer.ShaderLocation(program, "baseTexMode")
+		mUseNormalTexLoc = Renderer.ShaderLocation(program, "useNormalTex")
+		mUseLightmapLoc = Renderer.ShaderLocation(program, "useLightmap")
+		mUseReflectTexLoc = Renderer.ShaderLocation(program, "useReflectTex")
+		mUseRefractTexLoc = Renderer.ShaderLocation(program, "useRefractTex")
+		mUsePixelLightingLoc = Renderer.ShaderLocation(program, "usePixelLighting")
+		mNumLightsLoc = Renderer.ShaderLocation(program, "numLights")
 		For Local i:Int = 0 Until Renderer.mMaxLights
-			mLightPosLoc[i] = glGetUniformLocation(program, "lightPos[" + i + "]")
-			mLightColorLoc[i] = glGetUniformLocation(program, "lightColor[" + i + "]")
-			mLightRadiusLoc[i] = glGetUniformLocation(program, "lightRadius[" + i + "]")
+			mLightPosLoc[i] = Renderer.ShaderLocation(program, "lightPos[" + i + "]")
+			mLightColorLoc[i] = Renderer.ShaderLocation(program, "lightColor[" + i + "]")
+			mLightRadiusLoc[i] = Renderer.ShaderLocation(program, "lightRadius[" + i + "]")
 		Next
-		mBaseColorLoc = glGetUniformLocation(program, "baseColor")
-		mAmbientLoc = glGetUniformLocation(program, "ambient")
-		mShininessLoc = glGetUniformLocation(program, "shininess")
-		mRefractCoefLoc = glGetUniformLocation(program, "refractCoef")
-		mFogEnabledLoc = glGetUniformLocation(program, "fogEnabled")
-		mFogDistLoc = glGetUniformLocation(program, "fogDist")
-		mFogColorLoc = glGetUniformLocation(program, "fogColor")
-		mShadowsEnabledLoc = glGetUniformLocation(program, "shadowsEnabled")
-		mDepthEpsilonLoc = glGetUniformLocation(program, "depthEpsilon")
-		mSkinnedLoc = glGetUniformLocation(program, "skinned")
+		mBaseColorLoc = Renderer.ShaderLocation(program, "baseColor")
+		mAmbientLoc = Renderer.ShaderLocation(program, "ambient")
+		mShininessLoc = Renderer.ShaderLocation(program, "shininess")
+		mRefractCoefLoc = Renderer.ShaderLocation(program, "refractCoef")
+		mFogEnabledLoc = Renderer.ShaderLocation(program, "fogEnabled")
+		mFogDistLoc = Renderer.ShaderLocation(program, "fogDist")
+		mFogColorLoc = Renderer.ShaderLocation(program, "fogColor")
+		mShadowsEnabledLoc = Renderer.ShaderLocation(program, "shadowsEnabled")
+		mDepthEpsilonLoc = Renderer.ShaderLocation(program, "depthEpsilon")
+		mSkinnedLoc = Renderer.ShaderLocation(program, "skinned")
 		For Local i:Int = 0 Until Renderer.mMaxBones
-			mBonesLoc[i] = glGetUniformLocation(program, "bones[" + i + "]")
+			mBonesLoc[i] = Renderer.ShaderLocation(program, "bones[" + i + "]")
 		Next
 		mVPosLoc = glGetAttribLocation(program, "vpos")
 		mVNormalLoc = glGetAttribLocation(program, "vnormal")
@@ -1030,27 +1128,23 @@ Class GpuProgram
 		mVBoneIndicesLoc = glGetAttribLocation(program, "vboneIndices")
 		mVBoneWeightsLoc = glGetAttribLocation(program, "vboneWeights")
 
-		mBaseTexSamplerLoc = glGetUniformLocation(program, "baseTexSampler")
-		mBaseCubeSamplerLoc = glGetUniformLocation(program, "baseCubeSampler")
-		mNormalTexSamplerLoc = glGetUniformLocation(program, "normalTexSampler")
-		mLightmapSamplerLoc = glGetUniformLocation(program, "lightmapSampler")
-		mReflectCubeSamplerLoc = glGetUniformLocation(program, "reflectCubeSampler")
-		mRefractCubeSamplerLoc = glGetUniformLocation(program, "refractCubeSampler")
-		mDepthSamplerLoc = glGetUniformLocation(program, "depthSampler")
-	End
-	
-	Method Free:Void()
-		glDeleteProgram(mProgramId)
+		mBaseTexSamplerLoc = Renderer.ShaderLocation(program, "baseTexSampler")
+		mBaseCubeSamplerLoc = Renderer.ShaderLocation(program, "baseCubeSampler")
+		mNormalTexSamplerLoc = Renderer.ShaderLocation(program, "normalTexSampler")
+		mLightmapSamplerLoc = Renderer.ShaderLocation(program, "lightmapSampler")
+		mReflectCubeSamplerLoc = Renderer.ShaderLocation(program, "reflectCubeSampler")
+		mRefractCubeSamplerLoc = Renderer.ShaderLocation(program, "refractCubeSampler")
+		mDepthSamplerLoc = Renderer.ShaderLocation(program, "depthSampler")
 	End
 	
 	Method Use:Void()
 		glUseProgram(mProgramId)		
-		If mBaseTexSamplerLoc <> -1 Then glUniform1i(mBaseTexSamplerLoc, Renderer.BASETEX_UNIT)
-		If mBaseCubeSamplerLoc <> -1 Then glUniform1i(mBaseCubeSamplerLoc, Renderer.BASECUBE_UNIT)
-		If mNormalTexSamplerLoc <> -1 Then glUniform1i(mNormalTexSamplerLoc, Renderer.NORMALTEX_UNIT)
-		If mLightmapSamplerLoc <> -1 Then glUniform1i(mLightmapSamplerLoc, Renderer.LIGHTMAP_UNIT)
-		If mReflectCubeSamplerLoc <> -1 Then glUniform1i(mReflectCubeSamplerLoc, Renderer.REFLECTTEX_UNIT)
-		If mRefractCubeSamplerLoc <> -1 Then glUniform1i(mRefractCubeSamplerLoc, Renderer.REFRACTTEX_UNIT)
-		If mDepthSamplerLoc <> -1 Then glUniform1i(mDepthSamplerLoc, Renderer.DEPTHTEX_UNIT)
+		If mBaseTexSamplerLoc <> -1 Then Renderer.SetShaderInt(mBaseTexSamplerLoc, Renderer.BASETEX_UNIT)
+		If mBaseCubeSamplerLoc <> -1 Then Renderer.SetShaderInt(mBaseCubeSamplerLoc, Renderer.BASECUBE_UNIT)
+		If mNormalTexSamplerLoc <> -1 Then Renderer.SetShaderInt(mNormalTexSamplerLoc, Renderer.NORMALTEX_UNIT)
+		If mLightmapSamplerLoc <> -1 Then Renderer.SetShaderInt(mLightmapSamplerLoc, Renderer.LIGHTMAP_UNIT)
+		If mReflectCubeSamplerLoc <> -1 Then Renderer.SetShaderInt(mReflectCubeSamplerLoc, Renderer.REFLECTTEX_UNIT)
+		If mRefractCubeSamplerLoc <> -1 Then Renderer.SetShaderInt(mRefractCubeSamplerLoc, Renderer.REFRACTTEX_UNIT)
+		If mDepthSamplerLoc <> -1 Then Renderer.SetShaderInt(mDepthSamplerLoc, Renderer.DEPTHTEX_UNIT)
 	End
 End

@@ -35,23 +35,23 @@ Function DrawRectOutline:Void(r:Rect)
 End
 
 Function DrawRectOutline:Void(x:Float, y:Float, width:Float, height:Float)
-	Renderer.SetColor(0.2, 0.2, 0.2)
-	Renderer.DrawLine(x, y, x+width, y)
+	Renderer.SetColor(Color.DARK_GRAY)
+	Renderer.DrawLine(x-1, y, x+width, y)
 	Renderer.DrawLine(x, y+height, x+width, y+height)
 	Renderer.DrawLine(x, y, x, y+height)
 	Renderer.DrawLine(x+width, y, x+width, y+height)
 End
 
-Function DrawPanel:Void(r:Rect, text:String = "", font:Font = Null, color:Int = Color.LIGHT_GRAY)
-	DrawPanel(r.x, r.y, r.width, r.height, text, font, color)
+Function DrawPanel:Void(r:Rect, text:String = "", font:Font = Null, color:Int = Color.LIGHT_GRAY, textColor:Int = Color.DARK_GRAY)
+	DrawPanel(r.x, r.y, r.width, r.height, text, font, color, textColor)
 End
 
-Function DrawPanel:Void(x:Float, y:Float, width:Float, height:Float, text:String = "", font:Font = Null, color:Int = Color.LIGHT_GRAY)
+Function DrawPanel:Void(x:Float, y:Float, width:Float, height:Float, text:String = "", font:Font = Null, color:Int = Color.LIGHT_GRAY, textColor:Int = Color.DARK_GRAY)
 	Renderer.SetColor(color)
 	Renderer.DrawRect(x, y, width, height)
 	DrawRectOutline(x, y, width, height)
 	If text <> "" And font <> Null
-		Renderer.SetColor(Color.RGB(Color.Red(color) * 0.3, Color.Green(color) * 0.3, Color.Blue(color) * 0.3))
+		Renderer.SetColor(textColor)
 		font.Draw(x + width/2 - font.TextWidth(text)/2, y + height/2 - font.TextHeight(text)/2, text)
 	End
 End
@@ -67,6 +67,6 @@ Function DrawCheckbox:Void(x:Float, y:Float, width:Float, height:Float, text:Str
 		Renderer.DrawLine(x + 4, y + 4, x + 20, y + 20)
 		Renderer.DrawLine(x + 4, y + 20, x + 20, y + 4)
 	End
-	Renderer.SetColor(0.25, 0.25, 0.25)
+	Renderer.SetColor(Color.DARK_GRAY)
 	font.Draw(x + 24, y + height/2 - font.TextHeight(text)/2, text)
 End

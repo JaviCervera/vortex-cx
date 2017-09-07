@@ -20,7 +20,7 @@ Public
 	End
 	
 	Function ShaderError:String()
-		Return Renderer.ProgramError()
+		Return Renderer.ShaderError()
 	End
 	
 	Function VendorName:String()

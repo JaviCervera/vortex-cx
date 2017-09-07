@@ -191,7 +191,7 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 		If mOrientation <> MODE_STATIC
 			Local cylindrical:Bool = False
 			If mOrientation = MODE_CYLINDRICAL Then cylindrical = True
-			_Transform.SetBillboardTransformLH(Renderer.ViewMatrix(), WorldX, WorldY, WorldZ, Spin, Width, Height, cylindrical)
+			_Transform.SetBillboardTransformLH(Renderer.State().ViewMatrix, WorldX, WorldY, WorldZ, Spin, Width, Height, cylindrical)
 		End
 		
 		'Texture matrix

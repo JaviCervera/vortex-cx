@@ -1,4 +1,8 @@
 'TODO v2.0:
+'- Change how shaders are used (make shader class)
+'- Hide Cache class. Load methods should have a boolean indicating whether you want to cache the object
+'- Allow font textures to have different width and height (this should save texture space)
+'- Add x offset to fonts
 '- Add previous depth pass to avoid computing redundant fragments
 '- Add size suffix to fonts in fonttool
 '- Fix render to texture on HTML5
@@ -6,12 +10,12 @@
 '- Remove XML support in tools
 '- Change mesh in shadows demo
 '- Document tools
-'- Add PCF to shadows
 '- Consider switching to Zlib or another license?
 'TODO v2.1:
 '- Add particles
 '- Add spot lights
 '- Add multiple shadows
+'- Add PCF to shadows
 '- Add several shaders: unlit, vlit, flit, with static and skinned modes
 '- Write Assimp mesh loader
 '- Write worldtool with lightmapping support
@@ -34,6 +38,7 @@ Import src.material
 Import src.mesh
 Import src.model
 Import src.renderer
+Import src.shader
 Import src.sprite
 Import src.stats
 Import src.surface

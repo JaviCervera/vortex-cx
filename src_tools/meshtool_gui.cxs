@@ -295,7 +295,7 @@ Public
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.SetBlendMode(Renderer.BLEND_ALPHA)
 		DrawPanel(mPanelRect)
-		Renderer.SetColor(1, 1, 1)
+		Renderer.SetColor(Color.WHITE)
 		mCubeTex.Draw(mCubeRect.x, mCubeRect.y)
 		mOpenTex.Draw(mOpenRect.x, mOpenRect.y)
 		mSaveTex.Draw(mSaveRect.x, mSaveRect.y)
@@ -305,7 +305,7 @@ Public
 			'DrawPanel(mYawRect, "Yaw: " + mYawFix, mFont)
 			'DrawPanel(mRollRect, "Roll: " + mRollFix, mFont)
 			
-			Renderer.SetColor(1, 1, 1)
+			Renderer.SetColor(Color.WHITE)
 			mFont.Draw(8, 34, "Num Surfaces: " + currentModel.Mesh.NumSurfaces)
 			mFont.Draw(8, 50, "Num Bones: " + currentModel.Mesh.NumBones)
 			mFont.Draw(8, 66, "Anim Duration: " + currentModel.Mesh.AnimDuration)
@@ -321,7 +321,7 @@ Public
 			
 			'Diffuse
 			If currentModel.Material(mSelMat).BaseTexture
-				Renderer.SetColor(1, 1, 1)
+				Renderer.SetColor(Color.WHITE)
 				currentModel.Material(mSelMat).BaseTexture.Draw(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
@@ -329,7 +329,7 @@ Public
 			
 			'Normal
 			If currentModel.Material(mSelMat).NormalTexture
-				Renderer.SetColor(1, 1, 1)
+				Renderer.SetColor(Color.WHITE)
 				currentModel.Material(mSelMat).NormalTexture.Draw(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
@@ -337,7 +337,7 @@ Public
 			
 			'Lightmap
 			If currentModel.Material(mSelMat).LightTexture
-				Renderer.SetColor(1, 1, 1)
+				Renderer.SetColor(Color.WHITE)
 				currentModel.Material(mSelMat).LightTexture.Draw(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
@@ -345,7 +345,7 @@ Public
 			
 			'Reflection
 			If currentModel.Material(mSelMat).ReflectionTexture
-				Renderer.SetColor(1, 1, 1)
+				Renderer.SetColor(Color.WHITE)
 				currentModel.Material(mSelMat).ReflectionTexture.Draw(mMaterialRect.x + mReflectionTexRect.x, mMaterialRect.y + mReflectionTexRect.y, mReflectionTexRect.width, mReflectionTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mReflectionTexRect.x, mMaterialRect.y + mReflectionTexRect.y, mReflectionTexRect.width, mReflectionTexRect.height)
@@ -353,13 +353,13 @@ Public
 			
 			'Refraction
 			If currentModel.Material(mSelMat).RefractionTexture
-				Renderer.SetColor(1, 1, 1)
+				Renderer.SetColor(Color.WHITE)
 				currentModel.Material(mSelMat).RefractionTexture.Draw(mMaterialRect.x + mRefractionTexRect.x, mMaterialRect.y + mRefractionTexRect.y, mRefractionTexRect.width, mRefractionTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mRefractionTexRect.x, mMaterialRect.y + mRefractionTexRect.y, mRefractionTexRect.width, mRefractionTexRect.height)
 			End
 			
-			Renderer.SetColor(1, 1, 1)
+			Renderer.SetColor(Color.WHITE)
 			mFont.Draw(mMaterialRect.x + mDiffuseTexRect.x + 2, mMaterialRect.y + mDiffuseTexRect.y, "Base")
 			mFont.Draw(mMaterialRect.x + mNormalTexRect.x + 2, mMaterialRect.y + mNormalTexRect.y, "Normal")
 			mFont.Draw(mMaterialRect.x + mLightmapRect.x + 2, mMaterialRect.y + mLightmapRect.y, "Light")
