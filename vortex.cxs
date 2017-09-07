@@ -1,5 +1,5 @@
 'TODO v2.0:
-'- Change how shaders are used (make shader class)
+'* Change how shaders are used (make shader class)
 '- Hide Cache class. Load methods should have a boolean indicating whether you want to cache the object
 '- Allow font textures to have different width and height (this should save texture space)
 '- Add x offset to fonts

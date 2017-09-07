@@ -1,7 +1,6 @@
 Strict
 
 Private
-Import brl.process
 #If LANG="cpp"
 Import "native/tinyfiledialogs.h"
 Import "native/tinyfiledialogs.cpp"
