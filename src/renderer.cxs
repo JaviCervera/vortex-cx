@@ -10,7 +10,6 @@ Import math3d
 Import mojo.app
 Import mojo.graphics
 Import opengl.gles20
-Import renderer_shaders
 Import shader
 
 '#If TARGET="html5"
@@ -25,7 +24,6 @@ Class RendererState Final
 	Field ProjectionMatrix	: Mat4
 	Field ViewMatrix				: Mat4
 	Field ModelMatrix				: Mat4
-	Field InverseViewMatrix	: Mat4
 	Field DepthBiasMatrix		: Mat4
 	Field TextureMatrix			: Mat4
 	Field BoneMatrices			: Mat4[]
@@ -52,12 +50,12 @@ Class RendererState Final
 	Field UseLightTex				: Bool
 	Field UseReflectTex			: Bool
 	Field UseRefractTex			: Bool
+	Field SeparateDepthPass	: Bool
 	
 	Method New(maxLights:Int)
 		ProjectionMatrix = Mat4.Create()
 		ViewMatrix = Mat4.Create()
 		ModelMatrix = Mat4.Create()
-		InverseViewMatrix = Mat4.Create()
 		DepthBiasMatrix = Mat4.Create()
 		TextureMatrix = Mat4.Create()
 		LightPos = New Vec3[maxLights]
@@ -73,9 +71,9 @@ End
 
 Class Renderer Final
 Public
-	Const STEP_SHADOWS:Int = 0			'Shadow render
-	Const STEP_SOLID:Int = 1			'Solid blend with depth writing
-	Const STEP_DEPTHWRITE:Int = 2		'Other blends with depth writing
+	Const STEP_SHADOWS:Int = 0				'Shadow step
+	Const STEP_SOLID:Int = 1					'Solid blend with depth writing
+	Const STEP_DEPTHWRITE:Int = 2			'Other blends with depth writing
 	Const STEP_NODEPTHWRITE:Int = 3		'All entitites with no depth writing
 	Const STEP_COUNT:Int = 4
 
@@ -129,20 +127,10 @@ Public
 		mShadingVersion = Float(mShadingVersionStr.Split(" ")[0])
 #End
 
-		'Create default shader
-		mDefaultShader = New Shader(STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
-		If mDefaultShader.Handle = 0 Then Return False
-		
-		'Create depth shader
-		mDepthShader = New Shader(DEPTH_VERTEX_SHADER, DEPTH_FRAGMENT_SHADER)
-		If mDepthShader.Handle = 0 Then Return False
-		
-		'Create 2D shader
-		m2DShader = New Shader(_2D_VERTEX_SHADER, _2D_FRAGMENT_SHADER)
-		If m2DShader.Handle = 0 Then Return False
-		
-		'Use default shader
-		mActiveShader = mDefaultShader
+		'Make sure that default shaders are correct
+		If Shader.Default2D().Handle = 0 Then Return False
+		If Shader.Default3D().Handle = 0 Then Return False
+		If Shader.DefaultShadow().Handle = 0 Then Return False
 		
 		'Delete old buffers if they exist
 		If mEllipseBuffer <> 0 Then FreeBuffer(mEllipseBuffer)
@@ -195,6 +183,9 @@ Public
 		
 		'Default framebuffer height
 		mFramebufferHeight = DeviceHeight()
+		
+		'3D is default
+		Setup3D(0, 0, DeviceWidth(), DeviceHeight())
 
 		Return True
 	End
@@ -206,9 +197,6 @@ Public
 	Function Setup2D:Void(x:Int, y:Int, w:Int, h:Int)
 		Local fbHeight:Int = mFramebufferHeight
 		If fbHeight = 0 Then fbHeight = DeviceHeight()
-	
-		'Switch to 2D shader
-		mActiveShader = m2DShader
 
 		'Disable 3D states
 		SetCulling(False)
@@ -228,25 +216,19 @@ Public
 		glScissor(x, y, w, h)
 
 		'Setup matrices
-		mTempMatrix.SetIdentity()
-		mTempMatrix.SetOrthoLH(0, w, h, 0, 0, 100)
-		Renderer.SetProjectionMatrix(mTempMatrix)
-		mTempMatrix.SetIdentity()
-		Renderer.SetTextureMatrix(mTempMatrix)
-		Renderer.SetViewMatrix(mTempMatrix)
-		Renderer.SetModelMatrix(mTempMatrix)
+		mState.ProjectionMatrix.SetIdentity()
+		mState.ProjectionMatrix.SetOrthoLH(0, w, h, 0, 0, 100)
+		mState.ViewMatrix.SetIdentity()
+		mState.ModelMatrix.SetIdentity()
+		mState.TextureMatrix.SetIdentity()
+		
+		'Bind 2D shader
+		Shader.Default2D().Prepare()
 	End
 
-	Function Setup3D:Void(x:Int, y:Int, w:Int, h:Int, isDepthPass:Bool = False)
+	Function Setup3D:Void(x:Int, y:Int, w:Int, h:Int)
 		Local fbHeight:Int = mFramebufferHeight
 		If fbHeight = 0 Then fbHeight = DeviceHeight()
-		
-		'Switch to 3D shader
-		If Not isDepthPass
-			mActiveShader = mDefaultShader
-		Else
-			mActiveShader = mDepthShader
-		End
 
 		'Disable 2D & mojo states
 		'glBindTexture(GL_TEXTURE_2D, 0)
@@ -256,14 +238,14 @@ Public
 		glEnable(GL_DEPTH_TEST)
 		glEnable(GL_SCISSOR_TEST)
 		glDepthFunc(GL_LEQUAL)
-		SetPixelLighting(False)
-		SetNumLights(0)
+		mState.PixelLighting = False
+		mState.NumLights = 0
 		SetCulling(True)
 		glFrontFace(GL_CW)
 		SetDepthWrite(True)
 		SetBlendMode(BLEND_SOLID)
 		SetColor(Color.WHITE)
-		SetSkinned(False)
+		mState.Skinned = False
 
 		'Setup viewport
 		y = fbHeight - y - h
@@ -271,11 +253,13 @@ Public
 		glScissor(x, y, w, h)
 		
 		'Setup texture matrix
-		mTempMatrix.SetIdentity()
-		Renderer.SetTextureMatrix(mTempMatrix)
+		mState.TextureMatrix.SetIdentity()
 		
 		'Disable shadows by default
-		Renderer.SetDepthData(mTempMatrix, mTempMatrix, 0, 0)
+		mState.ShadowsEnabled = False
+		
+		'Bind 3D shader
+		Shader.Default3D().Prepare()
 	End
 	
 	Function SetupMojo:Void()
@@ -295,51 +279,9 @@ Public
 		glEnableVertexAttribArray 2 ; glVertexAttribPointer 2,2,GL_FLOAT,False,28,16
 		glEnableVertexAttribArray 3 ; glVertexAttribPointer 3,4,GL_UNSIGNED_BYTE,True,28,24
 	End
-
-	Function SetProjectionMatrix:Void(m:Mat4)
-		mState.ProjectionMatrix.Set(m)
-	End
-
-	Function SetViewMatrix:Void(m:Mat4)
-		mState.ViewMatrix.Set(m)
-		mState.InverseViewMatrix.Set(m)
-		mState.InverseViewMatrix.Invert()
-	End
-
-	Function SetModelMatrix:Void(m:Mat4)
-		mState.ModelMatrix.Set(m)
-	End
-	
-	Function SetDepthData:Void(depthProj:Mat4, depthView:Mat4, depthTex:Int, depthEpsilon:Float)
-		mState.DepthBiasMatrix.SetIdentity()
-		mState.DepthBiasMatrix.M[0] = 0.5
-		mState.DepthBiasMatrix.M[5] = 0.5
-		mState.DepthBiasMatrix.M[10] = 0.5
-		mState.DepthBiasMatrix.M[12] = 0.5
-		mState.DepthBiasMatrix.M[13] = 0.5
-		mState.DepthBiasMatrix.M[14] = 0.5
-		mState.DepthBiasMatrix.Mul(depthProj)
-		mState.DepthBiasMatrix.Mul(depthView)
-		mState.ShadowsEnabled = (depthTex <> 0)
-		mState.DepthEpsilon = depthEpsilon
-	
-		If depthTex <> 0
-			glActiveTexture(GL_TEXTURE0 + DEPTHTEX_UNIT)
-			glBindTexture(GL_TEXTURE_2D, depthTex)
-			glActiveTexture(GL_TEXTURE0)
-		End
-	End
-	
-	Function SetBoneMatrices:Void(matrices:Mat4[])
-		mState.BoneMatrices = matrices
-	End
 	
 	Function MaxBones:Int()
 		Return mMaxBones
-	End
-	
-	Function SetSkinned:Void(enable:Bool)
-		mState.Skinned = enable
 	End
 
 	Function SetBlendMode:Void(mode:Int)
@@ -359,21 +301,6 @@ Public
 	Function SetColor:Void(color:Int)
 		mState.Color = color
 	End
-	
-	Function SetAmbient:Void(color:Int)
-		mState.Ambient = color
-	End
-
-	Function SetShininess:Void(shininess:Float)
-		mState.Shininess = shininess
-	End
-	
-	Function SetFog:Void(enable:Bool, color:Int, minDist:Float, maxDist:Float)
-		mState.FogEnabled = enable
-		mState.FogColor = color
-		mState.FogMinDistance = minDist
-		mState.FogMaxDistance = maxDist
-	End
 
 	Function SetCulling:Void(enable:Bool)
 		If enable Then glEnable(GL_CULL_FACE) Else glDisable(GL_CULL_FACE)
@@ -381,25 +308,6 @@ Public
 
 	Function SetDepthWrite:Void(enable:Bool)
 		glDepthMask(enable)
-	End
-	
-	Function SetRefractCoef:Void(coef:Float)
-		mState.RefractCoef = coef
-	End
-	
-	Function SetPixelLighting:Void(enable:Bool)
-		mState.PixelLighting = enable
-	End
-
-	Function SetNumLights:Void(num:Int)
-		mState.NumLights = num
-	End
-
-	Function SetLight:Void(index:Int, x:Float, y:Float, z:Float, w:Float, color:Int, radius:Float)
-		mState.LightPos[index].Set(x, y, z)
-		mState.LightW[index] = w
-		mState.LightColor[index] = color
-		mState.LightRadius[index] = radius
 	End
 	
 	Function MaxLights:Int()
@@ -424,23 +332,21 @@ Public
 	End
 
 	Function DrawLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)
-		mTempMatrix.SetTransform(x1, y1, 0, 0, 0, 0, x2-x1, y2-y1, 1)
-		SetModelMatrix(mTempMatrix)
-		mActiveShader.Prepare()
+		mState.ModelMatrix.SetTransform(x1, y1, 0, 0, 0, 0, x2-x1, y2-y1, 1)
+		Shader._Bound().Prepare()
 		DrawBuffers(mLineBuffer, 0, 2, 0, -1, -1, -1, -1, -1, -1, -1, 0, GL_LINES)
 	End
 	
 	Function DrawEllipse:Void(x:Float, y:Float, width:Float, height:Float)
 		mTempMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
-		SetModelMatrix(mTempMatrix)
-		mActiveShader.Prepare()
+		mState.ModelMatrix.Set(mTempMatrix)
+		Shader._Bound().Prepare()
 		DrawBuffers(mEllipseBuffer, 0, ELLIPSEPOINTS, 0, -1, -1, -1, -1, -1, -1, -1, 0, GL_TRIANGLE_FAN)
 	End
 
 	Function DrawRect:Void(x:Float, y:Float, width:Float, height:Float)
-		mTempMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
-		SetModelMatrix(mTempMatrix)
-		mActiveShader.Prepare()
+		mState.ModelMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
+		Shader._Bound().Prepare()
 		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, -1, -1, -1, -1, 0, GL_TRIANGLE_FAN)
 	End
 	
@@ -454,9 +360,8 @@ Public
 		mTexDataBuffer.PokeFloat(24, u0)
 		mTexDataBuffer.PokeFloat(28, v1)
 		SetVertexBufferData(mRectBuffer, 48, mTexDataBuffer.Length(), mTexDataBuffer)
-		mTempMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
-		SetModelMatrix(mTempMatrix)
-		mActiveShader.Prepare()
+		mState.ModelMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
+		Shader._Bound().Prepare()
 		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, 48, -1, -1, -1, 0, GL_TRIANGLE_FAN)
 	End
 
@@ -608,8 +513,12 @@ Public
 		mState.UseRefractTex = refractionTex <> 0
 	End
 	
-	Function SetTextureMatrix:Void(m:Mat4)
-		mState.TextureMatrix.Set(m)
+	Function SetDepthTexture:Void(depthTex:Int)
+		If depthTex <> 0
+			glActiveTexture(GL_TEXTURE0 + DEPTHTEX_UNIT)
+			glBindTexture(GL_TEXTURE_2D, depthTex)
+			glActiveTexture(GL_TEXTURE0)
+		End
 	End
 	
 	'---------------------------------------------------------------------------
@@ -697,8 +606,6 @@ Public
 	Function DrawBuffers:Void(vertexBuffer:Int, indexBuffer:Int, numIndices:Int, coordsOffset:Int, normalsOffset:Int, tangentsOffset:Int, colorsOffset:Int, texCoordsOffset:Int, texCoords2Offset:Int, boneIndicesOffset:Int, boneWeightsOffset:Int, stride:Int, mode:Int = -1)
 		If mode = -1 Then mode = GL_TRIANGLES
 		
-		mActiveShader.Prepare()
-		
 		'Get currently bound buffers
 		glGetIntegerv(GL_ARRAY_BUFFER_BINDING, mTempArray)
 		Local prevVertexBuffer:Int = mTempArray[0]
@@ -708,7 +615,7 @@ Public
 		'Bind buffers and enable vertex vars
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer)
-		mActiveShader.EnableVertexVars(coordsOffset, normalsOffset, tangentsOffset, colorsOffset, texCoordsOffset, texCoords2Offset, boneIndicesOffset, boneWeightsOffset, stride)
+		Shader._Bound().EnableVertexVars(coordsOffset, normalsOffset, tangentsOffset, colorsOffset, texCoordsOffset, texCoords2Offset, boneIndicesOffset, boneWeightsOffset, stride)
 
 		'Draw
 		If indexBuffer <> 0
@@ -718,7 +625,7 @@ Public
 		End
 		
 		'Disable vertex vars
-		mActiveShader.DisableVertexVars()
+		Shader._Bound().DisableVertexVars()
 		
 		'Bind previously bound buffers (in case they are the Mojo2 ones)
 		glBindBuffer(GL_ARRAY_BUFFER, prevVertexBuffer)
@@ -939,11 +846,6 @@ Private
 	Global mRectBuffer:Int
 	Global mFramebufferHeight:Int
 	Global mTexDataBuffer:DataBuffer = New DataBuffer(32, True)
-	Global mTempMatrix:Mat4 = Mat4.Create()
-	Global mDefaultShader:Shader			'Default program id
-	Global mDepthShader:Shader				'Depth program id
-	Global m2DShader:Shader				'Default 2D program id
-	Global mActiveShader:Shader			'Currently active program
-	Global mShaderError:String					'Last error occured when compiling or linking a shader
-	Global mTempArray:Int[1]					'Array used when requesting parameters to OpenGL
+	Global mShaderError:String		'Last error occured when compiling or linking a shader
+	Global mTempArray:Int[1]			'Array used when requesting parameters to OpenGL
 End

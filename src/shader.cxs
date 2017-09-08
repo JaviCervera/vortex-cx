@@ -4,6 +4,7 @@ Private
 Import color
 Import math3d
 Import renderer
+Import shader_code
 
 '#If TARGET="html5"
 Const GLSL_VERSION : String = ""
@@ -112,15 +113,19 @@ Public
 		End
 		
 		'Set inverse view
-		If mInvView <> -1 Then Renderer.SetShaderMat4(mInvView, state.InverseViewMatrix)
+		If mInvView <> -1
+			mTempMatrix.Set(state.ViewMatrix)
+			mTempMatrix.Invert()
+			Renderer.SetShaderMat4(mInvView, mTempMatrix)
+		End
 
 		'Calculate MVP
-		'If mMVP <> -1
+		If mMVP <> -1
 			mTempMatrix.Set(state.ProjectionMatrix)
 			mTempMatrix.Mul(state.ViewMatrix)
 			mTempMatrix.Mul(state.ModelMatrix)
 			Renderer.SetShaderMat4(mMVP, mTempMatrix)
-		'End
+		End
 		
 		'Calculate depth bias
 		If mDepthBias <> -1
@@ -170,7 +175,7 @@ Public
 		If mUsePixelLighting <> -1 Then Renderer.SetShaderInt(mUsePixelLighting, state.PixelLighting)
 		If mNumLights <> -1 Then Renderer.SetShaderInt(mNumLights, state.NumLights)
 		For Local i:Int = 0 Until state.NumLights
-			If mLightPos[i] <> -1 Then Renderer.SetShaderVec4(mLightPos[i], state.LightPos[i].X, state.LightPos[i].Y, state.LightPos[i].X, state.LightW[i])
+			If mLightPos[i] <> -1 Then Renderer.SetShaderVec4(mLightPos[i], state.LightPos[i].X, state.LightPos[i].Y, state.LightPos[i].Z, state.LightW[i])
 			If mLightColor[i] <> -1 Then Renderer.SetShaderVec3(mLightColor[i], Color.Red(state.LightColor[i]) / 255.0, Color.Green(state.LightColor[i]) / 255.0, Color.Blue(state.LightColor[i]) / 255.0)
 			If mLightRadius[i] <> -1 Then Renderer.SetShaderFloat(mLightRadius[i], state.LightRadius[i])
 		Next
@@ -265,6 +270,7 @@ Public
 	End
 	
 	Method Prepare:Void()
+		mBound = Self
 		Renderer.UseShader(mHandle)
 		mUniforms.Prepare()
 	End
@@ -276,10 +282,34 @@ Public
 	Method DisableVertexVars:Void()
 		mAttribs.Disable()
 	End
+	
+	Function Default2D:Shader()
+		If mDefault2D = Null Then mDefault2D = New Shader(_2D_VERTEX_SHADER, _2D_FRAGMENT_SHADER)
+		Return mDefault2D
+	End
+	
+	Function Default3D:Shader()
+		If mDefault3D = Null Then mDefault3D = New Shader(STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
+		Return mDefault3D
+	End
+	
+	Function DefaultShadow:Shader()
+		If mDefaultShadow = Null Then mDefaultShadow = New Shader(SHADOW_VERTEX_SHADER, SHADOW_FRAGMENT_SHADER)
+		Return mDefaultShadow
+	End
+	
+	Function _Bound:Shader()
+		Return mBound
+	End
 Private
 	Field mHandle			: Int
 	Field mUniforms		: ShaderUniforms
 	Field mAttribs		: ShaderAttribs
+	
+	Global mDefault2D			: Shader
+	Global mDefault3D			: Shader
+	Global mDefaultShadow	: Shader
+	Global mBound					: Shader
 	
 	Method New()
 	End

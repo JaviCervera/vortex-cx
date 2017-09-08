@@ -168,11 +168,11 @@ Class Camera Extends Entity Final
 		Else
 			mProjMatrix.SetPerspectiveLH(mFovY, mRatio, mNear, mFar)
 		End
-		Renderer.SetProjectionMatrix(mProjMatrix)
+		Renderer.State().ProjectionMatrix.Set(mProjMatrix)
 		
 		'Set view matrix
 		mViewMatrix.SetViewerTransform(WorldX, WorldY, WorldZ, Pitch, Yaw, Roll)
-		Renderer.SetViewMatrix(mViewMatrix)
+		Renderer.State().ViewMatrix.Set(mViewMatrix)
 		
 		'Clear buffers
 		Renderer.ClearDepthBuffer()

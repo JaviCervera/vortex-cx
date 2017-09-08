@@ -200,7 +200,10 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 
 Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING +
 "void main() {" +
-	'First, we read the base texture to discard the fragment immediately if it is transparent
+	'First, if the fragment is in the fog completely, set it's color directly
+"	if ( fogEnabled && fogFactor < 0.004 ) { gl_FragColor = vec4(fogColor, 1); return; }" +
+
+	'Then, we read the base texture to discard the fragment immediately if it is transparent
 "	vec4 baseTexture = vec4(1, 1, 1, 1);" +
 "	if ( baseTexMode == 1 ) baseTexture = texture2D(baseTexSampler, ftex);" +
 "	else if ( baseTexMode == 2 ) baseTexture = textureCube(baseCubeSampler, fcubeCoords);" +
@@ -277,7 +280,7 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 "	gl_FragColor = combinedColor;" +
 "}"
 
-Const DEPTH_VERTEX_SHADER:String = SHADER_VAR_PRECISION +
+Const SHADOW_VERTEX_SHADER:String = SHADER_VAR_PRECISION +
 "uniform mat4 mvp;" +
 "attribute vec3 vpos;" +
 '"varying float depth;" +
@@ -286,7 +289,7 @@ Const DEPTH_VERTEX_SHADER:String = SHADER_VAR_PRECISION +
 '"	depth = gl_Position.z / gl_Position.w;" +
 "}"
 
-Const DEPTH_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION +
+Const SHADOW_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION +
 '"varying float depth;" +
 "void main() {" +
 "	float depth = gl_FragCoord.z / gl_FragCoord.w;" +

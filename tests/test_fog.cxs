@@ -1,0 +1,145 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Fog Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+
+Import mojo.app
+Import mojo.input
+Import vortex
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init()
+			Print "Error: " + Stats.ShaderError()
+			EndApp()
+		End
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
+		
+		'Load font
+		mFont = Cache.LoadFont("system.fnt.dat")
+		
+		'Set fog
+		World.SetFogEnabled(True)
+		World.SetFogColor(Color.DARK_GRAY)
+		World.SetFogMinDistance(0)
+		World.SetFogMaxDistance(20)
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.ClearColor = Color.DARK_GRAY
+		mCam.SetPosition(0, 0, -7)
+		mCam.Far = 5000
+		
+		'Create cube mesh
+		Local mesh:Mesh = Mesh.CreateCube()
+		
+		'Create rows of cubes
+		mCubes = New Model[16 * 500]
+		Local x:Float = -7
+		Local z:Float = mCubes.Length / 16 * 2 - 2
+		For Local i:Int = 0 Until mCubes.Length Step 2
+			mCubes[i] = New Model(mesh)
+			mCubes[i].Material.Color = Color.BROWN
+			mCubes[i].SetPosition(x, -1.5, z)
+			mCubes[i+1] = New Model(mesh)
+			mCubes[i+1].Material.Color = Color.BROWN
+			mCubes[i+1].SetPosition(x, 1.5, z)
+			x += 2
+			If x > 7 Then x = -7; z -= 2
+		Next
+		
+		Return False
+	End
+	
+	Method OnUpdate:Int()	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		'Update camera view
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+	
+		'Rotate cubes
+		For Local cube:Model = Eachin mCubes
+			cube.Turn(0, 32 * Stats.DeltaTime(), 0)
+		Next
+		
+		'Switch lighiting mode and separate depth pass
+		If KeyHit(KEY_SPACE) Then World.SetGlobalPixelLighting(Not World.GlobalPixelLighting())
+		If KeyHit(KEY_ENTER) Then World.SetSeparateDepthPass(Not World.SeparateDepthPass())
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		Local renderTime:Int = Millisecs()
+		World.Render()
+		renderTime = Millisecs() - prevMillisecs
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw FPS
+		Renderer.SetColor(Color.WHITE)
+		Local text:String = Stats.FPS() + " FPS"
+		mFont.Draw(2, 2, text)
+		
+		'Draw render time
+		text = "Render time: " + renderTime + " ms"
+		mFont.Draw(2, 18, text)
+		
+		'Draw RenderCalls
+		text = "Render calls: " + Stats.RenderCalls()
+		mFont.Draw(2, 34, text)
+		
+		'Draw depth mode
+		If World.SeparateDepthPass()
+			text = "Separate depth pass"
+		Else
+			text = "No separate depth pass"
+		End
+		text += " (ENTER to switch)"
+		mFont.Draw((DeviceWidth() - mFont.TextWidth(text))/2, DeviceHeight() - mFont.TextHeight(text) - 20, text)
+		
+		'Draw lighting mode
+		If World.GlobalPixelLighting()
+			text = "Pixel lighting"
+		Else
+			text = "Vertex lighting"
+		End
+		text += " (SPACE to switch)"
+		mFont.Draw((DeviceWidth() - mFont.TextWidth(text))/2, DeviceHeight() - mFont.TextHeight(text) - 4, text)
+	
+		Return False
+	End
+Private
+	Field mFont				: Font
+	Field mCam				: Camera
+	Field mCubes			: Model[]
+End
+
+Function Main:Int()
+	New TestApp
+	Return False
+End

@@ -5,6 +5,7 @@ Import color
 Import math3d
 Import renderlist
 Import renderer
+Import shader
 Import texture
 
 Public
@@ -206,7 +207,7 @@ Public
 		Return mTextureMatrix
 	End
 
-	Method _Prepare:Bool(step_:Int)
+	Method _PrepareForRender:Bool(step_:Int)
 		'Abort if this material does not render in this step
 		If step_ = Renderer.STEP_SHADOWS And (mBlendMode <> Renderer.BLEND_SOLID Or Not CastShadows) Then Return False
 		If step_ = Renderer.STEP_SOLID And (mBlendMode <> Renderer.BLEND_SOLID Or Not mDepthWrite) Then Return False
@@ -222,18 +223,22 @@ Public
 		'If mShininess > 0 Then shininess = Int(mShininess * 128)
 
 		Renderer.SetColor(mColor)
-		Renderer.SetShininess(mShininess)
-		Renderer.SetRefractCoef(mRefractCoef)
+		Renderer.State().Shininess = mShininess
+		Renderer.State().RefractCoef = mRefractCoef
 		Renderer.SetBlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)
-		Renderer.SetDepthWrite(mDepthWrite)
-		Renderer.SetTextureMatrix(mTextureMatrix)
+		If Not Renderer.State().SeparateDepthPass Or step_ <> Renderer.STEP_SOLID Then Renderer.SetDepthWrite(mDepthWrite)
+		Renderer.State().TextureMatrix.Set(mTextureMatrix)
 		If mBaseTex <> Null Then baseHandle = mBaseTex.Handle
 		If mNormalTex <> Null Then normalHandle = mNormalTex.Handle
 		If mLightTex <> Null Then lightHandle = mLightTex.Handle
 		If mReflectTex <> Null Then reflectHandle = mReflectTex.Handle
 		If mRefractTex <> Null Then refractHandle = mRefractTex.Handle
 		Renderer.SetTextures(baseHandle, normalHandle, lightHandle, reflectHandle, refractHandle, mBaseTex And mBaseTex.IsCubic)
+		
+		'Prepare bound shader
+		Shader._Bound().Prepare()
+		
 		Return True
 	End
 Private

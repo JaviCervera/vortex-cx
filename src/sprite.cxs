@@ -186,13 +186,8 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 		End
 	End
 	
-	Method _PrepareForRender:Void()
-		'Orientation
-		If mOrientation <> MODE_STATIC
-			Local cylindrical:Bool = False
-			If mOrientation = MODE_CYLINDRICAL Then cylindrical = True
-			_Transform.SetBillboardTransformLH(Renderer.State().ViewMatrix, WorldX, WorldY, WorldZ, Spin, Width, Height, cylindrical)
-		End
+	Method _Render:Int(step_:Int)
+		'*** This will be faster if matrices are only updated in the correct step
 		
 		'Texture matrix
 		Local row:Int = Int(mCurrentFrame) / HFrames
@@ -200,11 +195,16 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 		mMaterial.TextureMatrix.SetIdentity()
 		mMaterial.TextureMatrix.Scale(1.0 / HFrames, 1.0 / VFrames, 1.0)
 		mMaterial.TextureMatrix.Translate(col, row, 0)
-	End
-	
-	Method _Render:Int(step_:Int)
+		
+		'Orientation
+		If mOrientation <> MODE_STATIC
+			Local cylindrical:Bool = False
+			If mOrientation = MODE_CYLINDRICAL Then cylindrical = True
+			_Transform.SetBillboardTransformLH(Renderer.State().ViewMatrix, WorldX, WorldY, WorldZ, Spin, Width, Height, cylindrical)
+		End
+		
 		Super._Render(step_)
-		If mMaterial._Prepare(step_)
+		If mMaterial._PrepareForRender(step_)			
 			mSurface._Render()
 			Return 1
 		Else

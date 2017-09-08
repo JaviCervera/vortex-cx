@@ -66,7 +66,7 @@ Class Light Extends Entity Final
 		mColor = color
 	End
 	
-	Method _PrepareForRender:Void()
+	Method _PrepareForRender:Void(index:Int)
 		#Rem
 		If mType = TYPE_DIRECTIONAL
 			mTempQuat.SetEuler(Pitch, Yaw, Roll)
@@ -75,20 +75,14 @@ Class Light Extends Entity Final
 			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 0.0, color.Color.Red(mColor) / 255.0, color.Color.Green(mColor) / 255.0, color.Color.Blue(mColor) / 255.0, Radius)
 		Else
 		#End
-			Renderer.State().ViewMatrix.Mul(WorldX, WorldY, WorldZ, 1.0)
-			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 1.0, mColor, Radius)
+		Renderer.State().ViewMatrix.Mul(WorldX, WorldY, WorldZ, 1.0)
+		Renderer.State().LightPos[index].Set(Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z)
+		Renderer.State().LightW[index] = 1.0
+		Renderer.State().LightColor[index] = mColor
+		Renderer.State().LightRadius[index] = Radius
 		'End
 	End
-	
-	Method _Number:Int() Property
-		Return mNumber
-	End
-	
-	Method _Number:Void(number:Int) Property
-		mNumber = number
-	End
 Private
-	Field mNumber		: Int
 	Field mType			: Int
 	Field mColor		: Int
 	Global mTempQuat	: Quat = Quat.Create()

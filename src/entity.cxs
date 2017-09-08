@@ -408,11 +408,8 @@ Class Entity
 	Method _Update:Void()
 	End
 	
-	Method _PrepareForRender:Void()
-	End
-	
 	Method _Render:Int(step_:Int)
-		Renderer.SetModelMatrix(mTransform)
+		Renderer.State().ModelMatrix.Set(mTransform)
 		Return 0
 	End
 	

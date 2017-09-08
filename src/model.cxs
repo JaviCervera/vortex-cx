@@ -151,10 +151,10 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 	Method _Render:Int(step_:Int)
 		Local numRenders:Int = 0
 		Super._Render(step_)
-		Renderer.SetSkinned(mAnimMatrices.Length > 0)
-		If mAnimMatrices.Length() > 0 Then Renderer.SetBoneMatrices(mAnimMatrices)
+		Renderer.State().Skinned = mAnimMatrices.Length > 0
+		If mAnimMatrices.Length() > 0 Then Renderer.State().BoneMatrices = mAnimMatrices
 		For Local i:Int = 0 Until mMesh.NumSurfaces
-			If mMaterials[i]._Prepare(step_) Then mMesh.Surface(i)._Render(); numRenders += 1
+			If mMaterials[i]._PrepareForRender(step_) Then mMesh.Surface(i)._Render(); numRenders += 1
 		Next
 		Return numRenders
 	End
