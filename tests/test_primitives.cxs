@@ -64,7 +64,7 @@ Public
 		'Add a new primitive up until a max of 1000
 		mNumPrimitives += 1
 		If mNumPrimitives > mPrimitives.Length() Then mNumPrimitives = mPrimitives.Length()
-		mPrimitives[mNumPrimitives-1].type =Int(Rnd(0, 4))
+		mPrimitives[mNumPrimitives-1].type = Int(Rnd(0, 4))
 		mPrimitives[mNumPrimitives-1].x = Rnd(DeviceWidth())
 		mPrimitives[mNumPrimitives-1].y = Rnd(DeviceHeight())
 		mPrimitives[mNumPrimitives-1].z = Rnd(DeviceWidth())

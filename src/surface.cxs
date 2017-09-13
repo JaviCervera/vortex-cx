@@ -8,7 +8,8 @@ Import renderer
 Public
 Class Surface Final
 Public
-	Method New()
+	Method New(mode:Int = Renderer.MODE_TRIANGLES)
+		mMode = mode
 		mIndices = New DataBuffer(INC * 2, True)
 		mVertices = New DataBuffer(INC * VERTEX_SIZE, True)
 		mNumIndices = 0
@@ -36,8 +37,13 @@ Public
 		Renderer.FreeBuffer(mVertexBuffer)
 	End
 	
+	Method Mode:Int() Property
+		Return mMode
+	End
+	
 	Method Set:Void(other:Surface)
 		If Self = other Then Return
+		mMode = other.mMode
 		mStatus = STATUS_V_DIRTY | STATUS_I_DIRTY
 		If mNumIndices <> other.mNumIndices Then mStatus |= STATUS_I_RESIZED
 		If mNumVertices <> other.mNumVertices Then mStatus |= STATUS_V_RESIZED
@@ -55,10 +61,10 @@ Public
 		mNumVertices = other.mNumVertices
 		Rebuild()
 	End
-
-	Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
+	
+	Method AddIndex:Int(i:Int)
 		'Create new buffer if current is too short
-		If mIndices.Length() < (mNumIndices + 3) * 2
+		If mIndices.Length() < (mNumIndices + 1) * 2
 			'Copy old buffer into new one
 			Local buf:DataBuffer = New DataBuffer(mIndices.Length() + INC*2)
 			mIndices.CopyBytes(0, buf, 0, mIndices.Length())
@@ -67,38 +73,68 @@ Public
 		End
 
 		'Copy new index data
-		mIndices.PokeShort(mNumIndices * 2, v0)
-		mIndices.PokeShort(mNumIndices * 2 + 2, v1)
-		mIndices.PokeShort(mNumIndices * 2 + 4, v2)
-		mNumIndices += 3
+		mIndices.PokeShort(mNumIndices * 2, i)
+		mNumIndices += 1
 		
 		'Update status
 		mStatus |= STATUS_I_DIRTY | STATUS_I_RESIZED
 		
-		Return NumTriangles-1
+		Return NumIndices-1
+	End
+	
+	Method NumIndices:Int() Property
+		Return mNumIndices
+	End
+	
+	Method SetIndex:Void(num:Int, v:Int)
+		mIndices.PokeShort(num*2, v)
+	End
+	
+	Method Index:Int(num:Int)
+		Return mIndices.PeekShort(num*2)
+	End
+
+	Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
+		If mMode = Renderer.MODE_TRIANGLES
+			AddIndex(v0)
+			AddIndex(v1)
+			AddIndex(v2)
+			Return NumTriangles-1
+		Else
+			Return -1
+		End
 	End
 
 	Method NumTriangles:Int() Property
-		Return mNumIndices / 3
+		Select mMode
+		Case Renderer.MODE_TRIANGLES
+			Return NumIndices / 3
+		Case Renderer.MODE_TRIANGLESTRIP, Renderer.MODE_TRIANGLEFAN
+			Return Max(0, NumIndices - 2)
+		Default
+			Return 0
+		End
 	End
 
-	Method SetTriangleVertices:Void(index:Int, v0:Int, v1:Int, v2:Int)
-		mIndices.PokeShort(index * 6, v0)
-		mIndices.PokeShort(index * 6 + 2, v1)
-		mIndices.PokeShort(index * 6 + 4, v2)
-		mStatus |= STATUS_I_DIRTY
+	Method SetTriangleVertices:Void(tri:Int, v0:Int, v1:Int, v2:Int)
+		If mMode = Renderer.MODE_TRIANGLES
+			mIndices.PokeShort(tri * 6, v0)
+			mIndices.PokeShort(tri * 6 + 2, v1)
+			mIndices.PokeShort(tri * 6 + 4, v2)
+			mStatus |= STATUS_I_DIRTY
+		End
 	End
 
-	Method TriangleV0:Int(index:Int)
-		Return mIndices.PeekShort(index*6)
+	Method TriangleV0:Int(tri:Int)
+		If mMode = Renderer.MODE_TRIANGLES Then Return mIndices.PeekShort(tri*6) Else Return -1
 	End
 
-	Method TriangleV1:Int(index:Int)
-		Return mIndices.PeekShort(index*6 + 2)
+	Method TriangleV1:Int(tri:Int)
+		If mMode = Renderer.MODE_TRIANGLES Then Return mIndices.PeekShort(tri*6 + 2) Else Return -1
 	End
 
-	Method TriangleV2:Int(index:Int)
-		Return mIndices.PeekShort(index*6 + 4)
+	Method TriangleV2:Int(tri:Int)
+		If mMode = Renderer.MODE_TRIANGLES Then Return mIndices.PeekShort(tri*6 + 4) Else Return -1
 	End
 
 	Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, color:Int, u0:Float, v0:Float)
@@ -271,9 +307,8 @@ Public
 		For Local i:Int = 0 Until NumVertices
 			mTempMat.Mul(VertexX(i), VertexY(i), VertexZ(i), 1)
 			SetVertexPosition(i, mTempMat.ResultVector().X, mTempMat.ResultVector().Y, mTempMat.ResultVector().Z)
-			'TODO: Set normals
-			'mat.Mul(SurfaceVertexNX(surf, i), SurfaceVertexNY(surf, i), SurfaceVertexNZ(surf, i), 0)
-			'SetSurfaceVertexNormal(surf, i, mTempMat.ResultVector().X, mTempMat.ResultVector().Y, mTempMat.ResultVector().Z)
+			mTempMat.Mul(VertexNX(i), VertexNY(i), VertexNZ(i), 0)
+			SetVertexNormal(i, mTempMat.ResultVector().X, mTempMat.ResultVector().Y, mTempMat.ResultVector().Z)
 		Next
 		If rebuild Then Rebuild()
 	End
@@ -286,13 +321,14 @@ Public
 	End
 
 	Method Flip:Void(rebuild:Bool = True)
-		'For Local i:Int = 0 Until NumSurfaceVertices(surf)
-			'TODO: Set normals
-			'SetSurfaceVertexNormal(surf, i, -SurfaceVertexNX(surf, i), -SurfaceVertexNY(surf, i), -SurfaceVertexNZ(surf, i))
-		'Next
 		For Local i:Int = 0 Until NumVertices
-			SetTriangleVertices(i, TriangleV2( i), TriangleV1(i), TriangleV0(i))
+			SetVertexNormal(i, -VertexNX(i), -VertexNY(i), -VertexNZ(i))
 		Next
+		If mMode = Renderer.MODE_TRIANGLES
+			For Local i:Int = 0 Until NumTriangles
+				SetTriangleVertices(i, TriangleV2(i), TriangleV1(i), TriangleV0(i))
+			Next
+		End
 		If rebuild Then Rebuild()
 	End
 
@@ -312,7 +348,7 @@ Public
 	End
 	
 	Method _Render:Void()
-		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, TANGENT_OFFSET, COLOR_OFFSET, TEX0_OFFSET, TEX1_OFFSET, BONEINDICES_OFFSET, BONEWEIGHTS_OFFSET, VERTEX_SIZE)
+		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, TANGENT_OFFSET, COLOR_OFFSET, TEX0_OFFSET, TEX1_OFFSET, BONEINDICES_OFFSET, BONEWEIGHTS_OFFSET, VERTEX_SIZE, mMode)
 	End
 Private
 	Const POS_OFFSET:Int = 0			'12 bytes
@@ -332,6 +368,7 @@ Private
 	Const STATUS_I_DIRTY	: Int = 4
 	Const STATUS_I_RESIZED	: Int = 8
 
+	Field mMode				: Int
 	Field mIndices		: DataBuffer
 	Field mVertices		: DataBuffer
 	Field mNumIndices	: Int

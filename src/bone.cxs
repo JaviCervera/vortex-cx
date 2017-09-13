@@ -49,12 +49,8 @@ Public
 		Return mParentIndex
 	End
 	
-	Method InversePoseMatrix:Void(m:Mat4) Property
-		mInvPoseMatrix.Set(m)
-	End
-	
-	Method InversePoseMatrix:Mat4() Property
-		Return mInvPoseMatrix
+	Method InversePoseMatrix:Float[]() Property
+		Return mInvPoseMatrix.M
 	End
 
 	Method AddPositionKey:Void(keyframe:Int, x:Float, y:Float, z:Float)

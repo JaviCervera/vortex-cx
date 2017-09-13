@@ -40,12 +40,7 @@ Return the name of the bone.
 # Method ParentIndex:Int() Property
 Returns the parent index of the bone in the array of bones of the mesh that this bone belongs to, or -1 if it is the root bone in the mesh.
 
-# Method InversePoseMatrix:Void(m:Mat4) Property
-Sets the inverse pose matrix.
-You don't normally need to use this property.
-It is used internally when loading the mesh and generating the bone hierarchy.
-
-# Method InversePoseMatrix:Mat4() Property
+# Method InversePoseMatrix:Float[]() Property
 Returns the inverse pose matrix.
 You don't normally need to use this property.
 It is used internally when rendering the geometry attached to the bone.
@@ -990,8 +985,15 @@ Returns the maximum texture size supported by the device.
 
 The surface class contains a set of geometry (vertices and indices that form triangles) and a material to draw that geometry.
 
-# Method New()
-Creates a new surface.
+# Method New(mode:Int = Renderer.MODE_TRIANGLES)
+Creates a new surface with the specified drawing mode. It must be one of:
+
+| Value | Meaning
+| Renderer.MODE_POINTS | Every vertex in the surface represents a point.
+| Renderer.MODE_LINES | Every 2 vertices in the surface represents a line.
+| Renderer.MODE_TRIANGLES | Every 3 vertices in the surface represents a triangle (this is the default mode).
+| Renderer.MODE_TRIANGLESTRIP | Every vertex is connected to the two previous ones to make triangles.
+| Renderer.MODE_TRIANGLEFAN | Every vertex is connected to the first and the previous ones to make triangles.
 
 # Method New(other:Surface)
 Creates a new surface that is a copy of the one passed as parameter.
@@ -999,26 +1001,61 @@ Creates a new surface that is a copy of the one passed as parameter.
 # Method Discard:Void()
 Deallocates all the resources used by this surface. You don't normally need to call this method directly, since meshes call this method on all their surfaces when the mesh itself is freed.
 
+# Method Mode:Int() Property
+
+Returns the drawing mode of the surface. It can be one of:
+
+| Value | Meaning
+| Renderer.MODE_POINTS | Every vertex in the surface represents a point.
+| Renderer.MODE_LINES | Every 2 vertices in the surface represents a line.
+| Renderer.MODE_TRIANGLES | Every 3 vertices in the surface represents a triangle (this is the default mode).
+| Renderer.MODE_TRIANGLESTRIP | Every vertex is connected to the two previous ones to make triangles.
+| Renderer.MODE_TRIANGLEFAN | Every vertex is connected to the first and the previous ones to make triangles.
+
 # Method Set:Void(other:Surface)
 Sets this surface's material and geometry data to copy those of the mesh passed as parameter. The surface is automatically rebuilt.
 
+# Method AddIndex:Int(i:Int)
+Adds a new index to the surface. Depending on the drawing mode, each primitive will require a different number of indices:
+
+| Mode | Indices per primitive
+| Renderer.MODE_POINTS | 1
+| Renderer.MODE_LINES | 2
+| Renderer.MODE_TRIANGLES | 3
+| Renderer.MODE_TRIANGLESTRIP | 3 for the first one, 1 for the rest.
+| Renderer.MODE_TRIANGLEFAN | 3 for the first one, 1 for the rest.
+
+Returns the number of indices before adding this one.
+
+# Method NumIndices:Int() Property
+Returns the number of indices int he surface.
+
+# Method SetIndex:Void(num:Int, v:Int)
+Sets the value of the specified index number.
+
+# Method Index:Int(num:Int)
+Returns the value of the specified index number.
+
 # Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
-Adds a new triangle to the surface. A triangle contains three indices, that reference the vertices in the surface. Returns the index of the triangle within the surface.
+Adds a new triangle to the surface if the drawing mode is `Renderer.MODE_TRIANGLES` and returns the index of the triangle within the surface.
+In this drawing mode, a triangle contains three indices, that reference the vertices in the surface.
+If the drawing mode is not `Renderer.MODE_TRIANGLES`, this function does nothing and returns `-1`.
+This is just a convenience method you can use instead of making three calls to `Surface.AddIndex`.
 
 # Method NumTriangles:Int() Property
 Returns the number of triangles in the surface.
 
-# Method SetTriangleVertices:Void(index:Int, v0:Int, v1:Int, v2:Int)
-Changes the vertex indices used by a specified triangle.
+# Method SetTriangleVertices:Void(tri:Int, v0:Int, v1:Int, v2:Int)
+Changes the vertex indices used by a specified triangle if the drawing mode is `Renderer.MODE_TRIANGLES`. Otherwise, it does nothing.
 
-# Method TriangleV0:Int(index:Int)
-Returns the index of the first vertex in the specified triangle.
+# Method TriangleV0:Int(tri:Int)
+Returns the index of the first vertex in the specified triangle if the drawing mode is `Renderer.MODE_TRIANGLES`. Otherwise, it returns -1.
 
-# Method TriangleV1:Int(index:Int)
-Returns the index of the second vertex in the specified triangle.
+# Method TriangleV1:Int(tri:Int)
+Returns the index of the second vertex in the specified triangle if the drawing mode is `Renderer.MODE_TRIANGLES`. Otherwise, it returns -1.
 
-# Method TriangleV2:Int(index:Int)
-Returns the index of the third vertex in the specified triangle.
+# Method TriangleV2:Int(tri:Int)
+Returns the index of the third vertex in the specified triangle if the drawing mode is `Renderer.MODE_TRIANGLES`. Otherwise, it returns -1.
 
 # Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, color:Int, u:Float, v:Float)
 Adds a new vertex to the surface, with the given position, normal, color, and texture coordinates. Returns the index of the vertex within the surface.

@@ -9,10 +9,19 @@ Strict
 Import mojo.app
 Import mojo.input
 Import vortex
+Import vortex.src.math3d
+
+Function LineSphereCollision:Bool(x1:Float, y1:Float, z1:Float, x2:Float, y2:Float, z2:Float, sx:Float, sy:Float, sz:Float, rad:Float)
+	Return False
+	'Local distV:Vec3 = Vec3.Create(sx, sy, sz)
+	'Return distV.Length < rad
+End
 
 Class TestApp Extends App Final
 Public
 	Method OnCreate:Int()
+		Local a#[] = New Float[5]
+		
 		'Setup
 		SetUpdateRate(0)
 		SetSwapInterval(0)
@@ -29,38 +38,33 @@ Public
 		Print "Shading version name: " + Stats.ShadingVersionName()
 		Print "Shader compilation: " + Stats.ShaderError()
 		
-		'Load font
-		mFont = Cache.LoadFont("system.fnt.dat")
+		'Create points
+		mP0 = [0.0, 0, -16]
+		mP1 = [0.0, 0, 16]
 		
-		'Set fog
-		World.SetFogEnabled(True)
-		World.SetFogColor(Color.DARK_GRAY)
-		World.SetFogMinDistance(0)
-		World.SetFogMaxDistance(20)
+		'Load font
+		'mFont = Cache.LoadFont("system.fnt.dat")
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.ClearColor = Color.DARK_GRAY
-		mCam.SetPosition(0, 0, -7)
-		mCam.Far = 5000
+		mCam.SetPosition(16, 16, -16)
+		mCam.SetRotation(45, -45, 0)
 		
-		'Create cube mesh
-		Local mesh:Mesh = Mesh.CreateCube()
+		'Create sphere
+		mSphere = New Model(Cache.LoadMesh("sphere.msh.dat"))
 		
-		'Create rows of cubes
-		mCubes = New Model[16 * 500]
-		Local x:Float = -7
-		Local z:Float = mCubes.Length / 16 * 2 - 2
-		For Local i:Int = 0 Until mCubes.Length Step 2
-			mCubes[i] = New Model(mesh)
-			mCubes[i].Material.Color = Color.BROWN
-			mCubes[i].SetPosition(x, -1.5, z)
-			mCubes[i+1] = New Model(mesh)
-			mCubes[i+1].Material.Color = Color.BROWN
-			mCubes[i+1].SetPosition(x, 1.5, z)
-			x += 2
-			If x > 7 Then x = -7; z -= 2
-		Next
+		'Create line mesh
+		Local lineSurf:Surface = New Surface(Renderer.MODE_LINES)
+		lineSurf.AddVertex(mP0[0], mP0[1], mP0[2], 0, 0, 0, Color.WHITE, 0, 0)
+		lineSurf.AddVertex(mP1[0], mP1[1], mP1[2], 0, 0, 0, Color.WHITE, 0, 0)
+		lineSurf.AddIndex(0)
+		lineSurf.AddIndex(1)
+		Local lineMesh:Mesh = New Mesh
+		lineMesh.AddSurface(lineSurf)
+		lineMesh.Material(0).Culling = False
+		
+		'Create line model
+		mLine = New Model(lineMesh)
 		
 		Return False
 	End
@@ -78,25 +82,21 @@ Public
 		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
 		mCam.ViewportWidth = DeviceWidth()
 		mCam.ViewportHeight = DeviceHeight()
-	
-		'Rotate cubes
-		For Local cube:Model = Eachin mCubes
-			cube.Turn(0, 32 * Stats.DeltaTime(), 0)
-		Next
 		
-		'Switch lighiting mode and separate depth pass
-		If KeyHit(KEY_SPACE) Then World.SetGlobalPixelLighting(Not World.GlobalPixelLighting())
-		If KeyHit(KEY_ENTER) Then World.SetSeparateDepthPass(Not World.SeparateDepthPass())
+		If LineSphereCollision(mP0[0], mP0[1], mP0[2], mP1[0], mP1[1], mP1[2], mSphere.WorldX, mSphere.WorldY, mSphere.WorldZ, 1)
+			mSphere.Material.Color = Color.RED
+		Else
+			mSphere.Material.Color = Color.WHITE
+		End
 		
 		Return False
 	End
 	
 	Method OnRender:Int()
 		'Render world
-		Local renderTime:Int = Millisecs()
 		World.Render()
-		renderTime = Millisecs() - renderTime
 		
+		#Rem
 		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
@@ -130,13 +130,17 @@ Public
 		End
 		text += " (SPACE to switch)"
 		mFont.Draw((DeviceWidth() - mFont.TextWidth(text))/2, DeviceHeight() - mFont.TextHeight(text) - 4, text)
+		#End
 	
 		Return False
 	End
 Private
-	Field mFont				: Font
+	Field mP0					: Float[3]
+	Field mP1					: Float[3]
+	'Field mFont				: Font
 	Field mCam				: Camera
-	Field mCubes			: Model[]
+	Field mSphere			: Model
+	Field mLine				: Model
 End
 
 Function Main:Int()

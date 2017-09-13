@@ -1,4 +1,7 @@
 'TODO v2.0:
+'* Math3D library has been completely rewritten
+'- Rename Material.BaseTexture to Material.ColorTexture
+'- Add Material.SpecularTexture
 '- Hide Cache class. Load methods should have a boolean indicating whether you want to cache the object
 '- Allow font textures to have different width and height (this should save texture space)
 '- Add x offset to fonts

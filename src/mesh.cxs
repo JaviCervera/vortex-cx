@@ -64,14 +64,15 @@ Public
 			'Parent index
 			Local parentIndex:Int = stream.ReadInt()
 			
+			'Create bone
+			Local bone:Bone = New Bone(name, parentIndex)
+			
 			'Inv pose matrix
 			For Local i:Int = 0 Until 16
-				mTempMatrix.M[i] = stream.ReadFloat()
+				bone.InversePoseMatrix[i] = stream.ReadFloat()
 			Next
-		
-			'Create and add bone
-			Local bone:Bone = New Bone(name, parentIndex)
-			bone.InversePoseMatrix = mTempMatrix
+			
+			'Add to hierarchy
 			AddBone(bone)
 		Next
 		

@@ -90,6 +90,12 @@ Public
 	'Const TEXTURE_DISABLED:Int = 0
 	'Const TEXTURE_2D:Int = 1
 	
+	Const MODE_POINTS					: Int = 0
+	Const MODE_LINES					: Int = 1
+	Const MODE_TRIANGLES			: Int = 2
+	Const MODE_TRIANGLESTRIP	: Int = 3
+	Const MODE_TRIANGLEFAN		: Int = 4
+	
 	Const BASETEX_UNIT:Int = 0
 	Const BASECUBE_UNIT:Int = 1
 	Const NORMALTEX_UNIT:Int = 2
@@ -328,26 +334,32 @@ Public
 	End
 
 	Function DrawPoint:Void(x:Float, y:Float)
+#If TARGET<>"html5"
+		mState.ModelMatrix.SetTransform(x, y, 0, 0, 0, 0, 1, 1, 1)
+		Shader._Bound().Prepare()
+		DrawBuffers(mLineBuffer, 0, 1, 0, -1, -1, -1, -1, -1, -1, -1, 0, MODE_POINTS)
+#Else
+		'Drawing points do not seem to work on HTML5, so emulate it with a line instead
 		DrawLine(x-0.5, y-0.5, x+0.5, y+0.5)
+#End
 	End
 
 	Function DrawLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)
 		mState.ModelMatrix.SetTransform(x1, y1, 0, 0, 0, 0, x2-x1, y2-y1, 1)
 		Shader._Bound().Prepare()
-		DrawBuffers(mLineBuffer, 0, 2, 0, -1, -1, -1, -1, -1, -1, -1, 0, GL_LINES)
+		DrawBuffers(mLineBuffer, 0, 2, 0, -1, -1, -1, -1, -1, -1, -1, 0, MODE_LINES)
 	End
 	
 	Function DrawEllipse:Void(x:Float, y:Float, width:Float, height:Float)
-		mTempMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
-		mState.ModelMatrix.Set(mTempMatrix)
+		mState.ModelMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
 		Shader._Bound().Prepare()
-		DrawBuffers(mEllipseBuffer, 0, ELLIPSEPOINTS, 0, -1, -1, -1, -1, -1, -1, -1, 0, GL_TRIANGLE_FAN)
+		DrawBuffers(mEllipseBuffer, 0, ELLIPSEPOINTS, 0, -1, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
 
 	Function DrawRect:Void(x:Float, y:Float, width:Float, height:Float)
 		mState.ModelMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
 		Shader._Bound().Prepare()
-		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, -1, -1, -1, -1, 0, GL_TRIANGLE_FAN)
+		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
 	
 	Function DrawRectEx:Void(x:Float, y:Float, width:Float, height:Float, u0:Float, v0:Float, u1:Float, v1:Float)
@@ -362,7 +374,7 @@ Public
 		SetVertexBufferData(mRectBuffer, 48, mTexDataBuffer.Length(), mTexDataBuffer)
 		mState.ModelMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
 		Shader._Bound().Prepare()
-		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, 48, -1, -1, -1, 0, GL_TRIANGLE_FAN)
+		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, 48, -1, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
 
 	'---------------------------------------------------------------------------
@@ -603,8 +615,20 @@ Public
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
 	End
 
-	Function DrawBuffers:Void(vertexBuffer:Int, indexBuffer:Int, numIndices:Int, coordsOffset:Int, normalsOffset:Int, tangentsOffset:Int, colorsOffset:Int, texCoordsOffset:Int, texCoords2Offset:Int, boneIndicesOffset:Int, boneWeightsOffset:Int, stride:Int, mode:Int = -1)
-		If mode = -1 Then mode = GL_TRIANGLES
+	Function DrawBuffers:Void(vertexBuffer:Int, indexBuffer:Int, numIndices:Int, coordsOffset:Int, normalsOffset:Int, tangentsOffset:Int, colorsOffset:Int, texCoordsOffset:Int, texCoords2Offset:Int, boneIndicesOffset:Int, boneWeightsOffset:Int, stride:Int, mode:Int = MODE_TRIANGLES)
+		Local glMode:Int = GL_TRIANGLES
+		Select mode
+		Case MODE_POINTS
+			glMode = GL_POINTS
+		Case MODE_LINES
+			glMode = GL_LINES
+		Case MODE_TRIANGLES
+			glMode = GL_TRIANGLES
+		Case MODE_TRIANGLESTRIP
+			glMode = GL_TRIANGLE_STRIP
+		Case MODE_TRIANGLEFAN
+			glMode = GL_TRIANGLE_FAN
+		End
 		
 		'Get currently bound buffers
 		glGetIntegerv(GL_ARRAY_BUFFER_BINDING, mTempArray)
@@ -619,9 +643,9 @@ Public
 
 		'Draw
 		If indexBuffer <> 0
-			glDrawElements(mode, numIndices, GL_UNSIGNED_SHORT, 0)
+			glDrawElements(glMode, numIndices, GL_UNSIGNED_SHORT, 0)
 		Else
-			glDrawArrays(mode, 0, numIndices)
+			glDrawArrays(glMode, 0, numIndices)
 		End
 		
 		'Disable vertex vars
