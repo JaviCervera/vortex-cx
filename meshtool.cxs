@@ -65,7 +65,6 @@ Public
 		mLastMouseX = MouseX()
 		mLastMouseY = MouseY()
 		mFreeLook = False
-		mTempVec = Vec3.Create()
 		
 		Return False
 	End
@@ -110,10 +109,9 @@ Public
 		End
 		
 		'Update light rotation
-		mTempVec.Set(mLookPoint.WorldX, mLookPoint.WorldY, mLookPoint.WorldZ)
-		mTempVec.Sub(mCam.WorldX, mCam.WorldY, mCam.WorldZ)
-		mTempVec.Normalize()
-		World.SetSunRotation(mTempVec.Pitch, mTempVec.Yaw)
+		Vec3Sub(mLookPoint.WorldX, mLookPoint.WorldY, mLookPoint.WorldZ, mCam.WorldX, mCam.WorldY, mCam.WorldZ, mTempVec)
+		Vec3Norm(mTempVec[0], mTempVec[1], mTempVec[2], mTempVec)
+		World.SetSunRotation(Vec3Pitch(mTempVec[0], mTempVec[1], mTempVec[2]), Vec3Yaw(mTempVec[0], mTempVec[1], mTempVec[2]))
 		
 		'Update mouse
 		mLastMouseX = MouseX()
@@ -132,17 +130,25 @@ Public
 		Return False
 	End
 Private
-	Field mCam			: Camera
+	Field mCam				: Camera
 	Field mLookPoint	: Entity
-	Field mModel		: Model
-	Field mGui			: Gui
+	Field mModel			: Model
+	Field mGui				: Gui
 	Field mLastMouseX	: Float
 	Field mLastMouseY	: Float
 	Field mFreeLook		: Bool
-	Field mTempVec		: Vec3
+	Field mTempVec		: Float[3]
 End
 
 Function Main:Int()
 	New MeshToolApp()
 	Return False
+End
+
+Function Vec3Pitch#(x#, y#, z#)
+	Return ASin(-y)
+End
+
+Function Vec3Yaw#(x#, y#, z#)
+	Return ATan2(x, z)
 End

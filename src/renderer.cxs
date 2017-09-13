@@ -21,12 +21,12 @@ Const GLSL_VERSION : String = ""
 Public
 
 Class RendererState Final
-	Field ProjectionMatrix	: Mat4
-	Field ViewMatrix				: Mat4
-	Field ModelMatrix				: Mat4
-	Field DepthBiasMatrix		: Mat4
-	Field TextureMatrix			: Mat4
-	Field BoneMatrices			: Mat4[]
+	Field ProjectionMatrix	: Float[16]
+	Field ViewMatrix				: Float[16]
+	Field ModelMatrix				: Float[16]
+	Field DepthBiasMatrix		: Float[16]
+	Field TextureMatrix			: Float[16]
+	Field BoneMatrices			: Float[][16]
 	Field Skinned						: Bool
 	Field BlendMode					: Int
 	Field Color							: Int
@@ -41,8 +41,7 @@ Class RendererState Final
 	Field RefractCoef				: Float
 	Field PixelLighting			: Bool
 	Field NumLights					: Int
-	Field LightPos					: Vec3[]
-	Field LightW						: Float[]
+	Field LightPos					: Float[][4]
 	Field LightColor				: Int[]
 	Field LightRadius				: Float[]
 	Field BaseTexMode				: Int
@@ -53,16 +52,10 @@ Class RendererState Final
 	Field SeparateDepthPass	: Bool
 	
 	Method New(maxLights:Int)
-		ProjectionMatrix = Mat4.Create()
-		ViewMatrix = Mat4.Create()
-		ModelMatrix = Mat4.Create()
-		DepthBiasMatrix = Mat4.Create()
-		TextureMatrix = Mat4.Create()
-		LightPos = New Vec3[maxLights]
+		LightPos = New Float[maxLights][]
 		For Local i:Int = 0 Until maxLights
-			LightPos[i] = Vec3.Create()
+			LightPos[i] = [0.0, 0, 0, 0]
 		Next
-		LightW = New Float[maxLights]
 		LightColor = New Int[maxLights]
 		LightRadius = New Float[maxLights]
 		Color = color.Color.WHITE
@@ -222,11 +215,10 @@ Public
 		glScissor(x, y, w, h)
 
 		'Setup matrices
-		mState.ProjectionMatrix.SetIdentity()
-		mState.ProjectionMatrix.SetOrthoLH(0, w, h, 0, 0, 100)
-		mState.ViewMatrix.SetIdentity()
-		mState.ModelMatrix.SetIdentity()
-		mState.TextureMatrix.SetIdentity()
+		Mat4OrthoLH(0, w, h, 0, 0, 100, mState.ProjectionMatrix)
+		Mat4Identity(mState.ViewMatrix)
+		Mat4Identity(mState.ModelMatrix)
+		Mat4Identity(mState.TextureMatrix)
 		
 		'Bind 2D shader
 		Shader.Default2D().Prepare()
@@ -259,7 +251,7 @@ Public
 		glScissor(x, y, w, h)
 		
 		'Setup texture matrix
-		mState.TextureMatrix.SetIdentity()
+		Mat4Identity(mState.TextureMatrix)
 		
 		'Disable shadows by default
 		mState.ShadowsEnabled = False
@@ -345,19 +337,19 @@ Public
 	End
 
 	Function DrawLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)
-		mState.ModelMatrix.SetTransform(x1, y1, 0, 0, 0, 0, x2-x1, y2-y1, 1)
+		Mat4TransformEuler(x1, y1, 0, 0, 0, 0, x2-x1, y2-y1, 1, mState.ModelMatrix)
 		Shader._Bound().Prepare()
 		DrawBuffers(mLineBuffer, 0, 2, 0, -1, -1, -1, -1, -1, -1, -1, 0, MODE_LINES)
 	End
 	
 	Function DrawEllipse:Void(x:Float, y:Float, width:Float, height:Float)
-		mState.ModelMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
+		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, mState.ModelMatrix)
 		Shader._Bound().Prepare()
 		DrawBuffers(mEllipseBuffer, 0, ELLIPSEPOINTS, 0, -1, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
 
 	Function DrawRect:Void(x:Float, y:Float, width:Float, height:Float)
-		mState.ModelMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
+		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, mState.ModelMatrix)
 		Shader._Bound().Prepare()
 		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
@@ -372,7 +364,7 @@ Public
 		mTexDataBuffer.PokeFloat(24, u0)
 		mTexDataBuffer.PokeFloat(28, v1)
 		SetVertexBufferData(mRectBuffer, 48, mTexDataBuffer.Length(), mTexDataBuffer)
-		mState.ModelMatrix.SetTransform(x, y, 0, 0, 0, 0, width, height, 1)
+		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, mState.ModelMatrix)
 		Shader._Bound().Prepare()
 		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, 48, -1, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
@@ -755,9 +747,9 @@ Public
 		glUniform4f(loc, x, y, z, w)
 	End
 	
-	Function SetShaderMat4:Void(loc:Int, m:Mat4)
+	Function SetShaderMat4:Void(loc:Int, m:Float[])
 		If loc = -1 Then Return
-		glUniformMatrix4fv(loc, 1, False, m.M)
+		glUniformMatrix4fv(loc, 1, False, m)
 	End
 
 	Function ShaderError:String()

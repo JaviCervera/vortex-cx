@@ -22,8 +22,6 @@ Public
 		mMaterials = New Material[0]
 		mBones = New Bone[0]
 		mNumFrames = 0
-		mBoxMin = Vec3.Create()
-		mBoxMax = Vec3.Create()
 	End
 	
 	Method New(other:Mesh)
@@ -41,8 +39,8 @@ Public
 			mBones[i] = New Bone(other.mBones[i])
 		Next
 		mNumFrames = other.mNumFrames
-		mBoxMin = Vec3.Create(other.mBoxMin)
-		mBoxMax = Vec3.Create(other.mBoxMax)
+		Vec3Set(other.mBoxMin[0], other.mBoxMin[1], other.mBoxMin[2], mBoxMin)
+		Vec3Set(other.mBoxMax[0], other.mBoxMax[1], other.mBoxMax[2], mBoxMax)
 	End
 	
 	Method LoadSkeletonData:Bool(data:DataBuffer)
@@ -198,7 +196,7 @@ Public
 		Return mBones[index]
 	End
 	
-	Method Animate:Void(animMatrices:Mat4[], frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
+	Method Animate:Void(animMatrices:Float[][], frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
 		'We can only animate if the mesh has bones
 		If mBones.Length() > 0
 			'If we have not specified the ending frame of the sequence, take the last frame in the entire animation
@@ -206,19 +204,15 @@ Public
 			
 			'Calculate animation matrix for all bones
 			For Local i:Int = 0 Until NumBones
-				Local parentIndex:Int = Bone(i).ParentIndex
-				If parentIndex > -1
-					animMatrices[i].Set(animMatrices[parentIndex])
-					Bone(i).CalculateAnimMatrix(mTempMatrix, frame, firstFrame, lastFrame)
-					animMatrices[i].Mul(mTempMatrix)
-				Else
-					Bone(i).CalculateAnimMatrix(animMatrices[i], frame, firstFrame, lastFrame)
+				Bone(i).CalculateAnimMatrix(animMatrices[i], frame, firstFrame, lastFrame)
+				If Bone(i).ParentIndex > -1
+					Mat4Mul(animMatrices[Bone(i).ParentIndex], animMatrices[i], animMatrices[i])
 				End
 			Next
 			
 			'Multiply every animation matrix by the inverse of the pose matrix
 			For Local i:Int = 0 Until NumBones
-				animMatrices[i].Mul(Bone(i).InversePoseMatrix)
+				Mat4Mul(animMatrices[i], Bone(i).InversePoseMatrix, animMatrices[i])
 			Next
 		End
 	End
@@ -231,22 +225,22 @@ Public
 	End
 	
 	Method Width:Float() Property
-		Return mBoxMax.X - mBoxMin.X
+		Return mBoxMax[0] - mBoxMin[0]
 	End
 	
 	Method Height:Float() Property
-		Return mBoxMax.Y - mBoxMin.Y
+		Return mBoxMax[1] - mBoxMin[1]
 	End
 	
 	Method Depth:Float() Property
-		Return mBoxMax.Z - mBoxMin.Z
+		Return mBoxMax[2] - mBoxMin[2]
 	End
 	
 	Method UpdateBoundingBox:Void()
 		If NumSurfaces > 0 And Surface(0).NumVertices > 0
 			'Init
-			mBoxMin.Set(Surface(0).VertexX(0), Surface(0).VertexY(0), Surface(0).VertexZ(0))
-			mBoxMax.Set(mBoxMin)
+			Vec3Set(Surface(0).VertexX(0), Surface(0).VertexY(0), Surface(0).VertexZ(0), mBoxMin)
+			Vec3Set(mBoxMin[0], mBoxMin[1], mBoxMin[2], mBoxMax)
 			
 			'Iterate through each geom
 			For Local surf:Surface = Eachin mSurfaces
@@ -254,42 +248,42 @@ Public
 					Local vx:Float = surf.VertexX(index)
 					Local vy:Float = surf.VertexY(index)
 					Local vz:Float = surf.VertexZ(index)
-					If vx < mBoxMin.X Then mBoxMin.X = vx
-					If vy < mBoxMin.Y Then mBoxMin.Y = vy
-					If vz < mBoxMin.Z Then mBoxMin.Z = vz
-					If vx > mBoxMax.X Then mBoxMax.X = vx
-					If vy > mBoxMax.Y Then mBoxMax.Y = vy
-					If vz > mBoxMax.Z Then mBoxMax.Z = vz
+					If vx < mBoxMin[0] Then mBoxMin[0] = vx
+					If vy < mBoxMin[1] Then mBoxMin[1] = vy
+					If vz < mBoxMin[2] Then mBoxMin[2] = vz
+					If vx > mBoxMax[0] Then mBoxMax[0] = vx
+					If vy > mBoxMax[1] Then mBoxMax[1] = vy
+					If vz > mBoxMax[2] Then mBoxMax[2] = vz
 				Next
 			Next
 		Else
-			mBoxMin.Set(0, 0, 0)
-			mBoxMax.Set(0, 0, 0)
+			Vec3Set(0, 0, 0, mBoxMin)
+			Vec3Set(0, 0, 0, mBoxMax)
 		End
 	End
 	
 	Method BoxMinX:Float() Property
-		Return mBoxMin.X
+		Return mBoxMin[0]
 	End
 	
 	Method BoxMinY:Float() Property
-		Return mBoxMin.Y
+		Return mBoxMin[1]
 	End
 	
 	Method BoxMinZ:Float() Property
-		Return mBoxMin.Z
+		Return mBoxMin[2]
 	End
 	
 	Method BoxMaxX:Float() Property
-		Return mBoxMax.X
+		Return mBoxMax[0]
 	End
 	
 	Method BoxMaxY:Float() Property
-		Return mBoxMax.Y
+		Return mBoxMax[1]
 	End
 	
 	Method BoxMaxZ:Float() Property
-		Return mBoxMax.Z
+		Return mBoxMax[2]
 	End
 	
 	Method Translate:Void(x:Float, y:Float, z:Float)
@@ -785,10 +779,9 @@ Private
 	Field mFilename		: String
 	Field mSurfaces		: Surface[]
 	Field mMaterials	: Material[]
-	Field mBones		: Bone[]
+	Field mBones			: Bone[]
 	Field mNumFrames	: Int
 	Field mAnimSpeed	: Float
-	Field mBoxMin		: Vec3
-	Field mBoxMax		: Vec3
-	Global mTempMatrix	: Mat4 = Mat4.Create()
+	Field mBoxMin			: Float[3]
+	Field mBoxMax			: Float[3]
 End

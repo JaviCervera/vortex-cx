@@ -11,33 +11,32 @@ Public
 	Method New(name:String, parentIndex:Int)
 		mName = name
 		mParentIndex = parentIndex
-		mInvPoseMatrix = Mat4.Create()
 		mPositionKeys = New Int[0]
 		mRotationKeys = New Int[0]
 		mScaleKeys = New Int[0]
-		mPositions = New Vec3[0]
-		mRotations = New Quat[0]
-		mScales = New Vec3[0]
+		mPositions = New Float[0][]
+		mRotations = New Float[0][]
+		mScales = New Float[0][]
 	End
 	
 	Method New(other:Bone)
 		mName = other.mName
 		mParentIndex = other.mParentIndex
-		mInvPoseMatrix = Mat4.Create(other.mInvPoseMatrix)
+		Mat4Copy(other.mInvPoseMatrix, mInvPoseMatrix)
 		mPositionKeys = other.mPositionKeys[..]
 		mRotationKeys = other.mRotationKeys[..]
 		mScaleKeys = other.mScaleKeys[..]
-		mPositions = New Vec3[other.mPositions.Length()]
-		For Local i:Int = 0 Until other.mPositions.Length()
-			mPositions[i] = Vec3.Create(other.mPositions[i])
+		mPositions = New Float[other.mPositions.Length][]
+		For Local i:Int = 0 Until mPositions.Length
+			mPositions[i] = [other.mPositions[i][0], other.mPositions[i][1], other.mPositions[i][2]]
 		Next
-		mRotations = New Quat[other.mRotations.Length()]
-		For Local i:Int = 0 Until other.mRotations.Length()
-			mRotations[i] = Quat.Create(other.mRotations[i])
+		mRotations = New Float[other.mRotations.Length][]
+		For Local i:Int = 0 Until mRotations.Length
+			mRotations[i] = [other.mRotations[i][0], other.mRotations[i][1], other.mRotations[i][2], other.mRotations[i][3]]
 		Next
-		mScales = New Vec3[other.mScales.Length()]
-		For Local i:Int = 0 Until other.mScales.Length()
-			mScales[i] = Vec3.Create(other.mScales[i])
+		mScales = New Float[other.mScales.Length][]
+		For Local i:Int = 0 Until mScales.Length
+			mScales[i] = [other.mScales[i][0], other.mScales[i][1], other.mScales[i][2]]
 		Next
 	End
 
@@ -50,28 +49,28 @@ Public
 	End
 	
 	Method InversePoseMatrix:Float[]() Property
-		Return mInvPoseMatrix.M
+		Return mInvPoseMatrix
 	End
 
 	Method AddPositionKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
-		mPositionKeys = mPositionKeys.Resize(mPositionKeys.Length() + 1)
-		mPositions = mPositions.Resize(mPositions.Length() + 1)
-		mPositionKeys[mPositionKeys.Length() - 1] = keyframe
-		mPositions[mPositions.Length() - 1] = Vec3.Create(x, y, z)
+		mPositionKeys = mPositionKeys.Resize(mPositionKeys.Length + 1)
+		mPositions = mPositions.Resize(mPositions.Length + 1)
+		mPositionKeys[mPositionKeys.Length - 1] = keyframe
+		mPositions[mPositions.Length - 1] = [x, y, z]
 	End
 
 	Method AddRotationKey:Void(keyframe:Int, w:Float, x:Float, y:Float, z:Float)
-		mRotationKeys = mRotationKeys.Resize(mRotationKeys.Length() + 1)
-		mRotations = mRotations.Resize(mRotations.Length() + 1)
-		mRotationKeys[mRotationKeys.Length() - 1] = keyframe
-		mRotations[mRotations.Length() - 1] = Quat.Create(w, x, y, z)
+		mRotationKeys = mRotationKeys.Resize(mRotationKeys.Length + 1)
+		mRotations = mRotations.Resize(mRotations.Length + 1)
+		mRotationKeys[mRotationKeys.Length - 1] = keyframe
+		mRotations[mRotations.Length - 1] = [w, x, y, z]
 	End
 
 	Method AddScaleKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
-		mScaleKeys = mScaleKeys.Resize(mScaleKeys.Length() + 1)
-		mScales = mScales.Resize(mScales.Length() + 1)
-		mScaleKeys[mScaleKeys.Length() - 1] = keyframe
-		mScales[mScales.Length() - 1] = Vec3.Create(x, y, z)
+		mScaleKeys = mScaleKeys.Resize(mScaleKeys.Length + 1)
+		mScales = mScales.Resize(mScales.Length + 1)
+		mScaleKeys[mScaleKeys.Length - 1] = keyframe
+		mScales[mScales.Length - 1] = [x, y, z]
 	End
 
 	Method NumPositionKeys:Int() Property
@@ -83,15 +82,15 @@ Public
 	End
 
 	Method PositionKeyX:Float(index:Int)
-		Return mPositions[index].X
+		Return mPositions[index][0]
 	End
 
 	Method PositionKeyY:Float(index:Int)
-		Return mPositions[index].Y
+		Return mPositions[index][1]
 	End
 
 	Method PositionKeyZ:Float(index:Int)
-		Return mPositions[index].Z
+		Return mPositions[index][2]
 	End
 
 	Method NumRotationKeys:Int() Property
@@ -103,19 +102,19 @@ Public
 	End
 
 	Method RotationKeyW:Float(index:Int)
-		Return mRotations[index].W
+		Return mRotations[index][3]
 	End
 
 	Method RotationKeyX:Float(index:Int)
-		Return mRotations[index].X
+		Return mRotations[index][0]
 	End
 
 	Method RotationKeyY:Float(index:Int)
-		Return mRotations[index].Y
+		Return mRotations[index][1]
 	End
 
 	Method RotationKeyZ:Float(index:Int)
-		Return mRotations[index].Z
+		Return mRotations[index][2]
 	End
 
 	Method NumScaleKeys:Int() Property
@@ -127,18 +126,18 @@ Public
 	End
 
 	Method ScaleKeyX:Float(index:Int)
-		Return mScales[index].X
+		Return mScales[index][0]
 	End
 
 	Method ScaleKeyY:Float(index:Int)
-		Return mScales[index].Y
+		Return mScales[index][1]
 	End
 
 	Method ScaleKeyZ:Float(index:Int)
-		Return mScales[index].Z
+		Return mScales[index][2]
 	End
 	
-	Method CalculateAnimMatrix:Void(animMatrix:Mat4, frame:Float, firstFrame:Int, lastFrame:Int)
+	Method CalculateAnimMatrix:Void(animMatrix:Float[], frame:Float, firstFrame:Int, lastFrame:Int)
 		'Check if there is a keyframe within range
 		Local keyInRange:Bool = False
 		For Local i:Int = Eachin mPositionKeys
@@ -154,33 +153,33 @@ Public
 
 			'Calculate interpolated position
 			CalcPosition(frame, firstFrame, lastFrame)
-			px = mTempVec.X
-			py = mTempVec.Y
-			pz = mTempVec.Z
+			px = mTempArr[0]
+			py = mTempArr[1]
+			pz = mTempArr[2]
 
 			'Calculate interpolated rotation
 			CalcRotation(frame, firstFrame, lastFrame)
-			mTempQuat.CalcAxis()
-			ra = mTempQuat.Angle()
-			rx = mTempQuat.ResultVector().X
-			ry = mTempQuat.ResultVector().Y
-			rz = mTempQuat.ResultVector().Z
+			ra = QuatDegrees(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3])
+			QuatAxis(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3], mTempArr)
+			rx = mTempArr[0]
+			ry = mTempArr[1]
+			rz = mTempArr[2]
 
 			'Calculate interpolated scale
-			CalcScale(frame, firstFrame, lastFrame)
-			sx = mTempVec.X
-			sy = mTempVec.Y
-			sz = mTempVec.Z
+			'CalcScale(frame, firstFrame, lastFrame)
+			'sx = mTempArr[0]
+			'sy = mTempArr[1]
+			'sz = mTempArr[2]
 
 			'Set matrix
-			animMatrix.SetIdentity()
-			animMatrix.Translate(px, py, pz)
-			animMatrix.Rotate(ra, rx, ry, rz)
-			'animMatrix.Scale(sx, sy, sz)	'Currently, scaling is ignored, since it seems to cause a bug
+			Mat4Identity(animMatrix)
+			Mat4Translate(animMatrix, px, py, pz, animMatrix)
+			Mat4Rotate(animMatrix, ra, rx, ry, rz, animMatrix)
+			'Mat4Scale(animMatrix, sx, sy, sz, animMatrix)	'Currently, scaling is ignored, since it seems to cause a bug
 		'If not, define default transform
 		Else
-			'animMatrix.Set(mPoseMatrix)
-			animMatrix.SetIdentity()
+			'Mat4Copy(mPoseMatrix, animMatrix)
+			Mat4Identity(animMatrix)
 		End
 	End
 Private
@@ -189,7 +188,7 @@ Private
 
 	Method CalcPosition:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
 		Local firstFrameIndex:Int = -1
-		For Local i:Int = 0 Until mPositionKeys.Length()
+		For Local i:Int = 0 Until mPositionKeys.Length
 			'Find first frame
 			If mPositionKeys[i] < firstSeqFrame
 				Continue
@@ -199,27 +198,36 @@ Private
 
 			'Found frame
 			If mPositionKeys[i] = frame
-				mTempVec.Set(mPositions[i])
+				Vec3Set(mPositions[i][0], mPositions[i][1], mPositions[i][2], mTempArr)
 				Return
 			'Found next frame
 			Elseif mPositionKeys[i] > frame
-				mTempVec.Set(mPositions[i-1])
-				mTempVec.Mix(mPositions[i], (frame - mPositionKeys[i-1]) / (mPositionKeys[i] - mPositionKeys[i-1]))
+				Vec3Mix(
+					mPositions[i-1][0], mPositions[i-1][1], mPositions[i-1][2],
+					mPositions[i][0], mPositions[i][1], mPositions[i][2],
+					(frame - mPositionKeys[i-1]) / (mPositionKeys[i] - mPositionKeys[i-1]),
+					mTempArr)
 				Return
 			'Found first frame outside sequence
 			Elseif mPositionKeys[i] > lastSeqFrame
-				mTempVec.Set(mPositions[i-1])
-				mTempVec.Mix(mPositions[firstFrameIndex], frame - Int(frame))
+				Vec3Mix(
+					mPositions[i-1][0], mPositions[i-1][1], mPositions[i-1][2],
+					mPositions[firstFrameIndex][0], mPositions[firstFrameIndex][1], mPositions[firstFrameIndex][2],
+					frame - Int(frame),
+					mTempArr)
 				Return
 			End
 		Next
-		mTempVec.Set(mPositions[mPositions.Length()-1])
-		mTempVec.Mix(mPositions[firstFrameIndex], frame - Int(frame))
+		Vec3Mix(
+			mPositions[mPositions.Length-1][0], mPositions[mPositions.Length-1][1], mPositions[mPositions.Length-1][2],
+			mPositions[firstFrameIndex][0], mPositions[firstFrameIndex][1], mPositions[firstFrameIndex][2],
+			frame - Int(frame),
+			mTempArr)
 	End
 
 	Method CalcRotation:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
 		Local firstFrameIndex:Int = -1
-		For Local i:Int = 0 Until mRotationKeys.Length()
+		For Local i:Int = 0 Until mRotationKeys.Length
 			'Find first frame
 			If mRotationKeys[i] < firstSeqFrame
 				Continue
@@ -229,27 +237,36 @@ Private
 
 			'Found frame
 			If mRotationKeys[i] = frame
-				mTempQuat.Set(mRotations[i])
+				QuatSet(mRotations[i][0], mRotations[i][1], mRotations[i][2], mRotations[i][3], mTempArr)
 				Return
 			'Found next frame
 			Elseif mRotationKeys[i] > frame
-				mTempQuat.Set(mRotations[i-1])
-				mTempQuat.Slerp(mRotations[i], (frame - mRotationKeys[i-1]) / (mRotationKeys[i] - mRotationKeys[i-1]))
+				QuatSlerp(
+					mRotations[i-1][0], mRotations[i-1][1], mRotations[i-1][2], mRotations[i-1][3],
+					mRotations[i][0], mRotations[i][1], mRotations[i][2], mRotations[i][3],
+					(frame - mRotationKeys[i-1]) / (mRotationKeys[i] - mRotationKeys[i-1]),
+					mTempArr)
 				Return
 			'Found first frame outside sequence
 			Elseif mRotationKeys[i] > lastSeqFrame
-				mTempQuat.Set(mRotations[i-1])
-				mTempQuat.Slerp(mRotations[firstFrameIndex], frame - Int(frame))
+				QuatSlerp(
+					mRotations[i-1][0], mRotations[i-1][1], mRotations[i-1][2], mRotations[i-1][3],
+					mRotations[firstFrameIndex][0], mRotations[firstFrameIndex][1], mRotations[firstFrameIndex][2], mRotations[firstFrameIndex][3],
+					frame - Int(frame),
+					mTempArr)
 				Return
 			End
 		Next
-		mTempQuat.Set(mRotations[mRotations.Length()-1])
-		mTempQuat.Slerp(mRotations[firstFrameIndex], frame - Int(frame))
+		QuatSlerp(
+			mRotations[mRotations.Length-1][0], mRotations[mRotations.Length-1][1], mRotations[mRotations.Length-1][2], mRotations[mRotations.Length-1][3],
+			mRotations[firstFrameIndex][0], mRotations[firstFrameIndex][1], mRotations[firstFrameIndex][2], mRotations[firstFrameIndex][3],
+			frame - Int(frame),
+			mTempArr)
 	End
 
 	Method CalcScale:Void(frame:Float, firstSeqFrame:Int, lastSeqFrame:Int)
 		Local firstFrameIndex:Int = -1
-		For Local i:Int = 0 Until mScaleKeys.Length()
+		For Local i:Int = 0 Until mScaleKeys.Length
 			'Find first frame
 			If mScaleKeys[i] < firstSeqFrame
 				Continue
@@ -259,33 +276,41 @@ Private
 
 			'Found frame
 			If mScaleKeys[i] = frame
-				mTempVec.Set(mScales[i])
+				Vec3Set(mScales[i][0], mScales[i][1], mScales[i][2], mTempArr)
 				Return
 			'Found next frame
 			Elseif mScaleKeys[i] > frame
-				mTempVec.Set(mScales[i-1])
-				mTempVec.Mix(mScales[i], (frame - mScaleKeys[i-1]) / (mScaleKeys[i] - mScaleKeys[i-1]))
+				Vec3Mix(
+					mScales[i-1][0], mScales[i-1][1], mScales[i-1][2],
+					mScales[i][0], mScales[i][1], mScales[i][2],
+					(frame - mScaleKeys[i-1]) / (mScaleKeys[i] - mScaleKeys[i-1]),
+					mTempArr)
 				Return
 			'Found first frame outside sequence
 			Elseif mScaleKeys[i] > lastSeqFrame
-				mTempVec.Set(mScales[i-1])
-				mTempVec.Mix(mScales[firstFrameIndex], frame - Int(frame))
+				Vec3Mix(
+					mScales[i-1][0], mScales[i-1][1], mScales[i-1][2],
+					mScales[firstFrameIndex][0], mScales[firstFrameIndex][1], mScales[firstFrameIndex][2],
+					frame - Int(frame),
+					mTempArr)
 				Return
 			End
 		Next
-		mTempVec.Set(mScales[mScales.Length()-1])
-		mTempVec.Mix(mScales[firstFrameIndex], frame - Int(frame))
+		Vec3Mix(
+			mScales[mScales.Length-1][0], mScales[mScales.Length-1][1], mScales[mScales.Length-1][2],
+			mScales[firstFrameIndex][0], mScales[firstFrameIndex][1], mScales[firstFrameIndex][2],
+			frame - Int(frame),
+			mTempArr)
 	End
 
-	Field mName				: String
+	Field mName						: String
 	Field mParentIndex		: Int
-	Field mInvPoseMatrix	: Mat4
+	Field mInvPoseMatrix	: Float[16]
 	Field mPositionKeys		: Int[]
 	Field mRotationKeys		: Int[]
-	Field mScaleKeys		: Int[]
-	Field mPositions		: Vec3[]
-	Field mRotations		: Quat[]
-	Field mScales			: Vec3[]
-	Global mTempVec			: Vec3 = Vec3.Create()	'Used for temp operations
-	Global mTempQuat		: Quat = Quat.Create()	'Used for temp operations
+	Field mScaleKeys			: Int[]
+	Field mPositions			: Float[][3]
+	Field mRotations			: Float[][3]
+	Field mScales					: Float[][3]
+	Global mTempArr				: Float[4]	'Used for temp operations
 End

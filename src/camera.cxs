@@ -164,15 +164,13 @@ Class Camera Extends Entity Final
 		If mOrtho
 			Local height:Float = mFovY * 0.5
 			Local width:Float = height * mRatio
-			mProjMatrix.SetOrthoLH(-width, width, -height, height, mNear, mFar)
+			Mat4OrthoLH(-width, width, -height, height, mNear, mFar, Renderer.State().ProjectionMatrix)
 		Else
-			mProjMatrix.SetPerspectiveLH(mFovY, mRatio, mNear, mFar)
+			Mat4PerspectiveLH(mFovY, mRatio, mNear, mFar, Renderer.State().ProjectionMatrix)
 		End
-		Renderer.State().ProjectionMatrix.Set(mProjMatrix)
 		
 		'Set view matrix
-		mViewMatrix.SetViewerTransform(WorldX, WorldY, WorldZ, Pitch, Yaw, Roll)
-		Renderer.State().ViewMatrix.Set(mViewMatrix)
+		Mat4ViewEuler(WorldX, WorldY, WorldZ, Pitch, Yaw, Roll, Renderer.State().ViewMatrix)
 		
 		'Clear buffers
 		Renderer.ClearDepthBuffer()
@@ -184,21 +182,16 @@ Class Camera Extends Entity Final
 		End
 	End
 Private
-	Field mVX			: Int
-	Field mVY			: Int
-	Field mVW			: Int
-	Field mVH			: Int
+	Field mVX					: Int
+	Field mVY					: Int
+	Field mVW					: Int
+	Field mVH					: Int
 	Field mClearMode	: Int
 	Field mClearColor	: Int
-	Field mOrtho		: Bool
-	Field mFovY			: Float
-	Field mRatio		: Float
-	Field mNear			: Float
-	Field mFar			: Float
+	Field mOrtho			: Bool
+	Field mFovY				: Float
+	Field mRatio			: Float
+	Field mNear				: Float
+	Field mFar				: Float
 	Field mFramebuffer	: Framebuffer
-	
-	Global mProjMatrix	: Mat4 = Mat4.Create()
-	Global mViewMatrix	: Mat4 = Mat4.Create()
-	Global mTempQuat	: Quat = Quat.Create()
-	Global mTempVec		: Vec3 = Vec3.Create()
 End

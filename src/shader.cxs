@@ -100,37 +100,33 @@ Public
 	
 		'Calculate ModelView
 		If mModelView <> -1 Or mNormalMatrix <> -1
-			mTempMatrix.Set(state.ViewMatrix)
-			mTempMatrix.Mul(state.ModelMatrix)
+			Mat4Mul(state.ViewMatrix, state.ModelMatrix, mTempMatrix)
 			Renderer.SetShaderMat4(mModelView, mTempMatrix)
 		End
 
 		'Calculate normal
 		If mNormalMatrix <> -1
-			mTempMatrix.Invert()
-			mTempMatrix.Transpose()
+			Mat4Invert(mTempMatrix, mTempMatrix)
+			Mat4Transpose(mTempMatrix, mTempMatrix)
 			Renderer.SetShaderMat4(mNormalMatrix, mTempMatrix)
 		End
 		
-		'Set inverse view
+		'Calculate inverse view
 		If mInvView <> -1
-			mTempMatrix.Set(state.ViewMatrix)
-			mTempMatrix.Invert()
+			Mat4Invert(state.ViewMatrix, mTempMatrix)
 			Renderer.SetShaderMat4(mInvView, mTempMatrix)
 		End
 
 		'Calculate MVP
 		If mMVP <> -1
-			mTempMatrix.Set(state.ProjectionMatrix)
-			mTempMatrix.Mul(state.ViewMatrix)
-			mTempMatrix.Mul(state.ModelMatrix)
+			Mat4Mul(state.ProjectionMatrix, state.ViewMatrix, mTempMatrix)
+			Mat4Mul(mTempMatrix, state.ModelMatrix, mTempMatrix)
 			Renderer.SetShaderMat4(mMVP, mTempMatrix)
 		End
 		
 		'Calculate depth bias
 		If mDepthBias <> -1
-			mTempMatrix.Set(state.DepthBiasMatrix)
-			mTempMatrix.Mul(state.ModelMatrix)
+			Mat4Mul(state.DepthBiasMatrix, state.ModelMatrix, mTempMatrix)
 			Renderer.SetShaderMat4(mDepthBias, mTempMatrix)
 		End
 		
@@ -175,7 +171,7 @@ Public
 		If mUsePixelLighting <> -1 Then Renderer.SetShaderInt(mUsePixelLighting, state.PixelLighting)
 		If mNumLights <> -1 Then Renderer.SetShaderInt(mNumLights, state.NumLights)
 		For Local i:Int = 0 Until state.NumLights
-			If mLightPos[i] <> -1 Then Renderer.SetShaderVec4(mLightPos[i], state.LightPos[i].X, state.LightPos[i].Y, state.LightPos[i].Z, state.LightW[i])
+			If mLightPos[i] <> -1 Then Renderer.SetShaderVec4(mLightPos[i], state.LightPos[i][0], state.LightPos[i][1], state.LightPos[i][2], state.LightPos[i][3])
 			If mLightColor[i] <> -1 Then Renderer.SetShaderVec3(mLightColor[i], Color.Red(state.LightColor[i]) / 255.0, Color.Green(state.LightColor[i]) / 255.0, Color.Blue(state.LightColor[i]) / 255.0)
 			If mLightRadius[i] <> -1 Then Renderer.SetShaderFloat(mLightRadius[i], state.LightRadius[i])
 		Next
@@ -198,7 +194,7 @@ Public
 		If mTextureMatrix <> -1 Then Renderer.SetShaderMat4(mTextureMatrix, state.TextureMatrix)
 	End
 Private
-	Global mTempMatrix	: Mat4 = Mat4.Create()
+	Global mTempMatrix	: Float[16]
 End
 
 Class ShaderAttribs Final

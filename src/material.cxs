@@ -28,12 +28,11 @@ Public
 		mCulling = True
 		mDepthWrite = True
 		mCastShadows = True
-		mTextureMatrix = Mat4.Create()
+		Mat4Identity(mTextureMatrix)
 	End
 	
 	Method New(other:Material)', delegate:IMaterialDelegate = Null)
 		'mDelegate = delegate
-		mTextureMatrix = Mat4.Create()
 		Set(other)
 	End
 	
@@ -68,7 +67,7 @@ Public
 		mCulling = other.mCulling
 		mDepthWrite = other.mDepthWrite
 		mCastShadows = other.mCastShadows
-		mTextureMatrix.Set(other.mTextureMatrix)
+		Mat4Copy(other.mTextureMatrix, mTextureMatrix)
 		'If mDelegate Then mDelegate.MaterialChanged(Self)
 	End
 	
@@ -203,7 +202,7 @@ Public
 		Return mCastShadows
 	End
 	
-	Method TextureMatrix:Mat4() Property
+	Method TextureMatrix:Float[]() Property
 		Return mTextureMatrix
 	End
 
@@ -228,7 +227,7 @@ Public
 		Renderer.SetBlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)
 		If Not Renderer.State().SeparateDepthPass Or step_ <> Renderer.STEP_SOLID Then Renderer.SetDepthWrite(mDepthWrite)
-		Renderer.State().TextureMatrix.Set(mTextureMatrix)
+		Mat4Copy(mTextureMatrix, Renderer.State().TextureMatrix)
 		If mBaseTex <> Null Then baseHandle = mBaseTex.Handle
 		If mNormalTex <> Null Then normalHandle = mNormalTex.Handle
 		If mLightTex <> Null Then lightHandle = mLightTex.Handle
@@ -243,17 +242,17 @@ Public
 	End
 Private
 	'Field mDelegate		: IMaterialDelegate
-	Field mColor			: Int
-	Field mBaseTex			: Texture
-	Field mNormalTex		: Texture
-	Field mLightTex			: Texture
-	Field mReflectTex		: Texture
-	Field mRefractTex		: Texture
-	Field mShininess		: Float
+	Field mColor					: Int
+	Field mBaseTex				: Texture
+	Field mNormalTex			: Texture
+	Field mLightTex				: Texture
+	Field mReflectTex			: Texture
+	Field mRefractTex			: Texture
+	Field mShininess			: Float
 	Field mRefractCoef		: Float
-	Field mBlendMode		: Int
-	Field mCulling			: Bool
-	Field mDepthWrite		: Bool
+	Field mBlendMode			: Int
+	Field mCulling				: Bool
+	Field mDepthWrite			: Bool
 	Field mCastShadows		: Bool
-	Field mTextureMatrix	: Mat4
+	Field mTextureMatrix	: Float[16]
 End

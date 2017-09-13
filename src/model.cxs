@@ -19,9 +19,10 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 		For Local i:Int = 0 Until mMaterials.Length
 			mMaterials[i] = New Material(mMesh.Material(i))', Self)
 		Next
-		mAnimMatrices = New Mat4[mesh.NumBones]
+		mAnimMatrices = New Float[mesh.NumBones][]
 		For Local i:Int = 0 Until mAnimMatrices.Length
-			mAnimMatrices[i] = Mat4.Create()
+			mAnimMatrices[i] = New Float[16]
+			Mat4Identity(mAnimMatrices[i])
 		Next
 		Visible = True
 		Active = True
@@ -152,17 +153,17 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 		Local numRenders:Int = 0
 		Super._Render(step_)
 		Renderer.State().Skinned = mAnimMatrices.Length > 0
-		If mAnimMatrices.Length() > 0 Then Renderer.State().BoneMatrices = mAnimMatrices
+		If mAnimMatrices.Length > 0 Then Renderer.State().BoneMatrices = mAnimMatrices
 		For Local i:Int = 0 Until mMesh.NumSurfaces
 			If mMaterials[i]._PrepareForRender(step_) Then mMesh.Surface(i)._Render(); numRenders += 1
 		Next
 		Return numRenders
 	End
 Private
-	Field mMesh			: Mesh
-	Field mMaterials	: Material[]
-	Field mAnimMatrices	: Mat4[]
-	Field mAnimSpeed	: Float
+	Field mMesh					: Mesh
+	Field mMaterials		: Material[]
+	Field mAnimMatrices	: Float[][16]
+	Field mAnimSpeed		: Float
 	Field mCurrentFrame	: Float
 	
 	Method New()

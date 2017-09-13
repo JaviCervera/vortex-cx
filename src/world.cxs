@@ -69,19 +69,21 @@ Class World Final
 			'If shadows are enabled, setup shadows
 			If mShadowsEnabled
 				'Find the point the camera is looking at
-				mTempQuat.SetEuler(c.Pitch, c.Yaw, c.Roll)
-				mTempQuat.Mul(0, 0, mShadowsRange/2)
-				mTempVec.Set(c.WorldX, c.WorldY, c.WorldZ)
-				mTempVec.Sum(mTempQuat.ResultVector())
+				QuatSetEuler(c.Pitch, c.Yaw, c.Roll, mTempArr)
+				QuatMulVec3(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3], 0, 0, mShadowsRange/2, mTempArr)
+				Vec3Add(c.WorldX, c.WorldY, c.WorldZ, mTempArr[0], mTempArr[1], mTempArr[2], mTempArr)
+				Local lookx:Float = mTempArr[0]
+				Local looky:Float = mTempArr[1]
+				Local lookz:Float = mTempArr[2]
 				
 				'Move from that point to the light source
-				mTempQuat.SetEuler(mSunPitch, mSunYaw, 0)
-				mTempQuat.Mul(0, 0, -mShadowsSunDist)
-				mTempQuat.ResultVector().Sum(mTempVec)
+				QuatSetEuler(mSunPitch, mSunYaw, 0, mTempArr)
+				QuatMulVec3(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3], 0, 0, -mShadowsSunDist, mTempArr)
+				Vec3Add(mTempArr[0], mTempArr[1], mTempArr[2], lookx, looky, lookz, mTempArr)
 				
 				'Setup depth matrices
-				mDepthProj.SetOrthoLH(mShadowsRange, 1, 0, mShadowsSunDist*2)
-				mDepthView.LookAtLH(mTempQuat.ResultVector().X, mTempQuat.ResultVector().Y, mTempQuat.ResultVector().Z, mTempVec.X, mTempVec.Y, mTempVec.Z, 0, 1, 0)
+				Mat4OrthoHeightLH(mShadowsRange, 1, 0, mShadowsSunDist*2, mDepthProj)
+				Mat4LookAtLH(mTempArr[0], mTempArr[1], mTempArr[2], lookx, looky, lookz, 0, 1, 0, mDepthView)
 			
 				'Set framebuffer
 				mFramebuffer.Set()
@@ -89,8 +91,8 @@ Class World Final
 				'Setup renderer
 				Renderer.Setup3D(0, 0, mFramebuffer.ColorTexture.Width, mFramebuffer.ColorTexture.Height)
 				Shader.DefaultShadow().Prepare()
-				Renderer.State().ProjectionMatrix.Set(mDepthProj)
-				Renderer.State().ViewMatrix.Set(mDepthView)
+				Mat4Copy(mDepthProj, Renderer.State().ProjectionMatrix)
+				Mat4Copy(mDepthView, Renderer.State().ViewMatrix)
 				Renderer.ClearColorBuffer(Color.WHITE)
 				Renderer.ClearDepthBuffer()
 				
@@ -129,15 +131,15 @@ Class World Final
 			
 			'Set depth data
 			If mShadowsEnabled
-				Renderer.State().DepthBiasMatrix.SetIdentity()
-				Renderer.State().DepthBiasMatrix.M[0] = 0.5
-				Renderer.State().DepthBiasMatrix.M[5] = 0.5
-				Renderer.State().DepthBiasMatrix.M[10] = 0.5
-				Renderer.State().DepthBiasMatrix.M[12] = 0.5
-				Renderer.State().DepthBiasMatrix.M[13] = 0.5
-				Renderer.State().DepthBiasMatrix.M[14] = 0.5
-				Renderer.State().DepthBiasMatrix.Mul(mDepthProj)
-				Renderer.State().DepthBiasMatrix.Mul(mDepthView)
+				Mat4Identity(Renderer.State().DepthBiasMatrix)
+				Renderer.State().DepthBiasMatrix[0] = 0.5
+				Renderer.State().DepthBiasMatrix[5] = 0.5
+				Renderer.State().DepthBiasMatrix[10] = 0.5
+				Renderer.State().DepthBiasMatrix[12] = 0.5
+				Renderer.State().DepthBiasMatrix[13] = 0.5
+				Renderer.State().DepthBiasMatrix[14] = 0.5
+				Mat4Mul(Renderer.State().DepthBiasMatrix, mDepthProj, Renderer.State().DepthBiasMatrix)
+				Mat4Mul(Renderer.State().DepthBiasMatrix, mDepthView, Renderer.State().DepthBiasMatrix)
 				Renderer.State().ShadowsEnabled = True
 				Renderer.State().DepthEpsilon = mShadowsRange / 10000.0
 				Renderer.SetDepthTexture(DepthTexture().Handle)
@@ -151,11 +153,9 @@ Class World Final
 				Renderer.State().Ambient = mAmbient
 			End
 			If sunLightEnabled
-				mTempQuat.SetEuler(mSunPitch, mSunYaw, 0)
-				mTempQuat.Mul(0, 0, -1)
-				Renderer.State().ViewMatrix.Mul(Quat.ResultVector().X, Quat.ResultVector().Y, Quat.ResultVector().Z, 0.0)
-				Renderer.State().LightPos[0].Set(Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z)
-				Renderer.State().LightW[0] = 0.0
+				QuatSetEuler(mSunPitch, mSunYaw, 0, mTempArr)
+				QuatMulVec3(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3], 0, 0, -1, mTempArr)
+				Mat4MulVec4(Renderer.State().ViewMatrix, mTempArr[0], mTempArr[1], mTempArr[2], 0, Renderer.State().LightPos[0])
 				Renderer.State().LightColor[0] = mSunColor
 			End
 			If numLights > sunLightEnabled
@@ -318,7 +318,7 @@ Class World Final
 	Function _CheckStaticCollision:Bool(x:Float, y:Float, z:Float, sqRadius:Float)
 		'Iterate through all collision boxes
 		For Local box:Box = Eachin mColBoxes
-			If Collision.BoxSphere(box.Min.X, box.Min.Y, box.Min.Z, box.Max.X, box.Max.Y, box.Max.Z, x, y, z, sqRadius)
+			If Collision.BoxSphere(box.Min[0], box.Min[1], box.Min[2], box.Max[0], box.Max[1], box.Max[2], x, y, z, sqRadius)
 				Return True
 			End
 		Next
@@ -369,43 +369,8 @@ Class World Final
 		End
 	End
 	
-	#Rem
-	Function _EntityNeedsPrepareRender:Void(e:Entity, prepare:Bool)
-		If prepare
-			If Not mVisibleEntities.Contains(e) Then mVisibleEntities.AddLast(e)
-		Else
-			mVisibleEntities.RemoveFirst(e)
-		End
-	End
-	
-	Function _AddSurfaceToRenderList:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
-		mRenderList.AddSurface(surface, transform, overrideMaterial)
-	End
-	
-	Function _RemoveSurfaceFromRenderList:Void(surface:Surface, transform:Mat4, overrideMaterial:Material = Null)
-		mRenderList.RemoveSurface(surface, transform, overrideMaterial)
-	End
-	
-	Function _AddSurfaceToRenderList:Void(surface:Surface, transform:Mat4, animMatrices:Mat4[], overrideMaterial:Material = Null)
-		If animMatrices.Length > 0
-			mRenderList.AddSurface(surface, transform, animMatrices, overrideMaterial)
-		Else
-			mRenderList.AddSurface(surface, transform, overrideMaterial)
-		End
-	End
-	
-	Function _RemoveSurfaceFromRenderList:Void(surface:Surface, transform:Mat4, animMatrices:Mat4[], overrideMaterial:Material = Null)
-		If animMatrices.Length > 0
-			mRenderList.RemoveSurface(surface, transform, animMatrices, overrideMaterial)
-		Else
-			mRenderList.RemoveSurface(surface, transform, overrideMaterial)
-		End
-	End
-	#End
-	
 	Function _RenderSkybox:Void(x:Float, y:Float, z:Float)
-		mSkyboxMatrix.SetTransform(x, y, z, 0, 0, 0, 10, 10, 10)
-		Renderer.State().ModelMatrix.Set(mSkyboxMatrix)
+		Mat4TransformEuler(x, y, z, 0, 0, 0, 10, 10, 10, Renderer.State().ModelMatrix)
 		mSkybox.Material(0)._PrepareForRender(Renderer.STEP_NODEPTHWRITE)
 		mSkybox.Surface(0)._Render()
 	End
@@ -414,33 +379,30 @@ Class World Final
 		Return mEntities
 	End
 Private
-	Global mEntities			: List<Entity> = New List<Entity>
-	Global mEnabledEntities		: List<Entity> = New List<Entity>
-	Global mVisibleEntities		: List<Entity> = New List<Entity>
-	Global mCameras				: List<Camera> = New List<Camera>
-	Global mLights				: List<Light> = New List<Light>
-	'Global mRenderList			: RenderList = New RenderList()
-	Global mSkybox				: Mesh
-	Global mSkyboxMatrix		: Mat4 = Mat4.Create()
-	Global mSunPitch			: Float
-	Global mSunYaw				: Float
-	Global mSunColor			: Int
-	Global mAmbient				: Int
-	Global mFogEnabled		: Bool
-	Global mFogMin				: Float
-	Global mFogMax				: Float
-	Global mFogColor			: Int
+	Global mEntities						: List<Entity> = New List<Entity>
+	Global mEnabledEntities			: List<Entity> = New List<Entity>
+	Global mVisibleEntities			: List<Entity> = New List<Entity>
+	Global mCameras							: List<Camera> = New List<Camera>
+	Global mLights							: List<Light> = New List<Light>
+	Global mSkybox							: Mesh
+	Global mSunPitch						: Float
+	Global mSunYaw							: Float
+	Global mSunColor						: Int
+	Global mAmbient							: Int
+	Global mFogEnabled					: Bool
+	Global mFogMin							: Float
+	Global mFogMax							: Float
+	Global mFogColor						: Int
 	Global mGlobalPixelLighting	: Bool
 	Global mSeparateDepthPass		: Bool
 	Global mFramebuffer					: Framebuffer
 	Global mShadowsEnabled			: Bool
 	Global mShadowsRange				: Float
 	Global mShadowsSunDist			: Float
-	Global mDepthProj			: Mat4 = Mat4.Create()
-	Global mDepthView			: Mat4 = Mat4.Create()
-	Global mColBoxes			: Box[0]
-	Global mTempVec				: Vec3 = Vec3.Create()
-	Global mTempQuat			: Quat = Quat.Create()
+	Global mDepthProj						: Float[16]
+	Global mDepthView						: Float[16]
+	Global mColBoxes						: Box[0]
+	Global mTempArr							: Float[4]
 	
 	Method New()
 	End
@@ -450,23 +412,23 @@ Private
 
 Class Box	
 	Method New()
-		mMin = Vec3.Create()
-		mMax = Vec3.Create()
+		mMin = New Float[3]
+		mMax = New Float[3]
 	End
 	
 	Method New(x0:Float, y0:Float, z0:Float, x1:Float, y1:Float, z1:Float)
-		Self.mMin = Vec3.Create(x0, y0, z0)
-		Self.mMax = Vec3.Create(x1, y1, z1)
+		Self.mMin = [x0, y0, z0]
+		Self.mMax = [x1, y1, z1]
 	End
 	
-	Method Min:Vec3() Property
+	Method Min:Float[]() Property
 		Return mMin
 	End
 	
-	Method Max:Vec3() Property
+	Method Max:Float[]() Property
 		Return mMax
 	End
 Private
-	Field mMin	: Vec3
-	Field mMax	: Vec3
+	Field mMin	: Float[]
+	Field mMax	: Float[]
 End

@@ -20,10 +20,7 @@ Class Entity
 		mChildren = New List<Entity>
 		mActive = False		'Subclases should change this if needed
 		mVisible = False	'Subclases should change this if needed
-		mPosition = Vec3.Create()
-		mRotation = Vec3.Create()
-		mScale = Vec3.Create(1, 1, 1)
-		mTransform = Mat4.Create()
+		SetScale(1, 1, 1)
 		World._AddEntity(Self)
 		_UpdateTransform()
 	End
@@ -93,57 +90,53 @@ Class Entity
 	End
 	
 	Method X:Float() Property
-		Return mPosition.X
+		Return mPosition[0]
 	End
 	
 	Method Y:Float() Property
-		Return mPosition.Y
+		Return mPosition[1]
 	End
 	
 	Method Z:Float() Property
-		Return mPosition.Z
+		Return mPosition[2]
 	End
 	
 	Method X:Void(val:Float) Property
-		mPosition.X = val
+		mPosition[0] = val
 		_UpdateTransform()
 	End
 	
 	Method Y:Void(val:Float) Property
-		mPosition.Y = val
+		mPosition[1] = val
 		_UpdateTransform()
 	End
 	
 	Method Z:Void(val:Float) Property
-		mPosition.Z = val
+		mPosition[2] = val
 		_UpdateTransform()
 	End
 	
 	Method WorldX:Float() Property
-		Return mTransform.M[12]
+		Return mTransform[12]
 	End
 	
 	Method WorldY:Float() Property
-		Return mTransform.M[13]
+		Return mTransform[13]
 	End
 	
 	Method WorldZ:Float() Property
-		Return mTransform.M[14]
+		Return mTransform[14]
 	End
 	
 	Method SetPosition:Void(x:Float, y:Float, z:Float)
-		mPosition.Set(x, y, z)
+		Vec3Set(x, y, z, mPosition)
 		_UpdateTransform()
 	End
 	
 	Method Move:Void(x:Float, y:Float, z:Float, collideWithEntities:Bool = True)
 		'Transform x, y, z by entity's rotation
-		mTempQuat.SetEuler(mRotation.X, mRotation.Y, mRotation.Z)
-		mTempQuat.Mul(x, y, z)
-		
-		'Add resulting vector to entity's position
-		'mTempVec.Set(mPosition)
-		mTempVec.Set(mTempQuat.ResultVector())
+		QuatSetEuler(mRotation[0], mRotation[1], mRotation[2], mTempArr)
+		QuatMulVec3(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3], x, y, z, mTempArr)
 		
 		If CollisionMode <> COLLISION_NONE And Active
 			'Reset collision status
@@ -151,9 +144,9 @@ Class Entity
 			mCollidedEntity = Null
 			
 			'Check static collisions
-			If World._CheckStaticCollision(WorldX + mTempVec.X, WorldY, WorldZ, mSqRadius) Then mCollided = True; mTempVec.X = 0
-			If World._CheckStaticCollision(WorldX, WorldY + mTempVec.Y, WorldZ, mSqRadius) Then mCollided = True; mTempVec.Y = 0
-			If World._CheckStaticCollision(WorldX, WorldY, WorldZ + mTempVec.Z, mSqRadius) Then mCollided = True; mTempVec.Z = 0
+			If World._CheckStaticCollision(WorldX + mTempArr[0], WorldY, WorldZ, mSqRadius) Then mCollided = True; mTempArr[0] = 0
+			If World._CheckStaticCollision(WorldX, WorldY + mTempArr[1], WorldZ, mSqRadius) Then mCollided = True; mTempArr[1] = 0
+			If World._CheckStaticCollision(WorldX, WorldY, WorldZ + mTempArr[2], mSqRadius) Then mCollided = True; mTempArr[2] = 0
 			
 			'Check collisions with other entities
 			If collideWithEntities
@@ -161,68 +154,68 @@ Class Entity
 					'Do not check collisions with itself
 					If other <> Self And other.CollisionMode <> COLLISION_NONE And other.Active
 						If CollisionMode = COLLISION_SPHERE And other.CollisionMode = COLLISION_SPHERE
-							If Collision.SphereSphere(WorldX + mTempVec.X, WorldY, WorldZ, mSqRadius, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+							If Collision.SphereSphere(WorldX + mTempArr[0], WorldY, WorldZ, mSqRadius, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
-								mTempVec.X = 0
+								mTempArr[0] = 0
 							End
-							If Collision.SphereSphere(WorldX, WorldY + mTempVec.Y, WorldZ, mSqRadius, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+							If Collision.SphereSphere(WorldX, WorldY + mTempArr[1], WorldZ, mSqRadius, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
-								mTempVec.Y = 0
+								mTempArr[1] = 0
 							End
-							If Collision.SphereSphere(WorldX, WorldY, WorldZ + mTempVec.Z, mSqRadius, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+							If Collision.SphereSphere(WorldX, WorldY, WorldZ + mTempArr[2], mSqRadius, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
-								mTempVec.Z = 0
+								mTempArr[2] = 0
 							End
 						Elseif CollisionMode = COLLISION_SPHERE And other.CollisionMode = COLLISION_BOX
-							If Collision.BoxSphere(other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ, WorldX + mTempVec.X, WorldY, WorldZ, mSqRadius)
+							If Collision.BoxSphere(other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ, WorldX + mTempArr[0], WorldY, WorldZ, mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
-								mTempVec.X = 0
+								mTempArr[0] = 0
 							End
-							If Collision.BoxSphere(other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ, WorldX, WorldY + mTempVec.Y, WorldZ, mSqRadius)
+							If Collision.BoxSphere(other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ, WorldX, WorldY + mTempArr[1], WorldZ, mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
-								mTempVec.Y = 0
+								mTempArr[1] = 0
 							End
-							If Collision.BoxSphere(other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ, WorldX, WorldY, WorldZ + mTempVec.Z, mSqRadius)
+							If Collision.BoxSphere(other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ, WorldX, WorldY, WorldZ + mTempArr[2], mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
-								mTempVec.Z = 0
+								mTempArr[2] = 0
 							End
 						Elseif CollisionMode = COLLISION_BOX And other.CollisionMode = COLLISION_SPHERE
-							If Collision.BoxSphere(BoxMinX + mTempVec.X, BoxMinY, BoxMinZ, BoxMaxX + mTempVec.X, BoxMaxY, BoxMaxZ, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+							If Collision.BoxSphere(BoxMinX + mTempArr[0], BoxMinY, BoxMinZ, BoxMaxX + mTempArr[0], BoxMaxY, BoxMaxZ, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
-								mTempVec.X = 0
+								mTempArr[0] = 0
 							End
-							If Collision.BoxSphere(BoxMinX, BoxMinY + mTempVec.Y, BoxMinZ, BoxMaxX, BoxMaxY + mTempVec.Y, BoxMaxZ, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+							If Collision.BoxSphere(BoxMinX, BoxMinY + mTempArr[1], BoxMinZ, BoxMaxX, BoxMaxY + mTempArr[1], BoxMaxZ, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
-								mTempVec.Y = 0
+								mTempArr[1] = 0
 							End
-							If Collision.BoxSphere(BoxMinX, BoxMinY, BoxMinZ + mTempVec.Z, BoxMaxX, BoxMaxY, BoxMaxZ + mTempVec.Z, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
+							If Collision.BoxSphere(BoxMinX, BoxMinY, BoxMinZ + mTempArr[2], BoxMaxX, BoxMaxY, BoxMaxZ + mTempArr[2], other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
-								mTempVec.Z = 0
+								mTempArr[2] = 0
 							End
 						Elseif CollisionMode = COLLISION_BOX And other.CollisionMode = COLLISION_BOX
-							If Collision.BoxBox(BoxMinX + mTempVec.X, BoxMinY, BoxMinZ, BoxMaxX + mTempVec.X, BoxMaxY, BoxMaxZ, other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ)
+							If Collision.BoxBox(BoxMinX + mTempArr[0], BoxMinY, BoxMinZ, BoxMaxX + mTempArr[0], BoxMaxY, BoxMaxZ, other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ)
 								mCollided = True
 								mCollidedEntity = other
-								mTempVec.X = 0
+								mTempArr[0] = 0
 							End
-							If Collision.BoxBox(BoxMinX, BoxMinY + mTempVec.Y, BoxMinZ, BoxMaxX, BoxMaxY + mTempVec.Y, BoxMaxZ, other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ)
+							If Collision.BoxBox(BoxMinX, BoxMinY + mTempArr[1], BoxMinZ, BoxMaxX, BoxMaxY + mTempArr[1], BoxMaxZ, other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ)
 								mCollided = True
 								mCollidedEntity = other
-								mTempVec.Y = 0
+								mTempArr[1] = 0
 							End
-							If Collision.BoxBox(BoxMinX, BoxMinY, BoxMinZ + mTempVec.Z, BoxMaxX, BoxMaxY, BoxMaxZ + mTempVec.Z, other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ)
+							If Collision.BoxBox(BoxMinX, BoxMinY, BoxMinZ + mTempArr[2], BoxMaxX, BoxMaxY, BoxMaxZ + mTempArr[2], other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ)
 								mCollided = True
 								mCollidedEntity = other
-								mTempVec.Z = 0
+								mTempArr[2] = 0
 							End
 						End
 						
@@ -234,89 +227,89 @@ Class Entity
 		End
 		
 		'Go to destination point
-		mPosition.Sum(mTempVec)
+		Vec3Add(mPosition[0], mPosition[1], mPosition[2], mTempArr[0], mTempArr[1], mTempArr[2], mPosition)
 		
 		_UpdateTransform()
 	End
 	
 	Method Pitch:Float() Property
-		Return mRotation.X
+		Return mRotation[0]
 	End
 	
 	Method Yaw:Float() Property
-		Return mRotation.Y
+		Return mRotation[1]
 	End
 	
 	Method Roll:Float() Property
-		Return mRotation.Z
+		Return mRotation[2]
 	End
 	
 	Method Pitch:Void(val:Float) Property
-		mRotation.X = val
+		mRotation[0] = val
 		_UpdateTransform()
 	End
 	
 	Method Yaw:Void(val:Float) Property
-		mRotation.Y = val
+		mRotation[1] = val
 		_UpdateTransform()
 	End
 	
 	Method Roll:Void(val:Float) Property
-		mRotation.Z = val
+		mRotation[2] = val
 		_UpdateTransform()
 	End
 	
 	Method SetRotation:Void(pitch:Float, yaw:Float, roll:Float)
-		mRotation.Set(pitch, yaw, roll)
+		Vec3Set(pitch, yaw, roll, mRotation)
 		_UpdateTransform()
 	End
 	
 	Method Turn:Void(pitch:Float, yaw:Float, roll:Float)
-		mRotation.Sum(pitch, yaw, roll)
+		Vec3Add(mRotation[0], mRotation[1], mRotation[2], pitch, yaw, roll, mRotation)
 		_UpdateTransform()
 	End
 	
 	Method Width:Float() Property
-		Return mScale.X
+		Return mScale[0]
 	End
 	
 	Method Height:Float() Property
-		Return mScale.Y
+		Return mScale[1]
 	End
 	
 	Method Depth:Float() Property
-		Return mScale.Z
+		Return mScale[2]
 	End
 	
 	Method ScaleX:Float() Property
-		Return mScale.X
+		Return mScale[0]
 	End
 	
 	Method ScaleY:Float() Property
-		Return mScale.Y
+		Return mScale[1]
 	End
 	
 	Method ScaleZ:Float() Property
-		Return mScale.Z
+		Return mScale[2]
 	End
 	
 	Method ScaleX:Void(val:Float) Property
-		mScale.X = val
+		mScale[0] = val
 		_UpdateTransform()
 	End
 	
 	Method ScaleY:Void(val:Float) Property
-		mScale.Y = val
+		mScale[1] = val
 		_UpdateTransform()
 	End
 	
 	Method ScaleZ:Void(val:Float) Property
-		mScale.Z = val
+		mScale[2] = val
 		_UpdateTransform()
 	End
 
 	Method SetScale:Void(x:Float, y:Float, z:Float)
-		mScale.Set(x, y, z)
+		Vec3Set(x, y, z, mScale)
 		_UpdateTransform()
 	End
 	
@@ -346,9 +339,8 @@ Class Entity
 	End
 	
 	Method Distance:Float(other:Entity)
-		mTempVec.Set(mPosition)
-		mTempVec.Sub(other.mPosition)
-		Return mTempVec.Length()
+		Vec3Sub(mPosition[0], mPosition[1], mPosition[2], other.mPosition[0], other.mPosition[1], other.mPosition[2], mTempArr)
+		Return Vec3Length(mTempArr[0], mTempArr[1], mTempArr[2])
 	End
 	
 	Method NumMaterials:Int() Property
@@ -409,40 +401,36 @@ Class Entity
 	End
 	
 	Method _Render:Int(step_:Int)
-		Renderer.State().ModelMatrix.Set(mTransform)
+		Mat4Copy(mTransform, Renderer.State().ModelMatrix)
 		Return 0
 	End
 	
-	Method _Transform:Mat4() Property
+	Method _Transform:Float[]() Property
 		Return mTransform
 	End
 Private
-	Field mName				: String
-	Field mParent			: Entity
-	Field mChildren			: List<Entity>
-	Field mActive			: Bool
-	Field mVisible			: Bool
-	Field mPosition			: Vec3
-	Field mRotation			: Vec3
-	Field mScale			: Vec3
-	Field mTransform		: Mat4
+	Field mName						: String
+	Field mParent					: Entity
+	Field mChildren				: List<Entity>
+	Field mActive					: Bool
+	Field mVisible				: Bool
+	Field mPosition				: Float[3]
+	Field mRotation				: Float[3]
+	Field mScale					: Float[3]
+	Field mTransform			: Float[16]
 	Field mCollisionMode	: Int
-	Field mRadius			: Float
-	Field mSqRadius			: Float
-	Field mCollided			: Bool
+	Field mRadius					: Float
+	Field mSqRadius				: Float
+	Field mCollided				: Bool
 	Field mCollidedEntity	: Entity
-	Field mUserData			: Object
+	Field mUserData				: Object
 	
 	Method _UpdateTransform:Void()
 		'Set entity's transform
-		mTransform.SetTransform(mPosition, mRotation, mScale)
+		Mat4TransformEuler(mPosition[0], mPosition[1], mPosition[2], mRotation[0], mRotation[1], mRotation[2], mScale[0], mScale[1], mScale[2], mTransform)
 		
 		'Premultiply paren't transform
-		If mParent
-			mTempMat.Set(mParent.mTransform)
-			mTempMat.Mul(mTransform)
-			mTransform.Set(mTempMat)
-		End
+		If mParent Then Mat4Mul(mParent.mTransform, mTransform, mTransform)
 		
 		'Update children's transforms
 		For Local child:Entity = Eachin mChildren
@@ -450,7 +438,5 @@ Private
 		Next
 	End
 	
-	Global mTempMat		: Mat4 = Mat4.Create()
-	Global mTempQuat	: Quat = Quat.Create()
-	Global mTempVec		: Vec3 = Vec3.Create()
+	Global mTempArr		: Float[4]
 End

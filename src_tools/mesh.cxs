@@ -256,7 +256,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 		'Set inverse pose matrix
 		Local m:Float[] = New Float[16]
 		For Local i:Int = 0 Until 16
-			bone.InversePoseMatrix.M[i] = Float(invPoseStr[i])
+			bone.InversePoseMatrix[i] = Float(invPoseStr[i])
 		Next
 			
 		'Add to mesh
@@ -562,7 +562,7 @@ Function WriteBoneData:Void(stream:DataStream, bone:Bone)
 	
 	'Inv pose matrix
 	For Local i:Int = 0 Until 16
-		stream.WriteFloat(bone.InversePoseMatrix.M[i])
+		stream.WriteFloat(bone.InversePoseMatrix[i])
 	Next
 End
 
