@@ -235,10 +235,8 @@ Function Mat4Identity:Void(out#[])
 	out[15] = 1
 End
 
+'Do not use if b = out
 Function Mat4Mul:Void(a#[], b#[], out#[])
-	'This is done just in case b == out
-	Mat4Copy(b, tempMat4)
-	b = tempMat4
 	For Local i% = 0 Until 4
 		Local a0# = a[i]
 		Local a1# = a[i+4]
@@ -249,6 +247,12 @@ Function Mat4Mul:Void(a#[], b#[], out#[])
 		out[i+8] = a0*b[8] + a1*b[9] + a2*b[10] + a3*b[11]
 		out[i+12] = a0*b[12] + a1*b[13] + a2*b[14] + a3*b[15]
 	Next
+End
+
+'Use when b = out
+Function Mat4MulSafe:Void(a#[], b#[], out#[])
+	Mat4Copy(b, tempMat4)
+	Mat4Mul(a, tempMat4, out)
 End
 
 Function Mat4MulVec4:Void(m#[], x#, y#, z#, w#, out#[])

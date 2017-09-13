@@ -327,7 +327,7 @@ Public
 
 	Function DrawPoint:Void(x:Float, y:Float)
 #If TARGET<>"html5"
-		mState.ModelMatrix.SetTransform(x, y, 0, 0, 0, 0, 1, 1, 1)
+		Mat4TransformEuler(x, y, 0, 0, 0, 0, 1, 1, 1, mState.ModelMatrix)
 		Shader._Bound().Prepare()
 		DrawBuffers(mLineBuffer, 0, 1, 0, -1, -1, -1, -1, -1, -1, -1, 0, MODE_POINTS)
 #Else

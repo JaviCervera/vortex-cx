@@ -206,7 +206,7 @@ Public
 			For Local i:Int = 0 Until NumBones
 				Bone(i).CalculateAnimMatrix(animMatrices[i], frame, firstFrame, lastFrame)
 				If Bone(i).ParentIndex > -1
-					Mat4Mul(animMatrices[Bone(i).ParentIndex], animMatrices[i], animMatrices[i])
+					Mat4MulSafe(animMatrices[Bone(i).ParentIndex], animMatrices[i], animMatrices[i])
 				End
 			Next
 			
