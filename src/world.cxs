@@ -181,12 +181,12 @@ Class World Final
 	End
 
 	Function SkyboxTexture:Texture()
-		Return mSkybox.Material(0).BaseTexture
+		Return mSkybox.Material(0).ColorTexture
 	End
 	
 	Function SetSkyboxTexture:Void(tex:Texture)
 		mSkybox.Material(0).DiscardTextures()
-		mSkybox.Material(0).BaseTexture = tex
+		mSkybox.Material(0).ColorTexture = tex
 	End
 	
 	Function NumEntities:Int()

@@ -616,7 +616,7 @@ Public
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
-				mat.BaseTexture = Cache.LoadTexture(str, texFilter)
+				mat.ColorTexture = Cache.LoadTexture(str, texFilter)
 			End
 			If usedTexs & 2
 				Local strLen:Int = stream.ReadInt()
@@ -624,7 +624,7 @@ Public
 				For Local t:Int = 0 Until cubeTexs.Length
 					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
 				Next
-				mat.BaseTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				mat.ColorTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
 			End
 			If usedTexs & 4
 				Local strLen:Int = stream.ReadInt()

@@ -47,7 +47,7 @@ Class TestApp Extends App
 		'Create mesh
 		Local mesh:Mesh = New Mesh()
 		mesh.AddSurface(quad)
-		mesh.Material(0).BaseTexture = mFramebuffer.ColorTexture
+		mesh.Material(0).ColorTexture = mFramebuffer.ColorTexture
 		mesh.Material(0).Culling = False
 		
 		'Create triangle model

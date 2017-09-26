@@ -122,6 +122,7 @@ Function QuatMul:Void(aw#, ax#, ay#, az#, bw#, bx#, by#, bz#, out#[])
 	out[3] = aw*bz + az*bw + ax*by - ay*bx
 End
 
+'out must have at least 4 components, although the relevant info is put on the first 3
 Function QuatMulVec3:Void(w#, x#, y#, z#, vx#, vy#, vz#, out#[])
 	QuatMul(w, x, y, z, 0, vx, vy, vz, out)
 	QuatMul(out[0], out[1], out[2], out[3], w, -x, -y, -z, out)

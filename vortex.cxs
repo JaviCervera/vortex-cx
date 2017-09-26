@@ -1,15 +1,19 @@
 'TODO v2.0:
-'- Rename Material.BaseTexture to Material.ColorTexture
+'- Fix 2D drawing in van gogh demo
+'- Add Material._RendersStep
 '- Add Material.SpecularTexture
 '- Hide Cache class. Load methods should have a boolean indicating whether you want to cache the object
+'- Add Lighting and ReceiveShadows properties to Material
 '- Allow font textures to have different width and height (this should save texture space)
 '- Add x offset to fonts
-'- Add Lighting and ReceiveShadows properties to Material
 '- Add size suffix to fonts in fonttool
 '- Fix render to texture on HTML5
+'- Fix test_mojo2 on HTML5
+'- Fix scaling in animations
 '- Add Building section to README.md
 '- Remove XML support in tools
 '- Change mesh in shadows demo
+'- Clean comments
 '- Document tools
 '- Consider switching to Zlib or another license?
 'TODO v2.1:

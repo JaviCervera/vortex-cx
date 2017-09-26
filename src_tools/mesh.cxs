@@ -310,7 +310,7 @@ Function MaterialSize:Int(mat:Material)
 	size += 1			'Used textures
 	
 	'Texture names
-	If mat.BaseTexture Then size += 4 + StripDir(mat.BaseTexture.Filename).Length
+	If mat.ColorTexture Then size += 4 + StripDir(mat.ColorTexture.Filename).Length
 	If mat.NormalTexture Then size += 4 + StripDir(mat.NormalTexture.Filename).Length
 	If mat.LightTexture Then size += 4 + StripDir(mat.LightTexture.Filename).Length
 	If mat.ReflectionTexture Then size += 4 + StripDir(mat.ReflectionTexture.Filename).Length
@@ -427,8 +427,8 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	
 	'Used textures
 	Local usedTexs:Int = 0	'1=Diffuse2D,2=DiffuseCube,4=Normal,8=Lightmap,16=Reflect,32=Refract
-	If mat.BaseTexture And Not mat.BaseTexture.IsCubic Then usedTexs |= 1
-	If mat.BaseTexture And mat.BaseTexture.IsCubic Then usedTexs |= 2
+	If mat.ColorTexture And Not mat.ColorTexture.IsCubic Then usedTexs |= 1
+	If mat.ColorTexture And mat.ColorTexture.IsCubic Then usedTexs |= 2
 	If mat.NormalTexture Then usedTexs |= 4
 	If mat.LightTexture Then usedTexs |= 8
 	If mat.ReflectionTexture Then usedTexs |= 16
@@ -437,7 +437,7 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	
 	'Texture names
 	Local filename:String = ""
-	If mat.BaseTexture Then filename = StripDir(mat.BaseTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.ColorTexture Then filename = StripDir(mat.ColorTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.NormalTexture Then filename = StripDir(mat.NormalTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.LightTexture Then filename = StripDir(mat.LightTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.ReflectionTexture Then filename = StripDir(mat.ReflectionTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)

@@ -88,6 +88,7 @@ Public
 	
 	Method SetIndex:Void(num:Int, v:Int)
 		mIndices.PokeShort(num*2, v)
+		mStatus |= STATUS_I_DIRTY
 	End
 	
 	Method Index:Int(num:Int)

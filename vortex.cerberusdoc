@@ -603,17 +603,19 @@ Returns an available channel number (one that is not currently being used) that 
 
 # Class Material
 
-A material represents the visual information such as diffuse texture, color, or opacity.
+A material represents the visual information such as textures, color, or shininess.
 It is used to render objects with a specific appearance.
 
-# Method New(diffuseTex:Texture = Null)
-Creates a new material with the specified diffuse texture.
+# Method New(colorTex:Texture = Null)
+Creates a new material with the specified color texture.
 
 # Method New(other:Material)
 Creates a new material that is a copy of another one.
 
 # Method DiscardTextures:Void()
-Frees the textures used by this material. If the textures of the material are not shared by other material, you should call this method to free the textures memory when the material is no longer needed.
+Frees the textures used by this material.
+If the textures of the material are not shared by other material, you should call this method to free the textures memory when the material is no longer needed.
+You do not need to call this method if you cahce the textures (which is the default behaviour).
 
 # Method IsEqual:Bool(other:Material)
 Returns whether the material has the same propierties as the one passed as parameter or not.
@@ -627,11 +629,11 @@ Sets the color of the material.
 # Method Color:Int() Property
 Returns the color of the material.
 
-# Method BaseTexture:Void(tex:Texture) Property
-Sets the base texture of the material. It can be either a 2D or cubemap texture.
+# Method ColorTexture:Void(tex:Texture) Property
+Sets the color texture of the material. It can be either a 2D or cubemap texture.
 
-# Method BaseTexture:Texture() Property
-Returns the base texture of the material, or `Null` if there is no diffuse texture.
+# Method ColorTexture:Texture() Property
+Returns the color texture of the material, or `Null` if there is no color texture.
 
 # Method NormalTexture:Void(tex:Texture) Property
 Sets the normal texture of the material.
