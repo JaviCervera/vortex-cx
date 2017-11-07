@@ -110,21 +110,6 @@ Public
 		'Set the max number of lights and bones supported
 		mMaxLights = numLights
 		mMaxBones = numBones
-	
-		'Get GL and GLSL versions
-		mVendor = glGetString(GL_VENDOR)
-		mRenderer = glGetString(GL_RENDERER)
-		mVersionStr = glGetString(GL_VERSION)
-		mShadingVersionStr = glGetString(GL_SHADING_LANGUAGE_VERSION)
-#If LANG = "js"
-		Local glVersionStr:String[] = mVersionStr.Split(" ")
-		Local glslVersionStr:String[] = mShadingVersionStr.Split(" ")
-		mVersion = Float(glVersionStr[glVersionStr.Length() - 1])
-		mShadingVersion = Float(glslVersionStr[glslVersionStr.Length() - 1])
-#Else
-		mVersion = Float(mVersionStr.Split(" ")[0])
-		mShadingVersion = Float(mShadingVersionStr.Split(" ")[0])
-#End
 
 		'Make sure that default shaders are correct
 		If Shader.Default2D().Handle = 0 Then Return False
@@ -756,26 +741,44 @@ Public
 	End
 	
 	Function VendorName:String()
-		Return mVendor
+		Return glGetString(GL_VENDOR)
 	End
 	
 	Function RendererName:String()
-		Return mRenderer
+		Return glGetString(GL_RENDERER)
 	End
 	
 	Function APIVersionName:String()
-		Return mVersionStr
+		Return glGetString(GL_VERSION)
 	End
 	
 	Function ShadingVersionName:String()
-		Return mShadingVersionStr
+		Return glGetString(GL_SHADING_LANGUAGE_VERSION)
 	End
 
 	Function APIVersion:Float()
+		If mVersion = 0
+			Local glVersionStr:String[] = glGetString(GL_VERSION).Split(" ")
+			For Local v:String = Eachin glVersionStr
+				If v[0] >= 48 And v[0] <= 57
+					mVersion = Float(v)
+					Exit
+				End
+			Next
+		End
 		Return mVersion
 	End Function
 
 	Function ShadingVersion:Float()
+		If mShadingVersion = 0
+			Local glslVersionStr:String[] = glGetString(GL_SHADING_LANGUAGE_VERSION).Split(" ")
+			For Local v:String = Eachin glslVersionStr
+				If v[0] >= 48 And v[0] <= 57
+					mShadingVersion = Float(v)
+					Exit
+				End
+			Next
+		End
 		Return mShadingVersion
 	End Function
 	
@@ -848,10 +851,6 @@ Private
 	Global mMaxBones	: Int
 
 	'Info
-	Global mVendor:String
-	Global mRenderer:String
-	Global mVersionStr:String
-	Global mShadingVersionStr:String
 	Global mVersion:Float
 	Global mShadingVersion:Float
 

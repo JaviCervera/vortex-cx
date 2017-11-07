@@ -1,11 +1,10 @@
 'TODO v2.0:
-'- Do not parse GL version on init (crashes on some Android versions)
-'- Hide Cache class. Load methods should have a boolean indicating whether you want to cache the object
 '- Add Material.SpecularTexture
-'- Add Material._RendersStep (should improve sprite rendering?)
 '- Add Lighting and ReceiveShadows properties to Material
 '- Add Shader property to Material
+'- Add Material._RendersStep (should improve sprite rendering?)
 '- Add picking test
+'- Hide Cache class. Load methods should have a boolean indicating whether you want to cache the object
 '- BETA2
 '- Allow font textures to have different width and height (this should save texture space)
 '- Add x offset to fonts
