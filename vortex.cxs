@@ -1,9 +1,12 @@
 'TODO v2.0:
-'- Fix 2D drawing in van gogh demo
-'- Add Material._RendersStep
-'- Add Material.SpecularTexture
+'- Do not parse GL version on init (crashes on some Android versions)
 '- Hide Cache class. Load methods should have a boolean indicating whether you want to cache the object
+'- Add Material.SpecularTexture
+'- Add Material._RendersStep (should improve sprite rendering?)
 '- Add Lighting and ReceiveShadows properties to Material
+'- Add Shader property to Material
+'- Add picking test
+'- BETA2
 '- Allow font textures to have different width and height (this should save texture space)
 '- Add x offset to fonts
 '- Add size suffix to fonts in fonttool
@@ -20,7 +23,8 @@
 '- Add particles
 '- Add spot lights
 '- Add multiple shadows
-'- Add PCF to shadows
+'- Improve shadows (PCF, cascade...)
+'TODO v2.2:
 '- Add several shaders: unlit, vlit, flit, with static and skinned modes
 '- Write Assimp mesh loader
 '- Write worldtool with lightmapping support

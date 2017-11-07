@@ -200,7 +200,6 @@ Public
 		'Disable 3D states
 		SetCulling(False)
 		glDisable(GL_DEPTH_TEST)
-		'glBindTexture(GL_TEXTURE_2D, 0)
 
 		'Setup 2D
 		glEnable(GL_BLEND)
@@ -208,6 +207,7 @@ Public
 		glFrontFace(GL_CCW)
 		SetBlendMode(BLEND_ALPHA)
 		SetColor(Color.WHITE)
+		SetTextures(0, 0, 0, 0, 0, False)
 
 		'Setup viewport
 		y = fbHeight - y - h
@@ -228,9 +228,6 @@ Public
 		Local fbHeight:Int = mFramebufferHeight
 		If fbHeight = 0 Then fbHeight = DeviceHeight()
 
-		'Disable 2D & mojo states
-		'glBindTexture(GL_TEXTURE_2D, 0)
-
 		'Setup 3D
 		glEnable(GL_BLEND)
 		glEnable(GL_DEPTH_TEST)
@@ -243,6 +240,7 @@ Public
 		SetDepthWrite(True)
 		SetBlendMode(BLEND_SOLID)
 		SetColor(Color.WHITE)
+		SetTextures(0, 0, 0, 0, 0, False)
 		mState.Skinned = False
 
 		'Setup viewport
@@ -272,6 +270,7 @@ Public
 		SetBlendMode(BLEND_ALPHA)
 		SetColor(Color.WHITE)
 		
+		'This is a bit hacky... taken from Mojo2 source
 		glEnableVertexAttribArray 0 ; glVertexAttribPointer 0,2,GL_FLOAT,False,28,0
 		glEnableVertexAttribArray 1 ; glVertexAttribPointer 1,2,GL_FLOAT,False,28,8
 		glEnableVertexAttribArray 2 ; glVertexAttribPointer 2,2,GL_FLOAT,False,28,16
