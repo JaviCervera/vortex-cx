@@ -31,6 +31,7 @@ Const STD_VERTEX_VARS:String = "" +
 "uniform mat4 depthBias;" +
 "uniform int baseTexMode;" +
 "uniform bool useNormalTex;" +
+"uniform bool useSpecularTex;" +
 "uniform bool useReflectTex;" +
 "uniform bool useRefractTex;" +
 "uniform bool usePixelLighting;" +
@@ -60,12 +61,14 @@ Const STD_FRAGMENT_VARS:String = "" +
 "uniform bool solidMode;" +
 "uniform int baseTexMode;" +
 "uniform bool useNormalTex;" +
+"uniform bool useSpecularTex;" +
 "uniform bool useLightmap;" +
 "uniform bool useReflectTex;" +
 "uniform bool useRefractTex;" +
 "uniform sampler2D baseTexSampler;" +
 "uniform samplerCube baseCubeSampler;" +
 "uniform sampler2D normalTexSampler;" +
+"uniform sampler2D specularTexSampler;" +
 "uniform sampler2D lightmapSampler;" +
 "uniform sampler2D depthSampler;" +
 "uniform samplerCube reflectCubeSampler;" +
@@ -85,7 +88,7 @@ STD_VARYING_VARS
 
 Const SHADER_CALC_LIGHTING:String = "" +
 "struct LightingResult { vec3 combinedDiffuse; vec3 combinedSpecular; };" +
-"LightingResult CalcLighting(vec3 V, vec3 NV, vec3 N) {" +
+"LightingResult CalcLighting(vec3 V, vec3 NV, vec3 N, vec3 texSpecular) {" +
 "	float normShininess = float(shininess) / 10240.0;" +
 "	LightingResult lighting;" +
 "	lighting.combinedDiffuse = ambient;" +
@@ -113,7 +116,7 @@ Const SHADER_CALC_LIGHTING:String = "" +
 "		if ( shininess > 0.0 && NdotL > 0.0 ) {" +
 "			vec3 H = normalize(L - NV);" +
 "			float NdotH = max(dot(N, H), 0.0);" +
-"			lighting.combinedSpecular += pow(NdotH, shininess * 128.0) * lightColor[i] * shininess * 0.5 * att;" +
+"			lighting.combinedSpecular += pow(NdotH, shininess * texSpecular.r * 64.0) * lightColor[i] * texSpecular * shininess * att;" +
 "		}~n" +
 "	}~n" +
 
@@ -153,11 +156,11 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 "	vec3 V;" +
 "	vec3 NV;" +
 "	vec3 N;" +
-"	if ( numLights > 0 || baseTexMode == 2 || useNormalTex || useReflectTex || useRefractTex || fogEnabled ) {" +
+"	if ( numLights > 0 || baseTexMode == 2 || useNormalTex || useSpecularTex || useReflectTex || useRefractTex || fogEnabled ) {" +
 		'Calculate vertex in viewer space~n" +
 " 		V = vec3(modelView * vpos4);" +
 
-"		if ( numLights > 0 || baseTexMode == 2 || useNormalTex || useReflectTex || useRefractTex ) {" +
+"		if ( numLights > 0 || baseTexMode == 2 || useNormalTex || useSpecularTex || useReflectTex || useRefractTex ) {" +
 			'Calculate normalized vertex coordinates
 "			NV = normalize(V);" +
 
@@ -168,9 +171,9 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 
 	'Lighting
 "	if ( numLights > 0 ) {" +
-"		if ( !usePixelLighting && !useNormalTex ) {" +
+"		if ( !usePixelLighting && !useNormalTex && !useSpecularTex ) {" +
 			'Calculate lighting
-"			LightingResult lighting = CalcLighting(V, NV, N);" +
+"			LightingResult lighting = CalcLighting(V, NV, N, vec3(1, 1, 1));" +
 "			fcombinedDiffuse = lighting.combinedDiffuse;" +
 "			fcombinedSpecular = lighting.combinedSpecular;" +
 "		} else {" +
@@ -221,6 +224,9 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 '"	if ( fdepthCoords.x < 0.0 || fdepthCoords.x > 1.0 || fdepthCoords.y < 0.0 || fdepthCoords.y > 1.0 ) { gl_FragColor = vec4(1, 0, 1, 1); return; }" +
 '"	if ( fdepthCoords.z < 0.0 || fdepthCoords.z > 1.0 ) { gl_FragColor = vec4(1, 1, 0, 1); return; }" +
 
+  'Calculate texture specular
+" vec3 texSpecular = useSpecularTex ? vec3(texture2D(specularTexSampler, ftex)) : vec3(1, 1, 1);" +
+
 	'Lighting
 "	if ( numLights > 0 ) {" +
 		'Only apply if fragment is not shadowed
@@ -235,7 +241,7 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 "				}" +
 
 				'Calc lighting
-"				LightingResult lighting = CalcLighting(fpos, fposNorm, normal);" +
+"				LightingResult lighting = CalcLighting(fpos, fposNorm, normal, texSpecular);" +
 "				combinedColor = vec4(lighting.combinedDiffuse, 1);" +
 "				combinedSpecular = vec4(lighting.combinedSpecular, 0);" +
 			'Apply vertex lighting

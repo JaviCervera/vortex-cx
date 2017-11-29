@@ -41,6 +41,10 @@ Public
 		
 		'Create model
 		mModel = New Model(Cache.LoadMesh("robot.msh.dat"))
+		For Local m:Int = 0 Until mModel.NumMaterials
+      mModel.Material(m).SpecularTexture = Cache.LoadTexture("specular.jpg")
+      mModel.Material(m).Shininess = 2
+		Next
 		'mModel.Yaw = 180.0
 		
 		'Create lights

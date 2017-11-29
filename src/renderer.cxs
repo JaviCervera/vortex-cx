@@ -46,6 +46,7 @@ Class RendererState Final
 	Field LightRadius				: Float[]
 	Field BaseTexMode				: Int
 	Field UseNormalTex			: Bool
+	Field UseSpecularTex    : Bool
 	Field UseLightTex				: Bool
 	Field UseReflectTex			: Bool
 	Field UseRefractTex			: Bool
@@ -92,10 +93,11 @@ Public
 	Const BASETEX_UNIT:Int = 0
 	Const BASECUBE_UNIT:Int = 1
 	Const NORMALTEX_UNIT:Int = 2
-	Const LIGHTMAP_UNIT:Int = 3
-	Const REFLECTTEX_UNIT:Int = 4
-	Const REFRACTTEX_UNIT:Int = 5
-	Const DEPTHTEX_UNIT:Int = 6
+	Const SPECULARTEX_UNIT:Int = 3
+	Const LIGHTMAP_UNIT:Int = 4
+	Const REFLECTTEX_UNIT:Int = 5
+	Const REFRACTTEX_UNIT:Int = 6
+	Const DEPTHTEX_UNIT:Int = 7
 	
 	Const ELLIPSEPOINTS:Int = 64
 
@@ -192,7 +194,7 @@ Public
 		glFrontFace(GL_CCW)
 		SetBlendMode(BLEND_ALPHA)
 		SetColor(Color.WHITE)
-		SetTextures(0, 0, 0, 0, 0, False)
+		SetTextures(0, 0, 0, 0, 0, 0, False)
 
 		'Setup viewport
 		y = fbHeight - y - h
@@ -225,7 +227,7 @@ Public
 		SetDepthWrite(True)
 		SetBlendMode(BLEND_SOLID)
 		SetColor(Color.WHITE)
-		SetTextures(0, 0, 0, 0, 0, False)
+		SetTextures(0, 0, 0, 0, 0, 0, False)
 		mState.Skinned = False
 
 		'Setup viewport
@@ -460,7 +462,7 @@ Public
 		glDeleteTexture(texture)
 	End
 
-	Function SetTextures:Void(diffuseTex:Int, normalTex:Int, lightmap:Int, reflectionTex:Int, refractionTex:Int, isDiffuseCubic:Bool)
+	Function SetTextures:Void(diffuseTex:Int, normalTex:Int, specularTex:Int, lightmap:Int, reflectionTex:Int, refractionTex:Int, isDiffuseCubic:Bool)
 		If diffuseTex <> 0
 			If Not isDiffuseCubic
 				glActiveTexture(GL_TEXTURE0 + BASETEX_UNIT)
@@ -473,6 +475,10 @@ Public
 		If normalTex <> 0
 			glActiveTexture(GL_TEXTURE0 + NORMALTEX_UNIT)
 			glBindTexture(GL_TEXTURE_2D, normalTex)
+		End
+		If specularTex <> 0
+			glActiveTexture(GL_TEXTURE0 + SPECULARTEX_UNIT)
+			glBindTexture(GL_TEXTURE_2D, specularTex)
 		End
 		If lightmap <> 0
 			glActiveTexture(GL_TEXTURE0 + LIGHTMAP_UNIT)
@@ -496,6 +502,7 @@ Public
 			mState.BaseTexMode = 2
 		End
 		mState.UseNormalTex = normalTex <> 0
+		mState.UseSpecularTex = specularTex <> 0
 		mState.UseLightTex = lightmap <> 0
 		mState.UseReflectTex = reflectionTex <> 0
 		mState.UseRefractTex = refractionTex <> 0
