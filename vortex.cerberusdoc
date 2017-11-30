@@ -631,6 +631,7 @@ Returns the color of the material.
 
 # Method ColorTexture:Void(tex:Texture) Property
 Sets the color texture of the material. It can be either a 2D or cubemap texture.
+If it is a cubemap, it will be rendered as a skybox, and you should not set a `CubeTexture`.
 
 # Method ColorTexture:Texture() Property
 Returns the color texture of the material, or `Null` if there is no color texture.
@@ -653,17 +654,12 @@ Sets the light texture of the material.
 # Method LightTexture:Texture() Property
 Returns the light texture of the material, or `Null` if there is no light texture.
 
-# Method ReflectionTexture:Void(tex:Texture) Property
-Sets the reflection texture of the material. It must be a cubemap.
+# Method CubeTexture:Void(tex:Texture) Property
+Sets the cubemap texture of the material.
+If the value of `RefractionCoef` is negative, the cubemap will be reflective (like a metal), while if it is positive, it will be refractive (like glass or water).
 
-# Method ReflectionTexture:Texture() Property
-Returns the relfection texture of the material, or `Null` if there is no reflection texture.
-
-# Method RefractionTexture:Void(tex:Texture) Property
-Sets the refraction texture of the material. It must be a cubemap.
-
-# Method RefractionTexture:Texture() Property
-Returns the refraction texture of the material, or `Null` if there is no refraction texture.
+# Method CubeTexture:Texture() Property
+Returns the cubemap texture of the material, or `Null` if there is no cubemap texture.
 
 # Method Opacity:Void(opacity:Float) Property
 Sets the opacity of the material, with 0 being completely transparent and 1 being completely opaque. The default value is 1.
@@ -678,10 +674,16 @@ Sets the specular shininess of the material. A value of 0 will disable specular 
 Returns the specular shininess of the material.
 
 # Method RefractionCoef:Void(coef:Float) Property
-Sets the refraction coefficient of the material. This should be the refraction value of the source medium divided by the refraction value of the destination medium. For example, to define the refraction of light entering water from air, it would be 1.0 / 1.33.
+Sets the refraction coefficient of the material.
+This should be the refraction value of the source medium divided by the refraction value of the destination medium.
+For example, to define the refraction of light entering water from air, it would be 1.0 / 1.33.
+
+If this value is positive, it is used to calculate the refraction of the `CubeTexture` property.
+If it is negative, then this value is ignored and the `CubeTexture` is assumed to be a reflection map.
+Its default value is -1.
 
 # Method RefractionCoef:Float() Property
-Returns the refraction coefficiente of the material.
+Returns the refraction coefficient of the material.
 
 # Method BlendMode:Void(mode:Int) Property
 Sets the blend mode of the material. This defines how the final look of the geometry using this material blends with the background, after computing texture, color and lighting information.

@@ -241,25 +241,25 @@ Public
 			'Init
 			Vec3Set(Surface(0).VertexX(0), Surface(0).VertexY(0), Surface(0).VertexZ(0), mBoxMin)
 			Vec3Set(mBoxMin[0], mBoxMin[1], mBoxMin[2], mBoxMax)
-			
-			'Iterate through each geom
-			For Local surf:Surface = Eachin mSurfaces
-				For Local index:Int = 1 Until surf.NumVertices
-					Local vx:Float = surf.VertexX(index)
-					Local vy:Float = surf.VertexY(index)
-					Local vz:Float = surf.VertexZ(index)
-					If vx < mBoxMin[0] Then mBoxMin[0] = vx
-					If vy < mBoxMin[1] Then mBoxMin[1] = vy
-					If vz < mBoxMin[2] Then mBoxMin[2] = vz
-					If vx > mBoxMax[0] Then mBoxMax[0] = vx
-					If vy > mBoxMax[1] Then mBoxMax[1] = vy
-					If vz > mBoxMax[2] Then mBoxMax[2] = vz
-				Next
-			Next
 		Else
 			Vec3Set(0, 0, 0, mBoxMin)
 			Vec3Set(0, 0, 0, mBoxMax)
 		End
+			
+		'Iterate through each geom
+		For Local surf:Surface = Eachin mSurfaces
+			For Local index:Int = 1 Until surf.NumVertices
+				Local vx:Float = surf.VertexX(index)
+				Local vy:Float = surf.VertexY(index)
+				Local vz:Float = surf.VertexZ(index)
+				If vx < mBoxMin[0] Then mBoxMin[0] = vx
+				If vy < mBoxMin[1] Then mBoxMin[1] = vy
+				If vz < mBoxMin[2] Then mBoxMin[2] = vz
+				If vx > mBoxMax[0] Then mBoxMax[0] = vx
+				If vy > mBoxMax[1] Then mBoxMax[1] = vy
+				If vz > mBoxMax[2] Then mBoxMax[2] = vz
+			Next
+		Next
 	End
 	
 	Method BoxMinX:Float() Property
@@ -644,17 +644,9 @@ Public
 				For Local t:Int = 0 Until cubeTexs.Length
 					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
 				Next
-				mat.ReflectionTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
+				mat.CubeTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
 			End
 			If usedTexs & 32
-				Local strLen:Int = stream.ReadInt()
-				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
-				For Local t:Int = 0 Until cubeTexs.Length
-					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
-				Next
-				mat.RefractionTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
-			End
-			If usedTexs & 64
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str

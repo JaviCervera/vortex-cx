@@ -16,7 +16,7 @@ Public
 		mColor = color.Color.WHITE
 		mColorTex = colorTex
 		mShininess = 0
-		mRefractCoef = 1
+		mRefractCoef = -1
 		mBlendMode = Renderer.BLEND_SOLID
 		mCulling = True
 		mDepthWrite = True
@@ -33,13 +33,12 @@ Public
 		If mNormalTex Then mNormalTex.Discard()
 		If mSpecularTex Then mSpecularTex.Discard()
 		If mLightTex Then mLightTex.Discard()
-		If mReflectTex Then mReflectTex.Discard()
-		If mRefractTex Then mRefractTex.Discard()
+		If mCubeTex Then mCubeTex.Discard()
 	End
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mSpecularTex = other.mSpecularTex And mLightTex = other.mLightTex And mReflectTex = other.mReflectTex And mRefractTex = other.mRefractTex And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows
+		If mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mSpecularTex = other.mSpecularTex And mLightTex = other.mLightTex And mCubeTex = other.mCubeTex And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows
 			Return True
 		Else
 			Return False
@@ -53,8 +52,7 @@ Public
 		mNormalTex = other.mNormalTex
 		mSpecularTex = other.mSpecularTex
 		mLightTex = other.mLightTex
-		mReflectTex = other.mReflectTex
-		mRefractTex = other.mRefractTex
+		mCubeTex = other.mCubeTex
 		mShininess = other.mShininess
 		mRefractCoef = other.mRefractCoef
 		mBlendMode = other.mBlendMode
@@ -81,7 +79,6 @@ Public
 	End
 	
 	Method NormalTexture:Void(tex:Texture) Property
-		If mNormalTex = tex Then Return
 		mNormalTex = tex
 	End
 	
@@ -105,12 +102,12 @@ Public
 		Return mLightTex
 	End
 	
-	Method ReflectionTexture:Void(tex:Texture) Property
-		mReflectTex = tex
+	Method CubeTexture:Void(tex:Texture) Property
+		mCubeTex = tex
 	End
 	
-	Method ReflectionTexture:Texture() Property
-		Return mReflectTex
+	Method CubeTexture:Texture() Property
+		Return mCubeTex
 	End
 	
 	Method RefractionTexture:Void(tex:Texture) Property
@@ -123,7 +120,6 @@ Public
 
 	Method Shininess:Void(shininess:Float) Property
 		'shininess = Clamp(shininess, 0.0, 1.0)
-		If mShininess = shininess Then Return
 		mShininess = shininess
 	End
 
@@ -132,7 +128,6 @@ Public
 	End
 	
 	Method RefractionCoef:Void(coef:Float) Property
-		If mRefractCoef = coef Then Return
 		mRefractCoef = coef
 	End
 	
@@ -141,7 +136,6 @@ Public
 	End
 
 	Method BlendMode:Void(mode:Int) Property
-		If mBlendMode = mode Then Return
 		mBlendMode = mode
 	End
 
@@ -150,7 +144,6 @@ Public
 	End
 
 	Method Culling:Void(enable:Bool) Property
-		If mCulling = enable Then Return
 		mCulling = enable
 	End
 
@@ -159,7 +152,6 @@ Public
 	End
 
 	Method DepthWrite:Void(enable:Bool) Property
-		If mDepthWrite = enable Then Return
 		mDepthWrite = enable
 	End
 
@@ -168,7 +160,6 @@ Public
 	End
 	
 	Method CastShadows:Void(enable:Bool) Property
-		If mCastShadows = enable Then Return
 		mCastShadows = enable
 	End
 	
@@ -191,8 +182,7 @@ Public
 		Local normalHandle:Int = 0
 		Local specularHandle:Int = 0
 		Local lightHandle:Int = 0
-		Local reflectHandle:Int = 0
-		Local refractHandle:Int = 0
+		Local cubeHandle:Int = 0
 
 		Renderer.SetColor(mColor)
 		Renderer.State().Shininess = mShininess
@@ -205,9 +195,8 @@ Public
 		If mNormalTex <> Null Then normalHandle = mNormalTex.Handle
 		If mSpecularTex <> Null Then specularHandle = mSpecularTex.Handle
 		If mLightTex <> Null Then lightHandle = mLightTex.Handle
-		If mReflectTex <> Null Then reflectHandle = mReflectTex.Handle
-		If mRefractTex <> Null Then refractHandle = mRefractTex.Handle
-		Renderer.SetTextures(colorHandle, normalHandle, specularHandle, lightHandle, reflectHandle, refractHandle, mColorTex And mColorTex.IsCubic)
+		If mCubeTex <> Null Then cubeHandle = mCubeTex.Handle
+		Renderer.SetTextures(colorHandle, normalHandle, specularHandle, lightHandle, cubeHandle, mColorTex And mColorTex.IsCubic)
 		
 		'Prepare bound shader
 		Shader._Bound().Prepare()
@@ -220,8 +209,7 @@ Private
 	Field mNormalTex			: Texture
 	Field mSpecularTex    : Texture
 	Field mLightTex				: Texture
-	Field mReflectTex			: Texture
-	Field mRefractTex			: Texture
+	Field mCubeTex				: Texture
 	Field mShininess			: Float
 	Field mRefractCoef		: Float
 	Field mBlendMode			: Int

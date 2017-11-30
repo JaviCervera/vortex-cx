@@ -11,14 +11,13 @@ Const STD_VARYING_VARS:String = "" +
 "varying vec3 fposNorm;" +
 "varying vec3 fnormal;" +
 "varying vec4 fcolor;" +
+'Conbine these 2 into a vec4
 "varying vec2 ftex;" +
 "varying vec2 ftex2;" +
 "varying vec3 fcombinedDiffuse;" +
 "varying vec3 fcombinedSpecular;" +
 "varying float fogFactor;" +
 "varying vec3 fcubeCoords;" +
-"varying vec3 freflectCoords;" +
-"varying vec3 frefractCoords;" +
 "varying vec3 fdepthCoords;" +
 "varying mat3 tbnMatrix;"
 
@@ -32,8 +31,7 @@ Const STD_VERTEX_VARS:String = "" +
 "uniform int baseTexMode;" +
 "uniform bool useNormalTex;" +
 "uniform bool useSpecularTex;" +
-"uniform bool useReflectTex;" +
-"uniform bool useRefractTex;" +
+"uniform bool useCubemap;" +
 "uniform bool usePixelLighting;" +
 "uniform int numLights;" +
 "uniform vec4 lightPos[MAX_LIGHTS];" + 'In viewer space !!!
@@ -63,16 +61,14 @@ Const STD_FRAGMENT_VARS:String = "" +
 "uniform bool useNormalTex;" +
 "uniform bool useSpecularTex;" +
 "uniform bool useLightmap;" +
-"uniform bool useReflectTex;" +
-"uniform bool useRefractTex;" +
+"uniform bool useCubemap;" +
 "uniform sampler2D baseTexSampler;" +
 "uniform samplerCube baseCubeSampler;" +
 "uniform sampler2D normalTexSampler;" +
 "uniform sampler2D specularTexSampler;" +
 "uniform sampler2D lightmapSampler;" +
+"uniform samplerCube cubemapSampler;" +
 "uniform sampler2D depthSampler;" +
-"uniform samplerCube reflectCubeSampler;" +
-"uniform samplerCube refractCubeSampler;" +
 "uniform bool usePixelLighting;" +
 "uniform int numLights;" +
 "uniform vec4 lightPos[MAX_LIGHTS];" +	'In viewer space !!!
@@ -156,11 +152,11 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 "	vec3 V;" +
 "	vec3 NV;" +
 "	vec3 N;" +
-"	if ( numLights > 0 || baseTexMode == 2 || useNormalTex || useSpecularTex || useReflectTex || useRefractTex || fogEnabled ) {" +
+"	if ( numLights > 0 || baseTexMode == 2 || useNormalTex || useSpecularTex || useCubemap || fogEnabled ) {" +
 		'Calculate vertex in viewer space~n" +
 " 		V = vec3(modelView * vpos4);" +
 
-"		if ( numLights > 0 || baseTexMode == 2 || useNormalTex || useSpecularTex || useReflectTex || useRefractTex ) {" +
+"		if ( numLights > 0 || baseTexMode == 2 || useNormalTex || useSpecularTex || useCubemap ) {" +
 			'Calculate normalized vertex coordinates
 "			NV = normalize(V);" +
 
@@ -187,10 +183,10 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 "	if ( fogEnabled ) fogFactor = clamp((fogDist[1] - abs(V.z)) / (fogDist[1] - fogDist[0]), 0.0, 1.0);" +
 
 	'Cube mapping coordinates
-"	if ( baseTexMode == 2 || useReflectTex || useRefractTex ) {" +
-" 		if ( baseTexMode == 2 ) fcubeCoords = vec3(invView * vec4(NV, 0));" +
-"		if ( useReflectTex ) freflectCoords = normalize(vec3(invView * vec4(reflect(NV, N), 0)));" +
-"		if ( useRefractTex ) frefractCoords = normalize(vec3(invView * vec4(refract(NV, N, refractCoef), 0)));" +
+"	if ( baseTexMode == 2 || useCubemap ) {" +
+" 	if ( baseTexMode == 2 ) fcubeCoords = vec3(invView * vec4(NV, 0));" +
+"		else if ( refractCoef < 0.0 ) fcubeCoords = normalize(vec3(invView * vec4(reflect(NV, N), 0)));" +
+"		else fcubeCoords = normalize(vec3(invView * vec4(refract(NV, N, refractCoef), 0)));" +
 "	}" +
 
 	'Calculate TBN matrix
@@ -266,14 +262,9 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 	'Base texture
 "	combinedColor *= baseTexture;" +
 
-	'Reflection texture
-"	if ( useReflectTex ) {" +
-"		combinedColor *= textureCube(reflectCubeSampler, freflectCoords);" +
-"	}" +
-
-	'Refraction texture
-"	if ( useRefractTex ) {" +
-"		combinedColor *= textureCube(refractCubeSampler, frefractCoords);" +
+	'Cubemap
+"	if ( useCubemap ) {" +
+"		combinedColor *= textureCube(cubemapSampler, fcubeCoords);" +
 "	}" +
 
 	'Add specular

@@ -313,8 +313,7 @@ Function MaterialSize:Int(mat:Material)
 	If mat.ColorTexture Then size += 4 + StripDir(mat.ColorTexture.Filename).Length
 	If mat.NormalTexture Then size += 4 + StripDir(mat.NormalTexture.Filename).Length
 	If mat.LightTexture Then size += 4 + StripDir(mat.LightTexture.Filename).Length
-	If mat.ReflectionTexture Then size += 4 + StripDir(mat.ReflectionTexture.Filename).Length
-	If mat.RefractionTexture Then size += 4 + StripDir(mat.RefractionTexture.Filename).Length
+	If mat.CubeTexture Then size += 4 + StripDir(mat.CubeTexture.Filename).Length
 	If mat.SpecularTexture Then size += 4 + StripDir(mat.SpecularTexture.Filename).Length
 	
 	Return size
@@ -432,9 +431,8 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	If mat.ColorTexture And mat.ColorTexture.IsCubic Then usedTexs |= 2
 	If mat.NormalTexture Then usedTexs |= 4
 	If mat.LightTexture Then usedTexs |= 8
-	If mat.ReflectionTexture Then usedTexs |= 16
-	If mat.RefractionTexture Then usedTexs |= 32
-	If mat.SpecularTexture Then usedTexs |= 64
+	If mat.CubeTexture Then usedTexs |= 16
+	If mat.SpecularTexture Then usedTexs |= 32
 	stream.WriteByte(usedTexs)
 	
 	'Texture names
@@ -442,8 +440,7 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	If mat.ColorTexture Then filename = StripDir(mat.ColorTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.NormalTexture Then filename = StripDir(mat.NormalTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.LightTexture Then filename = StripDir(mat.LightTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
-	If mat.ReflectionTexture Then filename = StripDir(mat.ReflectionTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
-	If mat.RefractionTexture Then filename = StripDir(mat.RefractionTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.CubeTexture Then filename = StripDir(mat.CubeTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.SpecularTexture Then filename = StripDir(mat.SpecularTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 End
 

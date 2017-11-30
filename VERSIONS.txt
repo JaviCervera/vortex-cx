@@ -7,6 +7,7 @@ V2.0-beta2
 - Math3D library has been completely rewritten
 - Renamed Material.BaseTexture to Material.ColorTexture
 - Added Material.SpecularTexture
+- Added Material.CubeTexture and removed Reflection and Refraction textures (now a material can only have one cubemap)
 - Does not parse GL version on init anymore to prevent crash on some old Android versions
 - The script convert2monkey now also converts demos (I forgot that!)
 - Several bug fixes

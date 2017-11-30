@@ -27,15 +27,13 @@ Public
 	Field mUseNormalTex:Int
 	Field mUseSpecularTex:Int
 	Field mUseLightmap:Int
-	Field mUseReflectTex:Int
-	Field mUseRefractTex:Int
+	Field mUseCubemap:Int
 	Field mBaseTexSampler:Int
 	Field mBaseCubeSampler:Int
 	Field mNormalTexSampler:Int
 	Field mSpecularTexSampler:Int
 	Field mLightmapSampler:Int
-	Field mReflectCubeSampler:Int
-	Field mRefractCubeSampler:Int
+	Field mCubemapSampler:Int
 	Field mDepthSampler:Int
 	Field mUsePixelLighting:Int
 	Field mNumLights:Int
@@ -66,8 +64,7 @@ Public
 		mUseNormalTex = Renderer.ShaderLocation(shader, "useNormalTex")
 		mUseSpecularTex = Renderer.ShaderLocation(shader, "useSpecularTex")
 		mUseLightmap = Renderer.ShaderLocation(shader, "useLightmap")
-		mUseReflectTex = Renderer.ShaderLocation(shader, "useReflectTex")
-		mUseRefractTex = Renderer.ShaderLocation(shader, "useRefractTex")
+		mUseCubemap = Renderer.ShaderLocation(shader, "useCubemap")
 		mUsePixelLighting = Renderer.ShaderLocation(shader, "usePixelLighting")
 		mNumLights = Renderer.ShaderLocation(shader, "numLights")
 		For Local i:Int = 0 Until Renderer.MaxLights()
@@ -93,8 +90,7 @@ Public
 		mNormalTexSampler = Renderer.ShaderLocation(shader, "normalTexSampler")
 		mSpecularTexSampler = Renderer.ShaderLocation(shader, "specularTexSampler")
 		mLightmapSampler = Renderer.ShaderLocation(shader, "lightmapSampler")
-		mReflectCubeSampler = Renderer.ShaderLocation(shader, "reflectCubeSampler")
-		mRefractCubeSampler = Renderer.ShaderLocation(shader, "refractCubeSampler")
+		mCubemapSampler = Renderer.ShaderLocation(shader, "cubemapSampler")
 		mDepthSampler = Renderer.ShaderLocation(shader, "depthSampler")
 	End
 	
@@ -186,15 +182,13 @@ Public
 		If mNormalTexSampler <> -1 Then Renderer.SetShaderInt(mNormalTexSampler, Renderer.NORMALTEX_UNIT)
 		If mSpecularTexSampler <> -1 Then Renderer.SetShaderInt(mSpecularTexSampler, Renderer.SPECULARTEX_UNIT)
 		If mLightmapSampler <> -1 Then Renderer.SetShaderInt(mLightmapSampler, Renderer.LIGHTMAP_UNIT)
-		If mReflectCubeSampler <> -1 Then Renderer.SetShaderInt(mReflectCubeSampler, Renderer.REFLECTTEX_UNIT)
-		If mRefractCubeSampler <> -1 Then Renderer.SetShaderInt(mRefractCubeSampler, Renderer.REFRACTTEX_UNIT)
+		If mCubemapSampler <> -1 Then Renderer.SetShaderInt(mCubemapSampler, Renderer.CUBEMAP_UNIT)
 		If mDepthSampler <> -1 Then Renderer.SetShaderInt(mDepthSampler, Renderer.DEPTHTEX_UNIT)
 		If mBaseTexMode <> -1 Then Renderer.SetShaderInt(mBaseTexMode, state.BaseTexMode)
 		If mUseNormalTex <> -1 Then Renderer.SetShaderInt(mUseNormalTex, state.UseNormalTex)
 		If mUseSpecularTex <> -1 Then Renderer.SetShaderInt(mUseSpecularTex, state.UseSpecularTex)
 		If mUseLightmap <> -1 Then Renderer.SetShaderInt(mUseLightmap, state.UseLightTex)
-		If mUseReflectTex <> -1 Then Renderer.SetShaderInt(mUseReflectTex, state.UseReflectTex)
-		If mUseRefractTex <> -1 Then Renderer.SetShaderInt(mUseRefractTex, state.UseRefractTex)
+		If mUseCubemap <> -1 Then Renderer.SetShaderInt(mUseCubemap, state.UseCubeTex)
 	
 		'Set texture matrix
 		If mTextureMatrix <> -1 Then Renderer.SetShaderMat4(mTextureMatrix, state.TextureMatrix)
