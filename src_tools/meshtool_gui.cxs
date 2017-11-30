@@ -30,20 +30,21 @@ Public
 		mYawRect = New Rect(330, 8, 96, 24)
 		mRollRect = New Rect(430, 8, 96, 24)
 		
-		mMaterialRect = New Rect(0, 8, 108, 748)
+		mMaterialRect = New Rect(0, 8, 108, 852)
 		mSelMatRect = New Rect(4, 4, 100, 24)
 		mDiffuseColorRect = New Rect(4, 32, 100, 24)
 		mDiffuseTexRect = New Rect(4, 60, 100, 100)
 		mNormalTexRect = New Rect(4, 164, 100, 100)
-		mLightmapRect = New Rect(4, 268, 100, 100)
-		mReflectionTexRect = New Rect(4, 372, 100, 100)
-		mRefractionTexRect = New Rect (4, 476, 100, 100)
-		mRefractionCoefRect = New Rect(4, 580, 100, 24)
-		mOpacityRect = New Rect(4, 608, 100, 24)
-		mShininessRect = New Rect(4, 636, 100, 24)
-		mBlendModeRect = New Rect(4, 664, 100, 24)
-		mCullingRect = New Rect(4, 692, 100, 24)
-		mDepthWriteRect = New Rect(4, 720, 100, 24)
+		mSpecularTexRect = New Rect(4, 268, 100, 100)
+		mLightmapRect = New Rect(4, 372, 100, 100)
+		mReflectionTexRect = New Rect(4, 476, 100, 100)
+		mRefractionTexRect = New Rect (4, 580, 100, 100)
+		mRefractionCoefRect = New Rect(4, 684, 100, 24)
+		mOpacityRect = New Rect(4, 712, 100, 24)
+		mShininessRect = New Rect(4, 740, 100, 24)
+		mBlendModeRect = New Rect(4, 768, 100, 24)
+		mCullingRect = New Rect(4, 796, 100, 24)
+		mDepthWriteRect = New Rect(4, 824, 100, 24)
 		
 		mExportAnimations = True
 		mPitchFix = 0
@@ -149,6 +150,15 @@ Public
 					If tex Then currentModel.Material(mSelMat).NormalTexture = tex
 				Else
 					currentModel.Material(mSelMat).NormalTexture = Null
+				End
+			'Specular texture
+			Elseif mSpecularTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
+				Local filename:String = RequestFile("Select specular texture")
+				If filename <> ""
+					Local tex:Texture = Cache.LoadTexture(filename)
+					If tex Then currentModel.Material(mSelMat).SpecularTexture = tex
+				Else
+					currentModel.Material(mSelMat).SpecularTexture = Null
 				End
 			'Lightmap
 			Elseif mLightmapRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
@@ -266,7 +276,7 @@ Public
             currentModel.Mesh.Material(mSelMat).Set(currentModel.Material(mSelMat))
 		End
 		
-		'This events can be responded if there is no loaded mesh
+		'This events can be responded even if there is no loaded mesh
 		If MouseHit(MOUSE_LEFT)
 			'Create cube
 			If mCubeRect.IsPointInside(MouseX(), MouseY())
@@ -305,6 +315,7 @@ Public
 			'DrawPanel(mYawRect, "Yaw: " + mYawFix, mFont)
 			'DrawPanel(mRollRect, "Roll: " + mRollFix, mFont)
 			
+			'Draw loaded mesh info
 			Renderer.SetColor(Color.WHITE)
 			mFont.Draw(8, 34, "Num Surfaces: " + currentModel.Mesh.NumSurfaces)
 			mFont.Draw(8, 50, "Num Bones: " + currentModel.Mesh.NumBones)
@@ -313,9 +324,11 @@ Public
 				mFont.Draw(8, 80, "Anim Time: " + currentModel.AnimTime)
 			End
 			
+			'Draw material panel
 			DrawPanel(mMaterialRect)
 			DrawPanel(mMaterialRect.x + mSelMatRect.x, mMaterialRect.y + mSelMatRect.y, mSelMatRect.width, mSelMatRect.height, "Material #" + mSelMat, mFont)
 			
+			'Draw color panel
 			Local color:Int = currentModel.Material(mSelMat).Color
 			DrawPanel(mMaterialRect.x + mDiffuseColorRect.x, mMaterialRect.y + mDiffuseColorRect.y, mDiffuseColorRect.width, mDiffuseColorRect.height, "Color", mFont, Color.RGB(Color.Red(color), Color.Green(color), Color.Blue(color), 255))
 			
@@ -333,6 +346,14 @@ Public
 				currentModel.Material(mSelMat).NormalTexture.Draw(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
+			End
+			
+			'Specular
+			If currentModel.Material(mSelMat).SpecularTexture
+				Renderer.SetColor(Color.WHITE)
+				currentModel.Material(mSelMat).SpecularTexture.Draw(mMaterialRect.x + mSpecularTexRect.x, mMaterialRect.y + mSpecularTexRect.y, mSpecularTexRect.width, mSpecularTexRect.height)
+			Else
+				DrawPanel(mMaterialRect.x + mSpecularTexRect.x, mMaterialRect.y + mSpecularTexRect.y, mNormalTexRect.width, mSpecularTexRect.height)
 			End
 			
 			'Lightmap
@@ -359,9 +380,11 @@ Public
 				DrawPanel(mMaterialRect.x + mRefractionTexRect.x, mMaterialRect.y + mRefractionTexRect.y, mRefractionTexRect.width, mRefractionTexRect.height)
 			End
 			
+			'Draw texts
 			Renderer.SetColor(Color.WHITE)
 			mFont.Draw(mMaterialRect.x + mDiffuseTexRect.x + 2, mMaterialRect.y + mDiffuseTexRect.y, "Color")
 			mFont.Draw(mMaterialRect.x + mNormalTexRect.x + 2, mMaterialRect.y + mNormalTexRect.y, "Normal")
+			mFont.Draw(mMaterialRect.x + mSpecularTexRect.x + 2, mMaterialRect.y + mSpecularTexRect.y, "Specular")
 			mFont.Draw(mMaterialRect.x + mLightmapRect.x + 2, mMaterialRect.y + mLightmapRect.y, "Light")
 			mFont.Draw(mMaterialRect.x + mReflectionTexRect.x + 2, mMaterialRect.y + mReflectionTexRect.y, "Reflection")
 			mFont.Draw(mMaterialRect.x + mRefractionTexRect.x + 2, mMaterialRect.y + mRefractionTexRect.y, "Refraction")
@@ -414,6 +437,7 @@ Private
 	Field mDiffuseColorRect		: Rect
 	Field mDiffuseTexRect		: Rect
 	Field mNormalTexRect		: Rect
+	Field mSpecularTexRect		: Rect
 	Field mLightmapRect			: Rect
 	Field mReflectionTexRect	: Rect
 	Field mRefractionTexRect	: Rect

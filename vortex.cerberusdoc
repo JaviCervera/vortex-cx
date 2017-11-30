@@ -641,6 +641,12 @@ Sets the normal texture of the material.
 # Method NormalTexture:Texture() Property
 Returns the normal texture of the material, or `Null` if there is no normal texture.
 
+# Method SpecularTexture:Void(tex:Texture) Property
+Sets the specular texture of the material, which is expected to be a grayscale image. When there is a specular texture set, the `Shininess` property of the material is multiplied with the values on this texture to provide a variable shininess across the surface of the object. When you set a specular texture, the `Shininess` property is expected to be greater than zero.
+
+# Method SpecularTexture:Texture() Property
+Returns the specular texture of the material, or `Null` if there is no specular texture.
+
 # Method LightTexture:Void(tex:Texture) Property
 Sets the light texture of the material.
 

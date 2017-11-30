@@ -315,6 +315,7 @@ Function MaterialSize:Int(mat:Material)
 	If mat.LightTexture Then size += 4 + StripDir(mat.LightTexture.Filename).Length
 	If mat.ReflectionTexture Then size += 4 + StripDir(mat.ReflectionTexture.Filename).Length
 	If mat.RefractionTexture Then size += 4 + StripDir(mat.RefractionTexture.Filename).Length
+	If mat.SpecularTexture Then size += 4 + StripDir(mat.SpecularTexture.Filename).Length
 	
 	Return size
 End
@@ -433,6 +434,7 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	If mat.LightTexture Then usedTexs |= 8
 	If mat.ReflectionTexture Then usedTexs |= 16
 	If mat.RefractionTexture Then usedTexs |= 32
+	If mat.SpecularTexture Then usedTexs |= 64
 	stream.WriteByte(usedTexs)
 	
 	'Texture names
@@ -442,6 +444,7 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	If mat.LightTexture Then filename = StripDir(mat.LightTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.ReflectionTexture Then filename = StripDir(mat.ReflectionTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.RefractionTexture Then filename = StripDir(mat.RefractionTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.SpecularTexture Then filename = StripDir(mat.SpecularTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 End
 
 Function WriteSurfaceData:Void(stream:DataStream, surf:Surface, includeBones:Bool)

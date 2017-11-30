@@ -654,6 +654,12 @@ Public
 				Next
 				mat.RefractionTexture = Cache.LoadTexture(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
 			End
+			If usedTexs & 64
+				Local strLen:Int = stream.ReadInt()
+				Local str:String = stream.ReadString(strLen)
+				If str <> "" Then str = meshPath + str
+				mat.SpecularTexture = Cache.LoadTexture(str, texFilter)
+			End
 			
 			'Surface
 			Local surf:Surface = New Surface
