@@ -10,6 +10,7 @@ Import math3d
 Import mojo.app
 Import mojo.graphics
 Import opengl.gles20
+Import renderstate
 Import shader
 
 '#If TARGET="html5"
@@ -19,48 +20,6 @@ Const GLSL_VERSION : String = ""
 '#EndIf
 
 Public
-
-Class RendererState Final
-	Field ProjectionMatrix	: Float[16]
-	Field ViewMatrix				: Float[16]
-	Field ModelMatrix				: Float[16]
-	Field DepthBiasMatrix		: Float[16]
-	Field TextureMatrix			: Float[16]
-	Field BoneMatrices			: Float[][16]
-	Field Skinned						: Bool
-	Field BlendMode					: Int
-	Field Color							: Int
-	Field Ambient						: Int
-	Field Shininess					: Float
-	Field FogEnabled				: Bool
-	Field FogColor					: Int
-	Field FogMinDistance		: Float
-	Field FogMaxDistance		: Float
-	Field ShadowsEnabled		: Bool
-	Field DepthEpsilon			: Float
-	Field RefractCoef				: Float
-	Field PixelLighting			: Bool
-	Field NumLights					: Int
-	Field LightPos					: Float[][4]
-	Field LightColor				: Int[]
-	Field LightRadius				: Float[]
-	Field BaseTexMode				: Int
-	Field UseNormalTex			: Bool
-	Field UseSpecularTex    : Bool
-	Field UseLightTex				: Bool
-	Field UseCubeTex				: Bool
-	Field SeparateDepthPass	: Bool
-	
-	Method New(maxLights:Int)
-		LightPos = New Float[maxLights][]
-		For Local i:Int = 0 Until maxLights
-			LightPos[i] = [0.0, 0, 0, 0]
-		Next
-		LightColor = New Int[maxLights]
-		LightRadius = New Float[maxLights]
-		Color = color.Color.WHITE
-	End
-End
 
 Class Renderer Final
 Public
@@ -99,16 +58,16 @@ Public
 
 	Function Init:Bool(numLights:Int, numBones:Int)
 		'Create renderer state
-		mState = New RendererState(numLights)
+		mState = New RenderState(numLights)
 	
 		'Set the max number of lights and bones supported
 		mMaxLights = numLights
 		mMaxBones = numBones
 
 		'Make sure that default shaders are correct
-		If Shader.Default2D().Handle = 0 Then Return False
-		If Shader.Default3D().Handle = 0 Then Return False
-		If Shader.DefaultShadow().Handle = 0 Then Return False
+		If Shader._Default2D().Handle = 0 Then Return False
+		If Shader._Default3D().Handle = 0 Then Return False
+		If Shader._DefaultShadow().Handle = 0 Then Return False
 		
 		'Delete old buffers if they exist
 		If mEllipseBuffer <> 0 Then FreeBuffer(mEllipseBuffer)
@@ -168,7 +127,7 @@ Public
 		Return True
 	End
 	
-	Function State:RendererState()
+	Function State:RenderState()
 		Return mState
 	End
 
@@ -200,7 +159,7 @@ Public
 		Mat4Identity(mState.TextureMatrix)
 		
 		'Bind 2D shader
-		Shader.Default2D().Prepare()
+		Shader._CurrentDefault(Shader._Default2D())
 	End
 
 	Function Setup3D:Void(x:Int, y:Int, w:Int, h:Int)
@@ -234,7 +193,7 @@ Public
 		mState.ShadowsEnabled = False
 		
 		'Bind 3D shader
-		Shader.Default3D().Prepare()
+		Shader._CurrentDefault(Shader._Default3D())
 	End
 	
 	Function SetupMojo:Void()
@@ -306,7 +265,7 @@ Public
 	Function DrawPoint:Void(x:Float, y:Float)
 #If TARGET<>"html5"
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, 1, 1, 1, mState.ModelMatrix)
-		Shader._Bound().Prepare()
+		Shader._CurrentDefault()._Prepare()
 		DrawBuffers(mLineBuffer, 0, 1, 0, -1, -1, -1, -1, -1, -1, 0, MODE_POINTS)
 #Else
 		'Drawing points do not seem to work on HTML5, so emulate it with a line instead
@@ -316,19 +275,19 @@ Public
 
 	Function DrawLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)
 		Mat4TransformEuler(x1, y1, 0, 0, 0, 0, x2-x1, y2-y1, 1, mState.ModelMatrix)
-		Shader._Bound().Prepare()
+		Shader._CurrentDefault()._Prepare()
 		DrawBuffers(mLineBuffer, 0, 2, 0, -1, -1, -1, -1, -1, -1, 0, MODE_LINES)
 	End
 	
 	Function DrawEllipse:Void(x:Float, y:Float, width:Float, height:Float)
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, mState.ModelMatrix)
-		Shader._Bound().Prepare()
+		Shader._CurrentDefault()._Prepare()
 		DrawBuffers(mEllipseBuffer, 0, ELLIPSEPOINTS, 0, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
 
 	Function DrawRect:Void(x:Float, y:Float, width:Float, height:Float)
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, mState.ModelMatrix)
-		Shader._Bound().Prepare()
+		Shader._CurrentDefault()._Prepare()
 		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
 	
@@ -343,7 +302,7 @@ Public
 		mTexDataBuffer.PokeFloat(52, v1)
 		SetVertexBufferData(mRectBuffer, 48, mTexDataBuffer.Length(), mTexDataBuffer)
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, mState.ModelMatrix)
-		Shader._Bound().Prepare()
+		Shader._CurrentDefault()._Prepare()
 		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, 48, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
 
@@ -609,7 +568,7 @@ Public
 		'Bind buffers and enable vertex vars
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer)
-		Shader._Bound().EnableVertexVars(coordsOffset, normalsOffset, tangentsOffset, colorsOffset, texCoordsOffset, boneIndicesOffset, boneWeightsOffset, stride)
+		Shader._CurrentDefault()._EnableVertexVars(coordsOffset, normalsOffset, tangentsOffset, colorsOffset, texCoordsOffset, boneIndicesOffset, boneWeightsOffset, stride)
 
 		'Draw
 		If indexBuffer <> 0
@@ -619,7 +578,7 @@ Public
 		End
 		
 		'Disable vertex vars
-		Shader._Bound().DisableVertexVars()
+		Shader._CurrentDefault()._DisableVertexVars()
 		
 		'Bind previously bound buffers (in case they are the Mojo2 ones)
 		glBindBuffer(GL_ARRAY_BUFFER, prevVertexBuffer)
@@ -701,33 +660,27 @@ Public
 	End
 	
 	Function SetShaderInt:Void(loc:Int, x:Int)
-		If loc = -1 Then Return
-		glUniform1i(loc, x)
+		If loc <> -1 Then glUniform1i(loc, x)
 	End
 	
 	Function SetShaderFloat:Void(loc:Int, x:Float)
-		If loc = -1 Then Return
-		glUniform1f(loc, x)
+		If loc <> -1 Then glUniform1f(loc, x)
 	End
 	
 	Function SetShaderVec2:Void(loc:Int, x:Float, y:Float)
-		If loc = -1 Then Return
-		glUniform2f(loc, x, y)
+		If loc <> -1 Then glUniform2f(loc, x, y)
 	End
 	
 	Function SetShaderVec3:Void(loc:Int, x:Float, y:Float, z:Float)
-		If loc = -1 Then Return
-		glUniform3f(loc, x, y, z)
+		If loc <> -1 Then glUniform3f(loc, x, y, z)
 	End
 	
 	Function SetShaderVec4:Void(loc:Int, x:Float, y:Float, z:Float, w:Float)
-		If loc = -1 Then Return
-		glUniform4f(loc, x, y, z, w)
+		If loc <> -1 Then glUniform4f(loc, x, y, z, w)
 	End
 	
 	Function SetShaderMat4:Void(loc:Int, m:Float[])
-		If loc = -1 Then Return
-		glUniformMatrix4fv(loc, 1, False, m)
+		If loc <> -1 Then glUniformMatrix4fv(loc, 1, False, m)
 	End
 
 	Function ShaderError:String()
@@ -848,7 +801,7 @@ Private
 	Global mVersion:Float
 	Global mShadingVersion:Float
 
-	Global mState:RendererState
+	Global mState:RenderState
 	Global mEllipseBuffer:Int
 	Global mLineBuffer:Int
 	Global mRectBuffer:Int

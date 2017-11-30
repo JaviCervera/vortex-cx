@@ -623,6 +623,12 @@ Returns whether the material has the same propierties as the one passed as param
 # Method Set:Void(other:Material)
 Sets the properties of the material to be those of the one passed as parameter.
 
+# Method Shader:Void(shader:Shader) Property
+Sets the shader that this material uses. If you want to use the default builtin shader, set it to `Null`.
+
+# Method Shader:Shader() Property
+Returns the shader that this material uses, or `Null` if the material uses the default builtin shader.
+
 # Method Color:Void(color:Int) Property
 Sets the color of the material.
 
@@ -699,6 +705,12 @@ It takes one of the following values:
 # Method BlendMode:Int() Property
 Returns the blend mode of the material.
 
+# Method Lighting:Void(enable:Bool) Property
+Enables or disables lighting for this material. It is enabled by default. This only has effect if the world's sun light is activated (not black), or there are light sources present.
+
+# Method Lighting:Bool() Property
+Returns whether lighting is calculated for this material.
+
 # Method Culling:Void(enable:Bool) Property
 Enables or disables backface culling. When it is enabled, internal faces of the geometry using this material will not be rendered. It is enabled by default.
 
@@ -716,6 +728,12 @@ Enables or disables shadow casting. It is enabled by default. Only used if blend
 
 # Method CastShadows:Bool() Property
 Returns whether shadow casting is enabled.
+
+# Method ReceiveShadows:Void(enable:Bool) Property
+Ensables or disables shadows on this material. It is enabled by default.
+	
+# Method ReceiveShadows:Bool() Property
+Returns whether this material receives shadows.
 
 
 
@@ -903,6 +921,28 @@ Draw a filled ellipse at the specified coordinates, with the given width and hei
 
 
 
+# Class Shader
+
+A shader is a program that runs on the GPU to perform the drawing of all elements on the screen. Every material has a shader assigned.
+Vortex comes with default shaders for 2D & 3D drawing, but you can create your own shaders.
+
+A shader is created from two strings: one to define vertex transformation and another to perform fragment coloring. Shaders are written using GLSL ES 1.00. Every shader that you create automaticaly includes the following before your own code:
+
+<pre>
+#version 100
+#ifdef GL_ES
+precision mediump int;
+precision mediump float;
+#endif
+#define MAX_LIGHTS <Max number of lights defined in World.Init>
+#define MAX_BONES <Max number of bones defined in World.Init>
+</pre>
+
+Documentation of this class will come soon!
+
+
+
+
 # Class Sprite Extends Entity
 
 A sprite is a 2D object in a 3D world. It has width and height, but no depth. It can be oriented automatically so that it always faces the camera.
@@ -971,7 +1011,7 @@ Forces the sprite to show the specified animation frame. This can be used to ani
 This class stores some statistics like the elapsed time since the last update and the screen FPS.
 
 # Function DeltaTime:Float()
-Returns the elapsed time since the last update.
+Returns the elapsed time in seconds since the last update.
 
 # Function FPS:Int()
 Returns the current screen FPS.

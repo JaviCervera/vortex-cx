@@ -1,11 +1,12 @@
-'TODO v2.0-beta2:
-'- Add Shader property to Material
+'TODO v2.0-beta3
 '- Add Material._RendersStep (should improve sprite rendering?)
-'- Add Stats test
-'- Add picking test
 '- Add Texture.SetPixels method
+'- Check if shadows work correctly on skinned meshes
+'- Add alpha support to shadows
+'- Add stats test
+'- Add shader test
+'- Add picking test
 '- Add fixes for Android
-'- Hide Cache class. Load methods should have a boolean indicating whether you want to cache the object
 'TODO v2.0:
 '- Add support for filters param in RequestFile (dialog module)
 '- Allow font textures to have different width and height (this should save texture space)

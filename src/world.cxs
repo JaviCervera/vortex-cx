@@ -90,7 +90,7 @@ Class World Final
 				
 				'Setup renderer
 				Renderer.Setup3D(0, 0, mFramebuffer.ColorTexture.Width, mFramebuffer.ColorTexture.Height)
-				Shader.DefaultShadow().Prepare()
+				Shader._CurrentDefault(Shader._DefaultShadow())
 				Mat4Copy(mDepthProj, Renderer.State().ProjectionMatrix)
 				Mat4Copy(mDepthView, Renderer.State().ViewMatrix)
 				Renderer.ClearColorBuffer(Color.WHITE)
@@ -111,7 +111,7 @@ Class World Final
 			'Previous depth pass
 			Renderer.State().SeparateDepthPass = mSeparateDepthPass
 			If mSeparateDepthPass
-				Shader.DefaultShadow().Prepare()
+				Shader._CurrentDefault(Shader._DefaultShadow())
 				Renderer.SetDepthWrite(True)
 				
 				'Render entities to capture depth
@@ -119,7 +119,7 @@ Class World Final
 					numRenderCalls += e._Render(Material.STEP_SOLID)
 				Next
 				
-				Shader.Default3D().Prepare()
+				Shader._CurrentDefault(Shader._Default3D())
 			End
 			
 			'Set fog and number of lights

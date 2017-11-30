@@ -1,0 +1,48 @@
+Strict
+
+Private
+Import color
+
+Public
+
+Class RenderState Final
+	Field ProjectionMatrix	: Float[16]
+	Field ViewMatrix				: Float[16]
+	Field ModelMatrix				: Float[16]
+	Field DepthBiasMatrix		: Float[16]
+	Field TextureMatrix			: Float[16]
+	Field BoneMatrices			: Float[][16]
+	Field Skinned						: Bool
+	Field BlendMode					: Int
+	Field Color							: Int
+	Field Ambient						: Int
+	Field Shininess					: Float
+	Field FogEnabled				: Bool
+	Field FogColor					: Int
+	Field FogMinDistance		: Float
+	Field FogMaxDistance		: Float
+	Field ShadowsEnabled		: Bool
+	Field DepthEpsilon			: Float
+	Field RefractCoef				: Float
+	Field PixelLighting			: Bool
+	Field NumLights					: Int
+	Field LightPos					: Float[][4]
+	Field LightColor				: Int[]
+	Field LightRadius				: Float[]
+	Field BaseTexMode				: Int
+	Field UseNormalTex			: Bool
+	Field UseSpecularTex    : Bool
+	Field UseLightTex				: Bool
+	Field UseCubeTex				: Bool
+	Field SeparateDepthPass	: Bool
+	
+	Method New(maxLights:Int)
+		LightPos = New Float[maxLights][]
+		For Local i:Int = 0 Until maxLights
+			LightPos[i] = [0.0, 0.0, 0.0, 0.0]
+		Next
+		LightColor = New Int[maxLights]
+		LightRadius = New Float[maxLights]
+		Color = color.Color.WHITE
+	End
+End

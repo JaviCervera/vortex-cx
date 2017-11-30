@@ -12,7 +12,8 @@ Public
 
 Class Material Final
 Public
-	Method New(colorTex:Texture = Null)
+	Method New(colorTex:Texture = Null, shader:Shader = Null)
+		mShader = shader
 		mColor = color.Color.WHITE
 		mColorTex = colorTex
 		mShininess = 0
@@ -40,7 +41,7 @@ Public
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mSpecularTex = other.mSpecularTex And mLightTex = other.mLightTex And mCubeTex = other.mCubeTex And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mLighting = other.mLighting And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows And mReceiveShadows = other.mReceiveShadows
+		If mShader = other.mShader And mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mSpecularTex = other.mSpecularTex And mLightTex = other.mLightTex And mCubeTex = other.mCubeTex And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mLighting = other.mLighting And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows And mReceiveShadows = other.mReceiveShadows
 			Return True
 		Else
 			Return False
@@ -49,6 +50,7 @@ Public
 
 	Method Set:Void(other:Material)
 		If Self.IsEqual(other) Then Return
+		mShader = other.mShader
 		mColor = other.mColor
 		mColorTex = other.mColorTex
 		mNormalTex = other.mNormalTex
@@ -64,6 +66,14 @@ Public
 		mCastShadows = other.mCastShadows
 		mReceiveShadows = other.mReceiveShadows
 		Mat4Copy(other.mTextureMatrix, mTextureMatrix)
+	End
+	
+	Method Shader:Void(shader:Shader) Property
+		mShader = shader
+	End
+	
+	Method Shader:Shader() Property
+		Return mShader
 	End
 	
 	Method Color:Void(color:Int) Property
@@ -229,7 +239,11 @@ Public
 		If Not ReceiveShadows Then Renderer.State().ShadowsEnabled = False
 		
 		'Prepare bound shader
-		Shader._Bound().Prepare()
+		If mShader <> Null
+			mShader._Prepare()
+		Else
+			Shader._CurrentDefault()._Prepare()
+		End
 		
 		'Restore state settings
 		Renderer.State().NumLights = prevNumLights
@@ -245,6 +259,7 @@ Public
 	Const STEP_NODEPTHWRITE:Int = 3		'All entitites with no depth writing
 	Const STEP_COUNT:Int = 4
 Private
+	Field mShader				: Shader
 	Field mColor					: Int
 	Field mColorTex				: Texture
 	Field mNormalTex			: Texture
