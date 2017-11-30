@@ -19,6 +19,7 @@
 '- Document tools
 '- Consider switching to Zlib or another license?
 'TODO v2.1:
+'- Sort lights before rendering each model
 '- Add particles
 '- Add spot lights
 '- Add multiple shadows

@@ -1,5 +1,15 @@
 V2.0-beta2
-*** ADD CHANGES HERE ***
+- Shadow tex size can now be changed at runtime
+- Sun distance can be specified for shadow calculation
+- Added Shader class
+- Added previous depth pass to avoid computing redundant fragments
+- Added different draw modes to surfaces (points, lines, triangles, triangle strip, triangle fan)
+- Math3D library has been completely rewritten
+- Renamed Material.BaseTexture to Material.ColorTexture
+- Added Material.SpecularTexture
+- Does not parse GL version on init anymore to prevent crash on some old Android versions
+- The script convert2monkey now also converts demos (I forgot that!)
+- Several bug fixes
 
 V2.0-beta
 Completely new object-oriented API, tons of changes and new features.

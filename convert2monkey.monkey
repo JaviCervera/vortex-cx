@@ -27,6 +27,9 @@ Function Main:Int()
 	'Convert tests dir
 	ConvertDir("tests")
 	
+	'Convert demos dir
+	ConvertDir("demos")
+	
 	Return 0
 End
 
