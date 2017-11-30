@@ -2,7 +2,8 @@ Strict
 
 Const SHADER_VAR_PRECISION:String = "" +
 "#ifdef GL_ES~n" +
-"precision highp int;~n" +
+'"precision highp int;~n" +
+"precision mediump int;~n" +
 "precision mediump float;~n" +
 "#endif~n"
 
@@ -11,9 +12,7 @@ Const STD_VARYING_VARS:String = "" +
 "varying vec3 fposNorm;" +
 "varying vec3 fnormal;" +
 "varying vec4 fcolor;" +
-'Conbine these 2 into a vec4
-"varying vec2 ftex;" +
-"varying vec2 ftex2;" +
+"varying vec4 ftex;" +
 "varying vec3 fcombinedDiffuse;" +
 "varying vec3 fcombinedSpecular;" +
 "varying float fogFactor;" +
@@ -28,11 +27,7 @@ Const STD_VERTEX_VARS:String = "" +
 "uniform mat4 textureMatrix;" +
 "uniform mat4 invView;" +
 "uniform mat4 depthBias;" +
-"uniform int baseTexMode;" +
-"uniform bool useNormalTex;" +
-"uniform bool useSpecularTex;" +
-"uniform bool useCubemap;" +
-"uniform bool usePixelLighting;" +
+'"uniform int flags;" +
 "uniform int numLights;" +
 "uniform vec4 lightPos[MAX_LIGHTS];" + 'In viewer space !!!
 "uniform vec3 lightColor[MAX_LIGHTS];" +
@@ -41,27 +36,27 @@ Const STD_VERTEX_VARS:String = "" +
 "uniform vec3 ambient;" +
 "uniform float shininess;" +
 "uniform float refractCoef;" +
-"uniform bool fogEnabled;" +
 "uniform vec2 fogDist;" +
-"uniform bool skinned;" +
 "uniform mat4 bones[MAX_BONES];" +
+'These uniforms should be compacted into a flags int
+"uniform int baseTexMode;" +
+"uniform bool useNormalTex;" +
+"uniform bool useSpecularTex;" +
+"uniform bool useCubemap;" +
+"uniform bool usePixelLighting;" +
+"uniform bool fogEnabled;" +
+"uniform bool skinned;" +
 "attribute vec3 vpos;" +
 "attribute vec3 vnormal;" +
 "attribute vec3 vtangent;" +
 "attribute vec4 vcolor;" +
-"attribute vec2 vtex;" +
-"attribute vec2 vtex2;" +
+"attribute vec4 vtex;" +
 "attribute vec4 vboneIndices;" +
 "attribute vec4 vboneWeights;" +
 STD_VARYING_VARS
 
 Const STD_FRAGMENT_VARS:String = "" +
-"uniform bool solidMode;" +
-"uniform int baseTexMode;" +
-"uniform bool useNormalTex;" +
-"uniform bool useSpecularTex;" +
-"uniform bool useLightmap;" +
-"uniform bool useCubemap;" +
+'"uniform int flags;" +
 "uniform sampler2D baseTexSampler;" +
 "uniform samplerCube baseCubeSampler;" +
 "uniform sampler2D normalTexSampler;" +
@@ -69,17 +64,24 @@ Const STD_FRAGMENT_VARS:String = "" +
 "uniform sampler2D lightmapSampler;" +
 "uniform samplerCube cubemapSampler;" +
 "uniform sampler2D depthSampler;" +
-"uniform bool usePixelLighting;" +
 "uniform int numLights;" +
 "uniform vec4 lightPos[MAX_LIGHTS];" +	'In viewer space !!!
 "uniform vec3 lightColor[MAX_LIGHTS];" +
 "uniform float lightRadius[MAX_LIGHTS];" +
 "uniform vec3 ambient;" +
 "uniform float shininess;" +
-"uniform bool fogEnabled;" +
 "uniform vec3 fogColor;" +
-"uniform bool shadowsEnabled;" +
 "uniform float depthEpsilon;" +
+'These uniforms should be compacted into a flags int
+"uniform bool solidMode;" +
+"uniform int baseTexMode;" +
+"uniform bool useNormalTex;" +
+"uniform bool useSpecularTex;" +
+"uniform bool useLightmap;" +
+"uniform bool useCubemap;" +
+"uniform bool usePixelLighting;" +
+"uniform bool fogEnabled;" +
+"uniform bool shadowsEnabled;" +
 STD_VARYING_VARS
 
 Const SHADER_CALC_LIGHTING:String = "" +
@@ -145,8 +147,8 @@ Const STD_VERTEX_SHADER:String = SHADER_VAR_PRECISION + STD_VERTEX_VARS + SHADER
 "	fcolor = baseColor * vcolor;" +
 
 	'Fragment texture coords
-"	ftex = vec2(textureMatrix * vec4(vtex, 0, 1));" +
-"	ftex2 = vtex2;" +
+"	vec2 tex0 = vec2(textureMatrix * vec4(vec2(vtex), 0, 1));" +
+"	ftex = vec4(tex0.x, tex0.y, vtex.z, vtex.w);" +
 
 	'Calculate vectors used in lighting and env mapping
 "	vec3 V;" +
@@ -204,7 +206,7 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 
 	'Then, we read the base texture to discard the fragment immediately if it is transparent
 "	vec4 baseTexture = vec4(1, 1, 1, 1);" +
-"	if ( baseTexMode == 1 ) baseTexture = texture2D(baseTexSampler, ftex);" +
+"	if ( baseTexMode == 1 ) baseTexture = texture2D(baseTexSampler, vec2(ftex));" +
 "	else if ( baseTexMode == 2 ) baseTexture = textureCube(baseCubeSampler, fcubeCoords);" +
 
 	'Reject fragment with low alpha
@@ -221,7 +223,7 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 '"	if ( fdepthCoords.z < 0.0 || fdepthCoords.z > 1.0 ) { gl_FragColor = vec4(1, 1, 0, 1); return; }" +
 
   'Calculate texture specular
-" vec3 texSpecular = useSpecularTex ? vec3(texture2D(specularTexSampler, ftex)) : vec3(1, 1, 1);" +
+" vec3 texSpecular = useSpecularTex ? vec3(texture2D(specularTexSampler, vec2(ftex))) : vec3(1, 1, 1);" +
 
 	'Lighting
 "	if ( numLights > 0 ) {" +
@@ -232,7 +234,7 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 				'Get fragment normal or compute from normal map
 "				vec3 normal = fnormal;" +
 "				if ( useNormalTex ) {" +
-"					vec3 normalTexColor = vec3(texture2D(normalTexSampler, ftex));" +
+"					vec3 normalTexColor = vec3(texture2D(normalTexSampler, vec2(ftex)));" +
 "					normal = tbnMatrix * (normalTexColor*2.0 - 1.0);" +
 "				}" +
 
@@ -252,8 +254,8 @@ Const STD_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION + STD_FRAGMENT_VARS + SH
 
 	'Lightmap
 "	if ( useLightmap ) {" +
-"		if ( numLights > 0 ) combinedColor += vec4(vec3(texture2D(lightmapSampler, ftex2)), 0.0);" +
-"		else combinedColor = texture2D(lightmapSampler, ftex2);" +
+"		if ( numLights > 0 ) combinedColor += vec4(vec3(texture2D(lightmapSampler, vec2(ftex.z, ftex.w))), 0.0);" +
+"		else combinedColor = texture2D(lightmapSampler, vec2(ftex.z, ftex.w));" +
 "	}" +
 
 	'Base color
@@ -297,11 +299,11 @@ Const _2D_VERTEX_SHADER:String = SHADER_VAR_PRECISION +
 "uniform mat4 mvp;" +
 "uniform mat4 textureMatrix;" +
 "attribute vec3 vpos;" +
-"attribute vec2 vtex;" +
+"attribute vec4 vtex;" +
 "varying vec2 ftex;" +
 "void main() {" +
 "	gl_Position = mvp * vec4(vpos, 1.0);" +
-"	ftex = vec2(textureMatrix * vec4(vtex, 0, 1));" +
+"	ftex = vec2(textureMatrix * vec4(vec2(vtex), 0, 1));" +
 "}"
 
 Const _2D_FRAGMENT_SHADER:String = SHADER_VAR_PRECISION +

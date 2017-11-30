@@ -173,10 +173,10 @@ Public
 
 	Method _PrepareForRender:Bool(step_:Int)
 		'Abort if this material does not render in this step
-		If step_ = Renderer.STEP_SHADOWS And (mBlendMode <> Renderer.BLEND_SOLID Or Not CastShadows) Then Return False
-		If step_ = Renderer.STEP_SOLID And (mBlendMode <> Renderer.BLEND_SOLID Or Not mDepthWrite) Then Return False
-		If step_ = Renderer.STEP_DEPTHWRITE And (mBlendMode = Renderer.BLEND_SOLID Or Not mDepthWrite) Then Return False
-		If step_ = Renderer.STEP_NODEPTHWRITE And mDepthWrite Then Return False
+		If step_ = STEP_SHADOWS And (mBlendMode <> Renderer.BLEND_SOLID Or Not CastShadows) Then Return False
+		If step_ = STEP_SOLID And (mBlendMode <> Renderer.BLEND_SOLID Or Not mDepthWrite) Then Return False
+		If step_ = STEP_DEPTHWRITE And (mBlendMode = Renderer.BLEND_SOLID Or Not mDepthWrite) Then Return False
+		If step_ = STEP_NODEPTHWRITE And mDepthWrite Then Return False
 	
 		Local colorHandle:Int = 0
 		Local normalHandle:Int = 0
@@ -189,7 +189,7 @@ Public
 		Renderer.State().RefractCoef = mRefractCoef
 		Renderer.SetBlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)
-		If Not Renderer.State().SeparateDepthPass Or step_ <> Renderer.STEP_SOLID Then Renderer.SetDepthWrite(mDepthWrite)
+		If Not Renderer.State().SeparateDepthPass Or step_ <> STEP_SOLID Then Renderer.SetDepthWrite(mDepthWrite)
 		Mat4Copy(mTextureMatrix, Renderer.State().TextureMatrix)
 		If mColorTex <> Null Then colorHandle = mColorTex.Handle
 		If mNormalTex <> Null Then normalHandle = mNormalTex.Handle
@@ -203,6 +203,13 @@ Public
 		
 		Return True
 	End
+	
+	'Used internally by the engine
+	Const STEP_SHADOWS:Int = 0				'Shadow step
+	Const STEP_SOLID:Int = 1					'Solid blend with depth writing
+	Const STEP_DEPTHWRITE:Int = 2			'Other blends with depth writing
+	Const STEP_NODEPTHWRITE:Int = 3		'All entitites with no depth writing
+	Const STEP_COUNT:Int = 4
 Private
 	Field mColor					: Int
 	Field mColorTex				: Texture

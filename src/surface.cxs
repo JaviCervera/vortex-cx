@@ -209,11 +209,11 @@ Public
 
 	Method SetVertexTexCoords:Void(index:Int, u:Float, v:Float, set:Int = 0)
 		If set = 0
-			mVertices.PokeFloat(index * VERTEX_SIZE + TEX0_OFFSET, u)
-			mVertices.PokeFloat(index * VERTEX_SIZE + TEX0_OFFSET + 4, v)
+			mVertices.PokeFloat(index * VERTEX_SIZE + TEX_OFFSET, u)
+			mVertices.PokeFloat(index * VERTEX_SIZE + TEX_OFFSET + 4, v)
 		Else
-			mVertices.PokeFloat(index * VERTEX_SIZE + TEX1_OFFSET, u)
-			mVertices.PokeFloat(index * VERTEX_SIZE + TEX1_OFFSET + 4, v)
+			mVertices.PokeFloat(index * VERTEX_SIZE + TEX_OFFSET + 8, u)
+			mVertices.PokeFloat(index * VERTEX_SIZE + TEX_OFFSET + 12, v)
 
 		End
 		mStatus |= STATUS_V_DIRTY
@@ -272,17 +272,17 @@ Public
 
 	Method VertexU:Float(index:Int, set:Int = 0)
 		If set = 0
-			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX0_OFFSET)
+			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET)
 		Else
-			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX1_OFFSET)
+			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET + 8)
 		End
 	End
 
 	Method VertexV:Float(index:Int, set:Int = 0)
 		If set = 0
-			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX0_OFFSET + 4)
+			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET + 4)
 		Else
-			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX1_OFFSET + 4)
+			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET + 12)
 		End
 	End
 	
@@ -349,15 +349,14 @@ Public
 	End
 	
 	Method _Render:Void()
-		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, TANGENT_OFFSET, COLOR_OFFSET, TEX0_OFFSET, TEX1_OFFSET, BONEINDICES_OFFSET, BONEWEIGHTS_OFFSET, VERTEX_SIZE, mMode)
+		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, TANGENT_OFFSET, COLOR_OFFSET, TEX_OFFSET, BONEINDICES_OFFSET, BONEWEIGHTS_OFFSET, VERTEX_SIZE, mMode)
 	End
 Private
 	Const POS_OFFSET:Int = 0			'12 bytes
 	Const NORMAL_OFFSET:Int = 12		'12 bytes
 	Const TANGENT_OFFSET:Int = 24		'12 bytes
 	Const COLOR_OFFSET:Int = 36			'16 bytes
-	Const TEX0_OFFSET:Int = 52			'8 bytes
-	Const TEX1_OFFSET:Int = 60			'8 bytes
+	Const TEX_OFFSET:Int = 52			'16 bytes
 	Const BONEINDICES_OFFSET:Int = 68	'16 bytes
 	Const BONEWEIGHTS_OFFSET:Int = 84	'16 bytes
 	Const VERTEX_SIZE:Int = 100

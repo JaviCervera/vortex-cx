@@ -9,6 +9,7 @@ V2.0-beta2
 - Added Material.SpecularTexture
 - Added Material.CubeTexture and removed Reflection and Refraction textures (now a material can only have one cubemap)
 - Does not parse GL version on init anymore to prevent crash on some old Android versions
+- Reduced the number of shader uniform and varying vars needed
 - The script convert2monkey now also converts demos (I forgot that!)
 - Several bug fixes
 

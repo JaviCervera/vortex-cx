@@ -64,12 +64,6 @@ End
 
 Class Renderer Final
 Public
-	Const STEP_SHADOWS:Int = 0				'Shadow step
-	Const STEP_SOLID:Int = 1					'Solid blend with depth writing
-	Const STEP_DEPTHWRITE:Int = 2			'Other blends with depth writing
-	Const STEP_NODEPTHWRITE:Int = 3		'All entitites with no depth writing
-	Const STEP_COUNT:Int = 4
-
 	Const BLEND_SOLID:Int = 0
 	Const BLEND_ALPHA:Int = 1
 	Const BLEND_ADD:Int = 2
@@ -148,7 +142,7 @@ Public
 		dataBuffer.Discard()
 		
 		'Create rect buffer
-		dataBuffer = New DataBuffer(80, True)
+		dataBuffer = New DataBuffer(112, True)
 		dataBuffer.PokeFloat(0, 0)
 		dataBuffer.PokeFloat(4, 0)
 		dataBuffer.PokeFloat(8, 0)
@@ -313,7 +307,7 @@ Public
 #If TARGET<>"html5"
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, 1, 1, 1, mState.ModelMatrix)
 		Shader._Bound().Prepare()
-		DrawBuffers(mLineBuffer, 0, 1, 0, -1, -1, -1, -1, -1, -1, -1, 0, MODE_POINTS)
+		DrawBuffers(mLineBuffer, 0, 1, 0, -1, -1, -1, -1, -1, -1, 0, MODE_POINTS)
 #Else
 		'Drawing points do not seem to work on HTML5, so emulate it with a line instead
 		DrawLine(x-0.5, y-0.5, x+0.5, y+0.5)
@@ -323,34 +317,34 @@ Public
 	Function DrawLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)
 		Mat4TransformEuler(x1, y1, 0, 0, 0, 0, x2-x1, y2-y1, 1, mState.ModelMatrix)
 		Shader._Bound().Prepare()
-		DrawBuffers(mLineBuffer, 0, 2, 0, -1, -1, -1, -1, -1, -1, -1, 0, MODE_LINES)
+		DrawBuffers(mLineBuffer, 0, 2, 0, -1, -1, -1, -1, -1, -1, 0, MODE_LINES)
 	End
 	
 	Function DrawEllipse:Void(x:Float, y:Float, width:Float, height:Float)
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, mState.ModelMatrix)
 		Shader._Bound().Prepare()
-		DrawBuffers(mEllipseBuffer, 0, ELLIPSEPOINTS, 0, -1, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
+		DrawBuffers(mEllipseBuffer, 0, ELLIPSEPOINTS, 0, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
 
 	Function DrawRect:Void(x:Float, y:Float, width:Float, height:Float)
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, mState.ModelMatrix)
 		Shader._Bound().Prepare()
-		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
+		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
 	
 	Function DrawRectEx:Void(x:Float, y:Float, width:Float, height:Float, u0:Float, v0:Float, u1:Float, v1:Float)
 		mTexDataBuffer.PokeFloat(0, u0)
 		mTexDataBuffer.PokeFloat(4, v0)
-		mTexDataBuffer.PokeFloat(8, u1)
-		mTexDataBuffer.PokeFloat(12, v0)
 		mTexDataBuffer.PokeFloat(16, u1)
-		mTexDataBuffer.PokeFloat(20, v1)
-		mTexDataBuffer.PokeFloat(24, u0)
-		mTexDataBuffer.PokeFloat(28, v1)
+		mTexDataBuffer.PokeFloat(20, v0)
+		mTexDataBuffer.PokeFloat(32, u1)
+		mTexDataBuffer.PokeFloat(36, v1)
+		mTexDataBuffer.PokeFloat(48, u0)
+		mTexDataBuffer.PokeFloat(52, v1)
 		SetVertexBufferData(mRectBuffer, 48, mTexDataBuffer.Length(), mTexDataBuffer)
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, mState.ModelMatrix)
 		Shader._Bound().Prepare()
-		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, 48, -1, -1, -1, 0, MODE_TRIANGLEFAN)
+		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, 48, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
 
 	'---------------------------------------------------------------------------
@@ -591,7 +585,7 @@ Public
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
 	End
 
-	Function DrawBuffers:Void(vertexBuffer:Int, indexBuffer:Int, numIndices:Int, coordsOffset:Int, normalsOffset:Int, tangentsOffset:Int, colorsOffset:Int, texCoordsOffset:Int, texCoords2Offset:Int, boneIndicesOffset:Int, boneWeightsOffset:Int, stride:Int, mode:Int = MODE_TRIANGLES)
+	Function DrawBuffers:Void(vertexBuffer:Int, indexBuffer:Int, numIndices:Int, coordsOffset:Int, normalsOffset:Int, tangentsOffset:Int, colorsOffset:Int, texCoordsOffset:Int, boneIndicesOffset:Int, boneWeightsOffset:Int, stride:Int, mode:Int = MODE_TRIANGLES)
 		Local glMode:Int = GL_TRIANGLES
 		Select mode
 		Case MODE_POINTS
@@ -615,7 +609,7 @@ Public
 		'Bind buffers and enable vertex vars
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer)
-		Shader._Bound().EnableVertexVars(coordsOffset, normalsOffset, tangentsOffset, colorsOffset, texCoordsOffset, texCoords2Offset, boneIndicesOffset, boneWeightsOffset, stride)
+		Shader._Bound().EnableVertexVars(coordsOffset, normalsOffset, tangentsOffset, colorsOffset, texCoordsOffset, boneIndicesOffset, boneWeightsOffset, stride)
 
 		'Draw
 		If indexBuffer <> 0
@@ -859,7 +853,7 @@ Private
 	Global mLineBuffer:Int
 	Global mRectBuffer:Int
 	Global mFramebufferHeight:Int
-	Global mTexDataBuffer:DataBuffer = New DataBuffer(32, True)
+	Global mTexDataBuffer:DataBuffer = New DataBuffer(64, True)
 	Global mShaderError:String		'Last error occured when compiling or linking a shader
 	Global mTempArray:Int[1]			'Array used when requesting parameters to OpenGL
 End

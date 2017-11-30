@@ -206,7 +206,7 @@ Public
 				End
 			'Refraction coef
 			Elseif mRefractionCoefRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local coef:String = RequestInput("Enter refraction coefficiente", "Positive for refractive, -1 for reflective", currentModel.Material(mSelMat).RefractionCoef)
+				Local coef:String = RequestInput("Enter refraction coefficient", "Positive for refractive, -1 for reflective", currentModel.Material(mSelMat).RefractionCoef)
 				If coef <> "" Then currentModel.Material(mSelMat).RefractionCoef = Float(coef)
 				'Local iCoef:Int = Int(currentModel.Material(mSelMat).RefractionCoef * 100)
 				'iCoef += 10

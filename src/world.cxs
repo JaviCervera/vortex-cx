@@ -98,7 +98,7 @@ Class World Final
 				
 				'Render entities for shadow step
 				For Local e:Entity = Eachin mVisibleEntities
-					numRenderCalls += e._Render(Renderer.STEP_SHADOWS)
+					numRenderCalls += e._Render(Material.STEP_SHADOWS)
 				Next
 				
 				'Set screen
@@ -116,7 +116,7 @@ Class World Final
 				
 				'Render entities to capture depth
 				For Local e:Entity = Eachin mVisibleEntities
-					numRenderCalls += e._Render(Renderer.STEP_SOLID)
+					numRenderCalls += e._Render(Material.STEP_SOLID)
 				Next
 				
 				Shader.Default3D().Prepare()
@@ -169,7 +169,7 @@ Class World Final
 			
 			'Render all steps
 			If mSeparateDepthPass Then Renderer.SetDepthWrite(False)
-			For Local step_:Int = Renderer.STEP_SOLID Until Renderer.STEP_COUNT
+			For Local step_:Int = Material.STEP_SOLID Until Material.STEP_COUNT
 				For Local e:Entity = Eachin mVisibleEntities
 					numRenderCalls += e._Render(step_)
 				Next
@@ -371,7 +371,7 @@ Class World Final
 	
 	Function _RenderSkybox:Void(x:Float, y:Float, z:Float)
 		Mat4TransformEuler(x, y, z, 0, 0, 0, 10, 10, 10, Renderer.State().ModelMatrix)
-		mSkybox.Material(0)._PrepareForRender(Renderer.STEP_NODEPTHWRITE)
+		mSkybox.Material(0)._PrepareForRender(Material.STEP_NODEPTHWRITE)
 		mSkybox.Surface(0)._Render()
 	End
 	
