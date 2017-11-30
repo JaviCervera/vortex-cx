@@ -8,6 +8,8 @@ V2.0-beta2
 - Renamed Material.BaseTexture to Material.ColorTexture
 - Added Material.SpecularTexture
 - Added Material.CubeTexture and removed Reflection and Refraction textures (now a material can only have one cubemap)
+- Added Lighting and ReceiveShadows properties to Material
+- Returned to previous Fps based animation system, instead of the duration based one
 - Does not parse GL version on init anymore to prevent crash on some old Android versions
 - Reduced the number of shader uniform and varying vars needed
 - The script convert2monkey now also converts demos (I forgot that!)

@@ -24,6 +24,10 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 			mAnimMatrices[i] = New Float[16]
 			Mat4Identity(mAnimMatrices[i])
 		Next
+		mAnimFps = mesh.AnimSpeed
+		mCurrentFrame = 0
+		mFirstFrame = 0
+		mLastFrame = mesh.NumFrames
 		Visible = True
 		Active = True
 	End
@@ -32,6 +36,35 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 		Return mMesh
 	End
 	
+	Method FPS:Float() Property
+		Return mAnimFps
+	End
+	
+	Method FPS:Void(fps:Float) Property
+		mAnimFps = fps
+	End
+	
+	Method CurrentFrame:Float() Property
+		Return mCurrentFrame
+	End
+	
+	Method FirstFrame:Int() Property
+		Return mFirstFrame
+	End
+	
+	Method FirstFrame:Void(frame:Int) Property
+		mFirstFrame = frame
+	End
+	
+	Method LastFrame:Int() Property
+		Return mLastFrame
+	End
+	
+	Method LastFrame:Void(frame:Int) Property
+		mLastFrame = frame
+	End
+	
+	#Rem
 	Method AnimSpeed:Float() Property
 		Return mAnimSpeed
 	End
@@ -43,6 +76,7 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 	Method AnimTime:Float() Property
 		Return mCurrentFrame / mMesh._AnimSpeed
 	End
+	#End
 	
 	Method Active:Bool() Property
 		Return Super.Active
@@ -141,10 +175,12 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 	#End
 	
 	Method _Update:Void()
-		If mAnimSpeed <> 0 And mAnimMatrices.Length > 0
-			mCurrentFrame += mAnimSpeed * mMesh._AnimSpeed * Stats.DeltaTime()
-			If mCurrentFrame > mMesh._NumFrames Then mCurrentFrame -= mMesh._NumFrames
-			If mCurrentFrame < 0 Then mCurrentFrame += mMesh._NumFrames
+		'If mAnimSpeed <> 0 And mAnimMatrices.Length > 0
+		If mAnimFps <> 0 And mAnimMatrices.Length > 0
+			mCurrentFrame += mAnimFps * Stats.DeltaTime()
+			'mCurrentFrame += mAnimSpeed * mMesh._AnimSpeed * Stats.DeltaTime()
+			If mCurrentFrame > mLastFrame Then mCurrentFrame -= mLastFrame - mFirstFrame
+			If mCurrentFrame < mFirstFrame Then mCurrentFrame += mLastFrame - mFirstFrame
 			mMesh.Animate(mAnimMatrices, mCurrentFrame)
 		End
 	End
@@ -163,8 +199,11 @@ Private
 	Field mMesh					: Mesh
 	Field mMaterials		: Material[]
 	Field mAnimMatrices	: Float[][16]
-	Field mAnimSpeed		: Float
+	Field mAnimFps			: Float
+	'Field mAnimSpeed		: Float
 	Field mCurrentFrame	: Float
+	Field mFirstFrame		: Int
+	Field mLastFrame		: Int
 	
 	Method New()
 	End

@@ -288,10 +288,10 @@ Public
 			Renderer.SetColor(Color.WHITE)
 			mFont.Draw(8, 34, "Num Surfaces: " + currentModel.Mesh.NumSurfaces)
 			mFont.Draw(8, 50, "Num Bones: " + currentModel.Mesh.NumBones)
-			mFont.Draw(8, 66, "Anim Duration: " + currentModel.Mesh.AnimDuration)
-			If currentModel.Mesh.AnimDuration <> 0
-				mFont.Draw(8, 80, "Anim Time: " + currentModel.AnimTime)
-			End
+			mFont.Draw(8, 66, "Num Frames: " + currentModel.Mesh.NumFrames)
+			If currentModel.Mesh.NumFrames > 0 Then mFont.Draw(8, 80, "Current Frame: " + Int(currentModel.CurrentFrame))
+			'mFont.Draw(8, 66, "Anim Duration: " + currentModel.Mesh.AnimDuration)
+			'If currentModel.Mesh.AnimDuration <> 0 Then mFont.Draw(8, 80, "Anim Time: " + currentModel.AnimTime)
 			
 			'Draw material panel
 			DrawPanel(mMaterialRect)

@@ -43,13 +43,11 @@ Public
 		mSwatModel.SetPosition(-32, 32, 0)
 		mSwatModel.SetRotation(0, -15, 0)
 		mSwatModel.SetScale(7, 7, 7)
-		mSwatModel.AnimSpeed = 1
 		
 		'Load dwarf model
 		mDwarfModel = New Model(Cache.LoadMesh("dwarf.msh.dat", "dwarf.skl.dat", "dwarf.anm.dat"))
 		mDwarfModel.SetPosition(32, 0, 0)
 		mDwarfModel.SetRotation(0, 15, 0)
-		mDwarfModel.AnimSpeed = 0.5
 		
 		Return False
 	End
