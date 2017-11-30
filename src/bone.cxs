@@ -102,19 +102,19 @@ Public
 	End
 
 	Method RotationKeyW:Float(index:Int)
-		Return mRotations[index][3]
-	End
-
-	Method RotationKeyX:Float(index:Int)
 		Return mRotations[index][0]
 	End
 
-	Method RotationKeyY:Float(index:Int)
+	Method RotationKeyX:Float(index:Int)
 		Return mRotations[index][1]
 	End
 
-	Method RotationKeyZ:Float(index:Int)
+	Method RotationKeyY:Float(index:Int)
 		Return mRotations[index][2]
+	End
+
+	Method RotationKeyZ:Float(index:Int)
+		Return mRotations[index][3]
 	End
 
 	Method NumScaleKeys:Int() Property
@@ -310,7 +310,7 @@ Private
 	Field mRotationKeys		: Int[]
 	Field mScaleKeys			: Int[]
 	Field mPositions			: Float[][3]
-	Field mRotations			: Float[][3]
+	Field mRotations			: Float[][4]
 	Field mScales					: Float[][3]
 	Global mTempArr				: Float[4]	'Used for temp operations
 End
