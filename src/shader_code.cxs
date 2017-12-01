@@ -244,7 +244,7 @@ Const MIN_SHADOWS_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
 "	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
 
 	'Get color texture data
-"	vec4 ColorTexture = (BaseTexMode == 1 ) ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : (BaseTexMode == 2) ? textureCube(BaseCubeSampler, FCubeCoords) : vec4(1, 1, 1, 1);" +
+"	vec4 ColorTexture = (BaseTexMode == 1 ) ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : vec4(1, 1, 1, 1);" +
 
 	'Reject fragment with low alpha
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
