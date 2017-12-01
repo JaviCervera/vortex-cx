@@ -7,7 +7,7 @@
 '- Add Emission color property to Material
 '- Fix order of textures on mesh file format
 '- Remove Cache class (add CacheSound function and Load methods in classes with Cache param)?
-'- Add fixes for iOS
+'- Fix framebuffer, retina display and rotation on iOS
 'TODO v2.0-beta3
 '- Add Material._RendersStep (should improve sprite rendering speed?)
 '- Check that an object's bounding box is in view before rendering

@@ -281,14 +281,16 @@ Class World Final
 	End
 	
 	Function SetShadows:Void(enable:Bool, range:Float = 500, sunDistance:Float = 0, shadowTexSize:Int = 1024)
-		If sunDistance = 0 Then sunDistance = range * 0.5
-		If shadowTexSize <= 0 Then shadowTexSize = 1024
-		If mFramebuffer Then mFramebuffer.Discard()
 		mShadowsEnabled = enable
-		mShadowsRange = range
-		mShadowsSunDist = sunDistance
-		shadowTexSize = Min(shadowTexSize, Stats.MaxTextureSize())
-		mFramebuffer = New Framebuffer(shadowTexSize, shadowTexSize, True)
+		If mFramebuffer Then mFramebuffer.Discard()
+		If enable
+			If sunDistance = 0 Then sunDistance = range * 0.5
+			If shadowTexSize <= 0 Then shadowTexSize = 1024
+			mShadowsRange = range
+			mShadowsSunDist = sunDistance
+			shadowTexSize = Min(shadowTexSize, Stats.MaxTextureSize())
+			mFramebuffer = New Framebuffer(shadowTexSize, shadowTexSize, True)
+		End
 	End
 	
 	Function DepthTexture:Texture()

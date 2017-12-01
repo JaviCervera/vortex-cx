@@ -473,21 +473,29 @@ Public
 	'---------------------------------------------------------------------------
 	
 	Function CreateFramebuffer:Int(colorTex:Int, depthBuffer:Int)
+#If TARGET <> "ios"
 		Local fb:Int = glCreateFramebuffer()
 		SetFramebuffer(fb, mFramebufferHeight)
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0)
 		If depthBuffer <> 0 Then glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer)
 		SetFramebuffer(0, mFramebufferHeight)
 		Return fb
+#Else
+		Return 0
+#EndIf
 	End
 	
 	Function FreeFramebuffer:Void(fb:Int)
+#If TARGET <> "ios"
 		glDeleteFramebuffer(fb)
+#Endif
 	End
 	
 	Function SetFramebuffer:Void(fb:Int, height:Int)
+#If TARGET <> "ios"
 		glBindFramebuffer(GL_FRAMEBUFFER, fb)
 		If fb <> 0 Then mFramebufferHeight = height Else mFramebufferHeight = 0
+#EndIf
 	End
 	
 	'---------------------------------------------------------------------------

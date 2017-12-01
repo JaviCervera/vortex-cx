@@ -299,6 +299,12 @@ Public
 		End
 	End
 	
+	Method Discard:Void()
+		If mHandle <> 0 Then glDeleteProgram(mHandle)
+		mHandle = 0
+		mDelegate = Null
+	End
+	
 	Method Location:Int(name:String)
 		Return Renderer.ShaderLocation(mHandle, name)
 	End

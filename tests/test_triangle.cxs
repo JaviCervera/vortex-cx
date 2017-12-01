@@ -58,7 +58,7 @@ Public
 		Return False
 	End
 	
-	Method OnUpdate:Int()	
+	Method OnUpdate:Int()
 		'End with escape key
 		#If TARGET<>"html5"
 		If KeyHit(KEY_ESCAPE) Then EndApp()

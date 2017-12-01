@@ -18,8 +18,8 @@ Public
 	Method Discard:Void()
 		If mColorTex Then mColorTex.Discard()
 		'If mDepthTex Then mDepthTex.Discard()
-		If mDepthBuffer > 0 Then Renderer.FreeRenderbuffer(mDepthBuffer)
-		Renderer.FreeFramebuffer(mHandle)
+		If mDepthBuffer <> 0 Then Renderer.FreeRenderbuffer(mDepthBuffer)
+		If mHandle <> 0 Then Renderer.FreeFramebuffer(mHandle)
 	End
 	
 	Method Set:Void()

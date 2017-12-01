@@ -156,7 +156,7 @@ Class Camera Extends Entity Final
 		Else
 			Framebuffer.SetScreen()
 		End
-	
+
 		'Set viewport
 		Renderer.Setup3D(mVX, mVY, mVW, mVH)
 		

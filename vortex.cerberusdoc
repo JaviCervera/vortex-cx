@@ -932,7 +932,6 @@ Vortex comes with default shaders for 2D & 3D drawing, but you can create your o
 A shader is created from two strings: one to define vertex transformation and another to perform fragment coloring. Shaders are written using GLSL ES 1.00. Every shader that you create automaticaly includes the following before your own code:
 
 <pre>
-#version 100
 #ifdef GL_ES
 precision mediump int;
 precision mediump float;
