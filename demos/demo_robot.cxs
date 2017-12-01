@@ -78,8 +78,8 @@ Public
 		If KeyHit(KEY_ESCAPE) Then EndApp()
 		#End
 		
-		'Change default shader type with SPACE
-		If KeyHit(KEY_SPACE) Then Shader.DefaultType((Shader.DefaultType() + 1) Mod 4)
+		'Change default shader type with mouse click or touch input
+		If TouchHit(0) Then Shader.DefaultType((Shader.DefaultType() + 1) Mod 4)
 		
 		'Update world
 		World.Update()
@@ -109,7 +109,7 @@ Public
 		
 		'Draw shader type
 		Renderer.SetColor(Color.RGB(255, 100, 0))
-		text = "Press SPACE to change shader. Current: " + mShaderTypeNames[Shader.DefaultType()]
+		text = "Current shader: " + mShaderTypeNames[Shader.DefaultType()] + " (touch screen to change)"
 		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, DeviceHeight() - mFont.TextHeight(text) - 8, text)
 		
 		'Draw FPS

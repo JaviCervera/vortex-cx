@@ -1,11 +1,18 @@
 'TODO v2.0-beta2
-'- Allow to continue if some shaders have not compiled
+'+ Allow to continue if some shaders have not compiled
+'- Remove "Set" from all methods
+'- Remove cubemap support for Material.ColorTexture (skyboxes should be a 2D texture, and Mesh.CreateSkybox should generate correct UV's)
 '- Make shadows work even without lights and when Material.Lighting = False
+'- Allow light textures to behave as emissive (or add separate EmissiveTexture)
+'- Add Emission color property to Material
+'- Fix order of textures on mesh file format
+'- Remove Cache class (add CacheSound function and Load methods in classes with Cache param)?
 '- Add fixes for iOS
 'TODO v2.0-beta3
-'- Add Material._RendersStep (should improve sprite rendering?)
+'- Add Material._RendersStep (should improve sprite rendering speed?)
+'- Check that an object's bounding box is in view before rendering
 '- Add Texture.SetPixels method
-'- Check if shadows work correctly on skinned meshes
+'- Make sure that shadows work correctly on skinned meshes
 '- Add alpha support to shadows
 '- Add stats test
 '- Add shader test
@@ -24,15 +31,18 @@
 '- Change mesh in shadows demo
 '- Clean comments
 '- Document tools
+'- Make sure that everything is documented
 '- Consider switching to Zlib or another license?
 'TODO v2.1:
+'- Add static and skinned modes to shaders
 '- Sort lights before rendering each model
 '- Add particles
 '- Add spot lights
 '- Add multiple shadows
 '- Improve shadows (PCF, cascade...)
+'- Add SpriteBatch
+'- Add RenderList
 'TODO v2.2:
-'- Add several shaders: unlit, vlit, flit, with static and skinned modes
 '- Write Assimp mesh loader
 '- Write worldtool with lightmapping support
 

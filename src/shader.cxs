@@ -361,10 +361,15 @@ Public
 	End
 	
 	Function DefaultType:Void(type:Int)
+		type = Clamp(type, TYPE_MINIMAL, TYPE_PIXEL_LIGHTING)
+		If type = TYPE_PIXEL_LIGHTING And _PixelLighting().Handle = 0 Then type -= 1
+		If type = TYPE_VERTEX_LIGHTING And _VertexLighting().Handle = 0 Then type -= -1
+		If type = TYPE_MINIMAL_SHADOWS And _MinimalShadows().Handle = 0 Then type -= -1
 		mDefaultType = type
 	End
 	
 	Function DefaultType:Int()
+		If mDefaultType = -1 Then DefaultType(TYPE_PIXEL_LIGHTING)
 		Return mDefaultType
 	End
 	
@@ -389,13 +394,25 @@ Public
 	End
 	
 	Function _Default3D:Shader()
-		select mDefaultType
+		Local type:Int = mDefaultType
+		If type = TYPE_PIXEL_LIGHTING
+			If _PixelLighting().Handle <> 0 Then Return _PixelLighting() Else type -= 1
+		End
+		If type = TYPE_VERTEX_LIGHTING
+			If _VertexLighting().Handle <> 0 Then Return _VertexLighting() Else type -= -1
+		End
+		If type = TYPE_MINIMAL_SHADOWS
+			If _MinimalShadows().Handle <> 0 Then Return _MinimalShadows() Else type -= -1
+		End
+		Return _Minimal()
+	
+		Select mDefaultType
 		Case TYPE_MINIMAL
 			Return _Minimal()
 		Case TYPE_MINIMAL_SHADOWS
 			Return _MinimalShadows()
 		Case TYPE_PIXEL_LIGHTING
-			Return _PixelLighting()
+				Return _PixelLighting()
 		Default
 			Return _VertexLighting()
 		End
@@ -461,7 +478,7 @@ Private
 	Global mMinimalShadows	: Shader
 	Global mVertexLighting	: Shader
 	Global mPixelLighting		: Shader
-	Global mDefaultType		: Int = TYPE_PIXEL_LIGHTING
+	Global mDefaultType		: Int = -1
 	Global mCurrentDefault		: Shader
 	'Global mBound					: Shader
 	

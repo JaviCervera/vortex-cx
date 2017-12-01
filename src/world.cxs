@@ -64,9 +64,10 @@ Class World Final
 		'Get number of lights
 		Local numLights:Int = Min(mLights.Count() + sunLightEnabled, Renderer.MaxLights())
 
+		'Render all cameras
 		For Local c:Camera = Eachin mCameras
-			'If shadows are enabled, setup shadows
-			If mShadowsEnabled
+			'If shadows are enabled and supported, setup shadows
+			If mShadowsEnabled And Shader._DefaultShadow().Handle <> 0
 				'Find the point the camera is looking at
 				QuatSetEuler(c.Pitch, c.Yaw, c.Roll, mTempArr)
 				QuatMulVec3(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3], 0, 0, mShadowsRange/2, mTempArr)
@@ -128,8 +129,8 @@ Class World Final
 			Renderer.State().FogMaxDistance = mFogMax
 			Renderer.State().NumLights = numLights
 			
-			'Set depth data
-			If mShadowsEnabled
+			'Set depth data and shadow state
+			If mShadowsEnabled And Shader._DefaultShadow().Handle <> 0
 				Mat4Identity(Renderer.State().DepthBiasMatrix)
 				Renderer.State().DepthBiasMatrix[0] = 0.5
 				Renderer.State().DepthBiasMatrix[5] = 0.5
@@ -147,9 +148,7 @@ Class World Final
 			End
 			
 			'Prepare lighting
-			If numLights > 0
-				Renderer.State().Ambient = mAmbient
-			End
+			If numLights > 0 Then Renderer.State().Ambient = mAmbient
 			If sunLightEnabled
 				QuatSetEuler(mSunPitch, mSunYaw, 0, mTempArr)
 				QuatMulVec3(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3], 0, 0, -1, mTempArr)

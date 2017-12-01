@@ -63,14 +63,18 @@ Public
 		'Set the max number of lights and bones supported
 		mMaxLights = numLights
 		mMaxBones = numBones
+		
+		'Compile all shaders
+		Shader._Default2D()
+		Shader._DefaultShadow()
+		Shader._Minimal()
+		Shader._MinimalShadows()
+		Shader._VertexLighting()
+		Shader._PixelLighting()
 
-		'Make sure that default shaders are correct
+		'Make sure that at least 2d and minimal shaders are correct
 		If Shader._Default2D().Handle = 0 Then Return False
-		If Shader._DefaultShadow().Handle = 0 Then Return False
 		If Shader._Minimal().Handle = 0 Then Return False
-		If Shader._MinimalShadows().Handle = 0 Then Return False
-		If Shader._VertexLighting().Handle = 0 Then Return False
-		If Shader._PixelLighting().Handle = 0 Then Return False
 		
 		'Delete old buffers if they exist
 		If mEllipseBuffer <> 0 Then FreeBuffer(mEllipseBuffer)
