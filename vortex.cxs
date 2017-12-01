@@ -1,3 +1,7 @@
+'TODO v2.0-beta2
+'- Allow to continue if some shaders have not compiled
+'- Make shadows work even without lights and when Material.Lighting = False
+'- Add fixes for iOS
 'TODO v2.0-beta3
 '- Add Material._RendersStep (should improve sprite rendering?)
 '- Add Texture.SetPixels method

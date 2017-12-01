@@ -66,8 +66,11 @@ Public
 
 		'Make sure that default shaders are correct
 		If Shader._Default2D().Handle = 0 Then Return False
-		If Shader._Default3D().Handle = 0 Then Return False
 		If Shader._DefaultShadow().Handle = 0 Then Return False
+		If Shader._Minimal().Handle = 0 Then Return False
+		If Shader._MinimalShadows().Handle = 0 Then Return False
+		If Shader._VertexLighting().Handle = 0 Then Return False
+		If Shader._PixelLighting().Handle = 0 Then Return False
 		
 		'Delete old buffers if they exist
 		If mEllipseBuffer <> 0 Then FreeBuffer(mEllipseBuffer)
@@ -171,7 +174,6 @@ Public
 		glEnable(GL_DEPTH_TEST)
 		glEnable(GL_SCISSOR_TEST)
 		glDepthFunc(GL_LEQUAL)
-		mState.PixelLighting = False
 		mState.NumLights = 0
 		SetCulling(True)
 		glFrontFace(GL_CW)

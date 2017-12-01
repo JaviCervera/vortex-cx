@@ -835,6 +835,9 @@ Flips all triangles in the mesh and inverts its normals.
 # Method SetColor:Void(color:Int)
 Sets the color of all vertices in the mesh.
 
+# Function CreateQuad:Mesh()
+Creates a quad mesh with a width and height of 1.
+
 # Function CreateCube:Mesh()
 Creates a cube mesh with a width, height and depth of 1.
 
@@ -1318,11 +1321,11 @@ Returns the color of the fog
 # Function SetFogColor:Void(color:Int)
 Sets the color of the fog.
 
-# Function GlobalPixelLighting:Bool()
-Returns whether global pixel lighting is enabled or not.
+# Function SeparateDepthPass:Bool()
+Returns whether a separate depth pass is performed before rendering the rest of the scene.
 
-# Function SetGlobalPixelLighting:Void(enable:Bool)
-Enables or disables per-pixel lighting for the entire world (by default, only normal mapped surfaces use per-pixel lighting).
+# Function SeparateDepthPass:Void(enable:Bool)
+Enables or disables a separate depth pass before rendering the scene. This can help reducing the amount of pixels processed in some situations.
 
 # Function Shadows:Bool()
 Returns whether shadows are enabled or not.

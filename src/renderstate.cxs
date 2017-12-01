@@ -24,7 +24,6 @@ Class RenderState Final
 	Field ShadowsEnabled		: Bool
 	Field DepthEpsilon			: Float
 	Field RefractCoef				: Float
-	Field PixelLighting			: Bool
 	Field NumLights					: Int
 	Field LightPos					: Float[][4]
 	Field LightColor				: Int[]

@@ -3,6 +3,7 @@ Strict
 Private
 Import brl.databuffer
 Import color
+Import math3d
 Import renderer
 
 Public
@@ -302,14 +303,16 @@ Public
 	End
 
 	Method Rotate:Void(pitch:Float, yaw:Float, roll:Float, rebuild:Bool = True)
-		mTempQuat.SetEuler(pitch, yaw, roll)
-		mTempQuat.CalcAxis()
-		mTempMat.Rotate(mTempQuat.Angle(), mTempQuat.ResultVector())
+		QuatSetEuler(pitch, yaw, roll, mTempQuat)
+		Local angle:Float = QuatDegrees(mTempQuat[0], mTempQuat[1], mTempQuat[2], mTempQuat[3])
+		QuatAxis(mTempQuat[0], mTempQuat[1], mTempQuat[2], mTempQuat[3], mTempQuat)
+		Mat4Identity(mTempMat)
+		Mat4Rotate(mTempMat, angle, mTempQuat[0], mTempQuat[1], mTempQuat[2], mTempMat)
 		For Local i:Int = 0 Until NumVertices
-			mTempMat.Mul(VertexX(i), VertexY(i), VertexZ(i), 1)
-			SetVertexPosition(i, mTempMat.ResultVector().X, mTempMat.ResultVector().Y, mTempMat.ResultVector().Z)
-			mTempMat.Mul(VertexNX(i), VertexNY(i), VertexNZ(i), 0)
-			SetVertexNormal(i, mTempMat.ResultVector().X, mTempMat.ResultVector().Y, mTempMat.ResultVector().Z)
+			Mat4MulVec4(mTempMat, VertexX(i), VertexY(i), VertexZ(i), 1, mTempQuat)
+			SetVertexPosition(i, mTempQuat[0], mTempQuat[1], mTempQuat[2])
+			Mat4MulVec4(mTempMat, VertexNX(i), VertexNY(i), VertexNZ(i), 0, mTempQuat)
+			SetVertexNormal(i, mTempQuat[0], mTempQuat[1], mTempQuat[2])
 		Next
 		If rebuild Then Rebuild()
 	End
@@ -376,6 +379,6 @@ Private
 	Field mIndexBuffer	: Int
 	Field mVertexBuffer	: Int
 	Field mStatus		: Int
-	Global mTempMatrix	: Mat4 = Mat4.Create()
-	Global mTempQuat	: Quat = Quat.Create()
+	Global mTempQuat	: Float[4]	'Used for math operations
+	Global mTempMat	: Float[16]
 End

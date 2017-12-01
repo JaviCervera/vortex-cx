@@ -13,6 +13,14 @@ V2.0-beta2
 - Returned to previous Fps based animation system, instead of the duration based one
 - Does not parse GL version on init anymore to prevent crash on some old Android versions
 - Reduced the number of shader uniform and varying vars needed
+- Added different shaders:
+		- Minimal: No normal or specular maps, no shadows, no cube mapping
+		- Minimal with shadows: No normal or specular maps, no cube mapping
+		- Vertex lighting: No normal or specular maps
+		- Pixel lighting
+- Per pixel lighting is now the default
+- Removed World.GlobalPixelLighting (You can do Shader.DefaultType(Shader.TYPE_VERTEX_LIGHTING) to switch to vertex lighting)
+- Added Mesh.CreateQuad
 - The script convert2monkey now also converts demos (I forgot that!)
 - Several bug fixes
 

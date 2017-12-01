@@ -36,7 +36,6 @@ Class World Final
 			SetFogMinDistance(600)
 			SetFogMaxDistance(1000)
 			SetFogColor(Color.BLACK)
-			SetGlobalPixelLighting(False)
 			SetSeparateDepthPass(False)
 			SetShadows(False)
 			Return True
@@ -149,7 +148,6 @@ Class World Final
 			
 			'Prepare lighting
 			If numLights > 0
-				Renderer.State().PixelLighting = GlobalPixelLighting()
 				Renderer.State().Ambient = mAmbient
 			End
 			If sunLightEnabled
@@ -271,14 +269,6 @@ Class World Final
 		mFogColor = color
 	End
 	
-	Function GlobalPixelLighting:Bool()
-		Return mGlobalPixelLighting
-	End
-	
-	Function SetGlobalPixelLighting:Void(enable:Bool)
-		mGlobalPixelLighting = enable
-	End
-	
 	Function SeparateDepthPass:Bool()
 		Return mSeparateDepthPass
 	End
@@ -393,7 +383,6 @@ Private
 	Global mFogMin							: Float
 	Global mFogMax							: Float
 	Global mFogColor						: Int
-	Global mGlobalPixelLighting	: Bool
 	Global mSeparateDepthPass		: Bool
 	Global mFramebuffer					: Framebuffer
 	Global mShadowsEnabled			: Bool

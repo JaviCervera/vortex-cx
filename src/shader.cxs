@@ -31,7 +31,6 @@ Public
 	Field mLightmapSampler:Int
 	Field mCubemapSampler:Int
 	Field mDepthSampler:Int
-	Field mUsePixelLighting:Int
 	Field mNumLights:Int
 	Field mLightVector:Int[Renderer.MaxLights()]
 	Field mLightData:Int[Renderer.MaxLights()]
@@ -60,7 +59,6 @@ Public
 		mUseSpecularTex = Renderer.ShaderLocation(shader, "UseSpecularTex")
 		mUseLightmap = Renderer.ShaderLocation(shader, "UseLightmap")
 		mUseCubemap = Renderer.ShaderLocation(shader, "UseCubemap")
-		mUsePixelLighting = Renderer.ShaderLocation(shader, "UsePixelLighting")
 		mNumLights = Renderer.ShaderLocation(shader, "NumLights")
 		For Local i:Int = 0 Until Renderer.MaxLights()
 			mLightVector[i] = Renderer.ShaderLocation(shader, "Lights[" + i + "].Vector")
@@ -133,7 +131,6 @@ Public
 			If state.UseLightTex Then flags |= Shader.FLAG_LIGHTMAP
 			If state.UseCubeTex Then flags |= Shader.FLAG_CUBEMAP
 			If state.BlendMode = Renderer.BLEND_SOLID Then flags |= Shader.FLAG_SOLID
-			If state.PixelLighting Then flags |= Shader.FLAG_PIXELLIGHTING
 			If state.FogEnabled Then flags |= Shader.FLAG_FOG
 			If state.ShadowsEnabled Then flags |= Shader.FLAG_SHADOWS
 			If state.Skinned Then flags |= Shader.FLAG_SKINNED
@@ -177,11 +174,6 @@ Public
 		If mRefractCoef <> -1 Then Renderer.SetShaderFloat(mRefractCoef, state.RefractCoef)
 		
 		'Set lighting
-		If state.PixelLighting Or state.UseNormalTex Or state.UseSpecularTex
-			Renderer.SetShaderInt(mUsePixelLighting, True)
-		Else
-			Renderer.SetShaderInt(mUsePixelLighting, False)
-		End
 		If mNumLights <> -1 Then Renderer.SetShaderInt(mNumLights, state.NumLights)
 		For Local i:Int = 0 Until state.NumLights
 			If mLightVector[i] <> -1 Then Renderer.SetShaderVec4(mLightVector[i], state.LightPos[i][0], state.LightPos[i][1], state.LightPos[i][2], state.LightPos[i][3])
@@ -258,9 +250,14 @@ End
 
 Class Shader Final
 Public
+	Const TYPE_MINIMAL					: Int = 0
+	Const TYPE_MINIMAL_SHADOWS	: Int = 1
+	Const TYPE_VERTEX_LIGHTING	: Int = 2
+	Const TYPE_PIXEL_LIGHTING		: Int = 3
+
 	Method New(vertex:String, fragment:String, delegate:ShaderDelegate = Null)
 '#If TARGET="html5"
-		Local version : String = "#version 100~n"
+		Local version : String = ""
 '#Else
 		'Local version:String = "#version 120~n"
 '#EndIf
@@ -301,6 +298,7 @@ Public
 			mAttribs = New ShaderAttribs(mHandle)
 		End
 	End
+	
 	Method Location:Int(name:String)
 		Return Renderer.ShaderLocation(mHandle, name)
 	End
@@ -362,6 +360,14 @@ Public
 		Renderer.SetShaderVec4(location, x, y, z, w)
 	End
 	
+	Function DefaultType:Void(type:Int)
+		mDefaultType = type
+	End
+	
+	Function DefaultType:Int()
+		Return mDefaultType
+	End
+	
 	Method _Prepare:Void()
 		'mBound = Self
 		Renderer.UseShader(mHandle)
@@ -383,13 +389,41 @@ Public
 	End
 	
 	Function _Default3D:Shader()
-		If mDefault3D = Null Then mDefault3D = New Shader(STD_VERTEX_SHADER, STD_FRAGMENT_SHADER)
-		Return mDefault3D
+		select mDefaultType
+		Case TYPE_MINIMAL
+			Return _Minimal()
+		Case TYPE_MINIMAL_SHADOWS
+			Return _MinimalShadows()
+		Case TYPE_PIXEL_LIGHTING
+			Return _PixelLighting()
+		Default
+			Return _VertexLighting()
+		End
 	End
 	
 	Function _DefaultShadow:Shader()
 		If mDefaultShadow = Null Then mDefaultShadow = New Shader(SHADOW_VERTEX_SHADER, SHADOW_FRAGMENT_SHADER)
 		Return mDefaultShadow
+	End
+	
+	Function _Minimal:Shader()
+		If mMinimal = Null Then mMinimal = New Shader(MIN_VERTEX_SHADER, MIN_FRAGMENT_SHADER)
+		Return mMinimal
+	End
+	
+	Function _MinimalShadows:Shader()
+		If mMinimalShadows = Null Then mMinimalShadows = New Shader(MIN_SHADOWS_VERTEX_SHADER, MIN_SHADOWS_FRAGMENT_SHADER)
+		Return mMinimalShadows
+	End
+	
+	Function _VertexLighting:Shader()
+		If mVertexLighting = Null Then mVertexLighting = New Shader(VLIT_VERTEX_SHADER, VLIT_FRAGMENT_SHADER)
+		Return mVertexLighting
+	End
+	
+	Function _PixelLighting:Shader()
+		If mPixelLighting = Null Then mPixelLighting = New Shader(PLIT_VERTEX_SHADER, PLIT_FRAGMENT_SHADER)
+		Return mPixelLighting
 	End
 	
 	Function _CurrentDefault:Void(shader:Shader)
@@ -411,11 +445,10 @@ Private
 	Const FLAG_LIGHTMAP			: Int = 8
 	Const FLAG_CUBEMAP			: Int = 16
 	Const FLAG_SOLID			: Int = 32
-	Const FLAG_PIXELLIGHTING	: Int = 64
-	Const FLAG_FOG				: Int = 128
-	Const FLAG_SHADOWS			: Int = 256
-	Const FLAG_SKINNED			: Int = 512
-	Const FLAG_BASECUBE			: Int = 1024
+	Const FLAG_FOG				: Int = 64
+	Const FLAG_SHADOWS			: Int = 128
+	Const FLAG_SKINNED			: Int = 256
+	Const FLAG_BASECUBE			: Int = 512
 
 	Field mHandle			: Int
 	Field mDelegate		: ShaderDelegate
@@ -423,8 +456,12 @@ Private
 	Field mAttribs		: ShaderAttribs
 	
 	Global mDefault2D			: Shader
-	Global mDefault3D			: Shader
 	Global mDefaultShadow	: Shader
+	Global mMinimal				: Shader
+	Global mMinimalShadows	: Shader
+	Global mVertexLighting	: Shader
+	Global mPixelLighting		: Shader
+	Global mDefaultType		: Int = TYPE_PIXEL_LIGHTING
 	Global mCurrentDefault		: Shader
 	'Global mBound					: Shader
 	

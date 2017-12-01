@@ -28,7 +28,6 @@ Const STD_UNIFORMS:String = "" +
 "uniform bool UseSpecularTex;" +
 "uniform bool UseLightmap;" +
 "uniform bool UseCubemap;" +
-"uniform bool UsePixelLighting;" +
 "uniform bool Skinned;" +
 "uniform bool SolidMode;" +
 "uniform bool ShadowsEnabled;"
@@ -135,7 +134,241 @@ Const SHADER_CALC_TBN_MATRIX:String = "" +
 "	return mat3(tangent, cross(tangent, normal), normal);" +
 "}"
 
-Const STD_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER_CALC_SKINNING + SHADER_CALC_CUBE_COORDS + SHADER_CALC_TBN_MATRIX +
+Const MIN_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER_CALC_SKINNING +
+"void main() {" +
+	'Get vec4 version of VertexPos
+"	vec4 VertexPos4 = vec4(VertexPos, 1);" +
+
+	'Vertex skinning
+"	if ( Skinned ) VertexPos4 = CalcSkinning(VertexPos4);" +
+
+	'Calculate vectors used in lighting and fog calculations
+"	vec3 V;" +
+"	vec3 NV;" +
+"	vec3 N;" +
+"	if ( NumLights > 0 || Fog.Data[2] != 0.0 ) {" +
+" 	V = vec3(ModelView * VertexPos4);" +
+"		NV = normalize(V);" +
+"		N = normalize(vec3(NormalMatrix * vec4(VertexNormal, 0.0)));" +
+"	}~n" +
+
+	'Calculate vertex lighting
+"	if ( NumLights > 0 ) {" +
+"		LightingResult lighting = CalcLighting(V, NV, N, vec3(1, 1, 1));" +
+"		FCombinedDiffuse = lighting.combinedDiffuse;" +
+"		FCombinedSpecular = lighting.combinedSpecular;" +
+"	}" +
+
+	'Assign other varyings
+"	FVertexColor = MaterialColor * VertexColor;" +
+"	FVertexTexCoords = vec4(vec2(TextureMatrix * vec4(vec2(VertexTexCoords), 0, 1)), VertexTexCoords.z, VertexTexCoords.w);" +
+"	if ( Fog.Data[2] != 0.0 ) FFogFactor = clamp((Fog.Data[1] - abs(V.z)) / (Fog.Data[1] - Fog.Data[0]), 0.0, 1.0);" +
+
+	'Final position
+"	gl_Position = ModelViewProjection * VertexPos4;" +
+"}"
+
+Const MIN_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
+"void main() {" +
+	'First, if the fragment is in the fog completely, set it's color directly
+"	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
+
+	'Get color texture data
+"	vec4 ColorTexture = (BaseTexMode == 1 ) ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : vec4(1, 1, 1, 1);" +
+
+	'Reject fragment with low alpha
+"	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
+
+	'Get other texture data
+"	vec3 LightTexture = UseLightmap ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
+
+	'Lighting
+"	vec4 LightingDiffuse = vec4(0, 0, 0, 1);" +
+"	vec4 LightingSpecular = vec4(0, 0, 0, 0);" +
+"	if ( NumLights > 0 ) {" +
+"		LightingDiffuse = vec4(FCombinedDiffuse, 1);" +
+"		LightingSpecular = vec4(FCombinedSpecular, 0);" +
+"		LightingDiffuse += vec4(LightTexture, 0.0);" +
+"	} else {"+
+"		LightingDiffuse = UseLightmap ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
+"	}" +
+
+	'Compute color
+"	gl_FragColor = LightingDiffuse * FVertexColor * ColorTexture;" +
+
+	'Add specular
+"	if ( NumLights > 0 ) gl_FragColor = clamp(gl_FragColor + LightingSpecular, 0.0, 1.0);" +
+
+	'Add fog
+"	if ( Fog.Data[2] != 0.0 ) gl_FragColor = vec4(mix(Fog.Color, vec3(gl_FragColor), FFogFactor), gl_FragColor.a);" +
+"}"
+
+Const MIN_SHADOWS_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER_CALC_SKINNING +
+"void main() {" +
+	'Get vec4 version of VertexPos
+"	vec4 VertexPos4 = vec4(VertexPos, 1);" +
+
+	'Vertex skinning
+"	if ( Skinned ) VertexPos4 = CalcSkinning(VertexPos4);" +
+
+	'Calculate vectors used in lighting and fog calculations
+"	vec3 V;" +
+"	vec3 NV;" +
+"	vec3 N;" +
+"	if ( NumLights > 0 || Fog.Data[2] != 0.0 ) {" +
+" 	V = vec3(ModelView * VertexPos4);" +
+"		NV = normalize(V);" +
+"		N = normalize(vec3(NormalMatrix * vec4(VertexNormal, 0.0)));" +
+"	}~n" +
+
+	'Calculate vertex lighting
+"	if ( NumLights > 0 ) {" +
+"		LightingResult lighting = CalcLighting(V, NV, N, vec3(1, 1, 1));" +
+"		FCombinedDiffuse = lighting.combinedDiffuse;" +
+"		FCombinedSpecular = lighting.combinedSpecular;" +
+"	}" +
+
+	'Assign other varyings
+"	FVertexColor = MaterialColor * VertexColor;" +
+"	FVertexTexCoords = vec4(vec2(TextureMatrix * vec4(vec2(VertexTexCoords), 0, 1)), VertexTexCoords.z, VertexTexCoords.w);" +
+"	if ( ShadowsEnabled ) FDepthCoords = vec3(DepthBiasMatrix * VertexPos4);" +
+"	if ( Fog.Data[2] != 0.0 ) FFogFactor = clamp((Fog.Data[1] - abs(V.z)) / (Fog.Data[1] - Fog.Data[0]), 0.0, 1.0);" +
+
+	'Final position
+"	gl_Position = ModelViewProjection * VertexPos4;" +
+"}"
+
+Const MIN_SHADOWS_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
+"void main() {" +
+	'First, if the fragment is in the fog completely, set it's color directly
+"	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
+
+	'Get color texture data
+"	vec4 ColorTexture = (BaseTexMode == 1 ) ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : (BaseTexMode == 2) ? textureCube(BaseCubeSampler, FCubeCoords) : vec4(1, 1, 1, 1);" +
+
+	'Reject fragment with low alpha
+"	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
+
+	'Get other texture data
+"	vec3 LightTexture = UseLightmap ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
+"	float DepthTexture = texture2D(DepthSampler, vec2(FDepthCoords)).z;" +
+
+	'Shadows
+"	bool Shadowed = false;" +
+"	if ( ShadowsEnabled && FDepthCoords.x >= 0.0 && FDepthCoords.x <= 1.0 && FDepthCoords.y >= 0.0 && FDepthCoords.y <= 1.0 && FDepthCoords.z >= 0.0 && FDepthCoords.z <= 1.0 && DepthTexture < FDepthCoords.z - DepthEpsilon ) Shadowed = true;" +
+
+	'Lighting
+"	vec4 LightingDiffuse = vec4(0, 0, 0, 1);" +
+"	vec4 LightingSpecular = vec4(0, 0, 0, 0);" +
+"	if ( NumLights > 0 ) {" +
+		'Only apply if fragment is not shadowed
+"		if ( !Shadowed ) { " +
+"			LightingDiffuse = vec4(FCombinedDiffuse, 1);" +
+"			LightingSpecular = vec4(FCombinedSpecular, 0);" +
+"		} else {" +
+"			LightingDiffuse = vec4(Ambient, 1);" +
+"		}" +
+"		LightingDiffuse += vec4(LightTexture, 0.0);" +
+"	} else {"+
+"		LightingDiffuse = UseLightmap ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
+"	}" +
+
+	'Compute color
+"	gl_FragColor = LightingDiffuse * FVertexColor * ColorTexture;" +
+
+	'Add specular
+"	if ( NumLights > 0 && !Shadowed ) gl_FragColor = clamp(gl_FragColor + LightingSpecular, 0.0, 1.0);" +
+
+	'Add fog
+"	if ( Fog.Data[2] != 0.0 ) gl_FragColor = vec4(mix(Fog.Color, vec3(gl_FragColor), FFogFactor), gl_FragColor.a);" +
+"}"
+
+Const VLIT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER_CALC_SKINNING + SHADER_CALC_CUBE_COORDS +
+"void main() {" +
+	'Get vec4 version of VertexPos
+"	vec4 VertexPos4 = vec4(VertexPos, 1);" +
+
+	'Vertex skinning
+"	if ( Skinned ) VertexPos4 = CalcSkinning(VertexPos4);" +
+
+	'Calculate vectors used in lighting, env mapping and fog calculations
+"	vec3 V;" +
+"	vec3 NV;" +
+"	vec3 N;" +
+"	if ( NumLights > 0 || BaseTexMode == 2 || UseCubemap || Fog.Data[2] != 0.0 ) {" +
+" 	V = vec3(ModelView * VertexPos4);" +
+"		NV = normalize(V);" +
+"		N = normalize(vec3(NormalMatrix * vec4(VertexNormal, 0.0)));" +
+"	}~n" +
+
+	'Cube mapping coordinates
+"	if ( BaseTexMode == 2 || UseCubemap ) FCubeCoords = CalcCubeCoords(NV, N, (BaseTexMode == 2) ? 0 : (MaterialRefractCoef < 0.0) ? 1 : 2);" +
+
+	'Calculate vertex lighting
+"	if ( NumLights > 0 ) {" +
+"		LightingResult lighting = CalcLighting(V, NV, N, vec3(1, 1, 1));" +
+"		FCombinedDiffuse = lighting.combinedDiffuse;" +
+"		FCombinedSpecular = lighting.combinedSpecular;" +
+"	}" +
+
+	'Assign other varyings
+"	FVertexColor = MaterialColor * VertexColor;" +
+"	FVertexTexCoords = vec4(vec2(TextureMatrix * vec4(vec2(VertexTexCoords), 0, 1)), VertexTexCoords.z, VertexTexCoords.w);" +
+"	if ( ShadowsEnabled ) FDepthCoords = vec3(DepthBiasMatrix * VertexPos4);" +
+"	if ( Fog.Data[2] != 0.0 ) FFogFactor = clamp((Fog.Data[1] - abs(V.z)) / (Fog.Data[1] - Fog.Data[0]), 0.0, 1.0);" +
+
+	'Final position
+"	gl_Position = ModelViewProjection * VertexPos4;" +
+"}"
+
+Const VLIT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
+"void main() {" +
+	'First, if the fragment is in the fog completely, set it's color directly
+"	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
+
+	'Get color texture data
+"	vec4 ColorTexture = (BaseTexMode == 1 ) ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : (BaseTexMode == 2) ? textureCube(BaseCubeSampler, FCubeCoords) : vec4(1, 1, 1, 1);" +
+
+	'Reject fragment with low alpha
+"	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
+
+	'Get other texture data
+"	vec3 SpecularTexture = UseSpecularTex ? vec3(texture2D(SpecularTexSampler, vec2(FVertexTexCoords))) : vec3(1, 1, 1);" +
+"	vec3 LightTexture = UseLightmap ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
+"	vec4 CubeTexture = UseCubemap ? textureCube(CubemapSampler, FCubeCoords) : vec4(1, 1, 1, 1);" +
+"	float DepthTexture = texture2D(DepthSampler, vec2(FDepthCoords)).z;" +
+
+	'Shadows
+"	bool Shadowed = false;" +
+"	if ( ShadowsEnabled && FDepthCoords.x >= 0.0 && FDepthCoords.x <= 1.0 && FDepthCoords.y >= 0.0 && FDepthCoords.y <= 1.0 && FDepthCoords.z >= 0.0 && FDepthCoords.z <= 1.0 && DepthTexture < FDepthCoords.z - DepthEpsilon ) Shadowed = true;" +
+
+	'Lighting
+"	vec4 LightingDiffuse = vec4(0, 0, 0, 1);" +
+"	vec4 LightingSpecular = vec4(0, 0, 0, 0);" +
+"	if ( NumLights > 0 ) {" +
+		'Only apply if fragment is not shadowed
+"		if ( !Shadowed ) { " +
+"			LightingDiffuse = vec4(FCombinedDiffuse, 1);" +
+"			LightingSpecular = vec4(FCombinedSpecular, 0);" +
+"		} else {" +
+"			LightingDiffuse = vec4(Ambient, 1);" +
+"		}" +
+"		LightingDiffuse += vec4(LightTexture, 0.0);" +
+"	} else {"+
+"		LightingDiffuse = UseLightmap ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
+"	}" +
+
+	'Compute color
+"	gl_FragColor = LightingDiffuse * FVertexColor * ColorTexture * CubeTexture;" +
+
+	'Add specular
+"	if ( NumLights > 0 && !Shadowed ) gl_FragColor = clamp(gl_FragColor + LightingSpecular, 0.0, 1.0);" +
+
+	'Add fog
+"	if ( Fog.Data[2] != 0.0 ) gl_FragColor = vec4(mix(Fog.Color, vec3(gl_FragColor), FFogFactor), gl_FragColor.a);" +
+"}"
+
+Const PLIT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_SKINNING + SHADER_CALC_CUBE_COORDS + SHADER_CALC_TBN_MATRIX +
 "void main() {" +
 	'Get vec4 version of VertexPos
 "	vec4 VertexPos4 = vec4(VertexPos, 1);" +
@@ -148,33 +381,19 @@ Const STD_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER
 "	vec3 NV;" +
 "	vec3 N;" +
 "	if ( NumLights > 0 || BaseTexMode == 2 || UseNormalTex || UseSpecularTex || UseCubemap || Fog.Data[2] != 0.0 ) {" +
-		'Calculate vertex in viewer space~n" +
-" 		V = vec3(ModelView * VertexPos4);" +
-
-"		if ( NumLights > 0 || BaseTexMode == 2 || UseNormalTex || UseSpecularTex || UseCubemap ) {" +
-			'Calculate normalized vertex coordinates
-"			NV = normalize(V);" +
-
-			'Calculate normal in viewer space
-"			N = normalize(vec3(NormalMatrix * vec4(VertexNormal, 0.0)));" +
-"		}~n" +
+" 	V = vec3(ModelView * VertexPos4);" +
+"		NV = normalize(V);" +
+"		N = normalize(vec3(NormalMatrix * vec4(VertexNormal, 0.0)));" +
 "	}~n" +
 
 	'Cube mapping coordinates
 "	if ( BaseTexMode == 2 || UseCubemap ) FCubeCoords = CalcCubeCoords(NV, N, (BaseTexMode == 2) ? 0 : (MaterialRefractCoef < 0.0) ? 1 : 2);" +
 
-	'Calculate vertex lighting
-"	if ( NumLights > 0 && !UsePixelLighting ) {" +
-"		LightingResult lighting = CalcLighting(V, NV, N, vec3(1, 1, 1));" +
-"		FCombinedDiffuse = lighting.combinedDiffuse;" +
-"		FCombinedSpecular = lighting.combinedSpecular;" +
-"	}" +
-
 	'Calculate TBN matrix
 "	if ( NumLights > 0 && UseNormalTex ) FTBNMatrix = CalcTBNMatrix(N, normalize(vec3(NormalMatrix * vec4(VertexTangent, 0))));" +
 
 	'Assign other varyings
-"	if ( NumLights > 0 && UsePixelLighting ) {" +
+"	if ( NumLights > 0 ) {" +
 "		FVertexPos = V;" +
 "		FNormalizedVertexPos = NV;" +
 "		FVertexNormal = N;" +
@@ -188,7 +407,7 @@ Const STD_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER
 "	gl_Position = ModelViewProjection * VertexPos4;" +
 "}"
 
-Const STD_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING +
+Const PLIT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING +
 "void main() {" +
 	'First, if the fragment is in the fog completely, set it's color directly
 "	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
@@ -212,34 +431,29 @@ Const STD_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING +
 '"	if ( FDepthCoords.z < 0.0 || FDepthCoords.z > 1.0 ) { gl_FragColor = vec4(1, 1, 0, 1); return; }" +
 
 	'Lighting
-"	vec4 LightingDiffuse = vec4(1, 1, 1, 1);" +
+"	vec4 LightingDiffuse = vec4(0, 0, 0, 1);" +
 "	vec4 LightingSpecular = vec4(0, 0, 0, 0);" +
 "	if ( NumLights > 0 ) {" +
 		'Only apply if fragment is not shadowed
 "		if ( !Shadowed ) { " +
-			'Per pixel lighting
-"			if ( UsePixelLighting ) {" +
-				'Get fragment normal or compute from normal map
-"				vec3 normal = FVertexNormal;" +
-"				if ( UseNormalTex ) {" +
-"					vec3 normalTexColor = vec3(texture2D(NormalTexSampler, vec2(FVertexTexCoords)));" +
-"					normal = FTBNMatrix * (normalTexColor*2.0 - 1.0);" +
-"				}" +
-
-				'Calc lighting
-"				LightingResult lighting = CalcLighting(FVertexPos, FNormalizedVertexPos, normal, SpecularTexture);" +
-"				LightingDiffuse = vec4(lighting.combinedDiffuse, 1);" +
-"				LightingSpecular = vec4(lighting.combinedSpecular, 0);" +
-			'Apply vertex lighting
-"			} else {" +
-"				LightingDiffuse = vec4(FCombinedDiffuse, 1);" +
-"				LightingSpecular = vec4(FCombinedSpecular, 0);" +
+			'Get fragment normal or compute from normal map
+"			vec3 normal = FVertexNormal;" +
+"			if ( UseNormalTex ) {" +
+"				vec3 normalTexColor = vec3(texture2D(NormalTexSampler, vec2(FVertexTexCoords)));" +
+"				normal = FTBNMatrix * (normalTexColor*2.0 - 1.0);" +
 "			}" +
+
+			'Calc lighting
+"			LightingResult lighting = CalcLighting(FVertexPos, FNormalizedVertexPos, normal, SpecularTexture);" +
+"			LightingDiffuse = vec4(lighting.combinedDiffuse, 1);" +
+"			LightingSpecular = vec4(lighting.combinedSpecular, 0);" +
 "		} else {" +
 "			LightingDiffuse = vec4(Ambient, 1);" +
 "		}" +
-"	}"+
-"	if ( UseLightmap ) LightingDiffuse += vec4(LightTexture, 0.0);" +
+"		LightingDiffuse += vec4(LightTexture, 0.0);" +
+"	} else {"+
+"		LightingDiffuse = UseLightmap ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
+"	}" +
 
 	'Compute color
 "	gl_FragColor = LightingDiffuse * FVertexColor * ColorTexture * CubeTexture;" +
