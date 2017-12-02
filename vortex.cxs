@@ -1,5 +1,5 @@
 'TODO v2.0-beta2
-'+ Allow to continue if some shaders have not compiled
+'- Add vehicle test with specular and reflections.
 '- Remove "Set" from all methods
 '- Remove cubemap support for Material.ColorTexture (skyboxes should be a 2D texture, and Mesh.CreateSkybox should generate correct UV's)
 '- Make shadows work even without lights and when Material.Lighting = False
@@ -19,6 +19,7 @@
 '- Add picking test
 '- Add fixes for Android
 'TODO v2.0:
+'- Add cone, cylinder and sphere primitives (maybe rename wedge to ramp)?
 '- Add support for filters param in RequestFile (dialog module)
 '- Allow font textures to have different width and height (this should save texture space)
 '- Add x offset to fonts
