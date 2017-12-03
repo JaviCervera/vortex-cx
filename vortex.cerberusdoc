@@ -140,7 +140,7 @@ Sets the width of the region of the screen that the camera will be drawn to.
 # Method ViewportHeight:Void(val:Int) Property
 Sets the height of the region of the screen that the camera will be drawn to.
 
-# Method SetViewport:Void(x:Int, y:Int, width:Int, height:Int)
+# Method Viewport:Void(x:Int, y:Int, width:Int, height:Int)
 Sets the region of the screen that the camera will be drawn to.
 
 # Method ClearMode:Int() Property
@@ -148,14 +148,14 @@ Returns the clear mode for this camera. Depending on the value of this property,
 | Value | Meaning
 | Camera.CLEAR_NONE | Does not clear the viewport before rendering.
 | Camera.CLEAR_COLOR | Clears the viewport with the color defined by the `ClearColor` property.
-| Camera.CLEAR_SKYBOX | Clears the viewport with the skybox defined by the `World.SetSkyboxTexture` function (defaults to `Null`).
+| Camera.CLEAR_SKYBOX | Clears the viewport with the skybox defined by the `World.SkyboxTexture` function (defaults to `Null`).
 
 # Method ClearMode:Void(mode:Int) Property
 Sets the clear mode for this camera. Depending on the value of this property, the viewport will be cleared with a plain color or a textured skybox before performing rendering.
 | Value | Meaning
 | Camera.CLEAR_NONE | Does not clear the viewport before rendering.
 | Camera.CLEAR_COLOR | Clears the viewport with the color defined by the `ClearColor` property.
-| Camera.CLEAR_SKYBOX | Clears the viewport with the skybox defined by the `World.SetSkyboxTexture` function (defaults to `Null`).
+| Camera.CLEAR_SKYBOX | Clears the viewport with the skybox defined by the `World.SkyboxTexture` function (defaults to `Null`).
 
 # Method ClearColor:Int() Property
 Returns the clear color used by this camera in case that the `ClearMode` property is set to `Camera.CLEAR_COLOR`.
@@ -538,7 +538,7 @@ Vortex can simulate positional 3D sound by using the standard `mojo.audio` modul
 # Function Instance:Entity()
 Returns the instance that is the active listener.
 
-# Function SetInstance:Void(e:Entity)
+# Function Instance:Void(e:Entity)
 Sets the instance that is the active listener. The first camera that is created automatically becomes the active listener.
 
 # Function AvailableChannel:Int()
@@ -624,6 +624,12 @@ Sets the specular shininess of the material. A value of 0 will disable specular 
 
 # Method Shininess:Float() Property
 Returns the specular shininess of the material.
+
+# Method CubeOpacity:Void(opacity:Float) Property
+Sets the opacity of the cubemap. The default opacity is 0.5.
+
+# Method CubeOpacity:Float() Property
+Return the opacity of the cubemap.
 
 # Method RefractionCoef:Void(coef:Float) Property
 Sets the refraction coefficient of the material.
@@ -846,7 +852,7 @@ Setups the context for 2D drawing. The parameters define the rectangle within th
 # Function SetupMojo:Void()
 Setups the context for drawing with Mojo2.
 
-# Function SetBlendMode:Void(mode:Int)
+# Function BlendMode:Void(mode:Int)
 Sets the blend mode to use when painting. Possible values are:
 
 | Value       | Meaning
@@ -855,7 +861,7 @@ Sets the blend mode to use when painting. Possible values are:
 | Renderer.BLEND_ADD   | The computed color is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
 | Renderer.BLEND_MUL   | The computed color is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
 
-# Function SetColor:Void(color:Int)
+# Function Color:Void(color:Int)
 Sets the drawing color.
 
 # Function ClearColorBuffer:Void(color:Int = Color.BLACK)

@@ -23,7 +23,7 @@ Const STD_UNIFORMS:String = "" +
 "uniform mat4 Bones[MAX_BONES];" +
 'These uniforms should be compacted into a flags int
 '"uniform int Flags;" +
-"uniform int BaseTexMode;" +
+"uniform bool UseColorTex;" +
 "uniform bool UseNormalTex;" +
 "uniform bool UseSpecularTex;" +
 "uniform bool UseLightmap;" +
@@ -43,7 +43,6 @@ Const STD_ATTRIBUTES:String = "" +
 
 Const STD_SAMPLERS:String = "" +
 "uniform sampler2D BaseTexSampler;" +
-"uniform samplerCube BaseCubeSampler;" +
 "uniform sampler2D NormalTexSampler;" +
 "uniform sampler2D SpecularTexSampler;" +
 "uniform sampler2D LightmapSampler;" +
@@ -123,9 +122,8 @@ Const SHADER_CALC_SKINNING:String = "" +
 "}~n"
 
 Const SHADER_CALC_CUBE_COORDS:String = "" +
-"vec3 CalcCubeCoords(vec3 NV, vec3 N, int mode) {" +
-" 	if ( mode == 0 ) return vec3(InverseView * vec4(NV, 0));" +
-"	else if ( mode == 1 ) return normalize(vec3(InverseView * vec4(reflect(NV, N), 0)));" +
+"vec3 CalcCubeCoords(vec3 NV, vec3 N) {" +
+"	if ( MaterialRefractCoef < 0.0 ) return normalize(vec3(InverseView * vec4(reflect(NV, N), 0)));" +
 "	else return normalize(vec3(InverseView * vec4(refract(NV, N, MaterialRefractCoef), 0)));" +
 "}"
 
@@ -174,7 +172,7 @@ Const MIN_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
 "	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
 
 	'Get color texture data
-"	vec4 ColorTexture = (BaseTexMode == 1 ) ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : vec4(1, 1, 1, 1);" +
+"	vec4 ColorTexture = UseColorTex ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : vec4(1, 1, 1, 1);" +
 
 	'Reject fragment with low alpha
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
@@ -244,7 +242,7 @@ Const MIN_SHADOWS_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
 "	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
 
 	'Get color texture data
-"	vec4 ColorTexture = (BaseTexMode == 1 ) ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : vec4(1, 1, 1, 1);" +
+"	vec4 ColorTexture = UseColorTex ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : vec4(1, 1, 1, 1);" +
 
 	'Reject fragment with low alpha
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
@@ -295,14 +293,14 @@ Const VLIT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADE
 "	vec3 V;" +
 "	vec3 NV;" +
 "	vec3 N;" +
-"	if ( NumLights > 0 || BaseTexMode == 2 || UseCubemap || Fog.Data[2] != 0.0 ) {" +
+"	if ( NumLights > 0 || UseCubemap || Fog.Data[2] != 0.0 ) {" +
 " 	V = vec3(ModelView * VertexPos4);" +
 "		NV = normalize(V);" +
 "		N = normalize(vec3(NormalMatrix * vec4(VertexNormal, 0.0)));" +
 "	}~n" +
 
 	'Cube mapping coordinates
-"	if ( BaseTexMode == 2 || UseCubemap ) FCubeCoords = CalcCubeCoords(NV, N, (BaseTexMode == 2) ? 0 : (MaterialRefractCoef < 0.0) ? 1 : 2);" +
+"	if ( UseCubemap ) FCubeCoords = CalcCubeCoords(NV, N);" +
 
 	'Calculate vertex lighting
 "	if ( NumLights > 0 ) {" +
@@ -327,7 +325,7 @@ Const VLIT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
 "	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
 
 	'Get color texture data
-"	vec4 ColorTexture = (BaseTexMode == 1 ) ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : (BaseTexMode == 2) ? textureCube(BaseCubeSampler, FCubeCoords) : vec4(1, 1, 1, 1);" +
+"	vec4 ColorTexture = UseColorTex ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : vec4(1, 1, 1, 1);" +
 
 	'Reject fragment with low alpha
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
@@ -380,14 +378,14 @@ Const PLIT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_SKINNING + SHADE
 "	vec3 V;" +
 "	vec3 NV;" +
 "	vec3 N;" +
-"	if ( NumLights > 0 || BaseTexMode == 2 || UseNormalTex || UseSpecularTex || UseCubemap || Fog.Data[2] != 0.0 ) {" +
+"	if ( NumLights > 0 || UseNormalTex || UseSpecularTex || UseCubemap || Fog.Data[2] != 0.0 ) {" +
 " 	V = vec3(ModelView * VertexPos4);" +
 "		NV = normalize(V);" +
 "		N = normalize(vec3(NormalMatrix * vec4(VertexNormal, 0.0)));" +
 "	}~n" +
 
 	'Cube mapping coordinates
-"	if ( BaseTexMode == 2 || UseCubemap ) FCubeCoords = CalcCubeCoords(NV, N, (BaseTexMode == 2) ? 0 : (MaterialRefractCoef < 0.0) ? 1 : 2);" +
+"	if ( UseCubemap ) FCubeCoords = CalcCubeCoords(NV, N);" +
 
 	'Calculate TBN matrix
 "	if ( NumLights > 0 && UseNormalTex ) FTBNMatrix = CalcTBNMatrix(N, normalize(vec3(NormalMatrix * vec4(VertexTangent, 0))));" +
@@ -413,7 +411,7 @@ Const PLIT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING +
 "	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
 
 	'Get color texture data
-"	vec4 ColorTexture = (BaseTexMode == 1 ) ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : (BaseTexMode == 2) ? textureCube(BaseCubeSampler, FCubeCoords) : vec4(1, 1, 1, 1);" +
+"	vec4 ColorTexture = UseColorTex ? texture2D(BaseTexSampler, vec2(FVertexTexCoords)) : vec4(1, 1, 1, 1);" +
 
 	'Reject fragment with low alpha
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
@@ -493,13 +491,30 @@ Const _2D_VERTEX_SHADER:String = "" +
 "}"
 
 Const _2D_FRAGMENT_SHADER:String = "" +
-"uniform int BaseTexMode;" +
+"uniform bool UseColorTex;" +
+"uniform bool UseCubemap;" +
 "uniform sampler2D BaseTexSampler;" +
-"uniform samplerCube BaseCubeSampler;" +
+"uniform samplerCube CubemapSampler;" +
 "uniform vec4 MaterialColor;" +
 "varying vec2 FVertexTexCoords;" +
 "void main() {" +
 "	gl_FragColor = MaterialColor;" +
-"	if ( BaseTexMode == 1 ) gl_FragColor *= texture2D(BaseTexSampler, FVertexTexCoords);" +
-"	else if ( BaseTexMode == 2 ) gl_FragColor *= textureCube(BaseCubeSampler, vec3(FVertexTexCoords.x, -FVertexTexCoords.y, 1));" +
+"	if ( UseColorTex ) gl_FragColor *= texture2D(BaseTexSampler, FVertexTexCoords);" +
+"	if ( UseCubemap ) gl_FragColor *= textureCube(CubemapSampler, vec3(FVertexTexCoords.x, -FVertexTexCoords.y, 1));" +
 "}"
+
+Const SKYBOX_VERTEX_SHADER:String = "" +
+"uniform mat4 ModelViewProjection;" +
+"uniform mat4 ModelView;" +
+"uniform mat4 InverseView;" +
+"attribute vec3 VertexPos;" +
+"varying vec3 FCubeCoords;" +
+"void main() {" +
+"	gl_Position = ModelViewProjection * vec4(VertexPos, 1);" +
+" FCubeCoords = vec3(InverseView * vec4(normalize(vec3(ModelView * vec4(VertexPos, 1))), 0));" +
+"}"
+
+Const SKYBOX_FRAGMENT_SHADER:String = "" +
+"uniform samplerCube CubemapSampler;" +
+"varying vec3 FCubeCoords;" +
+"void main() { gl_FragColor = textureCube(CubemapSampler, FCubeCoords); }"

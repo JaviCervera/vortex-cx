@@ -43,12 +43,11 @@ Public
 	Const MODE_TRIANGLEFAN		: Int = 4
 	
 	Const BASETEX_UNIT:Int = 0
-	Const BASECUBE_UNIT:Int = 1
-	Const NORMALTEX_UNIT:Int = 2
-	Const SPECULARTEX_UNIT:Int = 3
-	Const LIGHTMAP_UNIT:Int = 4
-	Const CUBEMAP_UNIT:Int = 5
-	Const DEPTHTEX_UNIT:Int = 6
+	Const NORMALTEX_UNIT:Int = 1
+	Const SPECULARTEX_UNIT:Int = 2
+	Const LIGHTMAP_UNIT:Int = 3
+	Const CUBEMAP_UNIT:Int = 4
+	Const DEPTHTEX_UNIT:Int = 5
 	
 	Const ELLIPSEPOINTS:Int = 64
 
@@ -57,8 +56,14 @@ Public
 	'---------------------------------------------------------------------------
 
 	Function Init:Bool(numLights:Int, numBones:Int)
-		'Create renderer state
-		mState = New RenderState(numLights)
+		'Setup render state
+		RenderState.LightPos = New Float[numLights][]
+		For Local i:Int = 0 Until numLights
+			RenderState.LightPos[i] = [0.0, 0.0, 0.0, 0.0]
+		Next
+		RenderState.LightColor = New Int[numLights]
+		RenderState.LightRadius = New Float[numLights]
+		RenderState.Color = color.Color.WHITE
 	
 		'Set the max number of lights and bones supported
 		mMaxLights = numLights
@@ -66,14 +71,16 @@ Public
 		
 		'Compile all shaders
 		Shader._Default2D()
-		Shader._DefaultShadow()
+		Shader._Shadow()
+		Shader._Skybox()
 		Shader._Minimal()
 		Shader._MinimalShadows()
 		Shader._VertexLighting()
 		Shader._PixelLighting()
 
-		'Make sure that at least 2d and minimal shaders are correct
+		'Make sure that at least 2d, skybox and minimal shaders are correct
 		If Shader._Default2D().Handle = 0 Then Return False
+		If Shader._Skybox().Handle = 0 Then Return False
 		If Shader._Minimal().Handle = 0 Then Return False
 		
 		'Delete old buffers if they exist
@@ -133,10 +140,6 @@ Public
 
 		Return True
 	End
-	
-	Function State:RenderState()
-		Return mState
-	End
 
 	Function Setup2D:Void(x:Int, y:Int, w:Int, h:Int)
 		Local fbHeight:Int = mFramebufferHeight
@@ -150,9 +153,9 @@ Public
 		glEnable(GL_BLEND)
 		glEnable(GL_SCISSOR_TEST)
 		glFrontFace(GL_CCW)
-		SetBlendMode(BLEND_ALPHA)
-		SetColor(Color.WHITE)
-		SetTextures(0, 0, 0, 0, 0, False)
+		BlendMode(BLEND_ALPHA)
+		Color(color.Color.WHITE)
+		SetTextures(0, 0, 0, 0, 0)
 
 		'Setup viewport
 		y = fbHeight - y - h
@@ -160,10 +163,10 @@ Public
 		glScissor(x, y, w, h)
 
 		'Setup matrices
-		Mat4OrthoLH(0, w, h, 0, 0, 100, mState.ProjectionMatrix)
-		Mat4Identity(mState.ViewMatrix)
-		Mat4Identity(mState.ModelMatrix)
-		Mat4Identity(mState.TextureMatrix)
+		Mat4OrthoLH(0, w, h, 0, 0, 100, RenderState.ProjectionMatrix)
+		Mat4Identity(RenderState.ViewMatrix)
+		Mat4Identity(RenderState.ModelMatrix)
+		Mat4Identity(RenderState.TextureMatrix)
 		
 		'Bind 2D shader
 		Shader._CurrentDefault(Shader._Default2D())
@@ -178,14 +181,14 @@ Public
 		glEnable(GL_DEPTH_TEST)
 		glEnable(GL_SCISSOR_TEST)
 		glDepthFunc(GL_LEQUAL)
-		mState.NumLights = 0
+		RenderState.NumLights = 0
 		SetCulling(True)
 		glFrontFace(GL_CW)
 		SetDepthWrite(True)
-		SetBlendMode(BLEND_SOLID)
-		SetColor(Color.WHITE)
-		SetTextures(0, 0, 0, 0, 0, False)
-		mState.Skinned = False
+		BlendMode(BLEND_SOLID)
+		Color(color.Color.WHITE)
+		SetTextures(0, 0, 0, 0, 0)
+		RenderState.Skinned = False
 
 		'Setup viewport
 		y = fbHeight - y - h
@@ -193,10 +196,10 @@ Public
 		glScissor(x, y, w, h)
 		
 		'Setup texture matrix
-		Mat4Identity(mState.TextureMatrix)
+		Mat4Identity(RenderState.TextureMatrix)
 		
 		'Disable shadows by default
-		mState.ShadowsEnabled = False
+		RenderState.ShadowsEnabled = False
 		
 		'Bind 3D shader
 		Shader._CurrentDefault(Shader._Default3D())
@@ -211,8 +214,8 @@ Public
 		glEnable(GL_BLEND)
 		glEnable(GL_SCISSOR_TEST)
 		glFrontFace(GL_CCW)
-		SetBlendMode(BLEND_ALPHA)
-		SetColor(Color.WHITE)
+		BlendMode(BLEND_ALPHA)
+		Color(color.Color.WHITE)
 		
 		'This is a bit hacky... taken from Mojo2 source
 		glEnableVertexAttribArray 0 ; glVertexAttribPointer 0,2,GL_FLOAT,False,28,0
@@ -225,8 +228,8 @@ Public
 		Return mMaxBones
 	End
 
-	Function SetBlendMode:Void(mode:Int)
-		mState.BlendMode = mode
+	Function BlendMode:Void(mode:Int)
+		RenderState.BlendMode = mode
 		Select mode
 		Case BLEND_SOLID
 			glBlendFunc(GL_ONE, GL_ZERO)
@@ -239,8 +242,8 @@ Public
 		End
 	End
 	
-	Function SetColor:Void(color:Int)
-		mState.Color = color
+	Function Color:Void(color:Int)
+		RenderState.Color = color
 	End
 
 	Function SetCulling:Void(enable:Bool)
@@ -259,8 +262,8 @@ Public
 	' Drawing
 	'---------------------------------------------------------------------------
 
-	Function ClearColorBuffer:Void(color:Int = Color.BLACK)
-		glClearColor(Color.Red(color) / 255.0, Color.Green(color) / 255.0, Color.Blue(color) / 255.0, Color.Alpha(color) / 255.0)
+	Function ClearColorBuffer:Void(col:Int = color.Color.BLACK)
+		glClearColor(color.Color.Red(col) / 255.0, color.Color.Green(col) / 255.0, color.Color.Blue(col) / 255.0, color.Color.Alpha(col) / 255.0)
 		glClear(GL_COLOR_BUFFER_BIT)
 	End
 
@@ -270,7 +273,7 @@ Public
 
 	Function DrawPoint:Void(x:Float, y:Float)
 #If TARGET<>"html5"
-		Mat4TransformEuler(x, y, 0, 0, 0, 0, 1, 1, 1, mState.ModelMatrix)
+		Mat4TransformEuler(x, y, 0, 0, 0, 0, 1, 1, 1, RenderState.ModelMatrix)
 		Shader._CurrentDefault()._Prepare()
 		DrawBuffers(mLineBuffer, 0, 1, 0, -1, -1, -1, -1, -1, -1, 0, MODE_POINTS)
 #Else
@@ -280,19 +283,19 @@ Public
 	End
 
 	Function DrawLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)
-		Mat4TransformEuler(x1, y1, 0, 0, 0, 0, x2-x1, y2-y1, 1, mState.ModelMatrix)
+		Mat4TransformEuler(x1, y1, 0, 0, 0, 0, x2-x1, y2-y1, 1, RenderState.ModelMatrix)
 		Shader._CurrentDefault()._Prepare()
 		DrawBuffers(mLineBuffer, 0, 2, 0, -1, -1, -1, -1, -1, -1, 0, MODE_LINES)
 	End
 	
 	Function DrawEllipse:Void(x:Float, y:Float, width:Float, height:Float)
-		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, mState.ModelMatrix)
+		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, RenderState.ModelMatrix)
 		Shader._CurrentDefault()._Prepare()
 		DrawBuffers(mEllipseBuffer, 0, ELLIPSEPOINTS, 0, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
 
 	Function DrawRect:Void(x:Float, y:Float, width:Float, height:Float)
-		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, mState.ModelMatrix)
+		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, RenderState.ModelMatrix)
 		Shader._CurrentDefault()._Prepare()
 		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
@@ -307,7 +310,7 @@ Public
 		mTexDataBuffer.PokeFloat(48, u0)
 		mTexDataBuffer.PokeFloat(52, v1)
 		SetVertexBufferData(mRectBuffer, 48, mTexDataBuffer.Length(), mTexDataBuffer)
-		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, mState.ModelMatrix)
+		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, RenderState.ModelMatrix)
 		Shader._CurrentDefault()._Prepare()
 		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, 48, -1, -1, 0, MODE_TRIANGLEFAN)
 	End
@@ -419,15 +422,10 @@ Public
 		glDeleteTexture(texture)
 	End
 
-	Function SetTextures:Void(diffuseTex:Int, normalTex:Int, specularTex:Int, lightmap:Int, cubeTex:Int, isDiffuseCubic:Bool)
+	Function SetTextures:Void(diffuseTex:Int, normalTex:Int, specularTex:Int, lightmap:Int, cubeTex:Int)
 		If diffuseTex <> 0
-			If Not isDiffuseCubic
-				glActiveTexture(GL_TEXTURE0 + BASETEX_UNIT)
-				glBindTexture(GL_TEXTURE_2D, diffuseTex)
-			Else
-				glActiveTexture(GL_TEXTURE0 + BASECUBE_UNIT)
-				glBindTexture(GL_TEXTURE_CUBE_MAP, diffuseTex)
-			End
+			glActiveTexture(GL_TEXTURE0 + BASETEX_UNIT)
+			glBindTexture(GL_TEXTURE_2D, diffuseTex)
 		End
 		If normalTex <> 0
 			glActiveTexture(GL_TEXTURE0 + NORMALTEX_UNIT)
@@ -447,17 +445,11 @@ Public
 		End
 		glActiveTexture(GL_TEXTURE0)
 		
-		If diffuseTex = 0
-			mState.BaseTexMode = 0
-		Elseif Not isDiffuseCubic
-			mState.BaseTexMode = 1
-		Else
-			mState.BaseTexMode = 2
-		End
-		mState.UseNormalTex = normalTex <> 0
-		mState.UseSpecularTex = specularTex <> 0
-		mState.UseLightTex = lightmap <> 0
-		mState.UseCubeTex = cubeTex <> 0
+		RenderState.UseColorTex = diffuseTex <> 0
+		RenderState.UseNormalTex = normalTex <> 0
+		RenderState.UseSpecularTex = specularTex <> 0
+		RenderState.UseLightTex = lightmap <> 0
+		RenderState.UseCubeTex = cubeTex <> 0
 	End
 	
 	Function SetDepthTexture:Void(depthTex:Int)
@@ -815,7 +807,6 @@ Private
 	Global mVersion:Float
 	Global mShadingVersion:Float
 
-	Global mState:RenderState
 	Global mEllipseBuffer:Int
 	Global mLineBuffer:Int
 	Global mRectBuffer:Int

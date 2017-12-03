@@ -84,7 +84,7 @@ Public
 		'World.DepthTexture().Draw(DeviceWidth() - DeviceWidth()/3 - 4, DeviceHeight() - DeviceHeight()/3 - 4, DeviceWidth()/3, -DeviceHeight()/3)
 		
 		'Draw FPS
-		Renderer.SetColor(Color.YELLOW)
+		Renderer.Color(Color.YELLOW)
 		Local text:String = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

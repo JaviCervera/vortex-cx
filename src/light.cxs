@@ -4,6 +4,7 @@ Private
 Import color
 Import math3d
 Import renderer
+Import renderstate
 Import world
 
 Public
@@ -75,9 +76,9 @@ Class Light Extends Entity Final
 			Renderer.SetLight(mNumber, Mat4.ResultVector().X, Mat4.ResultVector().Y, Mat4.ResultVector().Z, 0.0, color.Color.Red(mColor) / 255.0, color.Color.Green(mColor) / 255.0, color.Color.Blue(mColor) / 255.0, Radius)
 		Else
 		#End
-		Mat4MulVec4(Renderer.State().ViewMatrix, WorldX, WorldY, WorldZ, 1, Renderer.State().LightPos[index])
-		Renderer.State().LightColor[index] = mColor
-		Renderer.State().LightRadius[index] = Radius
+		Mat4MulVec4(RenderState.ViewMatrix, WorldX, WorldY, WorldZ, 1, RenderState.LightPos[index])
+		RenderState.LightColor[index] = mColor
+		RenderState.LightRadius[index] = Radius
 		'End
 	End
 Private

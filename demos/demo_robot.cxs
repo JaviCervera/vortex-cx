@@ -104,16 +104,16 @@ Public
 		
 		'Draw mesh credits
 		Local text:String = "Robo_OBJ_pose4 by Artem Shupa-Dubrova is licensed under CC Attribution-NoDerivs"
-		Renderer.SetColor(Color.RGB(240, 240, 240))
+		Renderer.Color(Color.RGB(240, 240, 240))
 		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 8, text)
 		
 		'Draw shader type
-		Renderer.SetColor(Color.RGB(255, 100, 0))
+		Renderer.Color(Color.RGB(255, 100, 0))
 		text = "Current shader: " + mShaderTypeNames[Shader.DefaultType()] + " (touch screen to change)"
 		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, DeviceHeight() - mFont.TextHeight(text) - 8, text)
 		
 		'Draw FPS
-		Renderer.SetColor(Color.RGB(125, 161, 191))
+		Renderer.Color(Color.RGB(125, 161, 191))
 		text = Stats.FPS() + " FPS"
 		mFont.Draw(8, 8, text)
 	

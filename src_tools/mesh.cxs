@@ -308,6 +308,7 @@ Function MaterialSize:Int(mat:Material)
 	size += 1			'BlendMode
 	size += 1			'Flags
 	size += 4			'Shininess
+	size += 4			'Cube opacity
 	size += 4			'RefractCoef
 	size += 1			'Used textures
 	
@@ -430,13 +431,15 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	'Shininess
 	stream.WriteFloat(mat.Shininess)
 	
+	'Cube opacity
+	stream.WriteFloat(mat.CubeOpacity)
+	
 	'Refraction coef
 	stream.WriteFloat(mat.RefractionCoef)
 	
 	'Used textures
-	Local usedTexs:Int = 0	'1=Diffuse2D,2=Normal,4=Specular,8=Emissive,16=Lightmap,32=Cube,1024=DiffuseCube
-	If mat.ColorTexture And Not mat.ColorTexture.IsCubic Then usedTexs |= 1
-	If mat.ColorTexture And mat.ColorTexture.IsCubic Then usedTexs |= 1024
+	Local usedTexs:Int = 0	'1=Diffuse2D,2=Normal,4=Specular,8=Emissive,16=Lightmap,32=Cube
+	If mat.ColorTexture Then usedTexs |= 1
 	If mat.NormalTexture Then usedTexs |= 2
 	If mat.SpecularTexture Then usedTexs |= 4
 	'If mat.EmissiveTexture Then usedTexs |= 8

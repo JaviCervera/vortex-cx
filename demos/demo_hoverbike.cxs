@@ -1,0 +1,109 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Hoverbike"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+'#GLFW_GCC_MSIZE_WINNT="32"
+
+Import mojo.app
+Import mojo.input
+Import vortex
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		mShaderTypeNames = ["VERTEX LIGHTING", "PIXEL LIGHTING"]
+	
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init()
+			Print "Error: " + Stats.ShaderError()
+			EndApp()
+		End
+		Print "Vendor name: " + Stats.VendorName()
+		Print "Renderer name: " + Stats.RendererName()
+		Print "API version name: " + Stats.APIVersionName()
+		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Shader compilation: " + Stats.ShaderError()
+		
+		'Load font
+		mFont = Font.Load("system.fnt.dat")
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.Position(0, 4, -8)
+		mCam.Rotate(20, 0, 0)
+		mCam.ClearMode = Camera.CLEAR_SKYBOX
+		World.SkyboxTexture(Texture.Load("xneg.png", "xpos.png", "zpos.png", "zneg.png", "ypos.png", "yneg.png"))
+		
+		'Create hoverbike model
+		mModel = New Model(Mesh.Load("hoverbike.msh.dat"))
+
+		Return False
+	End
+	
+	Method OnUpdate:Int()	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Change default shader type with mouse click or touch input
+		If TouchHit(0) Then Shader.DefaultType(2 + (Shader.DefaultType() - 1) Mod 2)
+		
+		'Update world
+		World.Update()
+		
+		'Update camera
+		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.ViewportWidth = DeviceWidth()
+		mCam.ViewportHeight = DeviceHeight()
+		
+		'Update model
+		mModel.Yaw += 32 * Stats.DeltaTime()
+		
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Setup renderer for 2D graphics
+		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw mesh credits
+		Local text:String = "Hover Bike by Ptis is licensed under CC Attribution-NonCommercial"
+		Renderer.Color(Color.BLACK)
+		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 8, text)
+		
+		'Draw shader type
+		text = "Current shader: " + mShaderTypeNames[Shader.DefaultType() - 2] + " (touch screen to change)"
+		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, DeviceHeight() - mFont.TextHeight(text) - 8, text)
+		
+		'Draw FPS
+		text = Stats.FPS() + " FPS"
+		mFont.Draw(8, 8, text)
+	
+		Return False
+	End
+Private
+	Field mShaderTypeNames	: String[4]
+	Field mFont							: Font
+	Field mCam							: Camera
+	Field mModel						: Model
+	Field mFloor						: Model
+	Field mLights						: Light[2]
+	Field mValue						: Float
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
+End

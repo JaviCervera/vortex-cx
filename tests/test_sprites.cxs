@@ -86,7 +86,7 @@ Public
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Renderer.SetColor(Color.BLACK)
+		Renderer.Color(Color.BLACK)
 		Local text$ = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

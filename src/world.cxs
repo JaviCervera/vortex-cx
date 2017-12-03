@@ -14,6 +14,7 @@ Import material
 Import math3d
 Import mesh
 Import renderer
+Import renderstate
 Import shader
 Import stats
 Import surface
@@ -28,6 +29,7 @@ Class World Final
 			Cache._Push()
 			Stats._Init()
 			mSkybox = Mesh.CreateSkybox()
+			mSkybox.Material(0).Shader = Shader._Skybox()
 			mSkybox.Material(0).DepthWrite = False
 			SunRotation(45, -45)
 			SunColor(Color.WHITE)
@@ -67,7 +69,7 @@ Class World Final
 		'Render all cameras
 		For Local c:Camera = Eachin mCameras
 			'If shadows are enabled and supported, setup shadows
-			If mShadowsEnabled And Shader._DefaultShadow().Handle <> 0
+			If mShadowsEnabled And Shader._Shadow().Handle <> 0
 				'Find the point the camera is looking at
 				QuatSetEuler(c.Pitch, c.Yaw, c.Roll, mTempArr)
 				QuatMulVec3(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3], 0, 0, mShadowsRange/2, mTempArr)
@@ -90,9 +92,9 @@ Class World Final
 				
 				'Setup renderer
 				Renderer.Setup3D(0, 0, mFramebuffer.ColorTexture.Width, mFramebuffer.ColorTexture.Height)
-				Shader._CurrentDefault(Shader._DefaultShadow())
-				Mat4Copy(mDepthProj, Renderer.State().ProjectionMatrix)
-				Mat4Copy(mDepthView, Renderer.State().ViewMatrix)
+				Shader._CurrentDefault(Shader._Shadow())
+				Mat4Copy(mDepthProj, RenderState.ProjectionMatrix)
+				Mat4Copy(mDepthView, RenderState.ViewMatrix)
 				Renderer.ClearColorBuffer(Color.WHITE)
 				Renderer.ClearDepthBuffer()
 				
@@ -109,9 +111,9 @@ Class World Final
 			c._PrepareForRender()
 			
 			'Previous depth pass
-			Renderer.State().SeparateDepthPass = mSeparateDepthPass
+			RenderState.SeparateDepthPass = mSeparateDepthPass
 			If mSeparateDepthPass
-				Shader._CurrentDefault(Shader._DefaultShadow())
+				Shader._CurrentDefault(Shader._Shadow())
 				Renderer.SetDepthWrite(True)
 				
 				'Render entities to capture depth
@@ -123,37 +125,37 @@ Class World Final
 			End
 			
 			'Set fog and number of lights
-			Renderer.State().FogEnabled = mFogEnabled
-			Renderer.State().FogColor = mFogColor
-			Renderer.State().FogMinDistance = mFogMin
-			Renderer.State().FogMaxDistance = mFogMax
-			Renderer.State().NumLights = numLights
+			RenderState.FogEnabled = mFogEnabled
+			RenderState.FogColor = mFogColor
+			RenderState.FogMinDistance = mFogMin
+			RenderState.FogMaxDistance = mFogMax
+			RenderState.NumLights = numLights
 			
 			'Set depth data and shadow state
-			If mShadowsEnabled And Shader._DefaultShadow().Handle <> 0
-				Mat4Identity(Renderer.State().DepthBiasMatrix)
-				Renderer.State().DepthBiasMatrix[0] = 0.5
-				Renderer.State().DepthBiasMatrix[5] = 0.5
-				Renderer.State().DepthBiasMatrix[10] = 0.5
-				Renderer.State().DepthBiasMatrix[12] = 0.5
-				Renderer.State().DepthBiasMatrix[13] = 0.5
-				Renderer.State().DepthBiasMatrix[14] = 0.5
-				Mat4Mul(Renderer.State().DepthBiasMatrix, mDepthProj, Renderer.State().DepthBiasMatrix)
-				Mat4Mul(Renderer.State().DepthBiasMatrix, mDepthView, Renderer.State().DepthBiasMatrix)
-				Renderer.State().ShadowsEnabled = True
-				Renderer.State().DepthEpsilon = mShadowsRange / 10000.0
+			If mShadowsEnabled And Shader._Shadow().Handle <> 0
+				Mat4Identity(RenderState.DepthBiasMatrix)
+				RenderState.DepthBiasMatrix[0] = 0.5
+				RenderState.DepthBiasMatrix[5] = 0.5
+				RenderState.DepthBiasMatrix[10] = 0.5
+				RenderState.DepthBiasMatrix[12] = 0.5
+				RenderState.DepthBiasMatrix[13] = 0.5
+				RenderState.DepthBiasMatrix[14] = 0.5
+				Mat4Mul(RenderState.DepthBiasMatrix, mDepthProj, RenderState.DepthBiasMatrix)
+				Mat4Mul(RenderState.DepthBiasMatrix, mDepthView, RenderState.DepthBiasMatrix)
+				RenderState.ShadowsEnabled = True
+				RenderState.DepthEpsilon = mShadowsRange / 10000.0
 				Renderer.SetDepthTexture(DepthTexture().Handle)
 			Else
-				Renderer.State().ShadowsEnabled = False
+				RenderState.ShadowsEnabled = False
 			End
 			
 			'Prepare lighting
-			If numLights > 0 Then Renderer.State().Ambient = mAmbient
+			If numLights > 0 Then RenderState.Ambient = mAmbient
 			If sunLightEnabled
 				QuatSetEuler(mSunPitch, mSunYaw, 0, mTempArr)
 				QuatMulVec3(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3], 0, 0, -1, mTempArr)
-				Mat4MulVec4(Renderer.State().ViewMatrix, mTempArr[0], mTempArr[1], mTempArr[2], 0, Renderer.State().LightPos[0])
-				Renderer.State().LightColor[0] = mSunColor
+				Mat4MulVec4(RenderState.ViewMatrix, mTempArr[0], mTempArr[1], mTempArr[2], 0, RenderState.LightPos[0])
+				RenderState.LightColor[0] = mSunColor
 			End
 			If numLights > sunLightEnabled
 				Local i:Int = sunLightEnabled
@@ -182,8 +184,8 @@ Class World Final
 	End
 	
 	Function SkyboxTexture:Void(tex:Texture)
-		mSkybox.Material(0).DiscardTextures()
-		mSkybox.Material(0).ColorTexture = tex
+		'mSkybox.Material(0).DiscardTextures()
+		mSkybox.Material(0).CubeTexture = tex
 	End
 	
 	Function NumEntities:Int()
@@ -361,7 +363,7 @@ Class World Final
 	End
 	
 	Function _RenderSkybox:Void(x:Float, y:Float, z:Float)
-		Mat4TransformEuler(x, y, z, 0, 0, 0, 10, 10, 10, Renderer.State().ModelMatrix)
+		Mat4TransformEuler(x, y, z, 0, 0, 0, 10, 10, 10, RenderState.ModelMatrix)
 		mSkybox.Material(0)._PrepareForRender(Material.STEP_NODEPTHWRITE)
 		mSkybox.Surface(0)._Render()
 	End

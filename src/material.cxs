@@ -5,6 +5,7 @@ Import color
 Import math3d
 Import renderlist
 Import renderer
+Import renderstate
 Import shader
 Import texture
 
@@ -17,6 +18,7 @@ Public
 		mColor = color.Color.WHITE
 		mColorTex = colorTex
 		mShininess = 0
+		mCubeOpacity = 0.5
 		mRefractCoef = -1
 		mBlendMode = Renderer.BLEND_SOLID
 		mLighting = True
@@ -41,7 +43,7 @@ Public
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mShader = other.mShader And mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mSpecularTex = other.mSpecularTex And mLightTex = other.mLightTex And mCubeTex = other.mCubeTex And mShininess = other.mShininess And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mLighting = other.mLighting And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows And mReceiveShadows = other.mReceiveShadows
+		If mShader = other.mShader And mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mSpecularTex = other.mSpecularTex And mLightTex = other.mLightTex And mCubeTex = other.mCubeTex And mShininess = other.mShininess And mCubeOpacity = other.mCubeOpacity And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mLighting = other.mLighting And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows And mReceiveShadows = other.mReceiveShadows
 			Return True
 		Else
 			Return False
@@ -58,6 +60,7 @@ Public
 		mLightTex = other.mLightTex
 		mCubeTex = other.mCubeTex
 		mShininess = other.mShininess
+		mCubeOpacity = other.mCubeOpacity
 		mRefractCoef = other.mRefractCoef
 		mBlendMode = other.mBlendMode
 		mLighting = other.mLighting
@@ -141,6 +144,15 @@ Public
 		Return mShininess
 	End
 	
+	Method CubeOpacity:Void(opacity:Float) Property
+		opacity = Clamp(opacity, 0.0, 1.0)
+		mCubeOpacity = opacity
+	End
+	
+	Method CubeOpacity:Float() Property
+		Return mCubeOpacity
+	End
+	
 	Method RefractionCoef:Void(coef:Float) Property
 		mRefractCoef = coef
 	End
@@ -209,13 +221,13 @@ Public
 		If step_ = STEP_NODEPTHWRITE And mDepthWrite Then Return False
 		
 		'Set renderer settings
-		Renderer.SetColor(mColor)
-		Renderer.State().Shininess = mShininess
-		Renderer.State().RefractCoef = mRefractCoef
-		Renderer.SetBlendMode(mBlendMode)
+		Renderer.Color(mColor)
+		RenderState.Shininess = mShininess
+		RenderState.RefractCoef = mRefractCoef
+		Renderer.BlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)
-		Mat4Copy(mTextureMatrix, Renderer.State().TextureMatrix)
-		If Not Renderer.State().SeparateDepthPass Or step_ <> STEP_SOLID Then Renderer.SetDepthWrite(mDepthWrite)
+		Mat4Copy(mTextureMatrix, RenderState.TextureMatrix)
+		If Not RenderState.SeparateDepthPass Or step_ <> STEP_SOLID Then Renderer.SetDepthWrite(mDepthWrite)
 	
 		'Set textures
 		Local colorHandle:Int = 0
@@ -228,15 +240,15 @@ Public
 		If mSpecularTex <> Null Then specularHandle = mSpecularTex.Handle
 		If mLightTex <> Null Then lightHandle = mLightTex.Handle
 		If mCubeTex <> Null Then cubeHandle = mCubeTex.Handle
-		Renderer.SetTextures(colorHandle, normalHandle, specularHandle, lightHandle, cubeHandle, mColorTex And mColorTex.IsCubic)
+		Renderer.SetTextures(colorHandle, normalHandle, specularHandle, lightHandle, cubeHandle)
 		
 		'Override NumLights state with Lighting property
-		Local prevNumLights:Int = Renderer.State().NumLights
-		If Not Lighting Then Renderer.State().NumLights = 0
+		Local prevNumLights:Int = RenderState.NumLights
+		If Not Lighting Then RenderState.NumLights = 0
 		
 		'Override ShadowsEnabled state with ReceiveShadows property
-		Local prevShadowsEnabled:Bool = Renderer.State().ShadowsEnabled
-		If Not ReceiveShadows Then Renderer.State().ShadowsEnabled = False
+		Local prevShadowsEnabled:Bool = RenderState.ShadowsEnabled
+		If Not ReceiveShadows Then RenderState.ShadowsEnabled = False
 		
 		'Prepare bound shader
 		If mShader <> Null
@@ -246,8 +258,8 @@ Public
 		End
 		
 		'Restore state settings
-		Renderer.State().NumLights = prevNumLights
-		Renderer.State().ShadowsEnabled = prevShadowsEnabled
+		RenderState.NumLights = prevNumLights
+		RenderState.ShadowsEnabled = prevShadowsEnabled
 		
 		Return True
 	End
@@ -267,6 +279,7 @@ Private
 	Field mLightTex				: Texture
 	Field mCubeTex				: Texture
 	Field mShininess			: Float
+	Field mCubeOpacity		: Float
 	Field mRefractCoef		: Float
 	Field mBlendMode			: Int
 	Field mLighting				: Bool

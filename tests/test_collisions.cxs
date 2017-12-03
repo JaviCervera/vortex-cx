@@ -101,7 +101,7 @@ Public
 		
 		'Setup renderer for 2D graphics
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.SetColor(Color.WHITE)
+		Renderer.Color(Color.WHITE)
 		
 		'Draw FPS
 		Local text:String = Stats.FPS() + " FPS"

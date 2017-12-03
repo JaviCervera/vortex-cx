@@ -84,7 +84,7 @@ Public
 		Renderer.ClearColorBuffer()
 		For Local i:Int = 0 Until mNumPrimitives
 			Local prim:Prim = mPrimitives[i]
-			Renderer.SetColor(prim.color)
+			Renderer.Color(prim.color)
 			Select prim.type
 				Case PRIM_POINT
 					Renderer.DrawPoint(prim.x, prim.y)
@@ -98,7 +98,7 @@ Public
 		Next
 		
 		'Draw FPS
-		Renderer.SetColor(Color.WHITE)
+		Renderer.Color(Color.WHITE)
 		Local text$ = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

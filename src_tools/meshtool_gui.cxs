@@ -110,38 +110,7 @@ Public
 					Local tex:Texture = Texture.Load(filename)
 					If tex Then currentModel.Material(mSelMat).ColorTexture = tex
 				Else
-					Local leftTex:String = RequestFile("Select left color texture")
-					If leftTex = ""
-						currentModel.Material(mSelMat).ColorTexture = Null
-					Else
-						Local rightTex:String = RequestFile("Select right color texture")
-						If rightTex = ""
-							currentModel.Material(mSelMat).ColorTexture = Null
-						Else
-							Local frontTex:String = RequestFile("Select front color texture")
-							If frontTex = ""
-								currentModel.Material(mSelMat).ColorTexture = Null
-							Else
-								Local backTex:String = RequestFile("Select back color texture")
-								If backTex = ""
-									currentModel.Material(mSelMat).ColorTexture = Null
-								Else
-									Local topTex:String = RequestFile("Select top color texture")
-									If topTex = ""
-										currentModel.Material(mSelMat).ColorTexture = Null
-									Else
-										Local bottomTex:String = RequestFile("Select bottom color texture")
-										If bottomTex = ""
-											currentModel.Material(mSelMat).ColorTexture = Null
-										Else
-											Local tex:Texture = Texture.Load(leftTex, rightTex, frontTex, backTex, topTex, bottomTex)
-											If tex Then currentModel.Material(mSelMat).ColorTexture = tex
-										End
-									End
-								End
-							End
-						End
-					End
+					currentModel.Material(mSelMat).ColorTexture = Null
 				End
 			'Normal texture
 			Elseif mNormalTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
@@ -272,9 +241,9 @@ Public
 	
 	Method Render:Void(currentModel:Model)
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.SetBlendMode(Renderer.BLEND_ALPHA)
+		Renderer.BlendMode(Renderer.BLEND_ALPHA)
 		DrawPanel(mPanelRect)
-		Renderer.SetColor(Color.WHITE)
+		Renderer.Color(Color.WHITE)
 		mCubeTex.Draw(mCubeRect.x, mCubeRect.y)
 		mOpenTex.Draw(mOpenRect.x, mOpenRect.y)
 		mSaveTex.Draw(mSaveRect.x, mSaveRect.y)
@@ -285,7 +254,7 @@ Public
 			'DrawPanel(mRollRect, "Roll: " + mRollFix, mFont)
 			
 			'Draw loaded mesh info
-			Renderer.SetColor(Color.WHITE)
+			Renderer.Color(Color.WHITE)
 			mFont.Draw(8, 34, "Num Surfaces: " + currentModel.Mesh.NumSurfaces)
 			mFont.Draw(8, 50, "Num Bones: " + currentModel.Mesh.NumBones)
 			mFont.Draw(8, 66, "Num Frames: " + currentModel.Mesh.NumFrames)
@@ -303,7 +272,7 @@ Public
 			
 			'Diffuse
 			If currentModel.Material(mSelMat).ColorTexture
-				Renderer.SetColor(Color.WHITE)
+				Renderer.Color(Color.WHITE)
 				currentModel.Material(mSelMat).ColorTexture.Draw(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
@@ -311,7 +280,7 @@ Public
 			
 			'Normal
 			If currentModel.Material(mSelMat).NormalTexture
-				Renderer.SetColor(Color.WHITE)
+				Renderer.Color(Color.WHITE)
 				currentModel.Material(mSelMat).NormalTexture.Draw(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
@@ -319,7 +288,7 @@ Public
 			
 			'Specular
 			If currentModel.Material(mSelMat).SpecularTexture
-				Renderer.SetColor(Color.WHITE)
+				Renderer.Color(Color.WHITE)
 				currentModel.Material(mSelMat).SpecularTexture.Draw(mMaterialRect.x + mSpecularTexRect.x, mMaterialRect.y + mSpecularTexRect.y, mSpecularTexRect.width, mSpecularTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mSpecularTexRect.x, mMaterialRect.y + mSpecularTexRect.y, mNormalTexRect.width, mSpecularTexRect.height)
@@ -327,7 +296,7 @@ Public
 			
 			'Lightmap
 			If currentModel.Material(mSelMat).LightTexture
-				Renderer.SetColor(Color.WHITE)
+				Renderer.Color(Color.WHITE)
 				currentModel.Material(mSelMat).LightTexture.Draw(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
@@ -335,14 +304,14 @@ Public
 			
 			'Cubemap
 			If currentModel.Material(mSelMat).CubeTexture
-				Renderer.SetColor(Color.WHITE)
+				Renderer.Color(Color.WHITE)
 				currentModel.Material(mSelMat).CubeTexture.Draw(mMaterialRect.x + mCubemapRect.x, mMaterialRect.y + mCubemapRect.y, mCubemapRect.width, mCubemapRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mCubemapRect.x, mMaterialRect.y + mCubemapRect.y, mCubemapRect.width, mCubemapRect.height)
 			End
 			
 			'Draw texts
-			Renderer.SetColor(Color.WHITE)
+			Renderer.Color(Color.WHITE)
 			mFont.Draw(mMaterialRect.x + mDiffuseTexRect.x + 2, mMaterialRect.y + mDiffuseTexRect.y, "Color")
 			mFont.Draw(mMaterialRect.x + mNormalTexRect.x + 2, mMaterialRect.y + mNormalTexRect.y, "Normal")
 			mFont.Draw(mMaterialRect.x + mSpecularTexRect.x + 2, mMaterialRect.y + mSpecularTexRect.y, "Specular")

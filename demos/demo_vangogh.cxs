@@ -77,9 +77,9 @@ Public
 		
 		'Draw
 		Local text:String = "Van Gogh Room by ruslans3d is licensed under CC Attribution"
-		Renderer.SetColor(Color.RGB(15, 15, 15, 200))
+		Renderer.Color(Color.RGB(15, 15, 15, 200))
 		Renderer.DrawRect(0, 8, DeviceWidth(), 20)
-		Renderer.SetColor(Color.RGB(100, 120, 153))
+		Renderer.Color(Color.RGB(100, 120, 153))
 		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 8, text)
 	
 		Return False

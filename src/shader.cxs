@@ -19,13 +19,12 @@ Public
 	Field mDepthBiasMatrix:Int
 	Field mSolidMode:Int
 	'Field mFlags:Int
-	Field mBaseTexMode:Int
+	Field mUseColorTex:Int
 	Field mUseNormalTex:Int
 	Field mUseSpecularTex:Int
 	Field mUseLightmap:Int
 	Field mUseCubemap:Int
 	Field mBaseTexSampler:Int
-	Field mBaseCubeSampler:Int
 	Field mNormalTexSampler:Int
 	Field mSpecularTexSampler:Int
 	Field mLightmapSampler:Int
@@ -54,7 +53,7 @@ Public
 		mDepthBiasMatrix = Renderer.ShaderLocation(shader, "DepthBiasMatrix")
 		mSolidMode = Renderer.ShaderLocation(shader, "SolidMode")
 		'mFlags = Renderer.ShaderLocation(shader, "Flags")
-		mBaseTexMode = Renderer.ShaderLocation(shader, "BaseTexMode")
+		mUseColorTex = Renderer.ShaderLocation(shader, "UseColorTex")
 		mUseNormalTex = Renderer.ShaderLocation(shader, "UseNormalTex")
 		mUseSpecularTex = Renderer.ShaderLocation(shader, "UseSpecularTex")
 		mUseLightmap = Renderer.ShaderLocation(shader, "UseLightmap")
@@ -77,7 +76,6 @@ Public
 			mBones[i] = Renderer.ShaderLocation(shader, "Bones[" + i + "]")
 		Next
 		mBaseTexSampler = Renderer.ShaderLocation(shader, "BaseTexSampler")
-		mBaseCubeSampler = Renderer.ShaderLocation(shader, "BaseCubeSampler")
 		mNormalTexSampler = Renderer.ShaderLocation(shader, "NormalTexSampler")
 		mSpecularTexSampler = Renderer.ShaderLocation(shader, "SpecularTexSampler")
 		mLightmapSampler = Renderer.ShaderLocation(shader, "LightmapSampler")
@@ -86,12 +84,9 @@ Public
 	End
 	
 	Method Prepare:Void()
-		'Get state
-		Local state:RenderState = Renderer.State()
-	
 		'Calculate ModelView
 		If mModelView <> -1 Or mNormalMatrix <> -1
-			Mat4Mul(state.ViewMatrix, state.ModelMatrix, mTempMatrix)
+			Mat4Mul(RenderState.ViewMatrix, RenderState.ModelMatrix, mTempMatrix)
 			Renderer.SetShaderMat4(mModelView, mTempMatrix)
 		End
 
@@ -104,20 +99,20 @@ Public
 		
 		'Calculate inverse view
 		If mInverseView <> -1
-			Mat4Invert(state.ViewMatrix, mTempMatrix)
+			Mat4Invert(RenderState.ViewMatrix, mTempMatrix)
 			Renderer.SetShaderMat4(mInverseView, mTempMatrix)
 		End
 
 		'Calculate MVP
 		If mModelViewProjection <> -1
-			Mat4Mul(state.ProjectionMatrix, state.ViewMatrix, mTempMatrix)
-			Mat4Mul(mTempMatrix, state.ModelMatrix, mTempMatrix)
+			Mat4Mul(RenderState.ProjectionMatrix, RenderState.ViewMatrix, mTempMatrix)
+			Mat4Mul(mTempMatrix, RenderState.ModelMatrix, mTempMatrix)
 			Renderer.SetShaderMat4(mModelViewProjection, mTempMatrix)
 		End
 		
 		'Calculate depth bias
 		If mDepthBiasMatrix <> -1
-			Mat4Mul(state.DepthBiasMatrix, state.ModelMatrix, mTempMatrix)
+			Mat4Mul(RenderState.DepthBiasMatrix, RenderState.ModelMatrix, mTempMatrix)
 			Renderer.SetShaderMat4(mDepthBiasMatrix, mTempMatrix)
 		End
 		
@@ -125,77 +120,76 @@ Public
 		#Rem
 		If mFlags <> -1
 			Local flags:Int = 0
-			If state.BaseTexMode <> 0 Then flags |= Shader.FLAG_BASETEX
-			If state.UseNormalTex Then flags |= Shader.FLAG_NORMALTEX
-			If state.UseSpecularTex Then flags |= Shader.FLAG_SPECULARTEX
-			If state.UseLightTex Then flags |= Shader.FLAG_LIGHTMAP
-			If state.UseCubeTex Then flags |= Shader.FLAG_CUBEMAP
-			If state.BlendMode = Renderer.BLEND_SOLID Then flags |= Shader.FLAG_SOLID
-			If state.FogEnabled Then flags |= Shader.FLAG_FOG
-			If state.ShadowsEnabled Then flags |= Shader.FLAG_SHADOWS
-			If state.Skinned Then flags |= Shader.FLAG_SKINNED
-			If state.BaseTexMode = 2 Then flags |= Shader.FLAG_BASECUBE
+			If RenderState.BaseTexMode <> 0 Then flags |= Shader.FLAG_BASETEX
+			If RenderState.UseNormalTex Then flags |= Shader.FLAG_NORMALTEX
+			If RenderState.UseSpecularTex Then flags |= Shader.FLAG_SPECULARTEX
+			If RenderState.UseLightTex Then flags |= Shader.FLAG_LIGHTMAP
+			If RenderState.UseCubeTex Then flags |= Shader.FLAG_CUBEMAP
+			If RenderState.BlendMode = Renderer.BLEND_SOLID Then flags |= Shader.FLAG_SOLID
+			If RenderState.FogEnabled Then flags |= Shader.FLAG_FOG
+			If RenderState.ShadowsEnabled Then flags |= Shader.FLAG_SHADOWS
+			If RenderState.Skinned Then flags |= Shader.FLAG_SKINNED
+			If RenderState.BaseTexMode = 2 Then flags |= Shader.FLAG_BASECUBE
 			Renderer.SetShaderInt(mFlags, flags)
 		End
 		#End
 		
 		'Set shadow data
-		If mShadowsEnabled <> -1 Then Renderer.SetShaderInt(mShadowsEnabled, state.ShadowsEnabled)
-		If mDepthEpsilon <> -1 Then Renderer.SetShaderFloat(mDepthEpsilon, state.DepthEpsilon)
+		If mShadowsEnabled <> -1 Then Renderer.SetShaderInt(mShadowsEnabled, RenderState.ShadowsEnabled)
+		If mDepthEpsilon <> -1 Then Renderer.SetShaderFloat(mDepthEpsilon, RenderState.DepthEpsilon)
 		
 		'Set animation data
-		If mSkinned <> -1 Then Renderer.SetShaderInt(mSkinned, state.Skinned)
+		If mSkinned <> -1 Then Renderer.SetShaderInt(mSkinned, RenderState.Skinned)
 		If mBones[0] <> -1
-			Local lastIndex:Int = Min(Renderer.MaxBones(), state.BoneMatrices.Length())
+			Local lastIndex:Int = Min(Renderer.MaxBones(), RenderState.BoneMatrices.Length())
 			For Local i:Int = 0 Until lastIndex
-				If mBones[i] <> -1 Then Renderer.SetShaderMat4(mBones[i], state.BoneMatrices[i])
+				If mBones[i] <> -1 Then Renderer.SetShaderMat4(mBones[i], RenderState.BoneMatrices[i])
 			Next
 		End
 		
 		'Set solid mode
 		If mSolidMode <> -1
-			If state.BlendMode = Renderer.BLEND_SOLID Then Renderer.SetShaderInt(mSolidMode, True) Else Renderer.SetShaderInt(mSolidMode, False)
+			If RenderState.BlendMode = Renderer.BLEND_SOLID Then Renderer.SetShaderInt(mSolidMode, True) Else Renderer.SetShaderInt(mSolidMode, False)
 		End
 		
 		'Set color
-		If mMaterialColor <> -1 Then Renderer.SetShaderVec4(mMaterialColor, Color.Red(state.Color) / 255.0, Color.Green(state.Color) / 255.0, Color.Blue(state.Color) / 255.0, Color.Alpha(state.Color) / 255.0)
+		If mMaterialColor <> -1 Then Renderer.SetShaderVec4(mMaterialColor, Color.Red(RenderState.Color) / 255.0, Color.Green(RenderState.Color) / 255.0, Color.Blue(RenderState.Color) / 255.0, Color.Alpha(RenderState.Color) / 255.0)
 		
 		'Set ambient
-		If mAmbient <> -1 Then Renderer.SetShaderVec3(mAmbient, Color.Red(state.Ambient) / 255.0, Color.Green(state.Ambient) / 255.0, Color.Blue(state.Ambient) / 255.0)
+		If mAmbient <> -1 Then Renderer.SetShaderVec3(mAmbient, Color.Red(RenderState.Ambient) / 255.0, Color.Green(RenderState.Ambient) / 255.0, Color.Blue(RenderState.Ambient) / 255.0)
 	
 		'Set shininess
-		If mMaterialShininess <> -1 Then Renderer.SetShaderFloat(mMaterialShininess, state.Shininess)
+		If mMaterialShininess <> -1 Then Renderer.SetShaderFloat(mMaterialShininess, RenderState.Shininess)
 		
 		'Set fog
-		Renderer.SetShaderVec3(mFogData, state.FogMinDistance, state.FogMaxDistance, Int(state.FogEnabled))
-		If state.FogEnabled Then Renderer.SetShaderVec3(mFogColor, Color.Red(state.FogColor) / 255.0, Color.Green(state.FogColor) / 255.0, Color.Blue(state.FogColor) / 255.0)
+		Renderer.SetShaderVec3(mFogData, RenderState.FogMinDistance, RenderState.FogMaxDistance, Int(RenderState.FogEnabled))
+		If RenderState.FogEnabled Then Renderer.SetShaderVec3(mFogColor, Color.Red(RenderState.FogColor) / 255.0, Color.Green(RenderState.FogColor) / 255.0, Color.Blue(RenderState.FogColor) / 255.0)
 		
 		'Set refract coef
-		If mRefractCoef <> -1 Then Renderer.SetShaderFloat(mRefractCoef, state.RefractCoef)
+		If mRefractCoef <> -1 Then Renderer.SetShaderFloat(mRefractCoef, RenderState.RefractCoef)
 		
 		'Set lighting
-		If mNumLights <> -1 Then Renderer.SetShaderInt(mNumLights, state.NumLights)
-		For Local i:Int = 0 Until state.NumLights
-			If mLightVector[i] <> -1 Then Renderer.SetShaderVec4(mLightVector[i], state.LightPos[i][0], state.LightPos[i][1], state.LightPos[i][2], state.LightPos[i][3])
-			If mLightData[i] <> -1 Then Renderer.SetShaderVec4(mLightData[i], Color.Red(state.LightColor[i]) / 255.0, Color.Green(state.LightColor[i]) / 255.0, Color.Blue(state.LightColor[i]) / 255.0, state.LightRadius[i])
+		If mNumLights <> -1 Then Renderer.SetShaderInt(mNumLights, RenderState.NumLights)
+		For Local i:Int = 0 Until RenderState.NumLights
+			If mLightVector[i] <> -1 Then Renderer.SetShaderVec4(mLightVector[i], RenderState.LightPos[i][0], RenderState.LightPos[i][1], RenderState.LightPos[i][2], RenderState.LightPos[i][3])
+			If mLightData[i] <> -1 Then Renderer.SetShaderVec4(mLightData[i], Color.Red(RenderState.LightColor[i]) / 255.0, Color.Green(RenderState.LightColor[i]) / 255.0, Color.Blue(RenderState.LightColor[i]) / 255.0, RenderState.LightRadius[i])
 		Next
 		
 		'Set textures
 		If mBaseTexSampler <> -1 Then Renderer.SetShaderInt(mBaseTexSampler, Renderer.BASETEX_UNIT)
-		If mBaseCubeSampler <> -1 Then Renderer.SetShaderInt(mBaseCubeSampler, Renderer.BASECUBE_UNIT)
 		If mNormalTexSampler <> -1 Then Renderer.SetShaderInt(mNormalTexSampler, Renderer.NORMALTEX_UNIT)
 		If mSpecularTexSampler <> -1 Then Renderer.SetShaderInt(mSpecularTexSampler, Renderer.SPECULARTEX_UNIT)
 		If mLightmapSampler <> -1 Then Renderer.SetShaderInt(mLightmapSampler, Renderer.LIGHTMAP_UNIT)
 		If mCubemapSampler <> -1 Then Renderer.SetShaderInt(mCubemapSampler, Renderer.CUBEMAP_UNIT)
 		If mDepthSampler <> -1 Then Renderer.SetShaderInt(mDepthSampler, Renderer.DEPTHTEX_UNIT)
-		If mBaseTexMode <> -1 Then Renderer.SetShaderInt(mBaseTexMode, state.BaseTexMode)
-		If mUseNormalTex <> -1 Then Renderer.SetShaderInt(mUseNormalTex, state.UseNormalTex)
-		If mUseSpecularTex <> -1 Then Renderer.SetShaderInt(mUseSpecularTex, state.UseSpecularTex)
-		If mUseLightmap <> -1 Then Renderer.SetShaderInt(mUseLightmap, state.UseLightTex)
-		If mUseCubemap <> -1 Then Renderer.SetShaderInt(mUseCubemap, state.UseCubeTex)
+		If mUseColorTex <> -1 Then Renderer.SetShaderInt(mUseColorTex, RenderState.UseColorTex)
+		If mUseNormalTex <> -1 Then Renderer.SetShaderInt(mUseNormalTex, RenderState.UseNormalTex)
+		If mUseSpecularTex <> -1 Then Renderer.SetShaderInt(mUseSpecularTex, RenderState.UseSpecularTex)
+		If mUseLightmap <> -1 Then Renderer.SetShaderInt(mUseLightmap, RenderState.UseLightTex)
+		If mUseCubemap <> -1 Then Renderer.SetShaderInt(mUseCubemap, RenderState.UseCubeTex)
 	
 		'Set texture matrix
-		If mTextureMatrix <> -1 Then Renderer.SetShaderMat4(mTextureMatrix, state.TextureMatrix)
+		If mTextureMatrix <> -1 Then Renderer.SetShaderMat4(mTextureMatrix, RenderState.TextureMatrix)
 	End
 Private
 	Global mTempMatrix	: Float[16]
@@ -245,7 +239,7 @@ End
 Public
 
 Interface ShaderDelegate
-	Method SetShaderVars:Void(shader:Shader, state:RenderState)
+	Method SetShaderVars:Void(shader:Shader)
 End
 
 Class Shader Final
@@ -309,27 +303,27 @@ Public
 		Return Renderer.ShaderLocation(mHandle, name)
 	End
 	
-	Method SetInt:Void(location:Int, val:Int)
+	Method UniformInt:Void(location:Int, val:Int)
 		Renderer.SetShaderInt(location, val)
 	End
 	
-	Method SetFloat:Void(location:Int, val:Float)
+	Method UniformFloat:Void(location:Int, val:Float)
 		Renderer.SetShaderFloat(location, val)
 	End
 	
-	Method SetVec2:Void(location:Int, x:Float, y:Float)
+	Method UniformVec2:Void(location:Int, x:Float, y:Float)
 		Renderer.SetShaderVec2(location, x, y)
 	End
 	
-	Method SetVec3:Void(location:Int, x:Float, y:Float, z:Float)
+	Method UniformVec3:Void(location:Int, x:Float, y:Float, z:Float)
 		Renderer.SetShaderVec3(location, x, y, z)
 	End
 	
-	Method SetVec4:Void(location:Int, x:Float, y:Float, z:Float, w:Float)
+	Method UniformVec4:Void(location:Int, x:Float, y:Float, z:Float, w:Float)
 		Renderer.SetShaderVec4(location, x, y, z, w)
 	End
 	
-	Method SetMat4:Void(location:Int, mat:Float[])
+	Method UniformMat4:Void(location:Int, mat:Float[])
 		Renderer.SetShaderMat4(location, mat)
 	End
 	
@@ -383,7 +377,7 @@ Public
 		'mBound = Self
 		Renderer.UseShader(mHandle)
 		mUniforms.Prepare()
-		If mDelegate <> Null Then mDelegate.SetShaderVars(Self, Renderer.State())
+		If mDelegate <> Null Then mDelegate.SetShaderVars(Self)
 	End
 	
 	Method _EnableVertexVars:Void(coordsOffset:Int, normalsOffset:Int, tangentsOffset:Int, colorsOffset:Int, texCoordsOffset:Int, boneIndicesOffset:Int, boneWeightsOffset:Int, stride:Int)
@@ -412,9 +406,14 @@ Public
 		End
 	End
 	
-	Function _DefaultShadow:Shader()
-		If mDefaultShadow = Null Then mDefaultShadow = New Shader(SHADOW_VERTEX_SHADER, SHADOW_FRAGMENT_SHADER)
-		Return mDefaultShadow
+	Function _Shadow:Shader()
+		If mShadow = Null Then mShadow = New Shader(SHADOW_VERTEX_SHADER, SHADOW_FRAGMENT_SHADER)
+		Return mShadow
+	End
+	
+	Function _Skybox:Shader()
+		If mSkybox = Null Then mSkybox = New Shader(SKYBOX_VERTEX_SHADER, SKYBOX_FRAGMENT_SHADER)
+		Return mSkybox
 	End
 	
 	Function _Minimal:Shader()
@@ -467,7 +466,8 @@ Private
 	Field mAttribs		: ShaderAttribs
 	
 	Global mDefault2D			: Shader
-	Global mDefaultShadow	: Shader
+	Global mShadow	: Shader
+	Global mSkybox	: Shader
 	Global mMinimal				: Shader
 	Global mMinimalShadows	: Shader
 	Global mVertexLighting	: Shader

@@ -94,7 +94,7 @@ Public
 		
 		'Draw
 		Local text:String = "Frank by misterdevious is licensed under CC Attribution-NonCommercial-ShareAlike"
-		Renderer.SetColor(Color.RGB(240, 240, 240))
+		Renderer.Color(Color.RGB(240, 240, 240))
 		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 8, text)
 	
 		Return False

@@ -656,6 +656,7 @@ Public
 			If flags & 1 Then mat.Culling = True Else mat.Culling = False
 			If flags & 2 Then mat.DepthWrite = True Else mat.DepthWrite = False
 			mat.Shininess = stream.ReadFloat()
+			mat.CubeOpacity = stream.ReadFloat()
 			mat.RefractionCoef = stream.ReadFloat()
 			
 			'Material textures
@@ -666,14 +667,6 @@ Public
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
 				mat.ColorTexture = Texture.Load(str, texFilter)
-			End
-			If usedTexs & 1024
-				Local strLen:Int = stream.ReadInt()
-				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
-				For Local t:Int = 0 Until cubeTexs.Length
-					If cubeTexs[t] <> "" Then cubeTexs[t] = meshPath + cubeTexs[t]
-				Next
-				mat.ColorTexture = Texture.Load(cubeTexs[0], cubeTexs[1], cubeTexs[2], cubeTexs[3], cubeTexs[4], cubeTexs[5], texFilter)
 			End
 			If usedTexs & 2
 				Local strLen:Int = stream.ReadInt()

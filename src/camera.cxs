@@ -7,6 +7,7 @@ Import listener
 Import math3d
 Import mojo.app
 Import renderer
+Import renderstate
 Import world
 
 Public
@@ -19,7 +20,7 @@ Class Camera Extends Entity Final
 	
 	Method New(parent:Entity = Null)
 		Super.New(parent)
-		SetViewport(0, 0, DeviceWidth(), DeviceHeight())
+		Viewport(0, 0, DeviceWidth(), DeviceHeight())
 		mClearMode = CLEAR_COLOR
 		mClearColor = Color.RGB(55, 155, 255)
 		FovY = 50
@@ -78,7 +79,7 @@ Class Camera Extends Entity Final
 		mVH = val
 	End
 	
-	Method SetViewport:Void(x:Int, y:Int, width:Int, height:Int)
+	Method Viewport:Void(x:Int, y:Int, width:Int, height:Int)
 		mVX = x
 		mVY = y
 		mVW = width
@@ -164,13 +165,13 @@ Class Camera Extends Entity Final
 		If mOrtho
 			Local height:Float = mFovY * 0.5
 			Local width:Float = height * mRatio
-			Mat4OrthoLH(-width, width, -height, height, mNear, mFar, Renderer.State().ProjectionMatrix)
+			Mat4OrthoLH(-width, width, -height, height, mNear, mFar, RenderState.ProjectionMatrix)
 		Else
-			Mat4PerspectiveLH(mFovY, mRatio, mNear, mFar, Renderer.State().ProjectionMatrix)
+			Mat4PerspectiveLH(mFovY, mRatio, mNear, mFar, RenderState.ProjectionMatrix)
 		End
 		
 		'Set view matrix
-		Mat4ViewEuler(WorldX, WorldY, WorldZ, Pitch, Yaw, Roll, Renderer.State().ViewMatrix)
+		Mat4ViewEuler(WorldX, WorldY, WorldZ, Pitch, Yaw, Roll, RenderState.ViewMatrix)
 		
 		'Clear buffers
 		Renderer.ClearDepthBuffer()
