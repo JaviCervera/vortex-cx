@@ -40,13 +40,13 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 		
 		'Set size
 		If texture <> Null
-			SetSize(texture.Width / hframes, texture.Height / vframes)
+			Size(texture.Width / hframes, texture.Height / vframes)
 		Else
-			SetSize(1, 1)
+			Size(1, 1)
 		End
 		
 		'Set frames
-		SetFrames(hframes, vframes)
+		Frames(hframes, vframes)
 		LastFrame = Frames-1
 		
 		'Make visible
@@ -100,15 +100,15 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 	End
 	
 	Method Spin:Void(spin:Float) Property
-		SetRotation(Pitch, Yaw, spin)
+		Rotate(Pitch, Yaw, spin)
 	End
 	
 	Method Depth:Float() Property
 		Return 0
 	End
 	
-	Method SetSize:Void(width:Float, height:Float)
-		SetScale(width, height, 1)
+	Method Size:Void(width:Float, height:Float)
+		Scale(width, height, 1)
 	End
 	
 	Method Frames:Int() Property
@@ -123,7 +123,7 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 		Return mVFrames
 	End
 	
-	Method SetFrames:Void(horizontal:Int, vertical:Int)
+	Method Frames:Void(horizontal:Int, vertical:Int)
 		mHFrames = horizontal
 		mVFrames = vertical
 	End

@@ -13,10 +13,10 @@ Class Gui Final
 Public
 	Method New()
 		'Load resources
-		mFont = Cache.LoadFont("system.fnt.dat")
-		mCubeTex = Cache.LoadTexture("cube.png", Renderer.FILTER_NONE)
-		mOpenTex = Cache.LoadTexture("folder.png", Renderer.FILTER_NONE)
-		mSaveTex = Cache.LoadTexture("disk.png", Renderer.FILTER_NONE)
+		mFont = Font.Load("system.fnt.dat")
+		mCubeTex = Texture.Load("cube.png", Renderer.FILTER_NONE)
+		mOpenTex = Texture.Load("folder.png", Renderer.FILTER_NONE)
+		mSaveTex = Texture.Load("disk.png", Renderer.FILTER_NONE)
 		mCube = Mesh.CreateCube()
 	
 		mPanelRect = New Rect(8, 8, 64, 24)
@@ -107,7 +107,7 @@ Public
 			Elseif mDiffuseTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local filename:String = RequestFile("Select color texture")
 				If filename <> ""
-					Local tex:Texture = Cache.LoadTexture(filename)
+					Local tex:Texture = Texture.Load(filename)
 					If tex Then currentModel.Material(mSelMat).ColorTexture = tex
 				Else
 					Local leftTex:String = RequestFile("Select left color texture")
@@ -134,7 +134,7 @@ Public
 										If bottomTex = ""
 											currentModel.Material(mSelMat).ColorTexture = Null
 										Else
-											Local tex:Texture = Cache.LoadTexture(leftTex, rightTex, frontTex, backTex, topTex, bottomTex)
+											Local tex:Texture = Texture.Load(leftTex, rightTex, frontTex, backTex, topTex, bottomTex)
 											If tex Then currentModel.Material(mSelMat).ColorTexture = tex
 										End
 									End
@@ -147,7 +147,7 @@ Public
 			Elseif mNormalTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local filename:String = RequestFile("Select normal texture")
 				If filename <> ""
-					Local tex:Texture = Cache.LoadTexture(filename)
+					Local tex:Texture = Texture.Load(filename)
 					If tex Then currentModel.Material(mSelMat).NormalTexture = tex
 				Else
 					currentModel.Material(mSelMat).NormalTexture = Null
@@ -156,7 +156,7 @@ Public
 			Elseif mSpecularTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local filename:String = RequestFile("Select specular texture")
 				If filename <> ""
-					Local tex:Texture = Cache.LoadTexture(filename)
+					Local tex:Texture = Texture.Load(filename)
 					If tex Then currentModel.Material(mSelMat).SpecularTexture = tex
 				Else
 					currentModel.Material(mSelMat).SpecularTexture = Null
@@ -165,7 +165,7 @@ Public
 			Elseif mLightmapRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local filename:String = RequestFile("Select light texture")
 				If filename <> ""
-					Local tex:Texture = Cache.LoadTexture(filename)
+					Local tex:Texture = Texture.Load(filename)
 					If tex Then currentModel.Material(mSelMat).LightTexture = tex
 				Else
 					currentModel.Material(mSelMat).LightTexture = Null
@@ -196,7 +196,7 @@ Public
 									If bottomTex = ""
 										currentModel.Material(mSelMat).CubeTexture = Null
 									Else
-										Local tex:Texture = Cache.LoadTexture(leftTex, rightTex, frontTex, backTex, topTex, bottomTex)
+										Local tex:Texture = Texture.Load(leftTex, rightTex, frontTex, backTex, topTex, bottomTex)
 										If tex Then currentModel.Material(mSelMat).CubeTexture = tex
 									End
 								End

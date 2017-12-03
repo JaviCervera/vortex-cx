@@ -47,7 +47,7 @@ Public
 		Next
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt.dat")
+		mFont = Font.Load("system.fnt.dat")
 		
 		Return False
 	End
@@ -62,14 +62,15 @@ Public
 		World.Update()
 
 		'Add a new primitive up until a max of 1000
-		mNumPrimitives += 1
-		If mNumPrimitives > mPrimitives.Length() Then mNumPrimitives = mPrimitives.Length()
-		mPrimitives[mNumPrimitives-1].type = Int(Rnd(0, 4))
-		mPrimitives[mNumPrimitives-1].x = Rnd(DeviceWidth())
-		mPrimitives[mNumPrimitives-1].y = Rnd(DeviceHeight())
-		mPrimitives[mNumPrimitives-1].z = Rnd(DeviceWidth())
-		mPrimitives[mNumPrimitives-1].w = Rnd(DeviceHeight())
-		mPrimitives[mNumPrimitives-1].color = Color.RGB(Rnd(256), Rnd(256), Rnd(256))
+		If mNumPrimitives < mPrimitives.Length()
+			mNumPrimitives += 1
+			mPrimitives[mNumPrimitives-1].type = Int(Rnd(0, 4))
+			mPrimitives[mNumPrimitives-1].x = Rnd(DeviceWidth())
+			mPrimitives[mNumPrimitives-1].y = Rnd(DeviceHeight())
+			mPrimitives[mNumPrimitives-1].z = Rnd(DeviceWidth())
+			mPrimitives[mNumPrimitives-1].w = Rnd(DeviceHeight())
+			mPrimitives[mNumPrimitives-1].color = Color.RGB(Rnd(256), Rnd(256), Rnd(256))
+		End
 		
 		Return False
 	End

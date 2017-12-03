@@ -30,19 +30,19 @@ Public
 		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt.dat")
+		mFont = Font.Load("system.fnt.dat")
 		
 		'Create camera
 		mCam = New Camera()
 		mCam.ClearColor = Color.RGB(15, 15, 15)
-		mCam.SetPosition(0, 15, -25)
-		mCam.SetRotation(30, 0, 0)
+		mCam.Position(0, 15, -25)
+		mCam.Rotate(30, 0, 0)
 		
 		'Create model
-		mModel = New Model(Cache.LoadMesh("swamp.msh.dat"))
+		mModel = New Model(Mesh.Load("swamp.msh.dat"))
 		
 		'Disable sun
-		World.SetSunColor(Color.BLACK)
+		World.SunColor(Color.BLACK)
 		
 		Return False
 	End

@@ -22,11 +22,11 @@ Public
 		If mHandle <> 0 Then Renderer.FreeFramebuffer(mHandle)
 	End
 	
-	Method Set:Void()
+	Method Use:Void()
 		Renderer.SetFramebuffer(mHandle, mColorTex.Height)
 	End
 	
-	Function SetScreen:Void()
+	Function UseScreen:Void()
 		Renderer.SetFramebuffer(0, DeviceHeight())
 	End
 	

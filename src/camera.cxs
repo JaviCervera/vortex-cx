@@ -27,12 +27,12 @@ Class Camera Extends Entity Final
 		Near = 1
 		Far = 1000
 		Visible = True
-		If Listener.Instance() = Null Then Listener.SetInstance(Self)
+		If Listener.Instance() = Null Then Listener.Instance(Self)
 	End
 	
 	Method Discard:Void()
 		Super.Discard()
-		If Listener.Instance() = Self Then Listener.SetInstance(Null)
+		If Listener.Instance() = Self Then Listener.Instance(Null)
 	End
 	
 	Method Visible:Void(visible:Bool) Property
@@ -152,9 +152,9 @@ Class Camera Extends Entity Final
 	Method _PrepareForRender:Void()
 		'Set framebuffer
 		If mFramebuffer
-			mFramebuffer.Set()
+			mFramebuffer.Use()
 		Else
-			Framebuffer.SetScreen()
+			Framebuffer.UseScreen()
 		End
 
 		'Set viewport

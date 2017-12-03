@@ -18,7 +18,7 @@ Function LoadFont:Font(filename:String, size:Int)
 	
 	'Directly load native FNT files
 	If ExtractExt(filename).ToLower() = "dat"
-		Local font:Font = Cache.LoadFont(filename)
+		Local font:Font = Font.Load(filename)
 		Return font
 	End
 
@@ -77,7 +77,7 @@ Function LoadXMLFontString:Font(buffer:String, filename:String)
 		Local yoffset:Float = glyphNode.GetAttribute("yoffset", 0.0)
 
 		'Add glyph
-		font.SetGlyphData(index, x, y, w, h, yoffset)
+		font._GlyphData(index, x, y, w, h, yoffset)
 		index += 1
 	Next
 
@@ -101,7 +101,7 @@ Function FontSize:Int(font:Font)
 	size += 4
 	
 	'Glyphs
-	size += font.NumGlyphs * 6 * 4
+	size += font._NumGlyphs * 6 * 4
 	
 	Return size
 End
@@ -132,14 +132,14 @@ Function CreateFontData:DataBuffer(font:Font)
 	stream.WriteShort(font.Height)
 	
 	'Num glyphs
-	stream.WriteInt(font.NumGlyphs)
+	stream.WriteInt(font._NumGlyphs)
 	
 	'First char
 	stream.WriteInt(32)
 	
 	'Glyphs
-	For Local i:Int = 0 Until font.NumGlyphs
-		WriteGlyphData(stream, font.GlyphData(i))
+	For Local i:Int = 0 Until font._NumGlyphs
+		WriteGlyphData(stream, font._GlyphData(i))
 	Next
 	
 	Return stream.Data

@@ -30,10 +30,10 @@ Public
 		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt.dat")
+		mFont = Font.Load("system.fnt.dat")
 		
 		'Load image
-		mImage = Cache.LoadTexture("smile.png")
+		mImage = Texture.Load("smile.png")
 		
 		Return False
 	End

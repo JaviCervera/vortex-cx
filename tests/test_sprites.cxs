@@ -30,28 +30,28 @@ Public
 		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt.dat")		
+		mFont = Font.Load("system.fnt.dat")		
 		
 		'Load texture
-		Local smileTex:Texture = Cache.LoadTexture("smile.png")
+		Local smileTex:Texture = Texture.Load("smile.png")
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.SetRotation(45, -45, 0)
+		mCam.Rotate(45, -45, 0)
 		mCam.ClearColor = Color.WHITE
 		
 		'Create sprites
 		Local x:Float = -8, z:Float = -8
 		For Local i:Int = 0 Until 64
 			Local spr:Sprite = New Sprite(smileTex)
-			spr.SetPosition(x, 0, z)
-			spr.SetSize(1, 1)
+			spr.Position(x, 0, z)
+			spr.Size(1, 1)
 			spr.Material.Color = Color.RGB(Rnd(256), Rnd(256), Rnd(256))
 			x += 2; If x >= 8 Then x = -8; z += 2
 		Next
 		
 		'Disable sun
-		World.SetSunColor(Color.BLACK)
+		World.SunColor(Color.BLACK)
 		
 		Return False
 	End
@@ -72,7 +72,7 @@ Public
 		
 		'Increment camera rotation
 		mCam.Yaw += 32 * Stats.DeltaTime()
-		mCam.SetPosition(0, 0, 0)
+		mCam.Position(0, 0, 0)
 		mCam.Move(0, 0, -8)
 		
 		Return False

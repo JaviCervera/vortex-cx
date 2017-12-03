@@ -11,17 +11,17 @@ Import texture
 Public
 Class Cache Final
 Public
-	Function Push:Void()
+	Function _Push:Void()
 		mStack = mStack.Resize(mStack.Length() + 1)
 		mStack[mStack.Length() - 1] = New Cache
 	End
 
-	Function Pop:Void()
+	Function _Pop:Void()
 		mStack[mStack.Length() - 1].Clear()
 		mStack = mStack.Resize(mStack.Length() - 1)
 	End
 
-	Function LoadFont:Font(filename:String)
+	Function _LoadFont:Font(filename:String)
 		'Search for the font in all allocated caches
 		For Local i:Int = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mFonts.Contains(filename)
@@ -35,7 +35,7 @@ Public
 		Return font
 	End
 
-	Function LoadMesh:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
+	Function _LoadMesh:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
 		'Search for the mesh in all allocated caches
 		For Local i:Int = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mMeshes.Contains(filename)
@@ -49,7 +49,7 @@ Public
 		Return mesh
 	End
 	
-	Function LoadSound:Sound(filename:String)
+	Function _LoadSound:Sound(filename:String)
 		'Search for the sound in all allocated caches
 		For Local i:Int = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mSounds.Contains(filename)
@@ -63,7 +63,7 @@ Public
 		Return sound
 	End
 
-	Function LoadTexture:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
+	Function _LoadTexture:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
 		'Search for the texture in all allocated caches
 		For Local i:Int = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mTextures.Contains(filename)
@@ -77,7 +77,7 @@ Public
 		Return tex
 	End
 	
-	Function LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
+	Function _LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
 		Local filename:String = left + "," + right + "," + front + "," + back + "," + top + "," + bottom
 		
 		'Search for the texture in all allocated caches
@@ -121,4 +121,8 @@ Private
 	Field mMeshes	: StringMap<Mesh>
 	Field mSounds	: StringMap<Sound>
 	Field mTextures	: StringMap<Texture>
+End
+
+Function CacheSound:Sound(filename:String)
+	Return Cache._LoadSound(filename)
 End

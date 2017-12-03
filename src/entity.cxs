@@ -20,7 +20,7 @@ Class Entity
 		mChildren = New List<Entity>
 		mActive = False		'Subclases should change this if needed
 		mVisible = False	'Subclases should change this if needed
-		SetScale(1, 1, 1)
+		Scale(1, 1, 1)
 		World._AddEntity(Self)
 		_UpdateTransform()
 	End
@@ -128,7 +128,7 @@ Class Entity
 		Return mTransform[14]
 	End
 	
-	Method SetPosition:Void(x:Float, y:Float, z:Float)
+	Method Position:Void(x:Float, y:Float, z:Float)
 		Vec3Set(x, y, z, mPosition)
 		_UpdateTransform()
 	End
@@ -259,7 +259,7 @@ Class Entity
 		_UpdateTransform()
 	End
 	
-	Method SetRotation:Void(pitch:Float, yaw:Float, roll:Float)
+	Method Rotate:Void(pitch:Float, yaw:Float, roll:Float)
 		Vec3Set(pitch, yaw, roll, mRotation)
 		_UpdateTransform()
 	End
@@ -308,7 +308,7 @@ Class Entity
 		_UpdateTransform()
 	End
 
-	Method SetScale:Void(x:Float, y:Float, z:Float)
+	Method Scale:Void(x:Float, y:Float, z:Float)
 		Vec3Set(x, y, z, mScale)
 		_UpdateTransform()
 	End

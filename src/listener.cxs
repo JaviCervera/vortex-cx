@@ -37,7 +37,7 @@ Class Listener Final
 		Return mListener
 	End
 	
-	Function SetInstance:Void(e:Entity)
+	Function Instance:Void(e:Entity)
 		If e <> Null Then mListener = e
 	End
 	

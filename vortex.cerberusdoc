@@ -105,52 +105,6 @@ Returns the Z coordinate of the specified scale keyframe. The value of `index` g
 
 
 
-# Class Cache
-
-The cache is used to avoid loading resources from disk more that once.
-When you want to load a resource from disk (a texture, a mesh, or a font), Vortex will check if the resource was already loaded, in which case the same instance is returned to you, so it is not loaded multiple times in memory.
-
-Internally, Vortex holds a stack of cache objects. You can add a new cache with the `Cache.Push` function, and all the resources loaded afterwards will be deallocated when the cache object is removed from the stack with `Cache.Pop`.
-For example, on game initialization you could push a new cache object, and then load all the resources that are used throughout the entire game (menu textures and fonts, for example).
-Then, when you are loading a new level, you push a new cache object and load all the resource of the level.
-When you exit the level, you pop the cache object from the stack, deallocating all level resources, but the menu resources remain intact.
-When you exit the game, you pop the last cache object, and all the resources allocated are cleared.
-
-When calling `World.Init`, a cache object is created automatically.
-
-# Function Push:Void()
-Pushes a new cache object onto the stack. All resources loaded afterwards are handled by this cache object. When you pop this stack object with the `Cache.Pop` function, all the resources are deallocated.
-
-# Function Pop:Void()
-Pops the last pushed cache object from the stack, deallocating all the resources that were loaded after the creation of the cache object.
-
-# Function LoadFont:Font(filename:String)
-Returns the font with the specified filename, or Null if it could not be found.
-If the font has been loaded previously by any cache object, that same object will be returned.
-Otherwise, the last pushed cache object will load and return a new font.
-
-# Function LoadMesh:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
-Returns the mesh with the specified filename, or Null if it could not be found. You can also specify a skeleton and animation files that will be loaded with the mesh.
-If the mesh has been loaded previously by any cache object, that same object will be returned. Otherwise, the last pushed cache object will load and return a new mesh.
-
-# Function LoadSound:Sound(filename:String)
-Returns the sound with the specified filename, or Null if it could not be found.
-If the sound has been loaded previously by any cache object, that same object will be returned.
-Otherwise, the last pushed cache object will load and return a new sound.
-
-# Function LoadTexture:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
-Returns the texture with the specified filename, or Null if the texture was not found.
-If the texture has been loaded previously by any cache object, that same object will be returned.
-Otherwise, the last pushed cache object will load and return a new texture.
-
-# Function LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
-Returns the cubemap texture with the specified filenames (one for each face of the cube), or Null if the texture was not found.
-If the texture has been loaded previously by any cache object, that same object will be returned.
-Otherwise, the last pushed cache object will load and return a new texture.
-
-
-
-
 # Class Camera Extends Entity
 
 A camera is a type of `Entity` that represents the player in the 3D world. It has a position and rotation, a viewport that will indicate the region of the screen where the camera will be renderer, and other properties like the clear mode and projection settings.
@@ -360,7 +314,7 @@ Returns the Y position of the entity in the world.
 # Method WorldZ:Float() Property
 Returns the Z position of the entity in the world.
 
-# Method SetPosition:Void(x:Float, y:Float, z:Float)
+# Method Position:Void(x:Float, y:Float, z:Float)
 Sets the local position of the entity.
 
 # Method Move:Void(x:Float, y:Float, z:Float, collideWithEntities:Bool = True)
@@ -384,7 +338,7 @@ Sets the yaw or Y rotation of the entity.
 # Method Roll:Void(val:Float) Property
 Sets the roll or Z rotation of the entity.
 
-# Method SetRotation:Void(pitch:Float, yaw:Float, roll:Float)
+# Method Rotate:Void(pitch:Float, yaw:Float, roll:Float)
 Sets the rotation of the entity.
 
 # Method Turn:Void(pitch:Float, yaw:Float, roll:Float)
@@ -417,7 +371,7 @@ Sets the Y scale factor of the entity.
 # Method ScaleZ:Void(val:Float) Property
 Sets the Z scale factor of the entity.
 
-# Method SetScale:Void(x:Float, y:Float, z:Float)
+# Method Scale:Void(x:Float, y:Float, z:Float)
 Sets the scale factor of the entity.
 
 # Method CollisionMode:Int() Property
@@ -494,8 +448,9 @@ A font is used to render text in Vortex.
 It is composed by a texture which contains the characters used to render texts, and a set of glyphs which contains the coordinates of each character within the texture and its offset.
 You normally don't generate fonts by hand, but by using the bundled fonttool utility.
 
-# Method New(filename:String, height:Float, tex:Texture)
-Creates a new font, assigning a filename to it, the heigth in pixels of the font, and the texture map that will be used to render texts with this font. After creating it, you should define its glyphs. You normally don't need to use this function, as `Cache.LoadFont` gives you a ready to use font.
+# Function Load(filename:String, cache:Bool = True)
+Loads and returns the font with the specified filename, or `Null` if the font could not be loaded.
+If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one font more than once).
 
 # Method Discard:Void()
 When you are not going to render text usign this font anymore, you should call this method to deallocate its resources.
@@ -515,17 +470,8 @@ Returns the width in pixels that the specified text needs to be rendered with th
 # Method TextHeight:Float(text:String)
 Returns the width in pixels that the specified text needs to be rendered with the font.
 
-# Method NumGlyphs:Int() Property
-Returns the number of glyphs that this font has
-
 # Method Draw:Void(x:Float, y:Float, text:String)
 Draws the specified text at the given x, y screen coordinates.
-
-# Method SetGlyphData:Void(index:Int, x:Float, y:Float, w:Float, h:Float, yoffset:Float)
-Sets the rectangle within the font texture where the character with the specified index (it's ASCII code) is located, and the Y offset to render the character relative to the Y drawing coordinate. You don't normally need this method.
-
-# Method GlyphData:Glyph(index:Int)
-Returns the specified glyph's data. You don't normally need this method.
 
 
 
@@ -540,10 +486,10 @@ Creates a framebuffer with the specified size and an optional depth buffer.
 # Method Discard:Void()
 When you no longer need a framebuffer, you should call this method.
 
-# Method Set:Void()
+# Method Use:Void()
 Enables rendering to the textures in this framebuffer.
 
-# Function SetScreen:Void()
+# Function UseScreen:Void()
 Reactivates rendering on the screen.
 
 # Method Handle:Int() Property
@@ -749,6 +695,10 @@ Creates a new empty mesh.
 # Method New(other:Mesh)
 Creates a new mesh that is a copy of the mesh passed as parameter.
 
+# Function Load(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+Loads and returns the mesh with the specified filename, or `Null` if the mesh could not be loaded. You can also specify a skeleton and animation files that will be loaded with the mesh.
+If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one mesh more than once).
+
 # Method LoadSkeletonData:Bool(data:DataBuffer)
 Loads the skeleton data from the specified DataBuffer and adds it to the mesh. You should only use this method once on each mesh.
 
@@ -756,7 +706,9 @@ Loads the skeleton data from the specified DataBuffer and adds it to the mesh. Y
 Loads the animation data from the specified DataBuffer and adds it to the mesh. You can call this funcion several times to add different animation sequences.
 
 # Method Discard:Void(discardTextures:Bool = True)
-When you don't need to use this mesh anymore, you should use this function to deallocate its resources. The parameter `discardTextures` indicates whether the textures used by this mesh should be discarded too. You don't need to call this method for meshes loaded with the `Cache` class.
+When you don't need to use this mesh anymore, you should use this function to deallocate its resources.
+The parameter `discardTextures` indicates whether the textures used by this mesh should be discarded too.
+You don't need to call this method for meshes loaded with the `cache` param set to `True` (the default).
 
 # Method Filename:String() Property
 Returns the filename assigned to this mesh when it was created.
@@ -832,7 +784,7 @@ Scales all vertices on the mesh.
 # Method Flip:Void()
 Flips all triangles in the mesh and inverts its normals.
 
-# Method SetColor:Void(color:Int)
+# Method ColorVertices:Void(color:Int)
 Sets the color of all vertices in the mesh.
 
 # Function CreateQuad:Mesh()
@@ -978,7 +930,7 @@ Returns the spin rotation of the sprite.
 # Method Spin:Void(spin:Float) Property
 Sets the spin rotation of the sprite.
 
-# Method SetSize:Void(width:Float, height:Float)
+# Method Size:Void(width:Float, height:Float)
 Sets the width and height of the sprite.
 
 # Method Frames:Int() Property
@@ -990,7 +942,7 @@ Returns the number of horizontal frames that this sprite has (1 by default).
 # Method VFrames:Int() Property
 Returns the number of vertical frames that this sprite has (1 by default).
 
-# Method SetFrames:Void(horizontal:Int, vertical:Int)
+# Method Frames:Void(horizontal:Int, vertical:Int)
 Sets the number of horizontal and vertical frames that this sprite has.
 
 # Method FPS:Int() Property
@@ -1097,7 +1049,7 @@ Returns the number of indices before adding this one.
 # Method NumIndices:Int() Property
 Returns the number of indices int he surface.
 
-# Method SetIndex:Void(num:Int, v:Int)
+# Method Index:Void(num:Int, v:Int)
 Sets the value of the specified index number.
 
 # Method Index:Int(num:Int)
@@ -1112,7 +1064,7 @@ This is just a convenience method you can use instead of making three calls to `
 # Method NumTriangles:Int() Property
 Returns the number of triangles in the surface.
 
-# Method SetTriangleVertices:Void(tri:Int, v0:Int, v1:Int, v2:Int)
+# Method Triangle:Void(tri:Int, v0:Int, v1:Int, v2:Int)
 Changes the vertex indices used by a specified triangle if the drawing mode is `Renderer.MODE_TRIANGLES`. Otherwise, it does nothing.
 
 # Method TriangleV0:Int(tri:Int)
@@ -1130,19 +1082,19 @@ Adds a new vertex to the surface, with the given position, normal, color, and te
 # Method NumVertices:Int() Property
 Returns the number of vertices in the surface.
 
-# Method SetVertexPosition:Void(index:Int, x:Float, y:Float, z:Float)
+# Method VertexPosition:Void(index:Int, x:Float, y:Float, z:Float)
 Sets the position of the specified vertex.
 
-# Method SetVertexNormal:Void(index:Int, nx:Float, ny:Float, nz:Float)
+# Method VertexNormal:Void(index:Int, nx:Float, ny:Float, nz:Float)
 Sets the normal vector of the specified vertex.
 
-# Method SetVertexColor:Void(index:Int, color:Int)
+# Method VertexColor:Void(index:Int, color:Int)
 Sets the color of the specified vertex.
 
-# Method SetVertexTexCoords:Void(index:Int, u:Float, v:Float, set:Int = 0)
+# Method VertexTexCoords:Void(index:Int, u:Float, v:Float, set:Int = 0)
 Sets the texture coordinates of the specified vertex.
 
-# Method SetVertexBone:Void(vertex:Int, index:Int, bone:Int, weight:Float)
+# Method VertexBone:Void(vertex:Int, index:Int, bone:Int, weight:Float)
 Sets one of the bones that the vertex is attached to, and the weight that the bone has on the vertex (between 0 and 1).
 A vertex can be attached to a maximum of four bones, specified in the `index` parameter with a value between 0 and 3.
 Bone is the index within the mesh of the specified bone.
@@ -1192,7 +1144,7 @@ Scales all vertices on the surface.
 # Method Flip:Void()
 Flips all triangles in the surface and inverts its normals.
 
-# Method SetColor:Void(color:Int)
+# Method ColorVertices:Void(color:Int)
 Sets the color of all vertices in the surface.
 
 # Method Rebuild:Void()
@@ -1221,10 +1173,30 @@ Creates a texture with the specified size and filter mode, and the pixels stored
 * Renderer.FILTER_BILINEAR
 * Renderer.FILTER_TRILINEAR
 
+# Function Load(filename:String, filter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+Loads and returns the texture with the specified filename, or `Null` if the texture could not be loaded.
+If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one texture more than once).
+The value of `filter` must be one of:
+
+* Renderer.FILTER_NONE
+* Renderer.FILTER_LINEAR
+* Renderer.FILTER_BILINEAR
+* Renderer.FILTER_TRILINEAR
+
+# Function Load(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+Loads and returns the cubemap texture with the specified filenames (one for each face of the cube), or `Null` if the texture could not be loaded.
+If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one texture more than once).
+The value of `filter` must be one of:
+
+* Renderer.FILTER_NONE
+* Renderer.FILTER_LINEAR
+* Renderer.FILTER_BILINEAR
+* Renderer.FILTER_TRILINEAR
+
 # Method Discard:Void()
 Discards the resources used by this texture.
-If you created the texture with the `Cache.LoadTexture` function, then you must not call this function.
-If you created the texture with `Texture.Create`, then you must call this function when you no longer need the texture.
+If you loaded the texture with the `cache` param set to `True` (the default), then you must not call this function.
+Otherwise, you must call this function when you no longer need the texture.
 
 # Method Filename:String() Property
 Returns the filename that this texture was created from.
@@ -1263,7 +1235,7 @@ Renders the world. This should be called on the app's `OnRender` method.
 # Function SkyboxTexture:Texture()
 Returns the cubemap texture that is used as background on camera's that have the `ClearMode` property set to `Camera.CLEAR_SKYBOX`. Defaults to `Null`.
 
-# Function SetSkyboxTexture:Void(tex:Texture)
+# Function SkyboxTexture:Void(tex:Texture)
 Sets the cubemap texture that is used as background on camera's that have the `ClearMode` property set to `Camera.CLEAR_SKYBOX`. Defaults to `Null`.
 
 # Function NumEntities:Int()
@@ -1281,43 +1253,43 @@ Returns the pitch rotation of the sun.
 # Function SunYaw:Float()
 Returns the yaw rotation of the sun.
 
-# Function SetSunRotation:Void(pitch:Float, yaw:Float)
+# Function SunRotation:Void(pitch:Float, yaw:Float)
 Sets the rotation of the sun.
 
 # Function SunColor:Int()
 Returns the color of the sun. Default is `Color.WHITE`.
 
-# Function SetSunColor:Void(color:Int)
+# Function SunColor:Void(color:Int)
 Sets the color of the sun. Setting it to `Color.BLACK` disables the sun light.
 
 # Function Ambient:Int()
 Returns the ambient color of the world (this is, the lighting that will be received by all geometry independent from the light sources).
 
-# Function SetAmbient:Void(amb:Int)
+# Function Ambient:Void(amb:Int)
 Sets the ambient color of the world (this is, the lighting that will be received by all geometry independent from the light sources).
 
 # Function FogEnabled:Bool()
 Returns whether fog is enabled or not.
 
-# Function SetFogEnabled:Void(enabled:Bool)
+# Function FogEnabled:Void(enabled:Bool)
 Enables or disables fog.
 
 # Function FogMinDistance:Float()
 Returns the distance at which the fog starts to be visible.
 
-# Function SetFogMinDistance:Void(minDist:Float)
+# Function FogMinDistance:Void(minDist:Float)
 Sets the distance at which the fog starts to be visible.
 
 # Function FogMaxDistance:Float()
 Returns the distance at which the fog is completely opaque.
 
-# Function SetFogMaxDistance:Void(maxDist:Float)
+# Function FogMaxDistance:Void(maxDist:Float)
 Sets the distance at which the fog is completely opaque.
 
 # Function FogColor:Int()
 Returns the color of the fog
 
-# Function SetFogColor:Void(color:Int)
+# Function FogColor:Void(color:Int)
 Sets the color of the fog.
 
 # Function SeparateDepthPass:Bool()
@@ -1329,7 +1301,7 @@ Enables or disables a separate depth pass before rendering the scene. This can h
 # Function Shadows:Bool()
 Returns whether shadows are enabled or not.
 
-# Function SetShadows:Void(enable:Bool, range:Float = 500, sunDistance:Float = 0, shadowTexSize:Int = 1024)
+# Function Shadows:Void(enable:Bool, range:Float = 500, sunDistance:Float = 0, shadowTexSize:Int = 1024)
 Enables or disables shadow casting. Shadows will be cast from the sun light.
 The value of `range` indicates the maximum distance from the camera at which the shadow will be visible.
 The value of `sunDistance` indicate the distance from the camera at which the sun will be placed to calculate shadows (the bigger this value, the smaller the precision of the calculations).

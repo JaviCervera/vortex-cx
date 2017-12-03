@@ -30,24 +30,24 @@ Public
 		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt.dat")
+		mFont = Font.Load("system.fnt.dat")
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.SetPosition(0, 64, -128)
-		mCam.SetRotation(10, 0, 0)
+		mCam.Position(0, 64, -128)
+		mCam.Rotate(10, 0, 0)
 		mCam.ClearColor = Color.RGB(15, 15, 15)
 		
 		'Load swat model
-		mSwatModel = New Model(Cache.LoadMesh("swat.msh.dat", "swat.skl.dat", "swat.anm.dat"))
-		mSwatModel.SetPosition(-32, 32, 0)
-		mSwatModel.SetRotation(0, -15, 0)
-		mSwatModel.SetScale(7, 7, 7)
+		mSwatModel = New Model(Mesh.Load("swat.msh.dat", "swat.skl.dat", "swat.anm.dat"))
+		mSwatModel.Position(-32, 32, 0)
+		mSwatModel.Rotate(0, -15, 0)
+		mSwatModel.Scale(7, 7, 7)
 		
 		'Load dwarf model
-		mDwarfModel = New Model(Cache.LoadMesh("dwarf.msh.dat", "dwarf.skl.dat", "dwarf.anm.dat"))
-		mDwarfModel.SetPosition(32, 0, 0)
-		mDwarfModel.SetRotation(0, 15, 0)
+		mDwarfModel = New Model(Mesh.Load("dwarf.msh.dat", "dwarf.skl.dat", "dwarf.anm.dat"))
+		mDwarfModel.Position(32, 0, 0)
+		mDwarfModel.Rotate(0, 15, 0)
 		
 		Return False
 	End

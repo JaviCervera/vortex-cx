@@ -30,22 +30,22 @@ Public
 		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt.dat")
+		mFont = Font.Load("system.fnt.dat")
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.SetPosition(0, 100, -260)
-		mCam.SetRotation(15, 0, 0)
+		mCam.Position(0, 100, -260)
+		mCam.Rotate(15, 0, 0)
 		mCam.ClearColor = Color.RGB(50, 25, 55)
 		
 		'Create model
-		mModel = New Model(Cache.LoadMesh("low-poly-mill.msh.dat"))
+		mModel = New Model(Mesh.Load("low-poly-mill.msh.dat"))
 		mModel.Yaw = 100
 		
 		'Setup lighting
-		World.SetSunRotation(45, 225)
-		World.SetAmbient(Color.RGB(155, 155, 155))
-		World.SetShadows(True, 300)
+		World.SunRotation(45, 225)
+		World.Ambient(Color.RGB(155, 155, 155))
+		World.Shadows(True, 300)
 		
 		Return False
 	End
@@ -68,7 +68,7 @@ Public
 		'mModel.Yaw -= 32 * Stats.DeltaTime()
 		
 		'Update sun rotation
-		World.SetSunRotation(World.SunPitch(), World.SunYaw() + 32 * Stats.DeltaTime())
+		World.SunRotation(World.SunPitch(), World.SunYaw() + 32 * Stats.DeltaTime())
 		
 		Return False
 	End

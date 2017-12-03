@@ -33,7 +33,7 @@ Class TestApp Extends App
 		'Create camera
 		mCam = New Camera()
 		mCam.ClearColor = Color.WHITE
-		mCam.SetPosition(0, 0, -2)
+		mCam.Position(0, 0, -2)
 		
 		'Create surface
 		Local quad:Surface = New Surface()
@@ -54,7 +54,7 @@ Class TestApp Extends App
 		mModel = New Model(mesh)
 		
 		'Disable sun
-		World.SetSunColor(Color.BLACK)
+		World.SunColor(Color.BLACK)
 		
 		'Create Mojo2 stuff
 		mCanvas = New Canvas
@@ -91,7 +91,7 @@ Class TestApp Extends App
 		
 		'Prepare Mojo rendering to the framebuffer
 		vortex.Renderer.SetupMojo()
-		mFramebuffer.Set()
+		mFramebuffer.Use()
 		
 		'Render to framebuffer with Mojo
 		mCanvas.SetProjection2d(0, DeviceWidth(), DeviceHeight(), 0) 'top and bottom are flipped to render into a Vortex framebuffer
@@ -109,7 +109,7 @@ Class TestApp Extends App
 		
 		'It is required to ALWAYS call this after rendering to a framebuffer using Mojo,
 		'even if no rendering is performed after
-		Framebuffer.SetScreen()
+		Framebuffer.UseScreen()
 		
 		'Draw text with mojo
 		mCanvas.SetProjection2d(0, DeviceWidth(), 0, DeviceHeight()) 'now we are rendering to the screen, so top and bottom are set correctly

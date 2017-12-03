@@ -30,17 +30,17 @@ Public
 		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt.dat")
+		mFont = Font.Load("system.fnt.dat")
 		
 		'Set skybox
-		World.SetSkyboxTexture(Cache.LoadTexture("left.jpg", "right.jpg", "front.jpg", "back.jpg", "top.jpg", "bottom.jpg"))
+		World.SetSkyboxTexture(Texture.Load("left.jpg", "right.jpg", "front.jpg", "back.jpg", "top.jpg", "bottom.jpg"))
 		
 		'Create camera
 		mCam = New Camera()
 		mCam.ClearMode = Camera.CLEAR_SKYBOX
 		
 		'Create box
-		mModel = New Model(Cache.LoadMesh("cube.msh.dat"))
+		mModel = New Model(Mesh.Load("cube.msh.dat"))
 		'mModel.Material.Shininess = 1
 		'mModel.Material.DiffuseTexture = Null
 		'mModel.Material.ReflectionTexture = mTexture

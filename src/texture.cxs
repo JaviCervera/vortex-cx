@@ -2,6 +2,7 @@ Strict
 
 Private
 Import brl.databuffer
+Import cache
 Import renderer
 
 Public
@@ -19,6 +20,22 @@ Public
 		mWidth = width
 		mHeight = height
 		mIsCubic = False
+	End
+	
+	Function Load:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+		If cache
+			Return Cache._LoadTexture(filename, filter)
+		Else
+			Return _Load(filename, filter)
+		End
+	End
+	
+	Function Load:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+		If cache
+			Return Cache._LoadTexture(left, right, front, back, top, bottom, filter)
+		Else
+			Return _Load(left, right, front, back, top, bottom, filter)
+		End
 	End
 
 	Method Discard:Void()

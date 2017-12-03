@@ -20,6 +20,7 @@ V2.0-beta2
 		- Pixel lighting
 - Per pixel lighting is now the default
 - Removed World.GlobalPixelLighting (You can do Shader.DefaultType(Shader.TYPE_VERTEX_LIGHTING) to switch to vertex lighting)
+- Removed Cache class (added undocumented CacheSound function and Load method in classes with an optional cache param)
 - Added Mesh.CreateQuad
 - The script convert2monkey now also converts demos (I forgot that!)
 - Several bug fixes

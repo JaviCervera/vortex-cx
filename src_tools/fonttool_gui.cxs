@@ -13,7 +13,7 @@ Class Gui
 Public
 	Method New()
 		'Load resources
-		mFont = Cache.LoadFont("system.fnt.dat")
+		mFont = Font.Load("system.fnt.dat")
 	
 		mFontRect = New Rect(8, 8, 300, 24)
 		mSizeRect = New Rect(312, 8, 100, 24)

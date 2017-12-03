@@ -30,12 +30,12 @@ Public
 		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt.dat")
+		mFont = Font.Load("system.fnt.dat")
 		
 		'Create camera
 		mCam = New Camera()
 		mCam.ClearColor = Color.WHITE
-		mCam.SetPosition(0, 0, -2)
+		mCam.Position(0, 0, -2)
 		
 		'Create surface
 		Local tri:Surface = New Surface()
@@ -53,7 +53,7 @@ Public
 		mModel = New Model(mesh)
 		
 		'Disable sun
-		World.SetSunColor(Color.BLACK)
+		World.SunColor(Color.BLACK)
 		
 		Return False
 	End

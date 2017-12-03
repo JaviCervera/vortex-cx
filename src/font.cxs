@@ -30,6 +30,14 @@ Public
 			mGlyphs[i] = New Glyph
 		Next
 	End
+	
+	Function Load:Font(filename:String, cache:Bool = True)
+		If cache
+			Return Cache._LoadFont(filename)
+		Else
+			Return _Load(filename)
+		End
+	End
 
 	Method Discard:Void()
 		mTexture.Discard()
@@ -86,11 +94,11 @@ Public
 		Next
 	End
 	
-	Method NumGlyphs:Int() Property
+	Method _NumGlyphs:Int() Property
 		Return mGlyphs.Length
 	End
 	
-	Method SetGlyphData:Void(index:Int, x:Float, y:Float, w:Float, h:Float, yoffset:Float)
+	Method _GlyphData:Void(index:Int, x:Float, y:Float, w:Float, h:Float, yoffset:Float)
 		mGlyphs[index].mX = x
 		mGlyphs[index].mY = y
 		mGlyphs[index].mWidth = w
@@ -100,7 +108,7 @@ Public
 		If h > mMaxHeight Then mMaxHeight = h
 	End
 	
-	Method GlyphData:Glyph(index:Int)
+	Method _GlyphData:Glyph(index:Int)
 		Return mGlyphs[index]
 	End
 	
@@ -138,7 +146,7 @@ Public
 		Local firstChar:Int = stream.ReadInt()
 		
 		'Load texture
-		Local tex:Texture = Cache.LoadTexture(texName, Renderer.FILTER_NONE)
+		Local tex:Texture = texture.Texture.Load(texName, Renderer.FILTER_NONE)
 		
 		'Create font
 		Local font:Font = New Font(filename, height, tex)
@@ -154,7 +162,7 @@ Public
 			Local yoffset:Float = stream.ReadFloat()
 			
 			'Add glyph data
-			font.SetGlyphData(i, x, y, width, height, yoffset)
+			font._GlyphData(i, x, y, width, height, yoffset)
 		Next
 		
 		stream.Close()

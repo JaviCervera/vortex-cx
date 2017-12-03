@@ -33,16 +33,16 @@ Public
 		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt.dat")
+		mFont = Font.Load("system.fnt.dat")
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.SetPosition(16, 16, -16)
-		mCam.SetRotation(20, -45, 0)
+		mCam.Position(16, 16, -16)
+		mCam.Rotate(20, -45, 0)
 		mCam.ClearColor = Color.RGB(15, 15, 15)
 		
 		'Create robot model
-		mModel = New Model(Cache.LoadMesh("robot.msh.dat"))
+		mModel = New Model(Mesh.Load("robot.msh.dat"))
 		'mModel.Yaw = 180.0
 		
 		'Create floor mesh
@@ -57,17 +57,17 @@ Public
 		
 		'Create lights
 		mLights[0] = New Light
-		'mLights[0].SetRotation(45, -45, 0)
-		mLights[0].SetPosition(32, 0, 32)
+		'mLights[0].Rotate(45, -45, 0)
+		mLights[0].Position(32, 0, 32)
 		mLights[0].Color = Color.RGB(125, 161, 191)
 		mLights[1] = New Light
-		mLights[1].SetPosition(-32, 32, -32)
+		mLights[1].Position(-32, 32, -32)
 		mLights[1].Color = Color.RGB(255, 100, 0)
 		
 		'Disable sun & enable shadows (sun rotation is used only to cast shadows)
-		World.SetSunColor(Color.BLACK)
-		World.SetSunRotation(30, 0)
-		World.SetShadows(True, 50)
+		World.SunColor(Color.BLACK)
+		World.SunRotation(30, 0)
+		World.Shadows(True, 50)
 
 		Return False
 	End

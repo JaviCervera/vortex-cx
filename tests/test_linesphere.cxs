@@ -1,6 +1,6 @@
 Strict
 
-#GLFW_WINDOW_TITLE="Vortex2 Fog Test"
+#GLFW_WINDOW_TITLE="Vortex2 Picking Test"
 #GLFW_WINDOW_WIDTH=800
 #GLFW_WINDOW_HEIGHT=600
 #GLFW_WINDOW_RESIZABLE=True
@@ -43,15 +43,15 @@ Public
 		mP1 = [0.0, 0, 16]
 		
 		'Load font
-		'mFont = Cache.LoadFont("system.fnt.dat")
+		'mFont = Font.Load("system.fnt.dat")
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.SetPosition(16, 16, -16)
-		mCam.SetRotation(45, -45, 0)
+		mCam.Position(16, 16, -16)
+		mCam.Rotate(45, -45, 0)
 		
 		'Create sphere
-		mSphere = New Model(Cache.LoadMesh("sphere.msh.dat"))
+		mSphere = New Model(Mesh.Load("sphere.msh.dat"))
 		
 		'Create line mesh
 		Local lineSurf:Surface = New Surface(Renderer.MODE_LINES)

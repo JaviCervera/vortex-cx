@@ -19,7 +19,7 @@ Function LoadMesh:Mesh(filename:String)
 	'Directly load native files
 	If ExtractExt(filename).ToLower() = "dat"
 		Local baseName:String = StripExt(StripExt(filename))
-		Local mesh:Mesh = Cache.LoadMesh(filename, baseName + ".skl.dat", baseName + ".anm.dat")
+		Local mesh:Mesh = Mesh.Load(filename, baseName + ".skl.dat", baseName + ".anm.dat")
 		Return mesh
 	End
 
@@ -100,7 +100,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 			If loadedDiffuse.Contains(baseTexStr)
 				diffuseTex = loadedDiffuse.Get(baseTexStr)
 			Else
-				diffuseTex = Cache.LoadTexture(baseTexStr, texFilter)
+				diffuseTex = Texture.Load(baseTexStr, texFilter)
 				loadedDiffuse.Add(baseTexStr, diffuseTex)
 			End
 		End
@@ -112,7 +112,7 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 			If loadedLightmaps.Contains(lightmapStr)
 				lightmap = loadedLightmaps.Get(lightmapStr)
 			Else
-				lightmap = Cache.LoadTexture(lightmapStr, texFilter)
+				lightmap = Texture.Load(lightmapStr, texFilter)
 				loadedLightmaps.Add(lightmapStr, lightmap)
 			End
 		End
@@ -224,14 +224,14 @@ Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = 
 
 			'Add vertex
 			Local vertex:Int = surf.AddVertex(x, y, z, nx, ny, nz, Color.RGB(r * 255, g * 255, b * 255, a * 255), u0, v0)
-			surf.SetVertexTexCoords(vertex, u1, v1, 1)
-			surf.SetVertexTangent(vertex, tx, ty, tz)
+			surf.VertexTexCoords(vertex, u1, v1, 1)
+			surf.VertexTangent(vertex, tx, ty, tz)
 			
 			'Set vertex bones and weights
-			surf.SetVertexBone(vertex, 0, b0, w0)
-			surf.SetVertexBone(vertex, 1, b1, w1)
-			surf.SetVertexBone(vertex, 2, b2, w2)
-			surf.SetVertexBone(vertex, 3, b3, w3)
+			surf.VertexBone(vertex, 0, b0, w0)
+			surf.VertexBone(vertex, 1, b1, w1)
+			surf.VertexBone(vertex, 2, b2, w2)
+			surf.VertexBone(vertex, 3, b3, w3)
 		Next
 
 		mesh.AddSurface(surf, materialsMap.Get(materialStr))
@@ -303,6 +303,8 @@ End
 Function MaterialSize:Int(mat:Material)
 	'Fixed header
 	Local size:Int = 4	'Color
+	size += 4			'Emissive color (unused yet)
+	size += 4			'Ambient color (unused yet)
 	size += 1			'BlendMode
 	size += 1			'Flags
 	size += 4			'Shininess
@@ -312,9 +314,9 @@ Function MaterialSize:Int(mat:Material)
 	'Texture names
 	If mat.ColorTexture Then size += 4 + StripDir(mat.ColorTexture.Filename).Length
 	If mat.NormalTexture Then size += 4 + StripDir(mat.NormalTexture.Filename).Length
+	If mat.SpecularTexture Then size += 4 + StripDir(mat.SpecularTexture.Filename).Length
 	If mat.LightTexture Then size += 4 + StripDir(mat.LightTexture.Filename).Length
 	If mat.CubeTexture Then size += 4 + StripDir(mat.CubeTexture.Filename).Length
-	If mat.SpecularTexture Then size += 4 + StripDir(mat.SpecularTexture.Filename).Length
 	
 	Return size
 End
@@ -410,6 +412,12 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	'Color
 	stream.WriteInt(mat.Color)
 	
+	'Emissive Color
+	stream.WriteInt(Color.BLACK)
+	
+	'Ambient color
+	stream.WriteInt(Color.WHITE)
+	
 	'Blend mode
 	stream.WriteByte(mat.BlendMode)
 	
@@ -426,22 +434,23 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	stream.WriteFloat(mat.RefractionCoef)
 	
 	'Used textures
-	Local usedTexs:Int = 0	'1=Diffuse2D,2=DiffuseCube,4=Normal,8=Lightmap,16=Reflect,32=Refract
+	Local usedTexs:Int = 0	'1=Diffuse2D,2=Normal,4=Specular,8=Emissive,16=Lightmap,32=Cube,1024=DiffuseCube
 	If mat.ColorTexture And Not mat.ColorTexture.IsCubic Then usedTexs |= 1
-	If mat.ColorTexture And mat.ColorTexture.IsCubic Then usedTexs |= 2
-	If mat.NormalTexture Then usedTexs |= 4
-	If mat.LightTexture Then usedTexs |= 8
-	If mat.CubeTexture Then usedTexs |= 16
-	If mat.SpecularTexture Then usedTexs |= 32
+	If mat.ColorTexture And mat.ColorTexture.IsCubic Then usedTexs |= 1024
+	If mat.NormalTexture Then usedTexs |= 2
+	If mat.SpecularTexture Then usedTexs |= 4
+	'If mat.EmissiveTexture Then usedTexs |= 8
+	If mat.LightTexture Then usedTexs |= 16
+	If mat.CubeTexture Then usedTexs |= 32
 	stream.WriteByte(usedTexs)
 	
 	'Texture names
 	Local filename:String = ""
 	If mat.ColorTexture Then filename = StripDir(mat.ColorTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.NormalTexture Then filename = StripDir(mat.NormalTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.SpecularTexture Then filename = StripDir(mat.SpecularTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.LightTexture Then filename = StripDir(mat.LightTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.CubeTexture Then filename = StripDir(mat.CubeTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
-	If mat.SpecularTexture Then filename = StripDir(mat.SpecularTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 End
 
 Function WriteSurfaceData:Void(stream:DataStream, surf:Surface, includeBones:Bool)

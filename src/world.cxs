@@ -25,19 +25,19 @@ Class World Final
 		If numLights <= 0 Then numLights = 1
 		If numBones <= 0 Then numBones = 1
 		If Renderer.Init(numLights, numBones)
-			Cache.Push()
+			Cache._Push()
 			Stats._Init()
 			mSkybox = Mesh.CreateSkybox()
 			mSkybox.Material(0).DepthWrite = False
-			SetSunRotation(45, -45)
-			SetSunColor(Color.WHITE)
-			SetAmbient(Color.RGB(75, 75, 75))
-			SetFogEnabled(False)
-			SetFogMinDistance(600)
-			SetFogMaxDistance(1000)
-			SetFogColor(Color.BLACK)
-			SetSeparateDepthPass(False)
-			SetShadows(False)
+			SunRotation(45, -45)
+			SunColor(Color.WHITE)
+			Ambient(Color.RGB(75, 75, 75))
+			FogEnabled(False)
+			FogMinDistance(600)
+			FogMaxDistance(1000)
+			FogColor(Color.BLACK)
+			SeparateDepthPass(False)
+			Shadows(False)
 			Return True
 		Else
 			Return False
@@ -86,7 +86,7 @@ Class World Final
 				Mat4LookAtLH(mTempArr[0], mTempArr[1], mTempArr[2], lookx, looky, lookz, 0, 1, 0, mDepthView)
 			
 				'Set framebuffer
-				mFramebuffer.Set()
+				mFramebuffer.Use()
 				
 				'Setup renderer
 				Renderer.Setup3D(0, 0, mFramebuffer.ColorTexture.Width, mFramebuffer.ColorTexture.Height)
@@ -102,7 +102,7 @@ Class World Final
 				Next
 				
 				'Set screen
-				Framebuffer.SetScreen()
+				Framebuffer.UseScreen()
 			End
 			
 			'Prepare camera
@@ -181,7 +181,7 @@ Class World Final
 		Return mSkybox.Material(0).ColorTexture
 	End
 	
-	Function SetSkyboxTexture:Void(tex:Texture)
+	Function SkyboxTexture:Void(tex:Texture)
 		mSkybox.Material(0).DiscardTextures()
 		mSkybox.Material(0).ColorTexture = tex
 	End
@@ -215,7 +215,7 @@ Class World Final
 		Return mSunYaw
 	End
 	
-	Function SetSunRotation:Void(pitch:Float, yaw:Float)
+	Function SunRotation:Void(pitch:Float, yaw:Float)
 		mSunPitch = pitch
 		mSunYaw = yaw
 	End
@@ -224,7 +224,7 @@ Class World Final
 		Return mSunColor
 	End
 	
-	Function SetSunColor:Void(color:Int)
+	Function SunColor:Void(color:Int)
 		mSunColor = color
 	End
 	
@@ -232,7 +232,7 @@ Class World Final
 		Return mAmbient
 	End
 	
-	Function SetAmbient:Void(amb:Int)
+	Function Ambient:Void(amb:Int)
 		mAmbient = amb
 	End
 	
@@ -240,7 +240,7 @@ Class World Final
 		Return mFogEnabled
 	End
 	
-	Function SetFogEnabled:Void(enabled:Bool)
+	Function FogEnabled:Void(enabled:Bool)
 		mFogEnabled = enabled
 	End
 	
@@ -248,7 +248,7 @@ Class World Final
 		Return mFogMin
 	End
 	
-	Function SetFogMinDistance:Void(minDist:Float)
+	Function FogMinDistance:Void(minDist:Float)
 		mFogMin = minDist
 	End
 	
@@ -256,7 +256,7 @@ Class World Final
 		Return mFogMax
 	End
 	
-	Function SetFogMaxDistance:Void(maxDist:Float)
+	Function FogMaxDistance:Void(maxDist:Float)
 		mFogMax = maxDist
 	End
 	
@@ -264,7 +264,7 @@ Class World Final
 		Return mFogColor
 	End
 	
-	Function SetFogColor:Void(color:Int)
+	Function FogColor:Void(color:Int)
 		mFogColor = color
 	End
 	
@@ -272,7 +272,7 @@ Class World Final
 		Return mSeparateDepthPass
 	End
 	
-	Function SetSeparateDepthPass:Void(enable:Bool)
+	Function SeparateDepthPass:Void(enable:Bool)
 		mSeparateDepthPass = enable
 	End
 	
@@ -280,7 +280,7 @@ Class World Final
 		Return mShadowsEnabled
 	End
 	
-	Function SetShadows:Void(enable:Bool, range:Float = 500, sunDistance:Float = 0, shadowTexSize:Int = 1024)
+	Function Shadows:Void(enable:Bool, range:Float = 500, sunDistance:Float = 0, shadowTexSize:Int = 1024)
 		mShadowsEnabled = enable
 		If mFramebuffer Then mFramebuffer.Discard()
 		If enable

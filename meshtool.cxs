@@ -53,14 +53,14 @@ Public
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.SetPosition(CAM_DEFX, CAM_DEFY, CAM_DEFZ)
-		mCam.SetRotation(CAM_DEFPITCH, CAM_DEFYAW, 0)
+		mCam.Position(CAM_DEFX, CAM_DEFY, CAM_DEFZ)
+		mCam.Rotate(CAM_DEFPITCH, CAM_DEFYAW, 0)
 		mCam.ClearColor = Color.RGB(100, 100, 100)
 		mCam.Far = 5000
 		
 		'Create look point
 		mLookPoint = New Entity(mCam)
-		mLookPoint.SetPosition(0, 0, 1)
+		mLookPoint.Position(0, 0, 1)
 		
 		mLastMouseX = MouseX()
 		mLastMouseY = MouseY()
@@ -104,14 +104,14 @@ Public
 		
 		'Reset camera with R
 		If KeyHit(KEY_R)
-			mCam.SetPosition(CAM_DEFX, CAM_DEFY, CAM_DEFZ)
-			mCam.SetRotation(CAM_DEFPITCH, CAM_DEFYAW, 0)
+			mCam.Position(CAM_DEFX, CAM_DEFY, CAM_DEFZ)
+			mCam.Rotate(CAM_DEFPITCH, CAM_DEFYAW, 0)
 		End
 		
 		'Update light rotation
 		Vec3Sub(mLookPoint.WorldX, mLookPoint.WorldY, mLookPoint.WorldZ, mCam.WorldX, mCam.WorldY, mCam.WorldZ, mTempVec)
 		Vec3Norm(mTempVec[0], mTempVec[1], mTempVec[2], mTempVec)
-		World.SetSunRotation(Vec3Pitch(mTempVec[0], mTempVec[1], mTempVec[2]), Vec3Yaw(mTempVec[0], mTempVec[1], mTempVec[2]))
+		World.SunRotation(Vec3Pitch(mTempVec[0], mTempVec[1], mTempVec[2]), Vec3Yaw(mTempVec[0], mTempVec[1], mTempVec[2]))
 		
 		'Update mouse
 		mLastMouseX = MouseX()

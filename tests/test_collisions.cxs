@@ -25,31 +25,31 @@ Public
 		End
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt.dat")
+		mFont = Font.Load("system.fnt.dat")
 		
 		'Setup world
-		World.SetAmbient(Color.LIGHT_GRAY)
+		World.Ambient(Color.LIGHT_GRAY)
 		ToggleShadows()
 		
 		'Create sphere
-		mBall = New Model(Cache.LoadMesh("sphere.msh.dat"))
-		mBall.SetPosition(3.5, 0.5, 2.5)
-		mBall.SetScale(0.5, 0.5, 0.5)
+		mBall = New Model(Mesh.Load("sphere.msh.dat"))
+		mBall.Position(3.5, 0.5, 2.5)
+		mBall.Scale(0.5, 0.5, 0.5)
 		mBall.CollisionMode = Entity.COLLISION_SPHERE
 		mBall.Radius = 0.5
 		mBall.Material.Color = Color.RED
 		
 		'Create camera
 		mCam = New Camera(mBall)
-		mCam.SetPosition(0, 14, -16)
-		mCam.SetRotation(45, 0, 0)
+		mCam.Position(0, 14, -16)
+		mCam.Rotate(45, 0, 0)
 		mCam.ClearColor = Color.RGB(15, 25, 55)
 		
 		'Create level
 		CreateLevel()
 		
 		'Setup lighting
-		World.SetSunRotation(15, 60)
+		World.SunRotation(15, 60)
 
 		Return False
 	End
@@ -129,68 +129,68 @@ Public
 		'Create south wall
 		Local model:Model = New Model(mesh)
 		model.CollisionMode = Entity.COLLISION_BOX
-		model.SetScale(13, 1, 1)
+		model.Scale(13, 1, 1)
 		
 		'Create north wall
 		model = New Model(mesh)
 		model.CollisionMode = Entity.COLLISION_BOX
-		model.SetPosition(0, 0, 13)
-		model.SetScale(13, 1, 1)
+		model.Position(0, 0, 13)
+		model.Scale(13, 1, 1)
 		
 		'Create west wall
 		model = New Model(mesh)
 		model.CollisionMode = Entity.COLLISION_BOX
-		model.SetPosition(0, 0, 1)
-		model.SetScale(1, 1, 12)	
+		model.Position(0, 0, 1)
+		model.Scale(1, 1, 12)	
 		
 		'Create east wall
 		model = New Model(mesh)
 		model.CollisionMode = Entity.COLLISION_BOX
-		model.SetPosition(12, 0, 1)
-		model.SetScale(1, 1, 12)
+		model.Position(12, 0, 1)
+		model.Scale(1, 1, 12)
 		
 		'Create middle wall
 		model = New Model(mesh)
 		model.CollisionMode = Entity.COLLISION_BOX
-		model.SetPosition(6, 0, 1)
-		model.SetScale(1, 1, 8)
+		model.Position(6, 0, 1)
+		model.Scale(1, 1, 8)
 		
 		'Create floor
 		model = New Model(mesh)
 		model.CollisionMode = Entity.COLLISION_BOX
-		model.SetPosition(0, -1, 0)
-		model.SetScale(13, 1, 13)
+		model.Position(0, -1, 0)
+		model.Scale(13, 1, 13)
 		model.Material.Color = Color.BROWN
 		
 		'Create door
 		mDoor = New Model(mesh)
 		mDoor.CollisionMode = Entity.COLLISION_BOX
-		mDoor.SetPosition(6, 0, 9)
-		mDoor.SetScale(1, 1, 4)
+		mDoor.Position(6, 0, 9)
+		mDoor.Scale(1, 1, 4)
 		mDoor.Material.Color = Color.CYAN
 		mDoorDir = 1
 		
 		'Create first blocking sphere
-		model = New Model(Cache.LoadMesh("sphere.msh.dat"))
+		model = New Model(Mesh.Load("sphere.msh.dat"))
 		model.CollisionMode = Entity.COLLISION_SPHERE
 		model.Radius = 1.2
-		model.SetPosition(9, 1, 10)
+		model.Position(9, 1, 10)
 		model.Material.Color = Color.YELLOW
 		
 		'Create second blocking sphere
-		mBlockBall = New Model(Cache.LoadMesh("sphere.msh.dat"))
+		mBlockBall = New Model(Mesh.Load("sphere.msh.dat"))
 		mBlockBall.CollisionMode = Entity.COLLISION_SPHERE
 		mBlockBall.Radius = 1.2
-		mBlockBall.SetPosition(9, 3, 5)
+		mBlockBall.Position(9, 3, 5)
 		mBlockBall.Material.Color = Color.MAGENTA
 		mBlockBallDir = -1
 	End
 	
 	Method ToggleShadows:Void()
 		If World.Shadows()
-			World.SetShadows(False)
+			World.Shadows(False)
 		Else
-			World.SetShadows(True, 50, 0, 2048)
+			World.Shadows(True, 50, 0, 2048)
 		End
 	End
 Private

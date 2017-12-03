@@ -87,7 +87,7 @@ Public
 		Return mNumIndices
 	End
 	
-	Method SetIndex:Void(num:Int, v:Int)
+	Method Index:Void(num:Int, v:Int)
 		mIndices.PokeShort(num*2, v)
 		mStatus |= STATUS_I_DIRTY
 	End
@@ -118,7 +118,7 @@ Public
 		End
 	End
 
-	Method SetTriangleVertices:Void(tri:Int, v0:Int, v1:Int, v2:Int)
+	Method Triangle:Void(tri:Int, v0:Int, v1:Int, v2:Int)
 		If mMode = Renderer.MODE_TRIANGLES
 			mIndices.PokeShort(tri * 6, v0)
 			mIndices.PokeShort(tri * 6 + 2, v1)
@@ -179,36 +179,36 @@ Public
 		Return mNumVertices
 	End
 
-	Method SetVertexPosition:Void(index:Int, x:Float, y:Float, z:Float)
+	Method VertexPosition:Void(index:Int, x:Float, y:Float, z:Float)
 		mVertices.PokeFloat(index * VERTEX_SIZE + POS_OFFSET, x)
 		mVertices.PokeFloat(index * VERTEX_SIZE + POS_OFFSET + 4, y)
 		mVertices.PokeFloat(index * VERTEX_SIZE + POS_OFFSET + 8, z)
 		mStatus |= STATUS_V_DIRTY
 	End
 
-	Method SetVertexNormal:Void(index:Int, nx:Float, ny:Float, nz:Float)
+	Method VertexNormal:Void(index:Int, nx:Float, ny:Float, nz:Float)
 		mVertices.PokeFloat(index * VERTEX_SIZE + NORMAL_OFFSET, nx)
 		mVertices.PokeFloat(index * VERTEX_SIZE + NORMAL_OFFSET + 4, ny)
 		mVertices.PokeFloat(index * VERTEX_SIZE + NORMAL_OFFSET + 8, nz)
 		mStatus |= STATUS_V_DIRTY
 	End
 	
-	Method SetVertexTangent:Void(index:Int, tx:Float, ty:Float, tz:Float)
+	Method VertexTangent:Void(index:Int, tx:Float, ty:Float, tz:Float)
 		mVertices.PokeFloat(index * VERTEX_SIZE + TANGENT_OFFSET, tx)
 		mVertices.PokeFloat(index * VERTEX_SIZE + TANGENT_OFFSET + 4, ty)
 		mVertices.PokeFloat(index * VERTEX_SIZE + TANGENT_OFFSET + 8, tz)
 		mStatus |= STATUS_V_DIRTY
 	End
 
-	Method SetVertexColor:Void(index:Int, color:Int)
-		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET, RedF(color))
-		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 4, GreenF(color))
-		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 8, BlueF(color))
-		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 12, AlphaF(color))
+	Method VertexColor:Void(index:Int, color:Int)
+		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET, Color.Red(color) / 255.0)
+		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 4, Color.Green(color) / 255.0)
+		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 8, Color.Blue(color) / 255.0)
+		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 12, Color.Alpha(color) / 255.0)
 		mStatus |= STATUS_V_DIRTY
 	End
 
-	Method SetVertexTexCoords:Void(index:Int, u:Float, v:Float, set:Int = 0)
+	Method VertexTexCoords:Void(index:Int, u:Float, v:Float, set:Int = 0)
 		If set = 0
 			mVertices.PokeFloat(index * VERTEX_SIZE + TEX_OFFSET, u)
 			mVertices.PokeFloat(index * VERTEX_SIZE + TEX_OFFSET + 4, v)
@@ -220,7 +220,7 @@ Public
 		mStatus |= STATUS_V_DIRTY
 	End
 	
-	Method SetVertexBone:Void(vertex:Int, index:Int, bone:Int, weight:Float)
+	Method VertexBone:Void(vertex:Int, index:Int, bone:Int, weight:Float)
 		'WebGL does not support int attributes, so storing it as a float is a trick I am using
 		mVertices.PokeFloat(vertex * VERTEX_SIZE + BONEINDICES_OFFSET + index * 4, bone)
 		mVertices.PokeFloat(vertex * VERTEX_SIZE + BONEWEIGHTS_OFFSET + index * 4, weight)
@@ -297,7 +297,7 @@ Public
 	
 	Method Translate:Void(x:Float, y:Float, z:Float, rebuild:Bool = True)
 		For Local i:Int = 0 Until NumVertices
-			SetVertexPosition(i, VertexX(i) + x, VertexY(i) + y, VertexZ(i) + z)
+			VertexPosition(i, VertexX(i) + x, VertexY(i) + y, VertexZ(i) + z)
 		Next
 		If rebuild Then Rebuild()
 	End
@@ -310,35 +310,35 @@ Public
 		Mat4Rotate(mTempMat, angle, mTempQuat[0], mTempQuat[1], mTempQuat[2], mTempMat)
 		For Local i:Int = 0 Until NumVertices
 			Mat4MulVec4(mTempMat, VertexX(i), VertexY(i), VertexZ(i), 1, mTempQuat)
-			SetVertexPosition(i, mTempQuat[0], mTempQuat[1], mTempQuat[2])
+			VertexPosition(i, mTempQuat[0], mTempQuat[1], mTempQuat[2])
 			Mat4MulVec4(mTempMat, VertexNX(i), VertexNY(i), VertexNZ(i), 0, mTempQuat)
-			SetVertexNormal(i, mTempQuat[0], mTempQuat[1], mTempQuat[2])
+			VertexNormal(i, mTempQuat[0], mTempQuat[1], mTempQuat[2])
 		Next
 		If rebuild Then Rebuild()
 	End
 
 	Method Scale:Void(x:Float, y:Float, z:Float, rebuild:Bool = True)
 		For Local i:Int = 0 Until NumVertices
-			SetVertexPosition(i, VertexX(i) * x, VertexY(i) * y, VertexZ(i) * z)
+			VertexPosition(i, VertexX(i) * x, VertexY(i) * y, VertexZ(i) * z)
 		Next
 		If rebuild Then Rebuild()
 	End
 
 	Method Flip:Void(rebuild:Bool = True)
 		For Local i:Int = 0 Until NumVertices
-			SetVertexNormal(i, -VertexNX(i), -VertexNY(i), -VertexNZ(i))
+			VertexNormal(i, -VertexNX(i), -VertexNY(i), -VertexNZ(i))
 		Next
 		If mMode = Renderer.MODE_TRIANGLES
 			For Local i:Int = 0 Until NumTriangles
-				SetTriangleVertices(i, TriangleV2(i), TriangleV1(i), TriangleV0(i))
+				Triangle(i, TriangleV2(i), TriangleV1(i), TriangleV0(i))
 			Next
 		End
 		If rebuild Then Rebuild()
 	End
 
-	Method SetColor:Void(color:Int, rebuild:Bool = True)
+	Method ColorVertices:Void(color:Int, rebuild:Bool = True)
 		For Local i:Int = 0 Until NumVertices
-			SetVertexColor(i, color)
+			VertexColor(i, color)
 		Next
 		If rebuild Then Rebuild()
 	End

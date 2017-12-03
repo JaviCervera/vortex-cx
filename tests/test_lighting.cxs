@@ -28,25 +28,25 @@ Public
 		Print "API version name: " + Stats.APIVersionName()
 		Print "Shading version name: " + Stats.ShadingVersionName()
 		Print "Shader compilation: " + Stats.ShaderError()
-		World.SetAmbient(Color.BLACK)
+		World.Ambient(Color.BLACK)
 		
 		'Load font
-		mFont = Cache.LoadFont("system.fnt.dat")
+		mFont = Font.Load("system.fnt.dat")
 		
 		'Load sphere mesh
-		Local mesh:Mesh = Cache.LoadMesh("sphere.msh.dat")
+		Local mesh:Mesh = Mesh.Load("sphere.msh.dat")
 		
 		'Create camera
 		mCam = New Camera()
 		mCam.ClearColor = Color.BLACK
-		mCam.SetPosition(0, 32, -90)
-		mCam.SetRotation(16, 0, 0)
+		mCam.Position(0, 32, -90)
+		mCam.Rotate(16, 0, 0)
 		
 		'Create sphere models
 		Local x:Int = -32, z:Int = -32
 		For Local i:Int = 0 Until 81
 			Local model:Model = New Model(mesh)
-			model.SetPosition(x, 0, z)
+			model.Position(x, 0, z)
 			x += 8; If x > 32 Then x = -32; z += 8
 		Next
 		
@@ -65,7 +65,7 @@ Public
 		mLights[2].Yaw = 240
 		
 		'Disable sun
-		World.SetSunColor(Color.BLACK)
+		World.SunColor(Color.BLACK)
 		
 		Return False
 	End
@@ -87,7 +87,7 @@ Public
 		'Update lights
 		For Local i:Int = 0 Until 3
 			mLights[i].Yaw -= 32 * Stats.DeltaTime()
-			mLights[i].SetPosition(0, 0, 0)
+			mLights[i].Position(0, 0, 0)
 			mLights[i].Move(0, 0, -48)
 		Next
 		

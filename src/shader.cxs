@@ -400,27 +400,15 @@ Public
 	End
 	
 	Function _Default3D:Shader()
-		Local type:Int = mDefaultType
-		If type = TYPE_PIXEL_LIGHTING
-			If _PixelLighting().Handle <> 0 Then Return _PixelLighting() Else type -= 1
-		End
-		If type = TYPE_VERTEX_LIGHTING
-			If _VertexLighting().Handle <> 0 Then Return _VertexLighting() Else type -= -1
-		End
-		If type = TYPE_MINIMAL_SHADOWS
-			If _MinimalShadows().Handle <> 0 Then Return _MinimalShadows() Else type -= -1
-		End
-		Return _Minimal()
-	
-		Select mDefaultType
-		Case TYPE_MINIMAL
-			Return _Minimal()
+		Select DefaultType()
+		Case TYPE_PIXEL_LIGHTING
+			Return _PixelLighting()
+		Case TYPE_VERTEX_LIGHTING
+			Return _VertexLighting()
 		Case TYPE_MINIMAL_SHADOWS
 			Return _MinimalShadows()
-		Case TYPE_PIXEL_LIGHTING
-				Return _PixelLighting()
 		Default
-			Return _VertexLighting()
+			Return _Minimal()
 		End
 	End
 	
