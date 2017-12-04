@@ -549,7 +549,7 @@ Returns an available channel number (one that is not currently being used) that 
 
 # Class Material
 
-A material represents the visual information such as textures, color, or shininess.
+A material represents visual information such as textures, color, or shininess.
 It is used to render objects with a specific appearance.
 
 # Method New(colorTex:Texture = Null)
@@ -582,8 +582,7 @@ Sets the color of the material.
 Returns the color of the material.
 
 # Method ColorTexture:Void(tex:Texture) Property
-Sets the color texture of the material. It can be either a 2D or cubemap texture.
-If it is a cubemap, it will be rendered as a skybox, and you should not set a `CubeTexture`.
+Sets the color texture of the material.
 
 # Method ColorTexture:Texture() Property
 Returns the color texture of the material, or `Null` if there is no color texture.

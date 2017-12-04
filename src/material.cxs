@@ -223,6 +223,7 @@ Public
 		'Set renderer settings
 		Renderer.Color(mColor)
 		RenderState.Shininess = mShininess
+		RenderState.CubeOpacity = mCubeOpacity
 		RenderState.RefractCoef = mRefractCoef
 		Renderer.BlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)

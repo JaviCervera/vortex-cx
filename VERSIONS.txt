@@ -8,6 +8,7 @@ V2.0-beta2
 - Renamed Material.BaseTexture to Material.ColorTexture
 - Added Material.SpecularTexture
 - Added Material.CubeTexture and removed Reflection and Refraction textures (now a material can only have one cubemap)
+- Added Material.CubeOpacity
 - Added Lighting and ReceiveShadows properties to Material
 - Added Shader property to Material
 - Returned to previous Fps based animation system, instead of the duration based one

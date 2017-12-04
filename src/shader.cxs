@@ -36,6 +36,7 @@ Public
 	Field mMaterialColor:Int
 	Field mAmbient:Int
 	Field mMaterialShininess:Int
+	Field mCubeOpacity:Int
 	Field mRefractCoef:Int
 	Field mFogData:Int
 	Field mFogColor:Int
@@ -66,6 +67,7 @@ Public
 		mMaterialColor = Renderer.ShaderLocation(shader, "MaterialColor")
 		mAmbient = Renderer.ShaderLocation(shader, "Ambient")
 		mMaterialShininess = Renderer.ShaderLocation(shader, "MaterialShininess")
+		mCubeOpacity = Renderer.ShaderLocation(shader, "CubeOpacity")
 		mRefractCoef = Renderer.ShaderLocation(shader, "refractCoef")
 		mFogData = Renderer.ShaderLocation(shader, "Fog.Data")
 		mFogColor = Renderer.ShaderLocation(shader, "Fog.Color")
@@ -160,6 +162,9 @@ Public
 	
 		'Set shininess
 		If mMaterialShininess <> -1 Then Renderer.SetShaderFloat(mMaterialShininess, RenderState.Shininess)
+		
+		'Set cube opacity
+		If mCubeOpacity <> -1 Then Renderer.SetShaderFloat(mCubeOpacity, RenderState.CubeOpacity)
 		
 		'Set fog
 		Renderer.SetShaderVec3(mFogData, RenderState.FogMinDistance, RenderState.FogMaxDistance, Int(RenderState.FogEnabled))

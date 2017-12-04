@@ -17,6 +17,7 @@ Class RenderState Final
 	Global Color							: Int
 	Global Ambient						: Int
 	Global Shininess					: Float
+	Global CubeOpacity				: Float
 	Global FogEnabled				: Bool
 	Global FogColor					: Int
 	Global FogMinDistance		: Float

@@ -44,6 +44,8 @@ Public
 		
 		'Create hoverbike model
 		mModel = New Model(Mesh.Load("hoverbike.msh.dat"))
+		mModel.Material(1).CubeTexture = World.SkyboxTexture()
+		mModel.Material(1).CubeOpacity = 1
 
 		Return False
 	End
