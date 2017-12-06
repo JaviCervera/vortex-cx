@@ -443,6 +443,8 @@ Const PLIT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING +
 "			if ( UseNormalTex ) {" +
 "				vec3 normalTexColor = vec3(texture2D(NormalTexSampler, vec2(FVertexTexCoords)));" +
 "				normal = FTBNMatrix * (normalTexColor*2.0 - 1.0);" +
+"			} else {" +
+"				normal = normalize(normal);" +
 "			}" +
 
 			'Calc lighting
@@ -550,6 +552,8 @@ Const DEFAULT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING 
 "			if ( UseNormalTex ) {" +
 "				vec3 normalTexColor = vec3(texture2D(NormalTexSampler, vec2(FVertexTexCoords)));" +
 "				normal = FTBNMatrix * (normalTexColor*2.0 - 1.0);" +
+"			} else {" +
+"				normal = normalize(normal);" +
 "			}" +
 
 			'Calc lighting
