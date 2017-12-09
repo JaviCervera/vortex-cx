@@ -593,11 +593,11 @@ Sets the normal texture of the material.
 # Method NormalTexture:Texture() Property
 Returns the normal texture of the material, or `Null` if there is no normal texture.
 
-# Method SpecularTexture:Void(tex:Texture) Property
-Sets the specular texture of the material, which is expected to be a grayscale image. When there is a specular texture set, the `Shininess` property of the material is multiplied with the values on this texture to provide a variable shininess across the surface of the object. When you set a specular texture, the `Shininess` property is expected to be greater than zero.
+# Method ShininessTexture:Void(tex:Texture) Property
+Sets the shininess texture of the material, which is expected to be a grayscale image. When there is a shininess texture set, the `Shininess` property of the material is multiplied with the values on this texture to provide a variable shininess across the surface of the object. When you set a shininess texture, the `Shininess` property is expected to be greater than zero.
 
-# Method SpecularTexture:Texture() Property
-Returns the specular texture of the material, or `Null` if there is no specular texture.
+# Method ShininessTexture:Texture() Property
+Returns the shininess texture of the material, or `Null` if there is no shininess texture.
 
 # Method LightTexture:Void(tex:Texture) Property
 Sets the light texture of the material.
@@ -899,6 +899,9 @@ precision mediump float;
 
 Documentation of this class will come soon!
 
+# Method Error:String() Property
+Return the description of the errors that occured while compiling or linking the shaer, if any.
+
 
 
 
@@ -977,9 +980,6 @@ Returns the current screen FPS.
 
 # Function RenderCalls:Int()
 Returns the number of render calls performed in the last call to `World.Render`.
-
-# Function ShaderError:String()
-Reports any errors that took place while compiling the shaders on initialization.
 
 # Function VendorName:String()
 Returns the name of the vendor of the renderer implementation.

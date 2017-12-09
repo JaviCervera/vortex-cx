@@ -7,11 +7,11 @@ Public
 
 Class RenderState Final
 	Global ProjectionMatrix	: Float[16]
-	Global ViewMatrix				: Float[16]
+	Global ViewMatrix					: Float[16]
 	Global ModelMatrix				: Float[16]
 	Global DepthBiasMatrix		: Float[16]
 	Global TextureMatrix			: Float[16]
-	Global BoneMatrices			: Float[][16]
+	Global BoneMatrices				: Float[][16]
 	Global Skinned						: Bool
 	Global BlendMode					: Int
 	Global Color							: Int
@@ -31,7 +31,7 @@ Class RenderState Final
 	Global LightRadius				: Float[]
 	Global UseColorTex				: Bool
 	Global UseNormalTex			: Bool
-	Global UseSpecularTex    : Bool
+	Global UseShininessTex    : Bool
 	Global UseLightTex				: Bool
 	Global UseCubeTex				: Bool
 	Global SeparateDepthPass	: Bool

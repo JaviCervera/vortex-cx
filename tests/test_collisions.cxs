@@ -19,10 +19,7 @@ Public
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not World.Init()
-			Print "Error: " + Stats.ShaderError()
-			EndApp()
-		End
+		If Not World.Init() Then EndApp()
 		
 		'Load font
 		mFont = Font.Load("system.fnt.dat")

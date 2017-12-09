@@ -19,10 +19,6 @@ Public
 		Return mRenderCalls
 	End
 	
-	Function ShaderError:String()
-		Return Renderer.ShaderError()
-	End
-	
 	Function VendorName:String()
 		Return Renderer.VendorName()
 	End

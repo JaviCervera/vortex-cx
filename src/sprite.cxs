@@ -5,6 +5,7 @@ Import color
 Import material
 Import math3d
 Import renderer
+Import renderstate
 Import stats
 Import surface
 Import texture
@@ -201,7 +202,7 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 		If mOrientation <> MODE_STATIC
 			Local cylindrical:Bool = False
 			If mOrientation = MODE_CYLINDRICAL Then cylindrical = True
-			Mat4BillboardLH(Renderer.State().ViewMatrix, WorldX, WorldY, WorldZ, Spin, Width, Height, cylindrical, _Transform)
+			Mat4BillboardLH(RenderState.ViewMatrix, WorldX, WorldY, WorldZ, Spin, Width, Height, cylindrical, _Transform)
 		End
 		
 		Super._Render(step_)

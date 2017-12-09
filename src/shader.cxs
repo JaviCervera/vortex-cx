@@ -21,12 +21,12 @@ Public
 	'Field mFlags:Int
 	Field mUseColorTex:Int
 	Field mUseNormalTex:Int
-	Field mUseSpecularTex:Int
+	Field mUseShininessTex:Int
 	Field mUseLightmap:Int
 	Field mUseCubemap:Int
 	Field mBaseTexSampler:Int
 	Field mNormalTexSampler:Int
-	Field mSpecularTexSampler:Int
+	Field mShininessTexSampler:Int
 	Field mLightmapSampler:Int
 	Field mCubemapSampler:Int
 	Field mDepthSampler:Int
@@ -56,7 +56,7 @@ Public
 		'mFlags = Renderer.ShaderLocation(shader, "Flags")
 		mUseColorTex = Renderer.ShaderLocation(shader, "UseColorTex")
 		mUseNormalTex = Renderer.ShaderLocation(shader, "UseNormalTex")
-		mUseSpecularTex = Renderer.ShaderLocation(shader, "UseSpecularTex")
+		mUseShininessTex = Renderer.ShaderLocation(shader, "UseShininessTex")
 		mUseLightmap = Renderer.ShaderLocation(shader, "UseLightmap")
 		mUseCubemap = Renderer.ShaderLocation(shader, "UseCubemap")
 		mNumLights = Renderer.ShaderLocation(shader, "NumLights")
@@ -79,7 +79,7 @@ Public
 		Next
 		mBaseTexSampler = Renderer.ShaderLocation(shader, "BaseTexSampler")
 		mNormalTexSampler = Renderer.ShaderLocation(shader, "NormalTexSampler")
-		mSpecularTexSampler = Renderer.ShaderLocation(shader, "SpecularTexSampler")
+		mShininessTexSampler = Renderer.ShaderLocation(shader, "ShininessTexSampler")
 		mLightmapSampler = Renderer.ShaderLocation(shader, "LightmapSampler")
 		mCubemapSampler = Renderer.ShaderLocation(shader, "CubemapSampler")
 		mDepthSampler = Renderer.ShaderLocation(shader, "DepthSampler")
@@ -105,7 +105,7 @@ Public
 			Renderer.SetShaderMat4(mInverseView, mTempMatrix)
 		End
 
-		'Calculate MVP
+		'Calculate ModelViewProjection
 		If mModelViewProjection <> -1
 			Mat4Mul(RenderState.ProjectionMatrix, RenderState.ViewMatrix, mTempMatrix)
 			Mat4Mul(mTempMatrix, RenderState.ModelMatrix, mTempMatrix)
@@ -124,7 +124,7 @@ Public
 			Local flags:Int = 0
 			If RenderState.BaseTexMode <> 0 Then flags |= Shader.FLAG_BASETEX
 			If RenderState.UseNormalTex Then flags |= Shader.FLAG_NORMALTEX
-			If RenderState.UseSpecularTex Then flags |= Shader.FLAG_SPECULARTEX
+			If RenderState.UseShininessTex Then flags |= Shader.FLAG_SHININESSTEX
 			If RenderState.UseLightTex Then flags |= Shader.FLAG_LIGHTMAP
 			If RenderState.UseCubeTex Then flags |= Shader.FLAG_CUBEMAP
 			If RenderState.BlendMode = Renderer.BLEND_SOLID Then flags |= Shader.FLAG_SOLID
@@ -183,13 +183,13 @@ Public
 		'Set textures
 		If mBaseTexSampler <> -1 Then Renderer.SetShaderInt(mBaseTexSampler, Renderer.BASETEX_UNIT)
 		If mNormalTexSampler <> -1 Then Renderer.SetShaderInt(mNormalTexSampler, Renderer.NORMALTEX_UNIT)
-		If mSpecularTexSampler <> -1 Then Renderer.SetShaderInt(mSpecularTexSampler, Renderer.SPECULARTEX_UNIT)
+		If mShininessTexSampler <> -1 Then Renderer.SetShaderInt(mShininessTexSampler, Renderer.SHININESSTEX_UNIT)
 		If mLightmapSampler <> -1 Then Renderer.SetShaderInt(mLightmapSampler, Renderer.LIGHTMAP_UNIT)
 		If mCubemapSampler <> -1 Then Renderer.SetShaderInt(mCubemapSampler, Renderer.CUBEMAP_UNIT)
 		If mDepthSampler <> -1 Then Renderer.SetShaderInt(mDepthSampler, Renderer.DEPTHTEX_UNIT)
 		If mUseColorTex <> -1 Then Renderer.SetShaderInt(mUseColorTex, RenderState.UseColorTex)
 		If mUseNormalTex <> -1 Then Renderer.SetShaderInt(mUseNormalTex, RenderState.UseNormalTex)
-		If mUseSpecularTex <> -1 Then Renderer.SetShaderInt(mUseSpecularTex, RenderState.UseSpecularTex)
+		If mUseShininessTex <> -1 Then Renderer.SetShaderInt(mUseShininessTex, RenderState.UseShininessTex)
 		If mUseLightmap <> -1 Then Renderer.SetShaderInt(mUseLightmap, RenderState.UseLightTex)
 		If mUseCubemap <> -1 Then Renderer.SetShaderInt(mUseCubemap, RenderState.UseCubeTex)
 	
@@ -276,7 +276,7 @@ Public
 		#Rem
 			"#define FLAG_BASETEX " + FLAG_BASETEX + "~n" +
 			"#define FLAG_NORMALTEX " + FLAG_NORMALTEX + "~n" +
-			"#define FLAG_SPECULARTEX " + FLAG_SPECULARTEX + "~n" +
+			"#define FLAG_SHININESSTEX " + FLAG_SHININESSTEX + "~n" +
 			"#define FLAG_LIGHTMAP " + FLAG_LIGHTMAP + "~n" +
 			"#define FLAG_CUBEMAP " + FLAG_CUBEMAP + "~n" +
 			"#define FLAG_SOLID " + FLAG_SOLID + "~n" +
@@ -291,6 +291,7 @@ Public
 		fragment = version + precision + defines + flags + fragment
 		
 		mHandle = Renderer.CreateShader(vertex, fragment)
+		mError = Renderer.ShaderError()
 		If mHandle <> 0
 			mDelegate = delegate
 			mUniforms = New ShaderUniforms(mHandle)
@@ -302,6 +303,10 @@ Public
 		If mHandle <> 0 Then glDeleteProgram(mHandle)
 		mHandle = 0
 		mDelegate = Null
+	End
+	
+	Method Error:String() Property
+		Return mError
 	End
 	
 	Method Location:Int(name:String)
@@ -456,7 +461,7 @@ Public
 Private
 	Const FLAG_BASETEX			: Int = 1
 	Const FLAG_NORMALTEX		: Int = 2
-	Const FLAG_SPECULARTEX		: Int = 4
+	Const FLAG_SHININESSTEX		: Int = 4
 	Const FLAG_LIGHTMAP			: Int = 8
 	Const FLAG_CUBEMAP			: Int = 16
 	Const FLAG_SOLID			: Int = 32
@@ -465,10 +470,11 @@ Private
 	Const FLAG_SKINNED			: Int = 256
 	Const FLAG_BASECUBE			: Int = 512
 
-	Field mHandle			: Int
+	Field mHandle		: Int
 	Field mDelegate		: ShaderDelegate
 	Field mUniforms		: ShaderUniforms
 	Field mAttribs		: ShaderAttribs
+	Field mError		: String
 	
 	Global mDefault2D			: Shader
 	Global mShadow	: Shader

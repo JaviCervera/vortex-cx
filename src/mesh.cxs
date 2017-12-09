@@ -649,6 +649,7 @@ Public
 			Local mat:Material = New Material
 			Local flags:Int = 0
 			mat.Color = stream.ReadInt()
+			'Add also specular color
 			stream.ReadInt()	'Unused emissive color
 			stream.ReadInt()	'Unused ambient color
 			mat.BlendMode = stream.ReadByte() & $FF
@@ -678,7 +679,7 @@ Public
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
-				mat.SpecularTexture = Texture.Load(str, texFilter)
+				mat.ShininessTexture = Texture.Load(str, texFilter)
 			End
 			If usedTexs & 16
 				Local strLen:Int = stream.ReadInt()

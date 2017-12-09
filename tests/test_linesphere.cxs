@@ -28,15 +28,11 @@ Public
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not World.Init()
-			Print "Error: " + Stats.ShaderError()
-			EndApp()
-		End
+		If Not World.Init() Then EndApp()
 		Print "Vendor name: " + Stats.VendorName()
 		Print "Renderer name: " + Stats.RendererName()
 		Print "API version name: " + Stats.APIVersionName()
 		Print "Shading version name: " + Stats.ShadingVersionName()
-		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Create points
 		mP0 = [0.0, 0, -16]

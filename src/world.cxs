@@ -180,7 +180,7 @@ Class World Final
 	End
 
 	Function SkyboxTexture:Texture()
-		Return mSkybox.Material(0).ColorTexture
+		Return mSkybox.Material(0).CubeTexture
 	End
 	
 	Function SkyboxTexture:Void(tex:Texture)

@@ -17,15 +17,11 @@ Class TestApp Extends App
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not World.Init()
-			Print "Error: " + Stats.ShaderError()
-			EndApp()
-		End
+		If Not World.Init() Then EndApp()
 		Print "Vendor name: " + Stats.VendorName()
 		Print "Renderer name: " + Stats.RendererName()
 		Print "API version name: " + Stats.APIVersionName()
 		Print "Shading version name: " + Stats.ShadingVersionName()
-		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Create framebuffer
 		mFramebuffer = New Framebuffer(512, 512, False)
@@ -79,7 +75,7 @@ Class TestApp Extends App
 		mCam.ViewportHeight = DeviceHeight()
 		
 		'Rotate quad
-		mModel.Yaw += 64 * Stats.DeltaTime()
+		mModel.Pitch = ((MouseY() * 2 / DeviceHeight()) - 1) * -20
 		mModel.Yaw = ((MouseX() * 2 / DeviceWidth()) - 1) * -20
 		
 		Return False

@@ -1,6 +1,6 @@
 Strict
 
-#GLFW_WINDOW_TITLE="Vortex2 Sprites Test"
+#GLFW_WINDOW_TITLE="Vortex2 Specular Test"
 #GLFW_WINDOW_WIDTH=800
 #GLFW_WINDOW_HEIGHT=600
 #GLFW_WINDOW_RESIZABLE=True
@@ -26,29 +26,25 @@ Public
 		Print "Shading version name: " + Stats.ShadingVersionName()
 		
 		'Load font
-		mFont = Font.Load("system.fnt.dat")		
+		mFont = Font.Load("system.fnt.dat")
 		
-		'Load texture
-		Local smileTex:Texture = Texture.Load("smile.png")
+		'Set skybox
+		World.SkyboxTexture(Texture.Load("left.jpg", "right.jpg", "front.jpg", "back.jpg", "top.jpg", "bottom.jpg"))
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.Rotate(45, -45, 0)
-		mCam.ClearColor = Color.WHITE
+		mCam.ClearMode = Camera.CLEAR_SKYBOX
+		mCam.Position(0, 0, -6)
 		
-		'Create sprites
-		Local x:Float = -8, z:Float = -8
-		For Local i:Int = 0 Until 64
-			Local spr:Sprite = New Sprite(smileTex)
-			spr.Position(x, 0, z)
-			spr.Size(1, 1)
-			spr.Material.Color = Color.RGB(Rnd(256), Rnd(256), Rnd(256))
-			x += 2; If x >= 8 Then x = -8; z += 2
-		Next
+		'Create sphere
+		mModel = New Model(Mesh.Load("sphere.msh.dat"))
+		mModel.Material.Color = Color.ORANGE
+		mModel.Material.CubeTexture = World.SkyboxTexture()
+		mModel.Material.Shininess = 0
 		
-		'Disable sun
-		World.SunColor(Color.BLACK)
-		
+		'Setup lighting
+		World.SunRotation(30, 20)
+			
 		Return False
 	End
 	
@@ -66,11 +62,16 @@ Public
 		mCam.ViewportWidth = DeviceWidth()
 		mCam.ViewportHeight = DeviceHeight()
 		
-		'Increment camera rotation
+		'Rotate camera
 		mCam.Yaw += 32 * Stats.DeltaTime()
 		mCam.Position(0, 0, 0)
-		mCam.Move(0, 0, -8)
+		mCam.Move(0, 0, -6)
 		
+		'Update shininess
+		If KeyDown(KEY_LEFT) Then mModel.Material.Shininess = Clamp(mModel.Material.Shininess - 0.2 * Stats.DeltaTime(), 0.0, 1.0)
+		If KeyDown(KEY_RIGHT) Then mModel.Material.Shininess = Clamp(mModel.Material.Shininess + 0.2 * Stats.DeltaTime(), 0.0, 1.0)
+		mModel.Material.CubeOpacity = mModel.Material.Shininess / 4
+
 		Return False
 	End
 	
@@ -82,19 +83,25 @@ Public
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Renderer.Color(Color.BLACK)
+		Renderer.Color(Color.WHITE)
 		Local text$ = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
 		text = "Render calls: " + Stats.RenderCalls()
 		mFont.Draw(2, 18, text)
+		
+		'Draw shininess
+		text = "Shininess: " + String(mModel.Material.Shininess)[..4] + " (LEFT and RIGHT to change)"
+		mFont.Draw(2, 34, text)
 	
 		Return False
 	End
 Private
-	Field mFont	: Font
-	Field mCam	: Camera
+	Field mFont		: Font
+	Field mCam		: Camera
+	Field mModel	: Model
+	Field mLight	: Light
 End
 
 Function Main:Int()

@@ -19,15 +19,11 @@ Public
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not World.Init()
-			Print "Error: " + Stats.ShaderError()
-			EndApp()
-		End
+		If Not World.Init() Then EndApp()
 		Print "Vendor name: " + Stats.VendorName()
 		Print "Renderer name: " + Stats.RendererName()
 		Print "API version name: " + Stats.APIVersionName()
 		Print "Shading version name: " + Stats.ShadingVersionName()
-		Print "Shader compilation: " + Stats.ShaderError()
 		
 		'Load font
 		mFont = Font.Load("system.fnt.dat")
@@ -41,11 +37,6 @@ Public
 		
 		'Create box
 		mModel = New Model(Mesh.Load("cube.msh.dat"))
-		'mModel.Material.Shininess = 1
-		'mModel.Material.DiffuseTexture = Null
-		'mModel.Material.ReflectionTexture = mTexture
-		'mModel.Material.RefractionTexture = mTexture
-		'mModel.Material.RefractionCoef = 0.98
 		
 		'Create light attached to camera
 		mLight = New Light(mCam)
@@ -78,13 +69,8 @@ Public
 		mCam.Move(0, 0, -3)
 		
 		'Update shininess
-		If KeyHit(KEY_SPACE)
-			If ( mModel.Material.Shininess >= 1 )
-				mModel.Material.Shininess = 0
-			Else
-				mModel.Material.Shininess = Clamp(mModel.Material.Shininess + 0.1, 0.0, 1.0)
-			End
-		End
+		If KeyDown(KEY_LEFT) Then mModel.Material.Shininess = Clamp(mModel.Material.Shininess - 0.2 * Stats.DeltaTime(), 0.0, 1.0)
+		If KeyDown(KEY_RIGHT) Then mModel.Material.Shininess = Clamp(mModel.Material.Shininess + 0.2 * Stats.DeltaTime(), 0.0, 1.0)
 
 		Return False
 	End
@@ -106,7 +92,7 @@ Public
 		mFont.Draw(2, 18, text)
 		
 		'Draw shininess
-		text = "Shininess: " + String(mModel.Material.Shininess)[..3]
+		text = "Shininess: " + String(mModel.Material.Shininess)[..4] + " (LEFT and RIGHT to change)"
 		mFont.Draw(2, 34, text)
 	
 		Return False

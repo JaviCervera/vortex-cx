@@ -44,7 +44,7 @@ Public
 	
 	Const BASETEX_UNIT:Int = 0
 	Const NORMALTEX_UNIT:Int = 1
-	Const SPECULARTEX_UNIT:Int = 2
+	Const SHININESSTEX_UNIT:Int = 2
 	Const LIGHTMAP_UNIT:Int = 3
 	Const CUBEMAP_UNIT:Int = 4
 	Const DEPTHTEX_UNIT:Int = 5
@@ -422,7 +422,7 @@ Public
 		glDeleteTexture(texture)
 	End
 
-	Function SetTextures:Void(diffuseTex:Int, normalTex:Int, specularTex:Int, lightmap:Int, cubeTex:Int)
+	Function SetTextures:Void(diffuseTex:Int, normalTex:Int, shininessTex:Int, lightmap:Int, cubeTex:Int)
 		If diffuseTex <> 0
 			glActiveTexture(GL_TEXTURE0 + BASETEX_UNIT)
 			glBindTexture(GL_TEXTURE_2D, diffuseTex)
@@ -431,9 +431,9 @@ Public
 			glActiveTexture(GL_TEXTURE0 + NORMALTEX_UNIT)
 			glBindTexture(GL_TEXTURE_2D, normalTex)
 		End
-		If specularTex <> 0
-			glActiveTexture(GL_TEXTURE0 + SPECULARTEX_UNIT)
-			glBindTexture(GL_TEXTURE_2D, specularTex)
+		If shininessTex <> 0
+			glActiveTexture(GL_TEXTURE0 + SHININESSTEX_UNIT)
+			glBindTexture(GL_TEXTURE_2D, shininessTex)
 		End
 		If lightmap <> 0
 			glActiveTexture(GL_TEXTURE0 + LIGHTMAP_UNIT)
@@ -447,7 +447,7 @@ Public
 		
 		RenderState.UseColorTex = diffuseTex <> 0
 		RenderState.UseNormalTex = normalTex <> 0
-		RenderState.UseSpecularTex = specularTex <> 0
+		RenderState.UseShininessTex = shininessTex <> 0
 		RenderState.UseLightTex = lightmap <> 0
 		RenderState.UseCubeTex = cubeTex <> 0
 	End

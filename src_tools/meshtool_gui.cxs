@@ -35,7 +35,7 @@ Public
 		mDiffuseColorRect = New Rect(4, 32, 100, 24)
 		mDiffuseTexRect = New Rect(4, 60, 100, 100)
 		mNormalTexRect = New Rect(4, 164, 100, 100)
-		mSpecularTexRect = New Rect(4, 268, 100, 100)
+		mShininessTexRect = New Rect(4, 268, 100, 100)
 		mLightmapRect = New Rect(4, 372, 100, 100)
 		mCubemapRect = New Rect(4, 476, 100, 100)
 		mRefractionCoefRect = New Rect(4, 580, 100, 24)
@@ -121,14 +121,14 @@ Public
 				Else
 					currentModel.Material(mSelMat).NormalTexture = Null
 				End
-			'Specular texture
-			Elseif mSpecularTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local filename:String = RequestFile("Select specular texture")
+			'Shininess texture
+			Elseif mShininessTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
+				Local filename:String = RequestFile("Select shininess texture")
 				If filename <> ""
 					Local tex:Texture = Texture.Load(filename)
-					If tex Then currentModel.Material(mSelMat).SpecularTexture = tex
+					If tex Then currentModel.Material(mSelMat).ShininessTexture = tex
 				Else
-					currentModel.Material(mSelMat).SpecularTexture = Null
+					currentModel.Material(mSelMat).ShininessTexture = Null
 				End
 			'Lightmap
 			Elseif mLightmapRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
@@ -270,7 +270,7 @@ Public
 			Local color:Int = currentModel.Material(mSelMat).Color
 			DrawPanel(mMaterialRect.x + mDiffuseColorRect.x, mMaterialRect.y + mDiffuseColorRect.y, mDiffuseColorRect.width, mDiffuseColorRect.height, "Color", mFont, Color.RGB(Color.Red(color), Color.Green(color), Color.Blue(color), 255))
 			
-			'Diffuse
+			'Diffuse texture
 			If currentModel.Material(mSelMat).ColorTexture
 				Renderer.Color(Color.WHITE)
 				currentModel.Material(mSelMat).ColorTexture.Draw(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
@@ -278,7 +278,7 @@ Public
 				DrawPanel(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
 			End
 			
-			'Normal
+			'Normal texture
 			If currentModel.Material(mSelMat).NormalTexture
 				Renderer.Color(Color.WHITE)
 				currentModel.Material(mSelMat).NormalTexture.Draw(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
@@ -286,15 +286,15 @@ Public
 				DrawPanel(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
 			End
 			
-			'Specular
-			If currentModel.Material(mSelMat).SpecularTexture
+			'Shininess texture
+			If currentModel.Material(mSelMat).ShininessTexture
 				Renderer.Color(Color.WHITE)
-				currentModel.Material(mSelMat).SpecularTexture.Draw(mMaterialRect.x + mSpecularTexRect.x, mMaterialRect.y + mSpecularTexRect.y, mSpecularTexRect.width, mSpecularTexRect.height)
+				currentModel.Material(mSelMat).ShininessTexture.Draw(mMaterialRect.x + mShininessTexRect.x, mMaterialRect.y + mShininessTexRect.y, mShininessTexRect.width, mShininessTexRect.height)
 			Else
-				DrawPanel(mMaterialRect.x + mSpecularTexRect.x, mMaterialRect.y + mSpecularTexRect.y, mNormalTexRect.width, mSpecularTexRect.height)
+				DrawPanel(mMaterialRect.x + mShininessTexRect.x, mMaterialRect.y + mShininessTexRect.y, mNormalTexRect.width, mShininessTexRect.height)
 			End
 			
-			'Lightmap
+			'Light texture
 			If currentModel.Material(mSelMat).LightTexture
 				Renderer.Color(Color.WHITE)
 				currentModel.Material(mSelMat).LightTexture.Draw(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
@@ -302,7 +302,7 @@ Public
 				DrawPanel(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
 			End
 			
-			'Cubemap
+			'Cube texture
 			If currentModel.Material(mSelMat).CubeTexture
 				Renderer.Color(Color.WHITE)
 				currentModel.Material(mSelMat).CubeTexture.Draw(mMaterialRect.x + mCubemapRect.x, mMaterialRect.y + mCubemapRect.y, mCubemapRect.width, mCubemapRect.height)
@@ -314,7 +314,7 @@ Public
 			Renderer.Color(Color.WHITE)
 			mFont.Draw(mMaterialRect.x + mDiffuseTexRect.x + 2, mMaterialRect.y + mDiffuseTexRect.y, "Color")
 			mFont.Draw(mMaterialRect.x + mNormalTexRect.x + 2, mMaterialRect.y + mNormalTexRect.y, "Normal")
-			mFont.Draw(mMaterialRect.x + mSpecularTexRect.x + 2, mMaterialRect.y + mSpecularTexRect.y, "Specular")
+			mFont.Draw(mMaterialRect.x + mShininessTexRect.x + 2, mMaterialRect.y + mShininessTexRect.y, "Shininess")
 			mFont.Draw(mMaterialRect.x + mLightmapRect.x + 2, mMaterialRect.y + mLightmapRect.y, "Light")
 			mFont.Draw(mMaterialRect.x + mCubemapRect.x + 2, mMaterialRect.y + mCubemapRect.y, "Cube")
 	
@@ -366,7 +366,7 @@ Private
 	Field mDiffuseColorRect		: Rect
 	Field mDiffuseTexRect			: Rect
 	Field mNormalTexRect			: Rect
-	Field mSpecularTexRect		: Rect
+	Field mShininessTexRect		: Rect
 	Field mLightmapRect				: Rect
 	Field mCubemapRect				: Rect
 	Field mRefractionCoefRect	: Rect

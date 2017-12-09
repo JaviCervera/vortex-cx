@@ -19,16 +19,11 @@ Public
 		Seed = Millisecs()
 	
 		'Init vortex
-		If Not World.Init()
-			Print "Error: " + Stats.ShaderError()
-			EndApp()
-		End
+		If Not World.Init() Then EndApp()
 		Print "Vendor name: " + Stats.VendorName()
 		Print "Renderer name: " + Stats.RendererName()
 		Print "API version name: " + Stats.APIVersionName()
 		Print "Shading version name: " + Stats.ShadingVersionName()
-		Print "Shader compilation: " + Stats.ShaderError()
-		World.Ambient(Color.BLACK)
 		
 		'Load font
 		mFont = Font.Load("system.fnt.dat")
@@ -64,8 +59,9 @@ Public
 		mLights[1].Yaw = 120
 		mLights[2].Yaw = 240
 		
-		'Disable sun
+		'Disable sun and set ambient
 		World.SunColor(Color.BLACK)
+		World.Ambient(Color.BLACK)
 		
 		Return False
 	End

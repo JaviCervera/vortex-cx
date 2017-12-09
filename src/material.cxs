@@ -36,14 +36,14 @@ Public
 	Method DiscardTextures:Void()
 		If mColorTex Then mColorTex.Discard()
 		If mNormalTex Then mNormalTex.Discard()
-		If mSpecularTex Then mSpecularTex.Discard()
+		If mShininessTex Then mShininessTex.Discard()
 		If mLightTex Then mLightTex.Discard()
 		If mCubeTex Then mCubeTex.Discard()
 	End
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mShader = other.mShader And mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mSpecularTex = other.mSpecularTex And mLightTex = other.mLightTex And mCubeTex = other.mCubeTex And mShininess = other.mShininess And mCubeOpacity = other.mCubeOpacity And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mLighting = other.mLighting And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows And mReceiveShadows = other.mReceiveShadows
+		If mShader = other.mShader And mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mShininessTex = other.mShininessTex And mLightTex = other.mLightTex And mCubeTex = other.mCubeTex And mShininess = other.mShininess And mCubeOpacity = other.mCubeOpacity And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mLighting = other.mLighting And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows And mReceiveShadows = other.mReceiveShadows
 			Return True
 		Else
 			Return False
@@ -56,7 +56,7 @@ Public
 		mColor = other.mColor
 		mColorTex = other.mColorTex
 		mNormalTex = other.mNormalTex
-		mSpecularTex = other.mSpecularTex
+		mShininessTex = other.mShininessTex
 		mLightTex = other.mLightTex
 		mCubeTex = other.mCubeTex
 		mShininess = other.mShininess
@@ -103,12 +103,12 @@ Public
 		Return mNormalTex
 	End
 	
-	Method SpecularTexture:Void(tex:Texture) Property
-		mSpecularTex = tex
+	Method ShininessTexture:Void(tex:Texture) Property
+		mShininessTex = tex
 	End
 	
-	Method SpecularTexture:Texture() Property
-		Return mSpecularTex
+	Method ShininessTexture:Texture() Property
+		Return mShininessTex
 	End
 	
 	Method LightTexture:Void(tex:Texture) Property
@@ -233,15 +233,15 @@ Public
 		'Set textures
 		Local colorHandle:Int = 0
 		Local normalHandle:Int = 0
-		Local specularHandle:Int = 0
+		Local shininessHandle:Int = 0
 		Local lightHandle:Int = 0
 		Local cubeHandle:Int = 0
 		If mColorTex <> Null Then colorHandle = mColorTex.Handle
 		If mNormalTex <> Null Then normalHandle = mNormalTex.Handle
-		If mSpecularTex <> Null Then specularHandle = mSpecularTex.Handle
+		If mShininessTex <> Null Then shininessHandle = mShininessTex.Handle
 		If mLightTex <> Null Then lightHandle = mLightTex.Handle
 		If mCubeTex <> Null Then cubeHandle = mCubeTex.Handle
-		Renderer.SetTextures(colorHandle, normalHandle, specularHandle, lightHandle, cubeHandle)
+		Renderer.SetTextures(colorHandle, normalHandle, shininessHandle, lightHandle, cubeHandle)
 		
 		'Override NumLights state with Lighting property
 		Local prevNumLights:Int = RenderState.NumLights
@@ -276,7 +276,7 @@ Private
 	Field mColor					: Int
 	Field mColorTex				: Texture
 	Field mNormalTex			: Texture
-	Field mSpecularTex    : Texture
+	Field mShininessTex    : Texture
 	Field mLightTex				: Texture
 	Field mCubeTex				: Texture
 	Field mShininess			: Float
