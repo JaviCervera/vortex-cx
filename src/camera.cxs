@@ -36,6 +36,13 @@ Class Camera Extends Entity Final
 		If Listener.Instance() = Self Then Listener.Instance(Null)
 	End
 	
+	Method CollisionMode:Void(mode:Int) Property
+		If mode <> Super.CollisionMode
+			Super.CollisionMode(mode)
+			If mode <> COLLISION_NONE Then Active = True
+		End
+	End
+	
 	Method Visible:Void(visible:Bool) Property
 		If visible <> Super.Visible
 			Super.Visible(visible)
