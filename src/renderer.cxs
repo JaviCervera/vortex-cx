@@ -206,6 +206,14 @@ Public
 	End
 	
 	Function SetupMojo:Void()
+		If mMojoVertexBuffer = 0 Or mMojoIndexBuffer = 0
+			Local val:Int[1]
+			glGetIntegerv(GL_ARRAY_BUFFER_BINDING, val)
+			mMojoVertexBuffer = val[0]
+			glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, val)
+			mMojoIndexBuffer = val[0]
+		End
+	
 		'Disable 3D states
 		SetCulling(False)
 		glDisable(GL_DEPTH_TEST)
@@ -216,6 +224,10 @@ Public
 		glFrontFace(GL_CCW)
 		BlendMode(BLEND_ALPHA)
 		Color(color.Color.WHITE)
+		
+		'Bind Mojo buffers
+		glBindBuffer(GL_ARRAY_BUFFER, mMojoVertexBuffer)
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mMojoIndexBuffer)
 		
 		'This is a bit hacky... taken from Mojo2 source
 		glEnableVertexAttribArray 0 ; glVertexAttribPointer 0,2,GL_FLOAT,False,28,0
@@ -806,7 +818,8 @@ Private
 	'Info
 	Global mVersion:Float
 	Global mShadingVersion:Float
-
+	Global mMojoVertexBuffer:Int
+	Global mMojoIndexBuffer:Int
 	Global mEllipseBuffer:Int
 	Global mLineBuffer:Int
 	Global mRectBuffer:Int

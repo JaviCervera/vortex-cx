@@ -4,7 +4,9 @@
 
 using namespace std;
 
-std::string GenXML(const mesh_t* mesh);
+void SaveMSH(const mesh_t* mesh, const std::string& filename);
+void SaveSKL(const mesh_t* mesh, const std::string& filename);
+void SaveANM(const mesh_t* mesh, const std::string& filename);
 
 int main(int argc, char* argv[]) {
   // check command line
@@ -19,13 +21,11 @@ int main(int argc, char* argv[]) {
     cout << "ERROR: Could not load mesh '" << argv[1] << "'" << endl;
     return -1;
   }
-  
-  // generate xml description of mesh
-  string meshXML = GenXML(mesh);
-  
-  // writes the mesh to a file
-  WriteString(meshXML, StripExt(argv[1]) + ".msh.xml", false);
-  //cout << meshXML << endl;
+
+  // save mesh
+  SaveMSH(mesh, StripExt(argv[1]) + ".msh.dat");
+  SaveSKL(mesh, StripExt(argv[1]) + ".skl.dat");
+  SaveANM(mesh, StripExt(argv[1]) + ".anm.dat");
   
   // deletes mesh from memory
   DeleteMesh(mesh);

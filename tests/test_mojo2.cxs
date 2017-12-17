@@ -54,6 +54,7 @@ Class TestApp Extends App
 		
 		'Create Mojo2 stuff
 		mCanvas = New Canvas
+		vortex.Renderer.SetupMojo()	'Call this to capture Mojo's currently bound buffers
 		mCanvas.SetAmbientLight(0.2, 0.2, 0.2)
 		mTile = Image.Load("t3.png", 0, 0)
 

@@ -41,7 +41,7 @@ Public
 					End
 				End
 			'Size
-			Elseif mSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "dat" And ExtractExt(currentFont.Filename).ToLower() <> "xml"
+			Elseif mSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "dat"
 				mSelSize += 1
 				If mSelSize = mFontSizes.Length Then mSelSize = 0
 				Local font:Font = LoadFont(currentFont.Filename, mFontSizes[mSelSize])
@@ -50,7 +50,7 @@ Public
 					Return font
 				End
 			'Custom size
-			Elseif mCustomSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "dat" And ExtractExt(currentFont.Filename).ToLower() <> "xml"
+			Elseif mCustomSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "dat"
 				Local sizeStr:String = RequestInput("Font size", "Enter custom font size", Int(currentFont.Height))
 				Local newSize:Int = Int(sizeStr)
 				If newSize <> 0 And newSize <> currentFont.Height
@@ -78,7 +78,7 @@ Public
 		
 		If currentFont
 			DrawPanel(mSizeRect, "Size: " + currentFont.Height, mFont)
-			If ExtractExt(currentFont.Filename).ToLower() <> "dat" And ExtractExt(currentFont.Filename).ToLower() <> "xml" Then DrawPanel(mCustomSizeRect, "...", mFont)
+			If ExtractExt(currentFont.Filename).ToLower() <> "dat" Then DrawPanel(mCustomSizeRect, "...", mFont)
 		End
 		
 		If currentFont

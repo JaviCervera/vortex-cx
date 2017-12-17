@@ -8,309 +8,47 @@ Import brl.filesystem
 Import brl.process
 Import mojo.app
 Import vortex
-Import xml
 
 Public
 
 Function LoadMesh:Mesh(filename:String)
-	'Directly load native XML files
-	If ExtractExt(filename).ToLower() = "xml" Then Return LoadXMLMesh(filename)
-	
-	'Directly load native files
-	If ExtractExt(filename).ToLower() = "dat"
-		Local baseName:String = StripExt(StripExt(filename))
-		Local mesh:Mesh = Mesh.Load(filename, baseName + ".skl.dat", baseName + ".anm.dat")
-		Return mesh
-	End
-
-	'Use external tool to load other mesh formats
+	'If not a native mesh, convert first
+	If ExtractExt(filename).ToLower() <> "dat"
 #If HOST="winnt"
-	Local ext:String = ".exe"
+		Local ext:String = ".exe"
 #Else
-	Local ext:String = ".bin"
+		Local ext:String = ".bin"
 #End
-	Local path:String = CurrentDir() + "/data/meshtool" + ext
-	If FileType(path) <> FILETYPE_FILE
-		path = CurrentDir() + "/meshtool.data/meshtool" + ext
-	Else
-		'Make sure that file is given execution permissions on Linux
-		Process.Execute("chmod +x ~q" + path + "~q")
+		Local path:String = CurrentDir() + "/data/meshtool" + ext
+		If FileType(path) <> FILETYPE_FILE
+			path = CurrentDir() + "/meshtool.data/meshtool" + ext
+		Else
+			'Make sure that file is given execution permissions on Linux
+			Process.Execute("chmod +x ~q" + path + "~q")
+		End
+		Local command:String = "~q" + path + "~q ~q" + filename + "~q"
+		Process.Execute(command)
+		filename = StripExt(filename) + ".msh.dat"
 	End
-	Local command:String = "~q" + path + "~q ~q" + filename + "~q"
-	Process.Execute(command)
-	Local meshString:String = LoadString(StripExt(filename) + ".msh.xml")
-	DeleteFile(StripExt(filename) + ".msh.xml")
-	If meshString = "" Then Return Null
-	Return LoadXMLMeshString(meshString, filename)
-End
-
-Function LoadXMLMesh:Mesh(filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
-	Return LoadXMLMeshString(app.LoadString(filename), filename, texFilter)
-End
-
-Function LoadXMLMeshString:Mesh(buffer:String, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
-	'Parse XML mesh
-	If buffer = "" Then Return Null
-	Local err:XMLError = New XMLError
-	Local doc:XMLDoc = ParseXML(buffer, err)
-	If (doc = Null And err.error) Or doc.name <> "mesh" Then Return Null
-
-	'Get arrays
-	Local materialNodes:List<XMLNode> = doc.GetChild("materials").GetChildren("material")
-	Local surfaceNodes:List<XMLNode> = doc.GetChild("surfaces").GetChildren("surface")
-	Local numFrames:Int = Int(doc.GetChild("num_frames").value)
-	Local animSpeed:Float = Float(doc.GetChild("anim_speed").value)
-	Local boneNodes:List<XMLNode> = doc.GetChild("bones").GetChildren("bone")
-	If surfaceNodes.IsEmpty() Then Return Null
 	
-	'Texture caches
-	Local loadedDiffuse:StringMap<Texture> = New StringMap<Texture>
-	Local loadedLightmaps:StringMap<Texture> = New StringMap<Texture>
-
-	'Parse materials
-	Local materialsMap:StringMap<Material> = New StringMap<Material>
-	For Local materialNode:XMLNode = Eachin materialNodes
-		'Get material data
-		Local nameStr:String = materialNode.GetChild("name").value
-		Local blendStr:String = materialNode.GetChild("blend").value
-		Local baseColorStr:String[] = materialNode.GetChild("diffuse_color").value.Split(",")
-		Local opacityStr:String = materialNode.GetChild("opacity").value
-		Local shininess:Float = Float(materialNode.GetChild("shininess").value)
-		Local cullingStr:String = materialNode.GetChild("culling").value
-		Local depthWriteStr:String = materialNode.GetChild("depth_write").value
-		Local baseTexStr:String = materialNode.GetChild("diffuse_tex").value
-		Local lightmapStr:String = materialNode.GetChild("lightmap").value
-		Local opacity:Float = 1
-		Local culling:Bool = True
-		Local depthWrite:Bool = True
-		Local baseColor:Float[] = [1.0, 1.0, 1.0]
-		If opacityStr <> "" Then opacity = Float(opacityStr)
-		If cullingStr = "0" Or cullingStr.ToLower() = "false" Then culling = False
-		If depthWriteStr = "0" Or depthWriteStr.ToLower() = "false" Then depthWrite = False
-		If baseColorStr.Length() > 2
-			baseColor[0] = Float(baseColorStr[0])
-			baseColor[1] = Float(baseColorStr[1])
-			baseColor[2] = Float(baseColorStr[2])
-		End
-
-		'Load diffuse texture
-		Local diffuseTex:Texture = Null
-		If baseTexStr <> ""
-			If ExtractDir(filename) <> "" And ExtractDir(baseTexStr) = "" Then baseTexStr = ExtractDir(filename) + "/" + baseTexStr
-			If loadedDiffuse.Contains(baseTexStr)
-				diffuseTex = loadedDiffuse.Get(baseTexStr)
-			Else
-				diffuseTex = Texture.Load(baseTexStr, texFilter)
-				loadedDiffuse.Add(baseTexStr, diffuseTex)
-			End
-		End
-		
-		'Load lightmap
-		Local lightmap:Texture = Null
-		If lightmapStr <> ""
-			If ExtractDir(filename) <> "" And ExtractDir(lightmapStr) = "" Then lightmapStr = ExtractDir(filename) + "/" + lightmapStr
-			If loadedLightmaps.Contains(lightmapStr)
-				lightmap = loadedLightmaps.Get(lightmapStr)
-			Else
-				lightmap = Texture.Load(lightmapStr, texFilter)
-				loadedLightmaps.Add(lightmapStr, lightmap)
-			End
-		End
-
-		'Create material
-		Local material:Material = New Material(diffuseTex)
-		material.LightTexture = lightmap
-		If blendStr.ToLower() = "solid" Then material.BlendMode = Renderer.BLEND_SOLID
-		If blendStr.ToLower() = "alpha" Then material.BlendMode = Renderer.BLEND_ALPHA
-		If blendStr.ToLower() = "add" Then material.BlendMode = Renderer.BLEND_ADD
-		If blendStr.ToLower() = "mul" Then material.BlendMode = Renderer.BLEND_MUL
-		material.Color = Color.RGB(baseColor[0] * 255, baseColor[1] * 255, baseColor[2] * 255, opacity * 255)
-		material.Shininess = shininess
-		material.Culling = culling
-		material.DepthWrite = depthWrite
-		materialsMap.Set(nameStr, material)
-	Next
-
-	'Create mesh object
-	Local mesh:Mesh = New Mesh()
-	mesh.Filename = filename
-
-	'Parse surfaces
-	For Local surfaceNode:XMLNode = Eachin surfaceNodes
-		'Get surface data
-		Local materialStr:String = surfaceNode.GetChild("material").value
-		Local indicesStr:String[] = surfaceNode.GetChild("indices", "").value.Split(",")
-		Local coordsStr:String[] = surfaceNode.GetChild("coords", "").value.Split(",")
-		Local normalsStr:String[] = surfaceNode.GetChild("normals", "").value.Split(",")
-		Local tangentsStr:String[] = surfaceNode.GetChild("tangents", "").value.Split(",")
-		Local colorsStr:String[] = surfaceNode.GetChild("colors", "").value.Split(",")
-		Local texcoordsStr:String[] = surfaceNode.GetChild("texcoords", "").value.Split(",")
-		Local texcoords2Str:String[] = surfaceNode.GetChild("texcoords2", "").value.Split(",")
-		Local boneIndicesStr:String[] = surfaceNode.GetChild("bone_indices", "").value.Split(",")
-		Local boneWeightsStr:String[] = surfaceNode.GetChild("bone_weights", "").value.Split(",")
-
-		'Create surface
-		Local surf:Surface = New Surface
-		Local indicesLen:Int = indicesStr.Length()
-		For Local j:Int = 0 Until indicesLen Step 3
-			surf.AddTriangle(Int(indicesStr[j]), Int(indicesStr[j+1]), Int(indicesStr[j+2]))
-		Next
-		Local coordsLenDiv3:Int = coordsStr.Length()/3
-		For Local j:Int = 0 Until coordsLenDiv3
-			Local x#, y#, z#
-			Local nx# = 0, ny# = 0, nz# = 0
-			Local tx# = 0, ty# = 0, tz# = 0
-			Local r# = 1, g# = 1, b# = 1, a# = 1
-			Local u0# = 0, v0# = 0
-			Local u1:Float = 0, v1:Float = 0
-			Local b0% = -1, b1% = -1, b2% = -1, b3% = -1
-			Local w0# = 0, w1# = 0, w2# = 0, w3# = 0
-
-			'Read coords
-			x = Float(coordsStr[j*3])
-			y = Float(coordsStr[j*3+1])
-			z = Float(coordsStr[j*3+2])
-
-			'Read normals
-			If normalsStr.Length() > 1
-				nx = Float(normalsStr[j*3])
-				ny = Float(normalsStr[j*3+1])
-				nz = Float(normalsStr[j*3+2])
-			End
-			
-			'Read tangents
-			If tangentsStr.Length() > 1
-				tx = Float(tangentsStr[j*3])
-				ty = Float(tangentsStr[j*3+1])
-				tz = Float(tangentsStr[j*3+2])
-			End
-
-			'Read colors
-			If colorsStr.Length() > 1
-				r = Float(colorsStr[j*4])
-				g = Float(colorsStr[j*4+1])
-				b = Float(colorsStr[j*4+2])
-				a = Float(colorsStr[j*4+3])
-			End
-
-			'Read tex coords
-			If texcoordsStr.Length() > 1
-				u0 = Float(texcoordsStr[j*2])
-				v0 = Float(texcoordsStr[j*2+1])
-			End
-			If texcoords2Str.Length() > 1
-				u1 = Float(texcoords2Str[j*2])
-				v1 = Float(texcoords2Str[j*2+1])
-			Else
-				u1 = u0
-				v1 = v0
-			End
-			
-			'Read bone indices
-			If boneIndicesStr.Length() > 1
-				b0 = Int(boneIndicesStr[j*4])
-				b1 = Int(boneIndicesStr[j*4+1])
-				b2 = Int(boneIndicesStr[j*4+2])
-				b3 = Int(boneIndicesStr[j*4+3])
-			End
-			
-			'Read bone weights
-			If boneWeightsStr.Length() > 1
-				w0 = Float(boneWeightsStr[j*4])
-				w1 = Float(boneWeightsStr[j*4+1])
-				w2 = Float(boneWeightsStr[j*4+2])
-				w3 = Float(boneWeightsStr[j*4+3])
-			End
-
-			'Add vertex
-			Local vertex:Int = surf.AddVertex(x, y, z, nx, ny, nz, Color.RGB(r * 255, g * 255, b * 255, a * 255), u0, v0)
-			surf.VertexTexCoords(vertex, u1, v1, 1)
-			surf.VertexTangent(vertex, tx, ty, tz)
-			
-			'Set vertex bones and weights
-			surf.VertexBone(vertex, 0, b0, w0)
-			surf.VertexBone(vertex, 1, b1, w1)
-			surf.VertexBone(vertex, 2, b2, w2)
-			surf.VertexBone(vertex, 3, b3, w3)
-		Next
-
-		mesh.AddSurface(surf, materialsMap.Get(materialStr))
-	Next
-
-	'Parse number of frames
-	mesh._NumFrames = numFrames
-	mesh._AnimSpeed = animSpeed
-
-	'Parse bones
-	For Local boneNode:XMLNode = Eachin boneNodes
-		'Get bone data
-		Local nameStr:String = boneNode.GetChild("name").value
-		Local parentStr:String = boneNode.GetChild("parent").value
-		Local invPoseStr:String[] = boneNode.GetChild("inv_pose").value.Split(",")
-		Local surfacesStr:String[] = boneNode.GetChild("surfaces").value.Split(",")
-		If invPoseStr.Length <> 16 Then Return Null
-
-		'Create bone
-		Local bone:Bone = New Bone(nameStr, mesh.BoneIndex(parentStr))
-			
-		'Set inverse pose matrix
-		Local m:Float[] = New Float[16]
-		For Local i:Int = 0 Until 16
-			bone.InversePoseMatrix[i] = Float(invPoseStr[i])
-		Next
-			
-		'Add to mesh
-		mesh.AddBone(bone)
-
-		'Add position frames
-		Local positionsStr$[] = boneNode.GetChild("positions").value.Split(",")
-		If positionsStr.Length() >= 4
-			For Local k% = 0 Until positionsStr.Length() Step 4
-				Local frame% = Int(positionsStr[k])
-				Local x# = Float(positionsStr[k+1])
-				Local y# = Float(positionsStr[k+2])
-				Local z# = Float(positionsStr[k+3])
-				bone.AddPositionKey(frame, x, y, z)
-			Next
-		End
-		
-		Local rotationsStr$[] = boneNode.GetChild("rotations").value.Split(",")
-		If rotationsStr.Length() >= 5
-			For Local k% = 0 Until rotationsStr.Length() Step 5
-				Local frame% = Int(rotationsStr[k])
-				Local w# = Float(rotationsStr[k+1])
-				Local x# = Float(rotationsStr[k+2])
-				Local y# = Float(rotationsStr[k+3])
-				Local z# = Float(rotationsStr[k+4])
-				bone.AddRotationKey(frame, w, x, y, z)
-			Next
-		End
-		Local scalesStr$[] = boneNode.GetChild("scales").value.Split(",")
-		If scalesStr.Length() >= 4
-			For Local k% = 0 Until scalesStr.Length() Step 4
-				Local frame% = Int(scalesStr[k])
-				Local x# = Float(scalesStr[k+1])
-				Local y# = Float(scalesStr[k+2])
-				Local z# = Float(scalesStr[k+3])
-				bone.AddScaleKey(frame, x, y, z)
-			Next
-		End
-	Next
-
+	'Load native mesh
+	Local baseName:String = StripExt(StripExt(filename))
+	Local mesh:Mesh = Mesh.Load(filename, baseName + ".skl.dat", baseName + ".anm.dat")
 	Return mesh
 End
 
 Function MaterialSize:Int(mat:Material)
 	'Fixed header
-	Local size:Int = 4	'Color
-	size += 4			'Emissive color (unused yet)
-	size += 4			'Ambient color (unused yet)
-	size += 1			'BlendMode
-	size += 1			'Flags
-	size += 4			'Shininess
-	size += 4			'Cube opacity
-	size += 4			'RefractCoef
-	size += 1			'Used textures
+	Local size:Int = 4	'Base Color
+	size += 4						'Specular color (unused yet)
+	size += 4						'Emissive color (unused yet)
+	size += 4						'Ambient color (unused yet)
+	size += 1						'BlendMode
+	size += 1						'Flags
+	size += 4						'Shininess
+	size += 4						'Cube opacity
+	size += 4						'RefractCoef
+	size += 1						'Used textures
 	
 	'Texture names
 	If mat.ColorTexture Then size += 4 + StripDir(mat.ColorTexture.Filename).Length
@@ -410,8 +148,11 @@ Function MeshSize:Int(mesh:Mesh, includeBones:Bool)
 End
 
 Function WriteMaterialData:Void(stream:DataStream, mat:Material)
-	'Color
+	'Base Color
 	stream.WriteInt(mat.Color)
+	
+	'Specular Color
+	stream.WriteInt(Color.WHITE)
 	
 	'Emissive Color
 	stream.WriteInt(Color.BLACK)
@@ -438,13 +179,15 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	stream.WriteFloat(mat.RefractionCoef)
 	
 	'Used textures
-	Local usedTexs:Int = 0	'1=Diffuse2D,2=Normal,4=Shininess,8=Emissive,16=Lightmap,32=Cube
+	Local usedTexs:Int = 0	'1=Color,2=Normal,4=Shininess,8=Specular,16=Emissive,32=Ambient,64=Lightmap,128=Cube
 	If mat.ColorTexture Then usedTexs |= 1
 	If mat.NormalTexture Then usedTexs |= 2
 	If mat.ShininessTexture Then usedTexs |= 4
-	'If mat.EmissiveTexture Then usedTexs |= 8
-	If mat.LightTexture Then usedTexs |= 16
-	If mat.CubeTexture Then usedTexs |= 32
+	'If mat.SpecularTexture Then usedTexs |= 8
+	'If mat.EmissiveTexture Then usedTexs |= 16
+	'If mat.AmbientTexture Then usedTexs |= 32
+	If mat.LightTexture Then usedTexs |= 64
+	If mat.CubeTexture Then usedTexs |= 128
 	stream.WriteByte(usedTexs)
 	
 	'Texture names
@@ -673,6 +416,8 @@ Function CreateAnimationData:DataBuffer(mesh:Mesh)
 	
 	'Number of frames
 	stream.WriteShort(mesh._NumFrames)
+	
+	'Animation speed
 	stream.WriteFloat(mesh._AnimSpeed)
 	
 	'Number of bones
@@ -705,141 +450,4 @@ Function SaveAnimation:Void(mesh:Mesh, filename:String)
 	Local fileStream:FileStream = New FileStream(filename, "w")
 	fileStream.WriteAll(animationData, 0, animationData.Length)
 	fileStream.Close()
-End
-
-
-Function SaveMeshXML:Void(mesh:Mesh, filename:String, exportAnimations:Bool)
-	Local buffer:String = "<mesh>~n"
-	
-	'Export materials
-	buffer += "~t<materials>~n"
-	For Local i:Int = 0 Until mesh.NumSurfaces
-		Local mat:Material = mesh.Surface(i).Material
-		buffer += "~t~t<material>~n"
-		buffer += "~t~t~t<name>Material #" + i + "</name>~n"
-		buffer += "~t~t~t<blend>"
-		Select mat.BlendMode
-		Case Renderer.BLEND_SOLID
-			buffer += "solid"
-		Case Renderer.BLEND_ALPHA
-			buffer += "alpha"
-		Case Renderer.BLEND_ADD
-			buffer += "add"
-		Case Renderer.BLEND_MUL
-			buffer += "mul"
-		End
-		buffer += "</blend>~n"
-		If mat.DiffuseTexture Then buffer += "~t~t~t<diffuse_tex>" + StripDir(mat.DiffuseTexture.Filename) + "</diffuse_tex>~n"
-		If mat.Lightmap Then buffer += "~t~t~t<lightmap>" + StripDir(mat.Lightmap.Filename) + "</lightmap>~n"
-		buffer += "~t~t~t<diffuse_color>" + mat.DiffuseRed + "," + mat.DiffuseGreen + "," + mat.DiffuseBlue + "</diffuse_color>~n"
-		buffer += "~t~t~t<opacity>" + mat.Opacity + "</opacity>~n"
-		buffer += "~t~t~t<shininess>" + mat.Shininess + "</shininess>~n"
-		If mat.Culling Then buffer += "~t~t~t<culling>true</culling>~n" Else buffer += "~t~t~t<culling>false</culling>~n"
-		If mat.DepthWrite Then buffer += "~t~t~t<depth_write>true</depth_write>~n" Else buffer += "~t~t~t<depth_write>false</depth_write>~n"
-		buffer += "~t~t</material>~n"
-	Next
-	buffer += "~t</materials>~n"
-	
-	'Export surfaces
-	buffer += "~t<surfaces>~n"
-	For Local i:Int = 0 Until mesh.NumSurfaces
-		Local surf:Surface = mesh.Surface(i)
-		buffer += "~t~t<surface>~n"
-		buffer += "~t~t~t<material>Material #" + i + "</material>~n"
-		buffer += "~t~t~t<indices>"
-		For Local t:Int = 0 Until surf.NumTriangles
-			buffer += surf.TriangleV0(t) + "," + surf.TriangleV1(t) + "," + surf.TriangleV2(t)
-			If t < surf.NumTriangles - 1 Then buffer += ","
-		Next
-		buffer += "</indices>~n"
-		buffer += "~t~t~t<coords>"
-		For Local v:Int = 0 Until surf.NumVertices
-			buffer += surf.VertexX(v) + "," + surf.VertexY(v) + "," + surf.VertexZ(v)
-			If v < surf.NumVertices - 1 Then buffer += ","
-		Next
-		buffer += "</coords>~n"
-		buffer += "~t~t~t<normals>"
-		For Local v:Int = 0 Until surf.NumVertices
-			buffer += surf.VertexNX(v) + "," + surf.VertexNY(v) + "," + surf.VertexNZ(v)
-			If v < surf.NumVertices - 1 Then buffer += ","
-		Next
-		buffer += "</normals>~n"
-		buffer += "~t~t~t<texcoords>"
-		For Local v:Int = 0 Until surf.NumVertices
-			buffer += surf.VertexU(v) + "," + surf.VertexV(v)
-			If v < surf.NumVertices - 1 Then buffer += ","
-		Next
-		buffer += "</texcoords>~n"
-		buffer += "~t~t~t<texcoords2>"
-		For Local v:Int = 0 Until surf.NumVertices
-			buffer += surf.VertexU(v, 1) + "," + surf.VertexV(v, 1)
-			If v < surf.NumVertices - 1 Then buffer += ","
-		Next
-		buffer += "</texcoords2>~n"
-		If exportAnimations
-			buffer += "~t~t~t<bone_indices>"
-			For Local v:Int = 0 Until surf.NumVertices
-				buffer += surf.VertexBoneIndex(v, 0) + "," + surf.VertexBoneIndex(v, 1) + "," + surf.VertexBoneIndex(v, 2) + "," + surf.VertexBoneIndex(v, 3)
-				If v < surf.NumVertices - 1 Then buffer += ","
-			Next
-			buffer += "</bone_indices>~n"
-			buffer += "~t~t~t<bone_weights>"
-			For Local v:Int = 0 Until surf.NumVertices
-				buffer += surf.VertexBoneWeight(v, 0) + "," + surf.VertexBoneWeight(v, 1) + "," + surf.VertexBoneWeight(v, 2) + "," + surf.VertexBoneWeight(v, 3)
-				If v < surf.NumVertices - 1 Then buffer += ","
-			Next
-			buffer += "</bone_weights>~n"
-		End
-		buffer += "~t~t</surface>~n"
-	Next
-	buffer += "~t</surfaces>~n"
-	
-	'Export last frame
-	If exportAnimations Then buffer += "~t<last_frame>" + mesh.LastFrame + "</last_frame>~n"
-	
-	'Export bones
-	If exportAnimations
-		buffer += "~t<bones>~n"
-		For Local i:Int = 0 Until mesh.NumBones
-			Local bone:Bone = mesh.Bone(i)
-			buffer += "~t~t<bone>~n"
-			buffer += "~t~t~t<name>" + bone.Name + "</name>~n"
-			If bone.ParentIndex > -1 Then buffer += "~t~t~t<parent>" + mesh.Bone(bone.ParentIndex).Name + "</parent>~n"
-			buffer += "~t~t~t<inv_pose>"
-			For Local m:Int = 0 Until 16
-				buffer += bone.InversePoseMatrix.M[m]
-				If m < 15 Then buffer += ","
-			Next
-			buffer += "</inv_pose>~n"
-			If bone.NumPositionKeys > 0
-				buffer += "~t~t~t<positions>"
-				For Local j:Int = 0 Until bone.NumPositionKeys
-					buffer += bone.PositionKeyFrame(j) + "," + bone.PositionKeyX(j) + "," + bone.PositionKeyY(j) + "," + bone.PositionKeyZ(j)
-					If j < bone.NumPositionKeys - 1 Then buffer += ","
-				Next
-				buffer += "</positions>~n"
-			End
-			If bone.NumRotationKeys > 0
-				buffer += "~t~t~t<rotations>"
-				For Local j:Int = 0 Until bone.NumRotationKeys
-					buffer += bone.RotationKeyFrame(j) + "," + bone.RotationKeyW(j) + "," + bone.RotationKeyX(j) + "," + bone.RotationKeyY(j) + "," + bone.RotationKeyZ(j)
-					If j < bone.NumRotationKeys - 1 Then buffer += ","
-				Next
-				buffer += "</rotations>~n"
-			End
-			If bone.NumScaleKeys > 0
-				buffer += "~t~t~t<scales>"
-				For Local j:Int = 0 Until bone.NumScaleKeys
-					buffer += bone.ScaleKeyFrame(j) + "," + bone.ScaleKeyX(j) + "," + bone.ScaleKeyY(j) + "," + bone.ScaleKeyZ(j)
-					If j < bone.NumScaleKeys - 1 Then buffer += ","
-				Next
-				buffer += "</scales>~n"
-			End
-			buffer += "~t~t</bone>~n"
-		Next
-		buffer += "~t</bones>~n"
-	End
-	
-	buffer += "</mesh>~n"
-	SaveString(buffer, filename)
 End

@@ -13,37 +13,37 @@ Class Gui Final
 Public
 	Method New()
 		'Load resources
-		mFont = Font.Load("system.fnt.dat")
+		mFont = Font.Load("segoeui.fnt.dat")
 		mCubeTex = Texture.Load("cube.png", Renderer.FILTER_NONE)
 		mOpenTex = Texture.Load("folder.png", Renderer.FILTER_NONE)
 		mSaveTex = Texture.Load("disk.png", Renderer.FILTER_NONE)
 		mCube = Mesh.CreateCube()
-	
-		mPanelRect = New Rect(8, 8, 64, 24)
-		mCubeRect = New Rect(8 + 4, 8 + 4, 16, 16)
-		mOpenRect = New Rect(8 + 24, 8 + 4, 16, 16)
-		mSaveRect = New Rect(8 + 44, 8 + 4, 16, 16)
+
+		mCubeRect = New Rect(4, 4, 16, 16)
+		mOpenRect = New Rect(24, 4, 16, 16)
+		mSaveRect = New Rect(44, 4, 16, 16)
 		
-		mAnimationsRect = New Rect(76, 8, 150, 24)
+		mAnimationsRect = New Rect(4, 28, 150, 24)
 		
-		mPitchRect = New Rect(230, 8, 96, 24)
-		mYawRect = New Rect(330, 8, 96, 24)
-		mRollRect = New Rect(430, 8, 96, 24)
+		'mPitchRect = New Rect(230, 8, 96, 24)
+		'mYawRect = New Rect(330, 8, 96, 24)
+		'mRollRect = New Rect(430, 8, 96, 24)
 		
-		mMaterialRect = New Rect(0, 8, 108, 748)
-		mSelMatRect = New Rect(4, 4, 100, 24)
-		mDiffuseColorRect = New Rect(4, 32, 100, 24)
-		mDiffuseTexRect = New Rect(4, 60, 100, 100)
-		mNormalTexRect = New Rect(4, 164, 100, 100)
-		mShininessTexRect = New Rect(4, 268, 100, 100)
-		mLightmapRect = New Rect(4, 372, 100, 100)
-		mCubemapRect = New Rect(4, 476, 100, 100)
-		mRefractionCoefRect = New Rect(4, 580, 100, 24)
-		mOpacityRect = New Rect(4, 608, 100, 24)
-		mShininessRect = New Rect(4, 636, 100, 24)
-		mBlendModeRect = New Rect(4, 664, 100, 24)
-		mCullingRect = New Rect(4, 692, 100, 24)
-		mDepthWriteRect = New Rect(4, 720, 100, 24)
+		mMaterialRect = New Rect(4, 0, 628, 136)
+		mSelMatRect = New Rect(0, -28, 100, 24)
+		mDiffuseColorRect = New Rect(4, 4, 100, 24)
+		mDiffuseTexRect = New Rect(4, 32, 100, 100)
+		mOpacityRect = New Rect(108, 4, 100, 24)
+		mNormalTexRect = New Rect(108, 32, 100, 100)
+		mShininessRect = New Rect(212, 4, 100, 24)
+		mShininessTexRect = New Rect(212, 32, 100, 100)
+		mRefractionCoefRect = New Rect(316, 4, 100, 24)
+		mLightmapRect = New Rect(316, 32, 100, 100)
+		mCubeOpacityRect = New Rect(420, 4, 100, 24)
+		mCubemapRect = New Rect(420, 32, 100, 100)
+		mBlendModeRect = New Rect(524, 32, 100, 24)
+		mCullingRect = New Rect(524, 60, 100, 24)
+		mDepthWriteRect = New Rect(524, 88, 100, 24)
 		
 		mExportAnimations = True
 		mPitchFix = 0
@@ -53,7 +53,7 @@ Public
 	
 	Method Update:Model(currentModel:Model)
 		'Update material rect
-		mMaterialRect.x = DeviceWidth() - 112
+		mMaterialRect.y = DeviceHeight() - mMaterialRect.height - 4
 		
 		'Update GUI controls
 		If MouseHit(MOUSE_LEFT) And currentModel
@@ -64,7 +64,6 @@ Public
 					filename = RequestFile("Save mesh", "Mesh Files:msh.dat;All Files:*", True)
 					If filename <> "" Then currentModel.Mesh.Filename = filename
 				End
-				'If filename <> "" Then SaveMeshXML(currentMesh, filename, mExportAnimations)
 				If filename <> ""
 					'Save mesh
 					SaveMesh(currentModel.Mesh, StripExt(StripExt(filename)) + ".msh.dat", mExportAnimations And currentModel.Mesh.NumBones > 0)
@@ -198,6 +197,12 @@ Public
 				iShininess += 10
 				If iShininess > 100 Then iShininess = 0
 				currentModel.Material(mSelMat).Shininess = iShininess / 100.0
+			'Cube opacity
+			Elseif mCubeOpacityRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
+				Local opacity:Int = Int(currentModel.Material(mSelMat).CubeOpacity * 100)
+				opacity += 10
+				If opacity > 100 Then opacity = 0
+				currentModel.Material(mSelMat).CubeOpacity = opacity / 100.0
 			'Blend
 			Elseif mBlendModeRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				currentModel.Material(mSelMat).BlendMode += 1
@@ -240,13 +245,16 @@ Public
 	End
 	
 	Method Render:Void(currentModel:Model)
+		'Setup Renderer for 2D
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		Renderer.BlendMode(Renderer.BLEND_ALPHA)
-		DrawPanel(mPanelRect)
 		Renderer.Color(Color.WHITE)
+		
+		'Draw toolbar icons
 		mCubeTex.Draw(mCubeRect.x, mCubeRect.y)
 		mOpenTex.Draw(mOpenRect.x, mOpenRect.y)
 		mSaveTex.Draw(mSaveRect.x, mSaveRect.y)
+		
 		If currentModel
 			If currentModel.Mesh.NumBones > 0 Then DrawCheckbox(mAnimationsRect, "Export Animations", mFont, mExportAnimations)
 			'DrawPanel(mPitchRect, "Pitch: " + mPitchFix, mFont)
@@ -255,10 +263,10 @@ Public
 			
 			'Draw loaded mesh info
 			Renderer.Color(Color.WHITE)
-			mFont.Draw(8, 34, "Num Surfaces: " + currentModel.Mesh.NumSurfaces)
-			mFont.Draw(8, 50, "Num Bones: " + currentModel.Mesh.NumBones)
-			mFont.Draw(8, 66, "Num Frames: " + currentModel.Mesh.NumFrames)
-			If currentModel.Mesh.NumFrames > 0 Then mFont.Draw(8, 80, "Current Frame: " + Int(currentModel.CurrentFrame))
+			mFont.Draw(8, 54, "Num Surfaces: " + currentModel.Mesh.NumSurfaces)
+			mFont.Draw(8, 70, "Num Bones: " + currentModel.Mesh.NumBones)
+			mFont.Draw(8, 86, "Num Frames: " + currentModel.Mesh.NumFrames)
+			If currentModel.Mesh.NumFrames > 0 Then mFont.Draw(8, 102, "Current Frame: " + Int(currentModel.CurrentFrame))
 			'mFont.Draw(8, 66, "Anim Duration: " + currentModel.Mesh.AnimDuration)
 			'If currentModel.Mesh.AnimDuration <> 0 Then mFont.Draw(8, 80, "Anim Time: " + currentModel.AnimTime)
 			
@@ -321,6 +329,7 @@ Public
 			DrawPanel(mMaterialRect.x + mRefractionCoefRect.x, mMaterialRect.y + mRefractionCoefRect.y, mRefractionCoefRect.width, mRefractionCoefRect.height, "Refr. Coef: " + String(currentModel.Material(mSelMat).RefractionCoef)[..4], mFont)
 			DrawPanel(mMaterialRect.x + mOpacityRect.x, mMaterialRect.y + mOpacityRect.y, mOpacityRect.width, mOpacityRect.height, "Opacity: " + String(Color.Alpha(currentModel.Material(mSelMat).Color))[..3], mFont)
 			DrawPanel(mMaterialRect.x + mShininessRect.x, mMaterialRect.y + mShininessRect.y, mShininessRect.width, mShininessRect.height, "Shininess: " + String(currentModel.Material(mSelMat).Shininess)[..4], mFont)
+			DrawPanel(mMaterialRect.x + mCubeOpacityRect.x, mMaterialRect.y + mCubeOpacityRect.y, mCubeOpacityRect.width, mCubeOpacityRect.height, "Cube Op: " + String(currentModel.Material(mSelMat).CubeOpacity)[..4], mFont)
 			Local blendStr:String = ""
 			Select currentModel.Material(mSelMat).BlendMode
 			Case Renderer.BLEND_SOLID
@@ -353,14 +362,13 @@ Private
 	Field mCube					: Mesh
 	
 	'Widgets
-	Field mPanelRect			: Rect
 	Field mCubeRect				: Rect
 	Field mOpenRect				: Rect
 	Field mSaveRect				: Rect
 	Field mAnimationsRect		: Rect
-	Field mPitchRect			: Rect
-	Field mYawRect				: Rect
-	Field mRollRect				: Rect
+	'Field mPitchRect			: Rect
+	'Field mYawRect				: Rect
+	'Field mRollRect				: Rect
 	Field mMaterialRect			: Rect
 	Field mSelMatRect			: Rect
 	Field mDiffuseColorRect		: Rect
@@ -371,6 +379,7 @@ Private
 	Field mCubemapRect				: Rect
 	Field mRefractionCoefRect	: Rect
 	Field mOpacityRect				: Rect
+	Field mCubeOpacityRect		: Rect
 	Field mShininessRect			: Rect
 	Field mBlendModeRect			: Rect
 	Field mCullingRect				: Rect

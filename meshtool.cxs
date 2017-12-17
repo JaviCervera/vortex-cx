@@ -51,7 +51,7 @@ Public
 		mCam = New Camera()
 		mCam.Position(CAM_DEFX, CAM_DEFY, CAM_DEFZ)
 		mCam.Rotate(CAM_DEFPITCH, CAM_DEFYAW, 0)
-		mCam.ClearColor = Color.RGB(100, 100, 100)
+		mCam.ClearColor = Color.RGB(15, 15, 15)
 		mCam.Far = 5000
 		
 		'Create look point
@@ -78,9 +78,8 @@ Public
 		End
 		
 		'Update camera view
-		mCam.ViewportWidth = DeviceWidth()
-		mCam.ViewportHeight = DeviceHeight()
-		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		mCam.Viewport(0, 24, DeviceWidth(), DeviceHeight() - 24)
+		mCam.AspectRatio = Float(mCam.ViewportWidth) / mCam.ViewportHeight
 		
 		'Update camera controls
 		If MouseHit(MOUSE_RIGHT)
@@ -117,6 +116,10 @@ Public
 	End
 	
 	Method OnRender:Int()
+		'Clear background
+		vortex.Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		vortex.Renderer.ClearColorBuffer(Color.WHITE)
+		
 		'Render world
 		World.Render()
 		
