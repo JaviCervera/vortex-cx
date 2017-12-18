@@ -88,7 +88,7 @@ Public
 		For Local i:Int = 0 Until text.Length()
 			Local glyph:Glyph = mGlyphs[text[i]-32]
 			If text[i]-32 <> 0 And glyph.mWidth <> 0 And glyph.mHeight <> 0
-				mTexture.Draw(x, y + (textHeight - glyph.mHeight) + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
+				mTexture.Draw(x + glyph.mXOffset, y + (textHeight - glyph.mHeight) + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
 			End
 			x += glyph.mWidth
 		Next
@@ -98,11 +98,12 @@ Public
 		Return mGlyphs.Length
 	End
 	
-	Method _GlyphData:Void(index:Int, x:Float, y:Float, w:Float, h:Float, yoffset:Float)
+	Method _GlyphData:Void(index:Int, x:Float, y:Float, w:Float, h:Float, xoffset:Float, yoffset:Float)
 		mGlyphs[index].mX = x
 		mGlyphs[index].mY = y
 		mGlyphs[index].mWidth = w
 		mGlyphs[index].mHeight = h
+		mGlyphs[index].mXOffset = xoffset
 		mGlyphs[index].mYOffset = yoffset
 		If index = 33 And mGlyphs[0].mWidth = 0 Then mGlyphs[0].mWidth = w
 		If h > mMaxHeight Then mMaxHeight = h
@@ -114,10 +115,11 @@ Public
 	
 	Function _Load:Font(filename:String)
 		'Fix filename
-		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then filename = "cerberus://data/" + filename
+		Local fixedFilename:String = filename
+		If fixedFilename.Length > 2 And String.FromChar(fixedFilename[0]) <> "/" And String.FromChar(fixedFilename[1]) <> ":" Then fixedFilename = "cerberus://data/" + fixedFilename
 		
 		'Load font data
-		Local data:DataBuffer = DataBuffer.Load(filename)
+		Local data:DataBuffer = DataBuffer.Load(fixedFilename)
 		If Not data Then Return Null
 		Local font:Font = Font._LoadData(data, filename)
 		data.Discard()
@@ -127,6 +129,8 @@ Public
 	
 	Function _LoadData:Font(data:DataBuffer, filename:String)
 		Local stream:DataStream = New DataStream(data)
+		Local fontPath:String = ExtractDir(filename)
+		If fontPath <> "" Then fontPath += "/"
 		
 		'Id
 		Local id:String = stream.ReadString(4)
@@ -135,6 +139,7 @@ Public
 		'Texture name
 		Local texLen:Int = stream.ReadInt()
 		Local texName:String = stream.ReadString(texLen)
+		If texName <> "" Then texName = fontPath + texName
 		
 		'Font height
 		Local height:Int = stream.ReadShort() & $FFFF
@@ -146,7 +151,8 @@ Public
 		Local firstChar:Int = stream.ReadInt()
 		
 		'Load texture
-		Local tex:Texture = texture.Texture.Load(texName, Renderer.FILTER_NONE)
+		Local tex:Texture = texture.Texture.Load(texName, Renderer.FILTER_NONE, False)
+		If Not tex Then Return Null
 		
 		'Create font
 		Local font:Font = New Font(filename, height, tex)
@@ -162,7 +168,7 @@ Public
 			Local yoffset:Float = stream.ReadFloat()
 			
 			'Add glyph data
-			font._GlyphData(i, x, y, width, height, yoffset)
+			font._GlyphData(i, x, y, width, height, xoffset, yoffset)
 		Next
 		
 		stream.Close()

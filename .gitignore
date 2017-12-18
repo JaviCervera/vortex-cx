@@ -8,6 +8,10 @@ meshtool/_CMAKE/
 .bmx/
 */.bmx/
 
+#Visual Studio Code folders
+.vscode/
+*/.vscode/
+
 # Tools
 meshtool
 fonttool

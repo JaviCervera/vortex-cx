@@ -13,7 +13,7 @@ Class Gui Final
 Public
 	Method New()
 		'Load resources
-		mFont = Font.Load("segoeui.fnt.dat")
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
 		mCubeTex = Texture.Load("cube.png", Renderer.FILTER_NONE)
 		mOpenTex = Texture.Load("folder.png", Renderer.FILTER_NONE)
 		mSaveTex = Texture.Load("disk.png", Renderer.FILTER_NONE)
@@ -326,7 +326,7 @@ Public
 			mFont.Draw(mMaterialRect.x + mLightmapRect.x + 2, mMaterialRect.y + mLightmapRect.y, "Light")
 			mFont.Draw(mMaterialRect.x + mCubemapRect.x + 2, mMaterialRect.y + mCubemapRect.y, "Cube")
 	
-			DrawPanel(mMaterialRect.x + mRefractionCoefRect.x, mMaterialRect.y + mRefractionCoefRect.y, mRefractionCoefRect.width, mRefractionCoefRect.height, "Refr. Coef: " + String(currentModel.Material(mSelMat).RefractionCoef)[..4], mFont)
+			DrawPanel(mMaterialRect.x + mRefractionCoefRect.x, mMaterialRect.y + mRefractionCoefRect.y, mRefractionCoefRect.width, mRefractionCoefRect.height, "RefrCoef: " + String(currentModel.Material(mSelMat).RefractionCoef)[..4], mFont)
 			DrawPanel(mMaterialRect.x + mOpacityRect.x, mMaterialRect.y + mOpacityRect.y, mOpacityRect.width, mOpacityRect.height, "Opacity: " + String(Color.Alpha(currentModel.Material(mSelMat).Color))[..3], mFont)
 			DrawPanel(mMaterialRect.x + mShininessRect.x, mMaterialRect.y + mShininessRect.y, mShininessRect.width, mShininessRect.height, "Shininess: " + String(currentModel.Material(mSelMat).Shininess)[..4], mFont)
 			DrawPanel(mMaterialRect.x + mCubeOpacityRect.x, mMaterialRect.y + mCubeOpacityRect.y, mCubeOpacityRect.width, mCubeOpacityRect.height, "Cube Op: " + String(currentModel.Material(mSelMat).CubeOpacity)[..4], mFont)

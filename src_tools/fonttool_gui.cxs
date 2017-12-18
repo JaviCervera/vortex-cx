@@ -13,7 +13,7 @@ Class Gui
 Public
 	Method New()
 		'Load resources
-		mFont = Font.Load("system.fnt.dat")
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
 	
 		mFontRect = New Rect(8, 8, 300, 24)
 		mSizeRect = New Rect(312, 8, 100, 24)
@@ -34,7 +34,6 @@ Public
 					filename = filename.Replace("\", "/")
 					Local font:Font = LoadFont(filename, mFontSizes[mSelSize])
 					If font <> Null
-						If ExtractExt(filename).ToLower() <> "dat" Then SaveFont(font, StripExt(filename) + ".fnt.dat")
 						Return font
 					Else
 						Notify "Error", "Could not load font '" + filename + "'", True
@@ -45,20 +44,14 @@ Public
 				mSelSize += 1
 				If mSelSize = mFontSizes.Length Then mSelSize = 0
 				Local font:Font = LoadFont(currentFont.Filename, mFontSizes[mSelSize])
-				If font <> Null
-					SaveFont(font, StripExt(currentFont.Filename) + ".fnt.dat")
-					Return font
-				End
+				If font <> Null Then Return font
 			'Custom size
 			Elseif mCustomSizeRect.IsPointInside(MouseX(), MouseY()) And currentFont And ExtractExt(currentFont.Filename).ToLower() <> "dat"
 				Local sizeStr:String = RequestInput("Font size", "Enter custom font size", Int(currentFont.Height))
 				Local newSize:Int = Int(sizeStr)
 				If newSize <> 0 And newSize <> currentFont.Height
 					Local font:Font = LoadFont(currentFont.Filename, newSize)
-					If font <> Null
-						SaveFont(font, StripExt(currentFont.Filename) + ".fnt.dat")
-						Return font
-					End
+					If font <> Null Then Return font
 				End
 			End
 		End

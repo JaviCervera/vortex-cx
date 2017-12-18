@@ -33,8 +33,7 @@ Function LoadMesh:Mesh(filename:String)
 	
 	'Load native mesh
 	Local baseName:String = StripExt(StripExt(filename))
-	Local mesh:Mesh = Mesh.Load(filename, baseName + ".skl.dat", baseName + ".anm.dat")
-	Return mesh
+	Return Mesh.Load(filename, baseName + ".skl.dat", baseName + ".anm.dat")
 End
 
 Function MaterialSize:Int(mat:Material)
