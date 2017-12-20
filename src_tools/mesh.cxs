@@ -288,8 +288,11 @@ End
 
 Function BoneSize:Int(bone:Bone)
 	Local size:Int = 4 + bone.Name.Length	'Name
-	size += 4								'Parent index
-	size += 16 * 4							'Inv pose matrix
+	size += 4											'Parent index
+	size += 16 * 4								'Transform matrix
+	size += 16 * 4								'Inv pose matrix
+	size += 2											'Num surfaces
+	size += bone.NumSurfaces * 2	'Surface indices
 	Return size
 End
 
@@ -314,9 +317,20 @@ Function WriteBoneData:Void(stream:DataStream, bone:Bone)
 	'Parent index
 	stream.WriteInt(bone.ParentIndex)
 	
+	'Transform matrix
+	For Local i:Int = 0 Until 16
+		stream.WriteFloat(bone.TransformMatrix[i])
+	Next
+	
 	'Inv pose matrix
 	For Local i:Int = 0 Until 16
 		stream.WriteFloat(bone.InversePoseMatrix[i])
+	Next
+	
+	'Surfaces
+	stream.WriteShort(bone.NumSurfaces)
+	For Local i:Int = 0 Until bone.NumSurfaces
+		stream.WriteShort(bone.SurfaceIndex(i))
 	Next
 End
 

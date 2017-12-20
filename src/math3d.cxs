@@ -153,13 +153,13 @@ Function QuatNorm:Void(w#, x#, y#, z#, out#[])
 End
 
 Function QuatLerp:Void(aw#, ax#, ay#, az#, bw#, bx#, by#, bz#, t#, out#[])
-	QuatMulScalar(bw, bx, by, bz, t, out)
-	bw = out[0]
-	bx = out[1]
-	by = out[2]
-	bz = out[3]
 	QuatMulScalar(aw, ax, ay, az, 1-t, out)
-	QuatNorm(out[0] + bw, out[1] + bx, out[2] + by, out[3] + bz, out)
+	aw = out[0]
+	ax = out[1]
+	ay = out[2]
+	az = out[3]
+	QuatMulScalar(bw, bx, by, bz, t, out)
+	QuatNorm(aw + out[0], ax + out[1], ay + out[2], az + out[3], out)
 End
 
 Function QuatSlerp:Void(aw#, ax#, ay#, az#, bw#, bx#, by#, bz#, t#, out#[])
@@ -174,13 +174,17 @@ Function QuatSlerp:Void(aw#, ax#, ay#, az#, bw#, bx#, by#, bz#, t#, out#[])
 	End
 	If dot < 0.95
 		Local deg# = ACos(dot)
-		QuatMulScalar(bw, bx, by, bz, Sin(deg*t), out)
-		bw = out[0]
-		bx = out[1]
-		by = out[2]
-		bz = out[3]
 		QuatMulScalar(aw, ax, ay, az, Sin(deg*(1-t)), out)
-		QuatDivScalar(out[0] + bw, out[1] + bx, out[2] + by, out[3] + bz, Sin(deg), out)
+		aw = out[0]
+		ax = out[1]
+		ay = out[2]
+		az = out[3]
+		QuatMulScalar(bw, bx, by, bz, Sin(deg*t), out)
+		QuatDivScalar(out[0], out[1], out[2], out[3], Sin(deg), out)
+		out[0] += aw
+		out[1] += ax
+		out[2] += ay
+		out[3] += az
 	Else
 		QuatLerp(aw, ax, ay, az, bw, bx, by, bz, t, out)
 	End

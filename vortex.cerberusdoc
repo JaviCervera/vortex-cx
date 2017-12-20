@@ -40,10 +40,23 @@ Return the name of the bone.
 # Method ParentIndex:Int() Property
 Returns the parent index of the bone in the array of bones of the mesh that this bone belongs to, or -1 if it is the root bone in the mesh.
 
-# Method InversePoseMatrix:Float[]() Property
-Returns the inverse pose matrix.
+# Method TransformMatrix:Float[]() Property
+Returns the transform matrix.
+This matrix converts a vertex to its parent bone space.
 You don't normally need to use this property.
 It is used internally when rendering the geometry attached to the bone.
+
+# Method InversePoseMatrix:Float[]() Property
+Returns the inverse pose matrix.
+This matrix converts a vertex from global space to its bone space.
+You don't normally need to use this property.
+It is used internally when rendering the geometry attached to the bone.
+
+# Method NumSurfaces:Int() Property
+Returns the number of surfaces attached to this bone.
+
+# Method SurfaceIndex:Int(i:Int)
+Returns the surface index of the specified surface within the mesh that this bone belongs to.
 
 # Method AddPositionKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
 Adds a new position transformation to the bone at the specified keyframe.

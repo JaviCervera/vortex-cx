@@ -43,10 +43,10 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
       // material
       std::string base_tex = mat.getTexture(0) ? mat.getTexture(0)->getName().getPath().c_str() : "";
       std::string lightmap = mat.getTexture(1) ? mat.getTexture(1)->getName().getPath().c_str() : "";
-      float r = mat.DiffuseColor.getRed() / 255.0f;
-      float g = mat.DiffuseColor.getGreen() / 255.0f;
-      float b = mat.DiffuseColor.getBlue() / 255.0f;
-      float a = mat.DiffuseColor.getAlpha() / 255.0f;
+      unsigned char r = mat.DiffuseColor.getRed();
+      unsigned char g = mat.DiffuseColor.getGreen();
+      unsigned char b = mat.DiffuseColor.getBlue();
+      unsigned char a = mat.DiffuseColor.getAlpha();
       float shininess = mat.Shininess;
       int culling = mat.BackfaceCulling;
       int depth_write = mat.ZWriteEnable;
@@ -110,6 +110,12 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
         // name and parent index
         bone.name = joint->Name.c_str();
         bone.parent_index = FindParentIndex(skinned_mesh, joint);
+        
+        // pose matrix
+        core::matrix4 pose = joint->LocalMatrix;
+        for ( size_t m = 0; m < 16; ++m ) {
+          bone.transform[m] = pose[m];
+        }
 
         // inverse pose matrix
         core::matrix4 inv_pose = joint->GlobalInversedMatrix;
@@ -117,7 +123,12 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
           bone.inv_pose[m] = inv_pose[m];
         }
 
-        // Convert non-skeletal meshes
+        // surfaces
+        for ( size_t i = 0; i < joint->AttachedMeshes.size(); ++i ) {
+          bone.surfaces.push_back(joint->AttachedMeshes[i]);
+        }
+
+        // convert non-skeletal meshes
         for ( size_t i = 0; i < joint->AttachedMeshes.size(); ++i ) {
           int surf_index = joint->AttachedMeshes[i];
           scene::IMeshBuffer* mesh_buffer = irr_mesh->getMeshBuffer(surf_index);
@@ -166,7 +177,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
           for ( size_t s = 0; s < joint->ScaleKeys.size(); ++s ) {
             bone.scales.push_back(std::pair<int, vec3_t>(
               static_cast<int>(joint->ScaleKeys[s].frame),
-              vec3_t(joint->ScaleKeys[s].scale.X, joint->ScaleKeys[s].scale.Z, joint->ScaleKeys[s].scale.Y)
+              vec3_t(joint->ScaleKeys[s].scale.X, joint->ScaleKeys[s].scale.Y, joint->ScaleKeys[s].scale.Z)
             ));
           }
         } else if ( joint->PositionKeys.size() > 0 || joint->RotationKeys.size() > 0 ) {
@@ -178,10 +189,10 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
     }
 
     // num frames
-    mesh->num_frames = anim_mesh->getFrameCount();
+    mesh->num_frames = skinned_mesh ? anim_mesh->getFrameCount() : 0;
     
     // anim duration
-    mesh->anim_speed = anim_mesh->getAnimationSpeed();
+    mesh->anim_speed = skinned_mesh ? anim_mesh->getAnimationSpeed() : 0;
   }
 
   // optimize mesh
@@ -190,7 +201,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
     // look for a previous surface with same material
     int same_mat_surf_index = -1;
     for ( size_t i = 0; i < s; ++i ) {
-      if ( mesh->surfaces[s].material == mesh->surfaces[i].material ) {
+      if ( mesh->surfaces[s].material == mesh->surfaces[i].material && mesh->surfaces[s].vertices.size() + mesh->surfaces[i].vertices.size() <= 65535 ) {
         same_mat_surf_index = i;
         break;
       }

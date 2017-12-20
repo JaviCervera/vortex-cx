@@ -59,7 +59,7 @@ Public
 		If id <> "SK01" Then Return False
 		
 		'Number of bones
-		Local numBones:Int = stream.ReadShort()  & $FFFF
+		Local numBones:Int = stream.ReadShort() & $FFFF
 		
 		'Bones
 		For Local b:Int = 0 Until numBones
@@ -73,9 +73,20 @@ Public
 			'Create bone
 			Local bone:Bone = New Bone(name, parentIndex)
 			
+			'Transform matrix
+			For Local i:Int = 0 Until 16
+				bone.TransformMatrix[i] = stream.ReadFloat()
+			Next
+			
 			'Inv pose matrix
 			For Local i:Int = 0 Until 16
 				bone.InversePoseMatrix[i] = stream.ReadFloat()
+			Next
+			
+			'Surfaces
+			bone.NumSurfaces = stream.ReadShort() & $FFFF
+			For Local i:Int = 0 Until bone.NumSurfaces
+				bone.SurfaceIndex(i, stream.ReadShort() & $FFFF)
 			Next
 			
 			'Add to hierarchy

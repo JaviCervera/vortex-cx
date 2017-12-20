@@ -32,15 +32,15 @@ struct material_t {
   int blend;
   std::string base_tex;
   std::string lightmap;
-  float red;
-  float green;
-  float blue;
-  float opacity;
+  unsigned char red;
+  unsigned char green;
+  unsigned char blue;
+  unsigned char opacity;
   float shininess;
   int culling;
   int depth_write;
-  material_t() {}
-  material_t(int blend, const std::string& base_tex, const std::string& lightmap, float r, float g, float b, float a, float shininess, int culling, int depth_write)
+  material_t() : blend(0), red(255), green(255), blue(255), opacity(255), shininess(0.0f), culling(1), depth_write(1) {}
+  material_t(int blend, const std::string& base_tex, const std::string& lightmap, unsigned char r, unsigned char g, unsigned char b, unsigned char a, float shininess, int culling, int depth_write)
     : blend(blend), base_tex(base_tex), lightmap(lightmap), red(r), green(g), blue(b), opacity(a), shininess(shininess), culling(culling), depth_write(depth_write) {}
   bool operator==(const material_t& other) {
     return  blend == other.blend &&
@@ -80,10 +80,12 @@ struct surface_t {
 struct bone_t {
   std::string                           name;
   int                                   parent_index;
+  float                                 transform[16];
   float                                 inv_pose[16];
   std::vector<std::pair<int, vec3_t> >  positions;
   std::vector<std::pair<int, quat_t> >  rotations;
   std::vector<std::pair<int, vec3_t> >  scales;
+  std::vector<int>                      surfaces;
 };
 
 struct mesh_t {

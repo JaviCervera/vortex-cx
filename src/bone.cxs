@@ -3,7 +3,6 @@ Strict
 Private
 Import math3d
 Import renderer
-Import surface
 
 Public
 Class Bone Final
@@ -11,17 +10,21 @@ Public
 	Method New(name:String, parentIndex:Int)
 		mName = name
 		mParentIndex = parentIndex
+		Mat4Identity(mTransformMatrix)
+		Mat4Identity(mInvPoseMatrix)
 		mPositionKeys = New Int[0]
 		mRotationKeys = New Int[0]
 		mScaleKeys = New Int[0]
 		mPositions = New Float[0][]
 		mRotations = New Float[0][]
 		mScales = New Float[0][]
+		mSurfaces = New Int[0]
 	End
 	
 	Method New(other:Bone)
 		mName = other.mName
 		mParentIndex = other.mParentIndex
+		Mat4Copy(other.mTransformMatrix, mTransformMatrix)
 		Mat4Copy(other.mInvPoseMatrix, mInvPoseMatrix)
 		mPositionKeys = other.mPositionKeys[..]
 		mRotationKeys = other.mRotationKeys[..]
@@ -38,6 +41,10 @@ Public
 		For Local i:Int = 0 Until mScales.Length
 			mScales[i] = [other.mScales[i][0], other.mScales[i][1], other.mScales[i][2]]
 		Next
+		mSurfaces = New Int[other.mSurfaces.Length]
+		For Local i:Int = 0 Until mSurfaces.Length
+			mSurfaces[i] = other.mSurfaces[i]
+		Next
 	End
 
 	Method Name:String() Property
@@ -48,8 +55,28 @@ Public
 		Return mParentIndex
 	End
 	
+	Method TransformMatrix:Float[]() Property
+		Return mTransformMatrix
+	End
+	
 	Method InversePoseMatrix:Float[]() Property
 		Return mInvPoseMatrix
+	End
+	
+	Method NumSurfaces:Int() Property
+		Return mSurfaces.Length
+	End
+	
+	Method NumSurfaces:Void(count:Int) Property
+		mSurfaces = mSurfaces.Resize(count)
+	End
+	
+	Method SurfaceIndex:Int(i:Int)
+		Return mSurfaces[i]
+	End
+	
+	Method SurfaceIndex:Void(i:Int, index:Int)
+		mSurfaces[i] = index
 	End
 
 	Method AddPositionKey:Void(keyframe:Int, x:Float, y:Float, z:Float)
@@ -166,10 +193,10 @@ Public
 			rz = mTempArr[2]
 
 			'Calculate interpolated scale
-			'CalcScale(frame, firstFrame, lastFrame)
-			'sx = mTempArr[0]
-			'sy = mTempArr[1]
-			'sz = mTempArr[2]
+			CalcScale(frame, firstFrame, lastFrame)
+			sx = mTempArr[0]
+			sy = mTempArr[1]
+			sz = mTempArr[2]
 
 			'Set matrix
 			Mat4Identity(animMatrix)
@@ -178,8 +205,8 @@ Public
 			'Mat4Scale(animMatrix, sx, sy, sz, animMatrix)	'Currently, scaling is ignored, since it seems to cause a bug
 		'If not, define default transform
 		Else
-			'Mat4Copy(mPoseMatrix, animMatrix)
-			Mat4Identity(animMatrix)
+			Mat4Copy(mTransformMatrix, animMatrix)
+			'Mat4Identity(animMatrix)
 		End
 	End
 Private
@@ -305,6 +332,7 @@ Private
 
 	Field mName						: String
 	Field mParentIndex		: Int
+	Field mTransformMatrix		: Float[16]
 	Field mInvPoseMatrix	: Float[16]
 	Field mPositionKeys		: Int[]
 	Field mRotationKeys		: Int[]
@@ -312,5 +340,6 @@ Private
 	Field mPositions			: Float[][3]
 	Field mRotations			: Float[][4]
 	Field mScales					: Float[][3]
+	Field mSurfaces				: Int[]
 	Global mTempArr				: Float[4]	'Used for temp operations
 End

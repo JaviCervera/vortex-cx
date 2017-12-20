@@ -118,7 +118,7 @@ Const SHADER_CALC_SKINNING:String = "" +
 "vec4 CalcSkinning(vec4 vertex) {" +
 "	mat4 boneTransform = mat4(1);" +
 "	for ( int i = 0; i < 4; ++i ) {" +
-"		int index = int(VertexBoneIndices[i]);" +
+"		int index = int(floor(VertexBoneIndices[i]));" +
 "		if ( index > -1 ) boneTransform += Bones[index] * VertexBoneWeights[i];" +
 "	}" +
 "	return boneTransform * vertex;" +

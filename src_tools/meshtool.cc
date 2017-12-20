@@ -24,8 +24,8 @@ int main(int argc, char* argv[]) {
 
   // save mesh
   SaveMSH(mesh, StripExt(argv[1]) + ".msh.dat");
-  SaveSKL(mesh, StripExt(argv[1]) + ".skl.dat");
-  SaveANM(mesh, StripExt(argv[1]) + ".anm.dat");
+  if ( mesh->bones.size() > 0 ) SaveSKL(mesh, StripExt(argv[1]) + ".skl.dat");
+  if ( mesh->num_frames > 1 ) SaveANM(mesh, StripExt(argv[1]) + ".anm.dat");
   
   // deletes mesh from memory
   DeleteMesh(mesh);

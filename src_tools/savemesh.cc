@@ -2,12 +2,8 @@
 #include "stringutils.h"
 #include <fstream>
 
-static int rgb(float r, float g, float b, float a) {
-  unsigned char br = static_cast<unsigned char>(r * 255.0f);
-  unsigned char bg = static_cast<unsigned char>(g * 255.0f);
-  unsigned char bb = static_cast<unsigned char>(b * 255.0f);
-  unsigned char ba = static_cast<unsigned char>(a * 255.0f);
-  return (ba << 24) | (br << 16) | (bg << 8) | bb;
+static int rgb(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
+  return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
 void SaveMSH(const mesh_t* mesh, const std::string& filename) {
@@ -128,9 +124,20 @@ void SaveSKL(const mesh_t* mesh, const std::string& filename) {
 
     // parent index
     f.write(reinterpret_cast<const char*>(&bone.parent_index), sizeof(bone.parent_index));
+    
+    // pose matrix
+    f.write(reinterpret_cast<const char*>(&bone.transform[0]), sizeof(bone.transform));
 
     // inv pose matrix
     f.write(reinterpret_cast<const char*>(&bone.inv_pose[0]), sizeof(bone.inv_pose));
+
+    // surfaces
+    unsigned short numSurfaces = static_cast<unsigned short>(bone.surfaces.size());
+    f.write(reinterpret_cast<const char*>(&numSurfaces), sizeof(numSurfaces));
+    for ( unsigned short s = 0; s < numSurfaces; ++s ) {
+      unsigned short index = static_cast<unsigned short>(bone.surfaces[s]);
+      f.write(reinterpret_cast<const char*>(&index), sizeof(index));
+    }
   }
 
   f.close();
