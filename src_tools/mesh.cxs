@@ -11,7 +11,10 @@ Import vortex
 
 Public
 
-Function LoadMesh:Mesh(filename:String)
+Const MESH_SKINNED		: Int = 0
+Const MESH_VERTEXANIM	: Int = 1
+
+Function LoadMesh:Mesh(filename:String, animMode:Int)
 	'If not a native mesh, convert first
 	If ExtractExt(filename).ToLower() <> "dat"
 #If HOST="winnt"
@@ -26,14 +29,23 @@ Function LoadMesh:Mesh(filename:String)
 			'Make sure that file is given execution permissions on Linux
 			Process.Execute("chmod +x ~q" + path + "~q")
 		End
-		Local command:String = "~q" + path + "~q ~q" + filename + "~q"
+		
+		'Get animation mode
+		Local mode:String = ""
+		If animMode = MESH_VERTEXANIM Then mode = "-vertexanim"
+		
+		Local command:String = "~q" + path + "~q " + mode + " ~q" + filename + "~q"
 		Process.Execute(command)
 		filename = StripExt(filename) + ".msh.dat"
 	End
 	
 	'Load native mesh
 	Local baseName:String = StripExt(StripExt(filename))
-	Return Mesh.Load(filename, baseName + ".skl.dat", baseName + ".anm.dat")
+	Local mesh:Mesh = Mesh.Load(filename, baseName + ".skl.dat", Renderer.FILTER_TRILINEAR, False)
+	If mesh
+		If Not mesh.LoadAnimation(baseName + ".anm.dat") Then mesh.LoadVertexAnimation(baseName + ".vta.dat")
+	End
+	Return mesh
 End
 
 Function MaterialSize:Int(mat:Material)
@@ -286,6 +298,7 @@ Function CreateMeshData:DataBuffer(mesh:Mesh, includeBones:Bool)
 	Return stream.Data
 End
 
+#Rem
 Function BoneSize:Int(bone:Bone)
 	Local size:Int = 4 + bone.Name.Length	'Name
 	size += 4											'Parent index
@@ -443,6 +456,7 @@ Function CreateAnimationData:DataBuffer(mesh:Mesh)
 	
 	Return stream.Data
 End
+#End
 
 Function SaveMesh:Void(mesh:Mesh, filename:String, includeBones:Bool)
 	Local meshData:DataBuffer = CreateMeshData(mesh, includeBones)
@@ -451,6 +465,7 @@ Function SaveMesh:Void(mesh:Mesh, filename:String, includeBones:Bool)
 	fileStream.Close()
 End
 
+#Rem
 Function SaveSkeleton:Void(mesh:Mesh, filename:String)
 	Local skeletonData:DataBuffer = CreateSkeletonData(mesh)
 	Local fileStream:FileStream = New FileStream(filename, "w")
@@ -464,3 +479,4 @@ Function SaveAnimation:Void(mesh:Mesh, filename:String)
 	fileStream.WriteAll(animationData, 0, animationData.Length)
 	fileStream.Close()
 End
+#End

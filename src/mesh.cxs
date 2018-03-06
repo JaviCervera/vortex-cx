@@ -43,116 +43,48 @@ Public
 		Vec3Set(other.mBoxMax[0], other.mBoxMax[1], other.mBoxMax[2], mBoxMax)
 	End
 	
-	Function Load:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+	Function Load:Mesh(filename:String, skeletonFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+		Local mesh:Mesh
 		If cache
-			Return Cache._LoadMesh(filename, skeletonFilename, animationFilename, texFilter)
+			mesh = Cache._LoadMesh(filename, skeletonFilename, texFilter)
 		Else
-			Return _Load(filename, skeletonFilename, animationFilename, texFilter)
+			'Fix filename
+			Local fixedFilename:String = filename
+			If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then fixedFilename = "cerberus://data/" + filename
+
+			mesh = _LoadData(DataBuffer.Load(fixedFilename), filename, texFilter)
 		End
+		
+		If mesh And skeletonFilename <> "" Then mesh.LoadSkeleton(skeletonFilename)
+		
+		Return mesh
 	End
 	
-	Method LoadSkeletonData:Bool(data:DataBuffer)
-		Local stream:DataStream = New DataStream(data)
+	Method LoadSkeleton:Bool(filename:String)
+		'Fix filename
+		Local fixedFilename:String = filename
+		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then fixedFilename = "cerberus://data/" + filename
 		
-		'Id
-		Local id:String = stream.ReadString(4)
-		If id <> "SK01" Then Return False
-		
-		'Number of bones
-		Local numBones:Int = stream.ReadShort() & $FFFF
-		
-		'Bones
-		For Local b:Int = 0 Until numBones
-			'Name
-			Local nameLen:Int = stream.ReadInt()
-			Local name:String = stream.ReadString(nameLen)
-			
-			'Parent index
-			Local parentIndex:Int = stream.ReadInt()
-			
-			'Create bone
-			Local bone:Bone = New Bone(name, parentIndex)
-			
-			'Transform matrix
-			For Local i:Int = 0 Until 16
-				bone.TransformMatrix[i] = stream.ReadFloat()
-			Next
-			
-			'Inv pose matrix
-			For Local i:Int = 0 Until 16
-				bone.InversePoseMatrix[i] = stream.ReadFloat()
-			Next
-			
-			'Surfaces
-			bone.NumSurfaces = stream.ReadShort() & $FFFF
-			For Local i:Int = 0 Until bone.NumSurfaces
-				bone.SurfaceIndex(i, stream.ReadShort() & $FFFF)
-			Next
-			
-			'Add to hierarchy
-			AddBone(bone)
-		Next
-		
-		Return True
+		Return _LoadSkeletonData(DataBuffer.Load(fixedFilename))
 	End
 	
-	Method LoadAnimationData:Bool(data:DataBuffer)
-		Local stream:DataStream = New DataStream(data)
+	Method LoadAnimation:Bool(filename:String)
+		'Fix filename
+		Local fixedFilename:String = filename
+		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then fixedFilename = "cerberus://data/" + filename
 		
-		'Id
-		Local id:String = stream.ReadString(4)
-		If id <> "AN01" Then Return False
+		Return _LoadAnimationData(DataBuffer.Load(fixedFilename))
+	End
+	
+	Method LoadVertexAnimation:Bool(filename:String)
+		'Fix filename
+		Local fixedFilename:String = filename
+		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then fixedFilename = "cerberus://data/" + filename
 		
-		'Number of frames
-		Local numFrames:Int = stream.ReadShort() & $FFFF
-		
-		'Animation speed
-		_AnimSpeed = stream.ReadFloat()
-		
-		'Number of bones
-		Local numBones:Int = stream.ReadShort() & $FFFF
-		
-		'Bone animations
-		Local firstFrame:Int = _NumFrames
-		For Local i:Int = 0 Until numBones
-			'Position keys
-			Local numKeys:Int = stream.ReadShort() & $FFFF
-			For Local k:Int = 0 Until numKeys
-				Local frame:Int = stream.ReadShort() & $FFFF
-				Local x:Float = stream.ReadFloat()
-				Local y:Float = stream.ReadFloat()
-				Local z:Float = stream.ReadFloat()
-				Bone(i).AddPositionKey(firstFrame + frame, x, y, z)
-			Next
-			
-			'Rotation keys
-			numKeys = stream.ReadShort() & $FFFF
-			For Local k:Int = 0 Until numKeys
-				Local frame:Int = stream.ReadShort() & $FFFF
-				Local w:Float = stream.ReadFloat()
-				Local x:Float = stream.ReadFloat()
-				Local y:Float = stream.ReadFloat()
-				Local z:Float = stream.ReadFloat()
-				Bone(i).AddRotationKey(firstFrame + frame, w, x, y, z)
-			Next
-			
-			'Scale keys
-			numKeys = stream.ReadShort() & $FFFF
-			For Local k:Int = 0 Until numKeys
-				Local frame:Int = stream.ReadShort() & $FFFF
-				Local x:Float = stream.ReadFloat()
-				Local y:Float = stream.ReadFloat()
-				Local z:Float = stream.ReadFloat()
-				Bone(i).AddScaleKey(firstFrame + frame, x, y, z)
-			Next
-		Next
-		
-		_NumFrames += numFrames
-		
-		Return True
+		Return _LoadVertexAnimationData(DataBuffer.Load(fixedFilename))
 	End
 
-	Method Discard:Void(discardTextures:Bool = True)
+	Method Discard:Void(discardTextures:Bool = False)
 		For Local surf:Surface = Eachin mSurfaces
 			surf.Discard()
 		Next
@@ -201,12 +133,12 @@ Public
 		mNumFrames = num
 	End
 	
-	Method AnimSpeed:Float() Property
+	Method AnimFps:Float() Property
 		Return mAnimSpeed
 	End
 
-	Method AnimSpeed:Void(speed:Float) Property
-		mAnimSpeed = speed
+	Method AnimFps:Void(fps:Float) Property
+		mAnimSpeed = fps
 	End
 	
 	#Rem
@@ -231,27 +163,6 @@ Public
 	Method Bone:Bone(index:Int)
 		If index = -1 Then Return Null
 		Return mBones[index]
-	End
-	
-	Method Animate:Void(animMatrices:Float[][], frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
-		'We can only animate if the mesh has bones
-		If mBones.Length() > 0
-			'If we have not specified the ending frame of the sequence, take the last frame in the entire animation
-			If lastFrame = 0 Then lastFrame = mNumFrames
-			
-			'Calculate animation matrix for all bones
-			For Local i:Int = 0 Until NumBones
-				Bone(i).CalculateAnimMatrix(animMatrices[i], frame, firstFrame, lastFrame)
-				If Bone(i).ParentIndex > -1
-					Mat4MulSafe(animMatrices[Bone(i).ParentIndex], animMatrices[i], animMatrices[i])
-				End
-			Next
-			
-			'Multiply every animation matrix by the inverse of the pose matrix
-			For Local i:Int = 0 Until NumBones
-				Mat4Mul(animMatrices[i], Bone(i).InversePoseMatrix, animMatrices[i])
-			Next
-		End
 	End
 	
 	Method BoneIndex:Int(name:String)
@@ -608,6 +519,7 @@ Public
 		Return wedge
 	End
 	
+	#Rem
 	Function _Load:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
 		'Fix filenames
 		Local fixedFilename:String = filename
@@ -639,6 +551,7 @@ Public
 		
 		Return mesh
 	End
+	#End
 	
 	Function _LoadData:Mesh(data:DataBuffer, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
 		Local stream:DataStream = New DataStream(data)
@@ -812,20 +725,200 @@ Public
 		Return mesh
 	End
 	
-	Method _NumFrames:Int() Property
-		Return mNumFrames
+	Method _LoadSkeletonData:Bool(data:DataBuffer)
+		If Not data Then Return False
+		Local stream:DataStream = New DataStream(data)
+		
+		'Id
+		Local id:String = stream.ReadString(4)
+		If id <> "SK01" Then Return False
+		
+		'Number of bones
+		Local numBones:Int = stream.ReadShort() & $FFFF
+		
+		'Bones
+		For Local b:Int = 0 Until numBones
+			'Name
+			Local nameLen:Int = stream.ReadInt()
+			Local name:String = stream.ReadString(nameLen)
+			
+			'Parent index
+			Local parentIndex:Int = stream.ReadInt()
+			
+			'Create bone
+			Local bone:Bone = New Bone(name, parentIndex)
+			
+			'Transform matrix
+			For Local i:Int = 0 Until 16
+				bone.TransformMatrix[i] = stream.ReadFloat()
+			Next
+			
+			'Inv pose matrix
+			For Local i:Int = 0 Until 16
+				bone.InversePoseMatrix[i] = stream.ReadFloat()
+			Next
+			
+			'Surfaces
+			bone.NumSurfaces = stream.ReadShort() & $FFFF
+			For Local i:Int = 0 Until bone.NumSurfaces
+				bone.SurfaceIndex(i, stream.ReadShort() & $FFFF)
+			Next
+			
+			'Add to hierarchy
+			AddBone(bone)
+		Next
+		
+		Return True
 	End
 	
-	Method _NumFrames:Void(num:Int) Property
-		mNumFrames = num
+	Method _LoadAnimationData:Bool(data:DataBuffer)
+		If Not data Then Return False
+		Local stream:DataStream = New DataStream(data)
+		
+		'Id
+		Local id:String = stream.ReadString(4)
+		If id <> "AN01" Then Return False
+		
+		'Number of frames
+		Local numFrames:Int = stream.ReadShort() & $FFFF
+		
+		'Animation speed in FPS
+		AnimFps = stream.ReadFloat()
+		
+		'Number of bones
+		Local numBones:Int = stream.ReadShort() & $FFFF
+		
+		'Bone animations
+		Local firstFrame:Int = NumFrames
+		For Local i:Int = 0 Until numBones
+			'Position keys
+			Local numKeys:Int = stream.ReadShort() & $FFFF
+			For Local k:Int = 0 Until numKeys
+				Local frame:Int = stream.ReadShort() & $FFFF
+				Local x:Float = stream.ReadFloat()
+				Local y:Float = stream.ReadFloat()
+				Local z:Float = stream.ReadFloat()
+				Bone(i).AddPositionKey(firstFrame + frame, x, y, z)
+			Next
+			
+			'Rotation keys
+			numKeys = stream.ReadShort() & $FFFF
+			For Local k:Int = 0 Until numKeys
+				Local frame:Int = stream.ReadShort() & $FFFF
+				Local w:Float = stream.ReadFloat()
+				Local x:Float = stream.ReadFloat()
+				Local y:Float = stream.ReadFloat()
+				Local z:Float = stream.ReadFloat()
+				Bone(i).AddRotationKey(firstFrame + frame, w, x, y, z)
+			Next
+			
+			'Scale keys
+			numKeys = stream.ReadShort() & $FFFF
+			For Local k:Int = 0 Until numKeys
+				Local frame:Int = stream.ReadShort() & $FFFF
+				Local x:Float = stream.ReadFloat()
+				Local y:Float = stream.ReadFloat()
+				Local z:Float = stream.ReadFloat()
+				Bone(i).AddScaleKey(firstFrame + frame, x, y, z)
+			Next
+		Next
+		
+		NumFrames += numFrames
+		
+		Return True
 	End
 	
-	Method _AnimSpeed:Float() Property
-		Return mAnimSpeed
+	Method _LoadVertexAnimationData:Bool(data:DataBuffer)
+		If Not data Then Return False
+		Local stream:DataStream = New DataStream(data)
+		
+		'Id
+		Local id:String = stream.ReadString(4)
+		If id <> "VA01" Then Return False
+		
+		'Animation speed
+		AnimFps = stream.ReadFloat()
+		
+		'Number of surfaces
+		Local numSurfaces:Int = stream.ReadShort()
+		If numSurfaces <> NumSurfaces Then Return False
+		
+		'Get first frame index (previous number of frames)
+		Local firstFrame:Int = NumFrames
+		Local totalFrames:Int = firstFrame
+		
+		'Surfaces
+		For Local s:Int = 0 Until numSurfaces
+			Local surf:Surface = Surface(s)
+		
+			'Number of frames
+			Local numFrames:Int = stream.ReadShort()
+			
+			'Frames
+			For Local f:Int = 0 Until numFrames
+				'Create buffers
+				Local positions:DataBuffer = New DataBuffer(surf.NumVertices * 12)
+				Local normals:DataBuffer = New DataBuffer(surf.NumVertices * 12)
+			
+				'Frame
+				Local frame:Int = stream.ReadShort()
+				totalFrames = Max(totalFrames, frame + firstFrame)
+				
+				'Positions
+				For Local p:Int = 0 Until surf.NumVertices
+					positions.PokeFloat(p*12, stream.ReadFloat())
+					positions.PokeFloat(p*12 + 4, stream.ReadFloat())
+					positions.PokeFloat(p*12 + 8, stream.ReadFloat())
+				Next
+				
+				'Normals
+				For Local n:Int = 0 Until surf.NumVertices
+					normals.PokeFloat(n*12, stream.ReadFloat())
+					normals.PokeFloat(n*12 + 4, stream.ReadFloat())
+					normals.PokeFloat(n*12 + 8, stream.ReadFloat())
+				Next
+				
+				surf._AddVertexFrame(frame + firstFrame, positions, normals)
+				positions.Discard()
+				normals.Discard()
+			Next
+		Next
+		
+		'Update number of frames
+		NumFrames = totalFrames
+		
+		Return True
 	End
 	
-	Method _AnimSpeed:Void(speed:Float) Property
-		mAnimSpeed = speed
+	Method _Animate:Void(animMatrices:Float[][], frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
+		'We can only animate if the mesh has bones
+		If mBones.Length() > 0
+			'If we have not specified the ending frame of the sequence, take the last frame in the entire animation
+			If lastFrame = 0 Then lastFrame = mNumFrames
+			
+			'Calculate animation matrix for all bones
+			For Local i:Int = 0 Until NumBones
+				Bone(i).CalculateAnimMatrix(animMatrices[i], frame, firstFrame, lastFrame)
+				If Bone(i).ParentIndex > -1
+					Mat4MulSafe(animMatrices[Bone(i).ParentIndex], animMatrices[i], animMatrices[i])
+				End
+			Next
+			
+			'Multiply every animation matrix by the inverse of the pose matrix
+			For Local i:Int = 0 Until NumBones
+				Mat4Mul(animMatrices[i], Bone(i).InversePoseMatrix, animMatrices[i])
+			Next
+		End
+	End
+	
+	Method _AnimateVertices:Void(frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
+		'If we have not specified the ending frame of the sequence, take the last frame in the entire animation
+		If lastFrame = 0 Then lastFrame = mNumFrames
+		
+		'Animate all surfaces
+		For Local surf:Surface = Eachin mSurfaces
+			surf._AnimateVertices(frame, firstFrame, lastFrame)
+		Next
 	End
 Private
 	Field mFilename		: String

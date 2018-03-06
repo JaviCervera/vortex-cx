@@ -71,10 +71,17 @@ struct vertex_t {
     }
 };
 
+struct vertexframe_t {
+  int                 frame;
+  std::vector<vec3_t> positions;
+  std::vector<vec3_t> normals;
+};
+
 struct surface_t {
   material_t                  material;
   std::vector<unsigned short> indices;
   std::vector<vertex_t>       vertices;
+  std::vector<vertexframe_t>  vertex_frames;
 };
 
 struct bone_t {

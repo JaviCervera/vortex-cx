@@ -6,7 +6,7 @@ static int rgb(unsigned char r, unsigned char g, unsigned char b, unsigned char 
   return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
-void SaveMSH(const mesh_t* mesh, const std::string& filename) {
+void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights) {
   // create file
   std::ofstream f(filename.c_str(), std::ios::binary | std::ios::trunc);
   if ( !f.is_open() ) return;
@@ -63,7 +63,8 @@ void SaveMSH(const mesh_t* mesh, const std::string& filename) {
     // write surface
     int numIndices = static_cast<int>(surf.indices.size());
     unsigned short numVertices = static_cast<unsigned short>(surf.vertices.size());
-    unsigned char vertexFlags = 1 | 2 | 8 | 16 | 32;
+    unsigned char vertexFlags = 1 | 2 | 8 | 16;
+    if ( exportWeights ) vertexFlags |= 32;
     f.write(reinterpret_cast<const char*>(&numIndices), sizeof(numIndices));
     f.write(reinterpret_cast<const char*>(&numVertices), sizeof(numVertices));
     f.write(reinterpret_cast<const char*>(&vertexFlags), sizeof(vertexFlags));
@@ -86,14 +87,16 @@ void SaveMSH(const mesh_t* mesh, const std::string& filename) {
       f.write(reinterpret_cast<const char*>(&surf.vertices[v].v0), sizeof(float));
       f.write(reinterpret_cast<const char*>(&surf.vertices[v].u1), sizeof(float));
       f.write(reinterpret_cast<const char*>(&surf.vertices[v].v1), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&b0), sizeof(b0));
-      f.write(reinterpret_cast<const char*>(&b1), sizeof(b1));
-      f.write(reinterpret_cast<const char*>(&b2), sizeof(b2));
-      f.write(reinterpret_cast<const char*>(&b3), sizeof(b3));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].weights[0]), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].weights[1]), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].weights[2]), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].weights[3]), sizeof(float));
+      if ( exportWeights ) {
+        f.write(reinterpret_cast<const char*>(&b0), sizeof(b0));
+        f.write(reinterpret_cast<const char*>(&b1), sizeof(b1));
+        f.write(reinterpret_cast<const char*>(&b2), sizeof(b2));
+        f.write(reinterpret_cast<const char*>(&b3), sizeof(b3));
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].weights[0]), sizeof(float));
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].weights[1]), sizeof(float));
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].weights[2]), sizeof(float));
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].weights[3]), sizeof(float));
+      }
     }
   }
 
@@ -192,6 +195,55 @@ void SaveANM(const mesh_t* mesh, const std::string& filename) {
       unsigned short frame = static_cast<unsigned short>(bone.scales[i].first);
       f.write(reinterpret_cast<const char*>(&frame), sizeof(frame));
       f.write(reinterpret_cast<const char*>(&bone.scales[i].second), sizeof(bone.scales[i].second));
+    }
+  }
+
+  f.close();
+}
+
+void SaveVTA(const mesh_t* mesh, const std::string& filename) {
+  // create file
+  std::ofstream f(filename.c_str(), std::ios::binary | std::ios::trunc);
+  if ( !f.is_open() ) return;
+
+  // id & version
+  std::string id = "VA01";
+  f.write(id.c_str(), id.size());
+
+  // animation speed
+  f.write(reinterpret_cast<const char*>(&mesh->anim_speed), sizeof(mesh->anim_speed));
+
+  // number of surfaces
+  unsigned short numSurfaces = static_cast<unsigned short>(mesh->surfaces.size());
+  f.write(reinterpret_cast<const char*>(&numSurfaces), sizeof(numSurfaces));
+
+  // surface animations
+  for ( size_t s = 0; s < mesh->surfaces.size(); ++s ) {
+    const surface_t& surf = mesh->surfaces[s];
+
+    // number of frames
+    unsigned short numFrames = static_cast<unsigned short>(surf.vertex_frames.size());
+    f.write(reinterpret_cast<const char*>(&numFrames), sizeof(numFrames));
+
+    // frame data
+    for ( size_t fr = 0; fr < surf.vertex_frames.size(); ++fr ) {
+      const vertexframe_t& vf = surf.vertex_frames[fr];
+
+      // frame
+      unsigned short frame = static_cast<unsigned short>(vf.frame);
+      f.write(reinterpret_cast<const char*>(&frame), sizeof(frame));
+
+      // positions
+      for ( size_t p = 0; p < vf.positions.size(); ++p ) {
+        const vec3_t& pos = vf.positions[p];
+        f.write(reinterpret_cast<const char*>(&pos), sizeof(pos));
+      }
+
+      // normals
+      for ( size_t n = 0; n < vf.normals.size(); ++n ) {
+        const vec3_t& nor = vf.normals[n];
+        f.write(reinterpret_cast<const char*>(&nor), sizeof(nor));
+      }
     }
   }
 

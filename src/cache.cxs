@@ -30,12 +30,12 @@ Public
 		Next
 
 		'If it was not found, load it
-		Local font:Font = Font._Load(filename)
+		Local font:Font = Font.Load(filename, False)
 		If font <> Null Then mStack[mStack.Length() -1].mFonts.Set(filename, font)
 		Return font
 	End
 
-	Function _LoadMesh:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
+	Function _LoadMesh:Mesh(filename:String, skeletonFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
 		'Search for the mesh in all allocated caches
 		For Local i:Int = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mMeshes.Contains(filename)
@@ -44,7 +44,7 @@ Public
 		Next
 
 		'If it was not found, load it
-		Local mesh:Mesh = Mesh._Load(filename, skeletonFilename, animationFilename, texFilter)
+		Local mesh:Mesh = Mesh.Load(filename, skeletonFilename, texFilter, False)
 		If mesh <> Null Then mStack[mStack.Length() -1].mMeshes.Set(filename, mesh)
 		Return mesh
 	End
@@ -72,7 +72,7 @@ Public
 		Next
 
 		'If it was not found, load it
-		Local tex:Texture = Texture._Load(filename, filter)
+		Local tex:Texture = Texture.Load(filename, filter, False)
 		If tex <> Null Then mStack[mStack.Length() - 1].mTextures.Set(filename, tex)
 		Return tex
 	End
@@ -88,7 +88,7 @@ Public
 		Next
 
 		'If it was not found, load it
-		Local tex:Texture = Texture._Load(left, right, front, back, top, bottom, filter)
+		Local tex:Texture = Texture.Load(left, right, front, back, top, bottom, filter, False)
 		If tex <> Null Then mStack[mStack.Length() - 1].mTextures.Set(filename, tex)
 		Return tex
 	End

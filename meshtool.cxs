@@ -72,9 +72,11 @@ Public
 		'Update GUI
 		Local newModel:Model = mGui.Update(mModel)
 		If newModel <> Null
-			If mModel Then mModel.Discard()
+			If mModel
+				mModel.Mesh.Discard()
+				mModel.Discard()
+			End
 			mModel = newModel
-			'mModel.AnimSpeed = 1
 		End
 		
 		'Update camera view

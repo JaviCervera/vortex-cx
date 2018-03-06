@@ -31,23 +31,13 @@ Public
 		'Create camera
 		mCam = New Camera()
 		mCam.Position(0, 64, -128)
-		mCam.Rotate(10, 0, 0)
+		mCam.Rotate(15, 0, 0)
 		mCam.ClearColor = Color.RGB(15, 15, 15)
 		
-		'Load swat model
-		mSwatModel = New Model(Mesh.Load("swat.msh.dat", "swat.skl.dat"))
-		mSwatModel.Mesh.LoadAnimation("swat.anm.dat")
-		mSwatModel.Position(-32, 32, 0)
-		mSwatModel.Rotate(0, -15, 0)
-		mSwatModel.Scale(7, 7, 7)
-		mSwatModel.AnimFps = mSwatModel.Mesh.AnimFps
-		
 		'Load dwarf model
-		mDwarfModel = New Model(Mesh.Load("dwarf.msh.dat", "dwarf.skl.dat"))
-		mDwarfModel.Mesh.LoadAnimation("dwarf.anm.dat")
-		mDwarfModel.Position(32, 0, 0)
-		mDwarfModel.Rotate(0, 15, 0)
-		mDwarfModel.AnimFps = mDwarfModel.Mesh.AnimFps
+		Local model:Model = New Model(Mesh.Load("dwarf.msh.dat"))
+		model.Mesh.LoadVertexAnimation("dwarf.vta.dat")
+		model.AnimFps = model.Mesh.AnimFps
 		
 		Return False
 	End
@@ -91,8 +81,6 @@ Public
 Private	
 	Field mFont			: Font
 	Field mCam			: Camera
-	Field mSwatModel	: Model
-	Field mDwarfModel	: Model
 End
 
 Function Main:Int()

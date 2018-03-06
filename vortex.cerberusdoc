@@ -22,7 +22,7 @@ A *surface* is a list of vertices and indices that when connected define a 3 dim
 
 A *mesh* is a collection of surfaces that make up a single object. Basically, a mesh has as many surfaces as materials. A mesh can also have animation information (an array of bones).
 
-An *entity* is anything that exists in your 3D world, and has a position, rotation and scale. There are many types of entities, such as cameras, lights and models. An entity by itself does not draw anything in your world, but some special types of entities do. For example, a *model* is a type of entity that puts a mesh in the world. Since a mesh could appear at many places in your world, you can have a single mesh object that can be used by several models.
+An *entity* is anything that exists in your 3D world. It has a position, rotation and scale. There are many types of entities, such as cameras, lights and models. An entity by itself does not draw anything in your world, but some special types of entities do. For example, a *model* is a type of entity that puts a mesh in the world. Since a mesh could appear at many places in your world, you can have a single mesh object that can be used by several models.
 
 
 
@@ -713,17 +713,26 @@ Creates a new empty mesh.
 # Method New(other:Mesh)
 Creates a new mesh that is a copy of the mesh passed as parameter.
 
-# Function Load(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
-Loads and returns the mesh with the specified filename, or `Null` if the mesh could not be loaded. You can also specify a skeleton and animation files that will be loaded with the mesh.
+# Function Load(filename:String, skeletonFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+Loads and returns the mesh with the specified filename, or `Null` if the mesh could not be loaded.
+You can also specify a skeleton file that will be loaded with the mesh (it is possible to load it afterwards with `Mesh.LoadSkeleton`).
 If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one mesh more than once).
 
-# Method LoadSkeletonData:Bool(data:DataBuffer)
-Loads the skeleton data from the specified DataBuffer and adds it to the mesh. You should only use this method once on each mesh.
+# Method LoadSkeleton:Bool(filename:String)
+Loads the skeleton data from the specified file and adds it to the mesh.
+You should only use this method once on each mesh.
 
-# Method LoadAnimationData:Bool(data:DataBuffer)
-Loads the animation data from the specified DataBuffer and adds it to the mesh. You can call this funcion several times to add different animation sequences.
+# Method LoadAnimation:Bool(filename:String)
+Loads the animation data from the specified file and adds it to the mesh.
+You can call this funcion several times to add different animation sequences.
+You should not mix bone and vertex animation data within the same mesh.
 
-# Method Discard:Void(discardTextures:Bool = True)
+# Method LoadVertexAnimation:Bool(filename:String)
+Loads the vertex animation data from the specified file and adds it to the mesh.
+You can call this funcion several times to add different animation sequences.
+You should not mix bone and vertex animation data within the same mesh.
+
+# Method Discard:Void(discardTextures:Bool = False)
 When you don't need to use this mesh anymore, you should use this function to deallocate its resources.
 The parameter `discardTextures` indicates whether the textures used by this mesh should be discarded too.
 You don't need to call this method for meshes loaded with the `cache` param set to `True` (the default).
@@ -830,10 +839,10 @@ Creates a new model from the specific mesh and parent. The value of `mesh` shoul
 # Method Mesh:Mesh() Property
 Returns the mesh that this model uses.
 
-# Method FPS:Float() Property
+# Method AnimFps:Float() Property
 Returns the frames per second at which this model animates (default is 0).
 
-# Method FPS:Void(fps:Float) Property
+# Method AnimFps:Void(fps:Float) Property
 Sets the frames per second at which this model animates (default is 0).
 
 # Method CurrentFrame:Float() Property

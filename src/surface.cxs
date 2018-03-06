@@ -351,6 +351,44 @@ Public
 		mStatus = STATUS_OK
 	End
 	
+	Method _AddVertexFrame:Void(frame:Int, positions:DataBuffer, normals:DataBuffer)
+		mVertexFrames = mVertexFrames.Resize(mVertexFrames.Length + 1)
+		mVertexFrames[mVertexFrames.Length - 1] = New VertexFrame(frame, positions, normals)
+	End
+	
+	Method _AnimateVertices:Void(frame:Float, firstFrame:Int, lastFrame:Int)
+		'Find interval indices
+		Local firstIndex:Int = 0
+		Local lastIndex:Int = mVertexFrames.Length-1
+		For Local i:Int = 0 Until mVertexFrames.Length
+			If mVertexFrames[i].Frame = firstFrame Then firstIndex = i
+			If mVertexFrames[i].Frame = lastFrame Then lastIndex = i
+		Next
+		
+		'Interpolate
+		For Local i:Int = firstIndex To lastIndex
+			Local prevIndex:Int = Max(firstIndex, i-1)
+			If frame <= mVertexFrames[i].Frame
+				Local t:Float = 0
+				If i <> prevIndex Then t = (frame - mVertexFrames[prevIndex].Frame) / (mVertexFrames[i].Frame - mVertexFrames[prevIndex].Frame)
+				For Local v:Int = 0 Until NumVertices
+					Vec3Mix(
+						mVertexFrames[prevIndex].X(v), mVertexFrames[prevIndex].Y(v), mVertexFrames[prevIndex].Z(v),
+						mVertexFrames[i].X(v), mVertexFrames[i].Y(v), mVertexFrames[i].Z(v),
+						t, mTempQuat)
+					VertexPosition(v, mTempQuat[0], mTempQuat[1], mTempQuat[2])
+					Vec3Mix(
+						mVertexFrames[prevIndex].NX(v), mVertexFrames[prevIndex].NY(v), mVertexFrames[prevIndex].NZ(v),
+						mVertexFrames[i].NX(v), mVertexFrames[i].NY(v), mVertexFrames[i].NZ(v),
+						t, mTempQuat)
+					VertexNormal(v, mTempQuat[0], mTempQuat[1], mTempQuat[2])
+				Next
+				Rebuild()
+				Exit
+			End
+		Next
+	End
+	
 	Method _Render:Void()
 		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, TANGENT_OFFSET, COLOR_OFFSET, TEX_OFFSET, BONEINDICES_OFFSET, BONEWEIGHTS_OFFSET, VERTEX_SIZE, mMode)
 	End
@@ -378,7 +416,55 @@ Private
 	Field mNumVertices	: Int
 	Field mIndexBuffer	: Int
 	Field mVertexBuffer	: Int
+	Field mVertexFrames	: VertexFrame[0]
 	Field mStatus		: Int
 	Global mTempQuat	: Float[4]	'Used for math operations
 	Global mTempMat	: Float[16]
+End
+
+Private
+
+Class VertexFrame	
+	Method New(frame:Int, positions:DataBuffer, normals:DataBuffer)
+		mFrame = frame
+		mPositions = New DataBuffer(positions.Length)
+		mNormals = New DataBuffer(normals.Length)
+		positions.CopyBytes(0, mPositions, 0, positions.Length)
+		normals.CopyBytes(0, mNormals, 0, normals.Length)
+	End
+	
+	Method Frame:Int() Property
+		Return mFrame
+	End
+	
+	Method X:Float(index:Int)
+		Return mPositions.PeekFloat(index*12)
+	End
+	
+	Method Y:Float(index:Int)
+		Return mPositions.PeekFloat(index*12 + 4)
+	End
+	
+	Method Z:Float(index:Int)
+		Return mPositions.PeekFloat(index*12 + 8)
+	End
+	
+	Method NX:Float(index:Int)
+		Return mNormals.PeekFloat(index*12)
+	End
+	
+	Method NY:Float(index:Int)
+		Return mNormals.PeekFloat(index*12 + 4)
+	End
+	
+	Method NZ:Float(index:Int)
+		Return mNormals.PeekFloat(index*12 + 8)
+	End
+Private
+	Field	mFrame:Int
+	Field	mPositions:DataBuffer
+	Field mNormals:DataBuffer
+	
+	Method New()
+	End
 End
