@@ -276,10 +276,10 @@ Public
 			
 			'Draw loaded mesh info
 			Renderer.Color(Color.WHITE)
-			mFont.Draw(8, 54, "Num Surfaces: " + currentModel.Mesh.NumSurfaces)
-			mFont.Draw(8, 70, "Num Bones: " + currentModel.Mesh.NumBones)
-			mFont.Draw(8, 86, "Num Frames: " + currentModel.Mesh.NumFrames)
-			If currentModel.Mesh.NumFrames > 0 Then mFont.Draw(8, 102, "Current Frame: " + Int(currentModel.CurrentFrame))
+			mFont.Draw(8, 34, "Num Surfaces: " + currentModel.Mesh.NumSurfaces)
+			mFont.Draw(8, 50, "Num Bones: " + currentModel.Mesh.NumBones)
+			mFont.Draw(8, 66, "Num Frames: " + currentModel.Mesh.NumFrames)
+			If currentModel.Mesh.NumFrames > 0 Then mFont.Draw(8, 82, "Current Frame: " + Int(currentModel.CurrentFrame))
 			'mFont.Draw(8, 66, "Anim Duration: " + currentModel.Mesh.AnimDuration)
 			'If currentModel.Mesh.AnimDuration <> 0 Then mFont.Draw(8, 80, "Anim Time: " + currentModel.AnimTime)
 			
