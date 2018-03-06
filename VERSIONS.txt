@@ -1,5 +1,6 @@
 V2.0-beta2
 - Added vertex animation support (which is now the default in meshtool since there is a bug with skinned meshes)
+- Added animation sequences
 - Shadow tex size can now be changed at runtime
 - Sun distance can be specified for shadow calculation
 - Added Shader class

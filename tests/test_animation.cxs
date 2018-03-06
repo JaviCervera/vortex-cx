@@ -36,18 +36,18 @@ Public
 		
 		'Load swat model
 		mSwatModel = New Model(Mesh.Load("swat.msh.dat", "swat.skl.dat"))
-		mSwatModel.Mesh.LoadAnimation("swat.anm.dat")
+		mSwatModel.Mesh.LoadAnimation("swat.anm.dat", "main")
+		mSwatModel.AnimSequence = "main"
 		mSwatModel.Position(-32, 32, 0)
 		mSwatModel.Rotate(0, -15, 0)
 		mSwatModel.Scale(7, 7, 7)
-		mSwatModel.AnimFps = mSwatModel.Mesh.AnimFps
 		
 		'Load dwarf model
 		mDwarfModel = New Model(Mesh.Load("dwarf.msh.dat", "dwarf.skl.dat"))
-		mDwarfModel.Mesh.LoadAnimation("dwarf.anm.dat")
+		mDwarfModel.Mesh.LoadAnimation("dwarf.anm.dat", "main")
+		mDwarfModel.AnimSequence = "main"
 		mDwarfModel.Position(32, 0, 0)
 		mDwarfModel.Rotate(0, 15, 0)
-		mDwarfModel.AnimFps = mDwarfModel.Mesh.AnimFps
 		
 		Return False
 	End

@@ -25,7 +25,7 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 			mAnimMatrices[i] = New Float[16]
 			Mat4Identity(mAnimMatrices[i])
 		Next
-		mAnimFps = mesh.AnimFps
+		'mAnimFps = mesh.AnimFps
 		mCurrentFrame = 0
 		mFirstFrame = 0
 		mLastFrame = mesh.NumFrames
@@ -35,6 +35,20 @@ Class Model Extends Entity Final 'Implements IMaterialDelegate Final
 	
 	Method Mesh:Mesh() Property
 		Return mMesh
+	End
+	
+	Method AnimSequence:String() Property
+		Return mAnimSeq
+	End
+	
+	Method AnimSequence:Void(name:String) Property
+		Local index:Int = mMesh._AnimSeqIndex(name)
+		If index > -1
+			mAnimSeq = name
+			mAnimFps = mMesh._AnimSeqFps(index)
+			mFirstFrame = mMesh._AnimSeqFirstFrame(index)
+			mLastFrame = mMesh._AnimSeqLastFrame(index)
+		End
 	End
 	
 	Method AnimFps:Float() Property
@@ -209,6 +223,7 @@ Private
 	Field mCurrentFrame	: Float
 	Field mFirstFrame		: Int
 	Field mLastFrame		: Int
+	Field mAnimSeq			: String
 	
 	Method New()
 	End

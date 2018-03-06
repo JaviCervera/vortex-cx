@@ -27,7 +27,6 @@ Public
 		mNumVertices = 0
 		mVertexBuffer = Renderer.CreateVertexBuffer(0)
 		mIndexBuffer = Renderer.CreateIndexBuffer(0)
-		mStatus = STATUS_OK
 		Set(other)
 	End
 
@@ -60,6 +59,10 @@ Public
 		other.mVertices.CopyBytes(0, mVertices, 0, mVertices.Length)
 		mNumIndices = other.mNumIndices
 		mNumVertices = other.mNumVertices
+		mVertexFrames = New VertexFrame[other.mVertexFrames.Length]
+		For Local i:Int = 0 Until other.mVertexFrames.Length
+			mVertexFrames[i] = New VertexFrame(other.mVertexFrames[i].mFrame, other.mVertexFrames[i].mPositions, other.mVertexFrames[i].mNormals)
+		Next
 		Rebuild()
 	End
 	

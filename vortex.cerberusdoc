@@ -722,12 +722,12 @@ If `cache` is `True` and you call this function several times with the same file
 Loads the skeleton data from the specified file and adds it to the mesh.
 You should only use this method once on each mesh.
 
-# Method LoadAnimation:Bool(filename:String)
+# Method LoadAnimation:Bool(filename:String, sequenceName:String = "")
 Loads the animation data from the specified file and adds it to the mesh.
 You can call this funcion several times to add different animation sequences.
 You should not mix bone and vertex animation data within the same mesh.
 
-# Method LoadVertexAnimation:Bool(filename:String)
+# Method LoadVertexAnimation:Bool(filename:String, sequenceName:String = "")
 Loads the vertex animation data from the specified file and adds it to the mesh.
 You can call this funcion several times to add different animation sequences.
 You should not mix bone and vertex animation data within the same mesh.
@@ -754,11 +754,8 @@ Returns a surface contained in the mesh. The value of `index` must be in the ran
 # Method Material:Material(index:Int)
 Returns a material contained in the mesh. The value of `index` must be in the range `0 .. NumSurfaces - 1`.
 
-# Method NumFrames:Void(lastFrame:Int) Property
-Sets the number of animation frames for the mesh. You should call this method only when generating an animated mesh procedurally, but not when loading the mesh from disk.
-
 # Method NumFrames:Int() Property
-Returns the number of animation frames contained in the mesh.
+Returns the number of animation frames contained in the mesh, counting all sequences.
 
 # Method AddBone:Void(bone:Bone)
 Adds a new bone to the mesh.
@@ -838,6 +835,13 @@ Creates a new model from the specific mesh and parent. The value of `mesh` shoul
 
 # Method Mesh:Mesh() Property
 Returns the mesh that this model uses.
+
+# Method AnimSequence:String() Property
+Returns the name of the current animation sequence.
+
+# Method AnimSequence:Void(name:String) Property
+Sets the current animation sequence if one with such name exists.
+This sets the properties `AnimFps`, `FirstFrame`, `LastFrame`.
 
 # Method AnimFps:Float() Property
 Returns the frames per second at which this model animates (default is 0).

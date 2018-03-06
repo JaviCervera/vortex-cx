@@ -21,7 +21,9 @@ Public
 		mSurfaces = New Surface[0]
 		mMaterials = New Material[0]
 		mBones = New Bone[0]
-		mNumFrames = 0
+		mSequences = New AnimSequence[0]
+		'mNumFrames = 0
+		'mAnimSpeed = 0
 	End
 	
 	Method New(other:Mesh)
@@ -34,11 +36,16 @@ Public
 		For Local i:Int = 0 Until other.mMaterials.Length
 			mMaterials[i] = New Material(other.mMaterials[i])
 		Next
-		mBones	= New Bone[other.mBones.Length]
+		mBones = New Bone[other.mBones.Length]
 		For Local i:Int = 0 Until other.mBones.Length
 			mBones[i] = New Bone(other.mBones[i])
 		Next
-		mNumFrames = other.mNumFrames
+		mSequences = New AnimSequence[other.mSequences.Length]
+		For Local i:Int = 0 Until other.mSequences.Length
+			mSequences[i] = New AnimSequence(other.mSequences[i].mName, other.mSequences[i].mFps, other.mSequences[i].mFirstFrame, other.mSequences[i].mLastFrame)
+		Next
+		'mNumFrames = other.mNumFrames
+		'mAnimSpeed = other.mAnimSpeed
 		Vec3Set(other.mBoxMin[0], other.mBoxMin[1], other.mBoxMin[2], mBoxMin)
 		Vec3Set(other.mBoxMax[0], other.mBoxMax[1], other.mBoxMax[2], mBoxMax)
 	End
@@ -68,20 +75,20 @@ Public
 		Return _LoadSkeletonData(DataBuffer.Load(fixedFilename))
 	End
 	
-	Method LoadAnimation:Bool(filename:String)
+	Method LoadAnimation:Bool(filename:String, sequenceName:String = "")
 		'Fix filename
 		Local fixedFilename:String = filename
 		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then fixedFilename = "cerberus://data/" + filename
 		
-		Return _LoadAnimationData(DataBuffer.Load(fixedFilename))
+		Return _LoadAnimationData(DataBuffer.Load(fixedFilename), sequenceName)
 	End
 	
-	Method LoadVertexAnimation:Bool(filename:String)
+	Method LoadVertexAnimation:Bool(filename:String, sequenceName:String = "")
 		'Fix filename
 		Local fixedFilename:String = filename
 		If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then fixedFilename = "cerberus://data/" + filename
 		
-		Return _LoadVertexAnimationData(DataBuffer.Load(fixedFilename))
+		Return _LoadVertexAnimationData(DataBuffer.Load(fixedFilename), sequenceName)
 	End
 
 	Method Discard:Void(discardTextures:Bool = False)
@@ -126,13 +133,21 @@ Public
 	End
 	
 	Method NumFrames:Int() Property
-		Return mNumFrames
+		If mSequences.Length = 0
+			Return 0
+		Else
+			Return mSequences[mSequences.Length-1].mLastFrame
+		End
+		'Return mNumFrames
 	End
 
+	#Rem
 	Method NumFrames:Void(num:Int) Property
 		mNumFrames = num
 	End
+	#End
 	
+	#Rem
 	Method AnimFps:Float() Property
 		Return mAnimSpeed
 	End
@@ -140,6 +155,7 @@ Public
 	Method AnimFps:Void(fps:Float) Property
 		mAnimSpeed = fps
 	End
+	#End
 	
 	#Rem
 	Method AnimDuration:Float() Property
@@ -771,7 +787,7 @@ Public
 		Return True
 	End
 	
-	Method _LoadAnimationData:Bool(data:DataBuffer)
+	Method _LoadAnimationData:Bool(data:DataBuffer, sequenceName:String)
 		If Not data Then Return False
 		Local stream:DataStream = New DataStream(data)
 		
@@ -779,22 +795,26 @@ Public
 		Local id:String = stream.ReadString(4)
 		If id <> "AN01" Then Return False
 		
+		'Get first frame and last frame
+		Local firstFrame:Int = NumFrames
+		Local lastFrame:Int = firstFrame
+		
 		'Number of frames
 		Local numFrames:Int = stream.ReadShort() & $FFFF
 		
 		'Animation speed in FPS
-		AnimFps = stream.ReadFloat()
+		Local animFps:Float = stream.ReadFloat()
 		
 		'Number of bones
 		Local numBones:Int = stream.ReadShort() & $FFFF
 		
 		'Bone animations
-		Local firstFrame:Int = NumFrames
 		For Local i:Int = 0 Until numBones
 			'Position keys
 			Local numKeys:Int = stream.ReadShort() & $FFFF
 			For Local k:Int = 0 Until numKeys
 				Local frame:Int = stream.ReadShort() & $FFFF
+				lastFrame = Max(lastFrame, frame + firstFrame)
 				Local x:Float = stream.ReadFloat()
 				Local y:Float = stream.ReadFloat()
 				Local z:Float = stream.ReadFloat()
@@ -805,6 +825,7 @@ Public
 			numKeys = stream.ReadShort() & $FFFF
 			For Local k:Int = 0 Until numKeys
 				Local frame:Int = stream.ReadShort() & $FFFF
+				lastFrame = Max(lastFrame, frame + firstFrame)
 				Local w:Float = stream.ReadFloat()
 				Local x:Float = stream.ReadFloat()
 				Local y:Float = stream.ReadFloat()
@@ -816,6 +837,7 @@ Public
 			numKeys = stream.ReadShort() & $FFFF
 			For Local k:Int = 0 Until numKeys
 				Local frame:Int = stream.ReadShort() & $FFFF
+				lastFrame = Max(lastFrame, frame + firstFrame)
 				Local x:Float = stream.ReadFloat()
 				Local y:Float = stream.ReadFloat()
 				Local z:Float = stream.ReadFloat()
@@ -823,12 +845,13 @@ Public
 			Next
 		Next
 		
-		NumFrames += numFrames
+		mSequences = mSequences.Resize(mSequences.Length + 1)
+		mSequences[mSequences.Length - 1] = New AnimSequence(sequenceName, animFps, firstFrame, lastFrame)
 		
 		Return True
 	End
 	
-	Method _LoadVertexAnimationData:Bool(data:DataBuffer)
+	Method _LoadVertexAnimationData:Bool(data:DataBuffer, sequenceName:String)
 		If Not data Then Return False
 		Local stream:DataStream = New DataStream(data)
 		
@@ -837,15 +860,15 @@ Public
 		If id <> "VA01" Then Return False
 		
 		'Animation speed
-		AnimFps = stream.ReadFloat()
+		Local animFps:Float = stream.ReadFloat()
 		
 		'Number of surfaces
 		Local numSurfaces:Int = stream.ReadShort()
 		If numSurfaces <> NumSurfaces Then Return False
 		
-		'Get first frame index (previous number of frames)
+		'Get first frame and last frame
 		Local firstFrame:Int = NumFrames
-		Local totalFrames:Int = firstFrame
+		Local lastFrame:Int = firstFrame
 		
 		'Surfaces
 		For Local s:Int = 0 Until numSurfaces
@@ -862,7 +885,7 @@ Public
 			
 				'Frame
 				Local frame:Int = stream.ReadShort()
-				totalFrames = Max(totalFrames, frame + firstFrame)
+				lastFrame = Max(lastFrame, frame + firstFrame)
 				
 				'Positions
 				For Local p:Int = 0 Until surf.NumVertices
@@ -884,8 +907,8 @@ Public
 			Next
 		Next
 		
-		'Update number of frames
-		NumFrames = totalFrames
+		mSequences = mSequences.Resize(mSequences.Length + 1)
+		mSequences[mSequences.Length - 1] = New AnimSequence(sequenceName, animFps, firstFrame, lastFrame)
 		
 		Return True
 	End
@@ -894,7 +917,7 @@ Public
 		'We can only animate if the mesh has bones
 		If mBones.Length() > 0
 			'If we have not specified the ending frame of the sequence, take the last frame in the entire animation
-			If lastFrame = 0 Then lastFrame = mNumFrames
+			If lastFrame = 0 Then lastFrame = NumFrames
 			
 			'Calculate animation matrix for all bones
 			For Local i:Int = 0 Until NumBones
@@ -913,20 +936,59 @@ Public
 	
 	Method _AnimateVertices:Void(frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
 		'If we have not specified the ending frame of the sequence, take the last frame in the entire animation
-		If lastFrame = 0 Then lastFrame = mNumFrames
+		If lastFrame = 0 Then lastFrame = NumFrames
 		
 		'Animate all surfaces
 		For Local surf:Surface = Eachin mSurfaces
 			surf._AnimateVertices(frame, firstFrame, lastFrame)
 		Next
 	End
+	
+	Method _AnimSeqIndex:Int(name:String)
+		For Local i:Int = 0 Until mSequences.Length
+			If mSequences[i].mName = name Then Return i
+		Next
+		Return -1
+	End
+	
+	Method _AnimSeqFps:Float(index:Int)
+		Return mSequences[index].mFps
+	End
+	
+	Method _AnimSeqFirstFrame:Int(index:Int)
+		Return mSequences[index].mFirstFrame
+	End
+	
+	Method _AnimSeqLastFrame:Int(index:Int)
+		Return mSequences[index].mLastFrame
+	End
 Private
 	Field mFilename		: String
 	Field mSurfaces		: Surface[]
 	Field mMaterials	: Material[]
 	Field mBones			: Bone[]
-	Field mNumFrames	: Int
-	Field mAnimSpeed	: Float
+	Field mSequences	: AnimSequence[]
+	'Field mNumFrames	: Int
+	'Field mAnimSpeed	: Float
 	Field mBoxMin			: Float[3]
 	Field mBoxMax			: Float[3]
+End
+
+Private
+
+Class AnimSequence
+	Method New(name:String, fps:Float, firstFrame:Int, lastFrame:Int)
+		mName = name
+		mFps = fps
+		mFirstFrame = firstFrame
+		mLastFrame = lastFrame
+	End
+Private
+	Field	mName				: String
+	Field mFps				: Float
+	Field mFirstFrame	: Int
+	Field mLastFrame	: Int
+	
+	Method New()
+	End
 End
