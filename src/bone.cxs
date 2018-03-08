@@ -5,7 +5,7 @@ Import math3d
 Import renderer
 
 Public
-Class Bone Final
+Class Bone
 Public
 	Method New(name:String, parentIndex:Int)
 		mName = name

@@ -6,7 +6,7 @@ Import cache
 Import renderer
 
 Public
-Class Texture Final
+Class Texture
 Public
 	Method New(width:Int, height:Int)
 		mHandle = Renderer.CreateTexture(width, height)

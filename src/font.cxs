@@ -11,7 +11,7 @@ Import texture
 
 Public
 
-Class Glyph Final
+Class Glyph
 	Field mX		: Float
 	Field mY		: Float
 	Field mWidth	: Float
@@ -20,7 +20,7 @@ Class Glyph Final
 	Field mYOffset	: Float
 End
 
-Class Font Final
+Class Font
 Public
 	Method New(filename:String, height:Float, tex:Texture)
 		mFilename = filename
@@ -84,11 +84,11 @@ Public
 	End
 
 	Method Draw:Void(x:Float, y:Float, text:String)
-		Local textHeight:Float = mMaxHeight
 		For Local i:Int = 0 Until text.Length()
 			Local glyph:Glyph = mGlyphs[text[i]-32]
 			If text[i]-32 <> 0 And glyph.mWidth <> 0 And glyph.mHeight <> 0
-				mTexture.Draw(x + glyph.mXOffset, y + (textHeight - glyph.mHeight) + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
+				mTexture.Draw(x + glyph.mXOffset, y + (mMaxHeight - glyph.mHeight) + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
+				'mTexture.Draw(x + glyph.mXOffset, y + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
 			End
 			x += glyph.mWidth
 		Next
@@ -105,8 +105,8 @@ Public
 		mGlyphs[index].mHeight = h
 		mGlyphs[index].mXOffset = xoffset
 		mGlyphs[index].mYOffset = yoffset
-		If index = 33 And mGlyphs[0].mWidth = 0 Then mGlyphs[0].mWidth = w
-		If h > mMaxHeight Then mMaxHeight = h
+		If index = 33 And mGlyphs[0].mWidth = 0 Then mGlyphs[0].mWidth = w/2	'If SPACE has no width, assign half the width of A
+		mMaxHeight = Max(mMaxHeight, h)
 	End
 	
 	Method _GlyphData:Glyph(index:Int)

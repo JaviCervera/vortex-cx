@@ -5,7 +5,7 @@ Import mojo.app
 Import renderer
 
 Public
-Class Stats Final
+Class Stats
 Public	
 	Function DeltaTime:Float()
 		Return mDeltaTime

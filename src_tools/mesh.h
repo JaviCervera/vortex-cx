@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#define DEFAULT_SPECULARPOWER  64.0f
+
 struct vec3_t {
   float x;
   float y;
@@ -37,11 +39,12 @@ struct material_t {
   unsigned char blue;
   unsigned char opacity;
   float shininess;
+  float specular_power;
   int culling;
   int depth_write;
   material_t() : blend(0), red(255), green(255), blue(255), opacity(255), shininess(0.0f), culling(1), depth_write(1) {}
-  material_t(int blend, const std::string& base_tex, const std::string& lightmap, unsigned char r, unsigned char g, unsigned char b, unsigned char a, float shininess, int culling, int depth_write)
-    : blend(blend), base_tex(base_tex), lightmap(lightmap), red(r), green(g), blue(b), opacity(a), shininess(shininess), culling(culling), depth_write(depth_write) {}
+  material_t(int blend, const std::string& base_tex, const std::string& lightmap, unsigned char r, unsigned char g, unsigned char b, unsigned char a, float shininess, float specular_power, int culling, int depth_write)
+    : blend(blend), base_tex(base_tex), lightmap(lightmap), red(r), green(g), blue(b), opacity(a), shininess(shininess), specular_power(specular_power), culling(culling), depth_write(depth_write) {}
   bool operator==(const material_t& other) {
     return  blend == other.blend &&
             base_tex == other.base_tex &&
@@ -51,6 +54,7 @@ struct material_t {
             blue == other.blue &&
             opacity == other.opacity &&
             shininess == other.shininess &&
+            specular_power == other.specular_power &&
             culling == other.culling &&
             depth_write == other.depth_write;
   }

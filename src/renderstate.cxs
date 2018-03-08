@@ -5,7 +5,7 @@ Import color
 
 Public
 
-Class RenderState Final
+Class RenderState
 	Global ProjectionMatrix	: Float[16]
 	Global ViewMatrix					: Float[16]
 	Global ModelMatrix				: Float[16]
@@ -17,6 +17,7 @@ Class RenderState Final
 	Global Color							: Int
 	Global Ambient						: Int
 	Global Shininess					: Float
+	Global SpecularPower			: Float
 	Global CubeOpacity				: Float
 	Global FogEnabled				: Bool
 	Global FogColor					: Int

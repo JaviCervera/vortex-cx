@@ -17,6 +17,7 @@ Const STD_UNIFORMS:String = "" +
 "uniform vec3 Ambient;" +
 "uniform vec4 MaterialColor;" +
 "uniform float MaterialShininess;" +
+"uniform float MaterialSpecularPower;" +
 "uniform float CubeOpacity;" +
 "uniform float MaterialRefractCoef;" +
 "uniform float DepthEpsilon;" +
@@ -103,9 +104,9 @@ Const SHADER_CALC_LIGHTING:String = "" +
 "		if ( MaterialShininess > 0.0 && NdotL > 0.0 ) {" +
 "			vec3 H = normalize(L - NV);" +
 "			float NdotH = max(dot(N, H), 0.0);" +
-'"			lighting.Specular += pow(NdotH, MaterialShininess * texShininess.r * 64.0) * vec3(Lights[i].Data) * texShininess * MaterialShininess * att;" +
-"			float SpecPower = MaterialShininess * texShininess.r * 64.0;" +
-"			lighting.Specular += pow(NdotH, SpecPower) * vec3(Lights[i].Data) * texShininess * ((SpecPower + 8.0) / 50.26548245744) * att;" +
+"			lighting.Specular += pow(NdotH, MaterialSpecularPower * MaterialShininess * texShininess.r) * vec3(Lights[i].Data) * MaterialShininess * texShininess * att;" +
+'"			float SpecPower = MaterialSpecularPower * MaterialShininess * texShininess.r;" +
+'"			lighting.Specular += pow(NdotH, SpecPower) * vec3(Lights[i].Data) * texShininess * ((SpecPower + 8.0) / 50.26548245744) * att;" +
 "		}~n" +
 "	}~n" +
 

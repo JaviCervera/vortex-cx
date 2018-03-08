@@ -58,10 +58,10 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
     unsigned char g = mat.DiffuseColor.getGreen();
     unsigned char b = mat.DiffuseColor.getBlue();
     unsigned char a = mat.DiffuseColor.getAlpha();
-    float shininess = mat.Shininess;
+    float shininess = mat.Shininess > 0 ? mat.Shininess : 0.001f;
     int culling = mat.BackfaceCulling;
     int depth_write = mat.ZWriteEnable;
-    surf.material = material_t(0, base_tex, lightmap, r, g, b, a, shininess, culling, depth_write);
+    surf.material = material_t(0, base_tex, lightmap, r, g, b, a, shininess, DEFAULT_SPECULARPOWER, culling, depth_write);
 
     // indices
     for (size_t j = 0; j < mesh_buffer->getIndexCount(); ++j) {

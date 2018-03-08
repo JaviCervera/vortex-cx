@@ -28,6 +28,8 @@ V2.0-beta2
 - The script convert2monkey now also converts demos (I forgot that!)
 - Removed cubemap support for Material.ColorTexture (skyboxes are rendered with a custom shader)
 - Removed "Set" from all methods
+- Added Material.SpecularPower
+- Made default Material.Shininess 0.001
 - Several bug fixes
 - Thanks to SLotman from the Cerberus-X community for his help to make Vortex work on Android!
 

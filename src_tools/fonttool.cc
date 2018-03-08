@@ -10,6 +10,9 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+  int firstChar = 32;
+  int numGlyphs = 224;
+
   // check command line
   if ( argc != 3 ) {
     cout << "Usage: fonttool fontfile fontsize" << endl;
@@ -34,7 +37,7 @@ int main(int argc, char* argv[]) {
   stbtt_bakedchar charData[224];
   int imgWidth = 128, imgHeight = 128;
   std::vector<unsigned char> alphaBuffer(imgWidth * imgHeight);
-  while ( stbtt_BakeFontBitmap(&buf[0], 0, fontsize, &alphaBuffer[0], imgWidth, imgHeight, 32, 224, charData) <= 0 ) {
+  while ( stbtt_BakeFontBitmap(&buf[0], 0, fontsize, &alphaBuffer[0], imgWidth, imgHeight, firstChar, numGlyphs, charData) <= 0 ) {
     if ( imgWidth == imgHeight ) imgWidth *= 2;
     else imgHeight *= 2;
     alphaBuffer.resize(imgWidth * imgHeight);
@@ -50,7 +53,7 @@ int main(int argc, char* argv[]) {
   string texName = StripExt(fontfile) + "_" + StringFromNumber(fontsize) + ".png";
   stbi_write_png(texName.c_str(), imgWidth, imgHeight, 4, &colorBuffer[0], 0);
 
-  // write glyph data to fnt.dat file
+  // create fnt.dat file for glyph data
   ofstream dat((StripExt(fontfile) + "_" + StringFromNumber(fontsize) + ".fnt.dat").c_str(), std::ios::binary | std::ios::trunc);
 
   // id & version
@@ -68,11 +71,9 @@ int main(int argc, char* argv[]) {
   dat.write(reinterpret_cast<const char*>(&fontHeight), sizeof(fontHeight));
 
   // num glyphs
-  int numGlyphs = 224;
   dat.write(reinterpret_cast<const char*>(&numGlyphs), sizeof(numGlyphs));
 
   // first char
-  int firstChar = 32;
   dat.write(reinterpret_cast<const char*>(&firstChar), sizeof(firstChar));
 
   // glyphs
@@ -90,6 +91,27 @@ int main(int argc, char* argv[]) {
     dat.write(reinterpret_cast<const char*>(&xoffset), sizeof(xoffset));
     dat.write(reinterpret_cast<const char*>(&yoffset), sizeof(yoffset));
   }
+
+  /*
+  // glyphs
+  for ( size_t i = 0; i < numGlyphs; ++i ) {
+    float px = 0, py = 0;
+    stbtt_aligned_quad q;
+    stbtt_GetBakedQuad(charData, imgWidth, imgHeight, i, &px, &py, &q, true);
+    float x = q.s0 * imgWidth;
+    float y = q.t0 * imgHeight;
+    float width = q.x1 - q.x0;
+    float height = q.y1 - q.y0;
+    float xoffset = q.x0;
+    float yoffset = q.y0;
+    dat.write(reinterpret_cast<const char*>(&x), sizeof(x));
+    dat.write(reinterpret_cast<const char*>(&y), sizeof(y));
+    dat.write(reinterpret_cast<const char*>(&width), sizeof(width));
+    dat.write(reinterpret_cast<const char*>(&height), sizeof(height));
+    dat.write(reinterpret_cast<const char*>(&xoffset), sizeof(xoffset));
+    dat.write(reinterpret_cast<const char*>(&yoffset), sizeof(yoffset));
+  }
+  */
 
   return 0;
 }

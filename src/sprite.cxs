@@ -14,7 +14,7 @@ Import world
 Public
 Import entity
 
-Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
+Class Sprite Extends Entity 'Implements IMaterialDelegate Final
 	Const MODE_STATIC		: Int = 0
 	Const MODE_SPHERICAL	: Int = 1
 	Const MODE_CYLINDRICAL	: Int = 2
@@ -206,7 +206,8 @@ Class Sprite Extends Entity Final 'Implements IMaterialDelegate Final
 		End
 		
 		Super._Render(step_)
-		If mMaterial._PrepareForRender(step_)			
+		
+		If mMaterial._PrepareForRender(step_)	
 			mSurface._Render()
 			Return 1
 		Else

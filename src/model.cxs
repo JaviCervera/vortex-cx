@@ -12,7 +12,7 @@ Import world
 Public
 Import entity
 
-Class Model Extends Entity Final 'Implements IMaterialDelegate Final
+Class Model Extends Entity 'Implements IMaterialDelegate Final
 	Method New(mesh:Mesh, parent:Entity = Null)
 		Super.New(parent)
 		mMesh = mesh

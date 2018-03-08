@@ -51,7 +51,7 @@ Public
 		floor.Position(0, -0.5, 0)
 		floor.Scale(50, 1, 50)
 		floor.Material.Color = Color.BLACK
-		floor.Material.Shininess = 0.001
+		floor.Material.Shininess = 0.1
 		
 		'Create pillars
 		Local xpos:Int[] = [-10, -10, 10, 10]

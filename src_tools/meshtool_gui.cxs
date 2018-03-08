@@ -36,10 +36,11 @@ Public
 		mNormalTexRect = New Rect(108, 32, 100, 100)
 		mShininessRect = New Rect(212, 4, 100, 24)
 		mShininessTexRect = New Rect(212, 32, 100, 100)
-		mRefractionCoefRect = New Rect(316, 4, 100, 24)
+		mSpecularPowerRect = New Rect(316, 4, 100, 24)
 		mLightmapRect = New Rect(316, 32, 100, 100)
 		mCubeOpacityRect = New Rect(420, 4, 100, 24)
 		mCubemapRect = New Rect(420, 32, 100, 100)
+		mRefractionCoefRect = New Rect(524, 4, 100, 24)
 		mBlendModeRect = New Rect(524, 32, 100, 24)
 		mCullingRect = New Rect(524, 60, 100, 24)
 		mDepthWriteRect = New Rect(524, 88, 100, 24)
@@ -73,7 +74,7 @@ Public
 				End
 				If filename <> ""
 					'Save mesh
-					SaveMesh(currentModel.Mesh, StripExt(StripExt(filename)) + ".msh.dat", Not (mAnimationMode <> MESH_SKINNED))
+					SaveMesh(currentModel.Mesh, StripExt(StripExt(filename)) + ".msh.dat")
 					'SaveMesh(currentModel.Mesh, StripExt(StripExt(filename)) + ".msh.dat", mExportAnimations And currentModel.Mesh.NumBones > 0)
 					
 					'Save skeleton and animations
@@ -211,6 +212,10 @@ Public
 				opacity += 10
 				If opacity > 100 Then opacity = 0
 				currentModel.Material(mSelMat).CubeOpacity = opacity / 100.0
+			'Specular Power
+			Elseif mSpecularPowerRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
+				Local power:String = RequestInput("Specular Power", "Enter value:", currentModel.Material(mSelMat).SpecularPower)
+				If power <> "" Then currentModel.Material(mSelMat).SpecularPower = Float(power)
 			'Blend
 			Elseif mBlendModeRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				currentModel.Material(mSelMat).BlendMode += 1
@@ -241,14 +246,19 @@ Public
 					Local mesh:Mesh = LoadMesh(filename, mAnimationMode)
 					If mesh <> Null
 						ResetProperties()
-						Return New Model(mesh)
+						Local model:Model = New Model(mesh)
+						model.AnimSequence = ""
+						Return model
 					Else
 						Notify "Error", "Could not load mesh '" + filename + "'", True
 					End
 				End
+			#Rem
+			'Animation mode
 			Elseif mAnimationsRect.IsPointInside(MouseX(), MouseY())
 				mAnimationMode += 1
 				If mAnimationMode > MESH_VERTEXANIM Then mAnimationMode = 0
+			#End
 			End
 		End
 		
@@ -266,7 +276,7 @@ Public
 		mOpenTex.Draw(mOpenRect.x, mOpenRect.y)
 		mSaveTex.Draw(mSaveRect.x, mSaveRect.y)
 		Renderer.Color(mAnimationModeButtonColor)
-		mFont.Draw(mAnimationsRect.x, mAnimationsRect.y, mAnimationModeNames[mAnimationMode])
+		'mFont.Draw(mAnimationsRect.x, mAnimationsRect.y, mAnimationModeNames[mAnimationMode])
 		
 		If currentModel
 			'If currentModel.Mesh.NumBones > 0 Then DrawCheckbox(mAnimationsRect, mAnimationModeNames[mAnimationMode], mFont, mExportAnimations)
@@ -276,10 +286,10 @@ Public
 			
 			'Draw loaded mesh info
 			Renderer.Color(Color.WHITE)
-			mFont.Draw(8, 34, "Num Surfaces: " + currentModel.Mesh.NumSurfaces)
-			mFont.Draw(8, 50, "Num Bones: " + currentModel.Mesh.NumBones)
-			mFont.Draw(8, 66, "Num Frames: " + currentModel.Mesh.NumFrames)
-			If currentModel.Mesh.NumFrames > 0 Then mFont.Draw(8, 82, "Current Frame: " + Int(currentModel.CurrentFrame))
+			mFont.Draw(8, 28, "Num Surfaces: " + currentModel.Mesh.NumSurfaces)
+			mFont.Draw(8, 44, "Num Bones: " + currentModel.Mesh.NumBones)
+			mFont.Draw(8, 60, "Num Frames: " + currentModel.Mesh.NumFrames)
+			If currentModel.Mesh.NumFrames > 0 Then mFont.Draw(8, 76, "Current Frame: " + Int(currentModel.CurrentFrame))
 			'mFont.Draw(8, 66, "Anim Duration: " + currentModel.Mesh.AnimDuration)
 			'If currentModel.Mesh.AnimDuration <> 0 Then mFont.Draw(8, 80, "Anim Time: " + currentModel.AnimTime)
 			
@@ -342,7 +352,8 @@ Public
 			DrawPanel(mMaterialRect.x + mRefractionCoefRect.x, mMaterialRect.y + mRefractionCoefRect.y, mRefractionCoefRect.width, mRefractionCoefRect.height, "RefrCoef: " + String(currentModel.Material(mSelMat).RefractionCoef)[..4], mFont)
 			DrawPanel(mMaterialRect.x + mOpacityRect.x, mMaterialRect.y + mOpacityRect.y, mOpacityRect.width, mOpacityRect.height, "Opacity: " + String(Color.Alpha(currentModel.Material(mSelMat).Color))[..3], mFont)
 			DrawPanel(mMaterialRect.x + mShininessRect.x, mMaterialRect.y + mShininessRect.y, mShininessRect.width, mShininessRect.height, "Shininess: " + String(currentModel.Material(mSelMat).Shininess)[..4], mFont)
-			DrawPanel(mMaterialRect.x + mCubeOpacityRect.x, mMaterialRect.y + mCubeOpacityRect.y, mCubeOpacityRect.width, mCubeOpacityRect.height, "Cube Op: " + String(currentModel.Material(mSelMat).CubeOpacity)[..4], mFont)
+			DrawPanel(mMaterialRect.x + mCubeOpacityRect.x, mMaterialRect.y + mCubeOpacityRect.y, mCubeOpacityRect.width, mCubeOpacityRect.height, "CubeOp: " + String(currentModel.Material(mSelMat).CubeOpacity)[..4], mFont)
+			DrawPanel(mMaterialRect.x + mSpecularPowerRect.x, mMaterialRect.y + mSpecularPowerRect.y, mSpecularPowerRect.width, mSpecularPowerRect.height, "SpecPow: " + String(currentModel.Material(mSelMat).SpecularPower)[..6], mFont)
 			Local blendStr:String = ""
 			Select currentModel.Material(mSelMat).BlendMode
 			Case Renderer.BLEND_SOLID
@@ -356,7 +367,7 @@ Public
 			End
 			DrawPanel(mMaterialRect.x + mBlendModeRect.x, mMaterialRect.y + mBlendModeRect.y, mBlendModeRect.width, mBlendModeRect.height, "Blend: " + blendStr, mFont)
 			DrawCheckbox(mMaterialRect.x + mCullingRect.x, mMaterialRect.y + mCullingRect.y, mCullingRect.width, mCullingRect.height, "Culling", mFont, currentModel.Material(mSelMat).Culling)
-			DrawCheckbox(mMaterialRect.x + mDepthWriteRect.x, mMaterialRect.y + mDepthWriteRect.y, mDepthWriteRect.width, mDepthWriteRect.height, "Depth Write", mFont, currentModel.Material(mSelMat).DepthWrite)
+			DrawCheckbox(mMaterialRect.x + mDepthWriteRect.x, mMaterialRect.y + mDepthWriteRect.y, mDepthWriteRect.width, mDepthWriteRect.height, "DepthWrite", mFont, currentModel.Material(mSelMat).DepthWrite)
 		End
 	End
 	
@@ -383,17 +394,18 @@ Private
 	'Field mYawRect				: Rect
 	'Field mRollRect				: Rect
 	Field mMaterialRect			: Rect
-	Field mSelMatRect			: Rect
+	Field mSelMatRect				: Rect
 	Field mDiffuseColorRect		: Rect
 	Field mDiffuseTexRect			: Rect
 	Field mNormalTexRect			: Rect
 	Field mShininessTexRect		: Rect
 	Field mLightmapRect				: Rect
 	Field mCubemapRect				: Rect
-	Field mRefractionCoefRect	: Rect
 	Field mOpacityRect				: Rect
-	Field mCubeOpacityRect		: Rect
 	Field mShininessRect			: Rect
+	Field mSpecularPowerRect	: Rect
+	Field mCubeOpacityRect		: Rect
+	Field mRefractionCoefRect	: Rect
 	Field mBlendModeRect			: Rect
 	Field mCullingRect				: Rect
 	Field mDepthWriteRect			: Rect

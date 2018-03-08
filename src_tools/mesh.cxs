@@ -57,6 +57,7 @@ Function MaterialSize:Int(mat:Material)
 	size += 1						'BlendMode
 	size += 1						'Flags
 	size += 4						'Shininess
+	size += 4						'Specular power
 	size += 4						'Cube opacity
 	size += 4						'RefractCoef
 	size += 1						'Used textures
@@ -125,7 +126,7 @@ Function WeightsSize:Int(surf:Surface)
 	Return 0
 End
 
-Function SurfaceSize:Int(surf:Surface, includeBones:Bool)
+Function SurfaceSize:Int(surf:Surface)
 	'Header
 	Local size:Int = 4								'NumIndices
 	size += 2										'NumVertices
@@ -139,12 +140,12 @@ Function SurfaceSize:Int(surf:Surface, includeBones:Bool)
 	size += ColorsSize(surf)						'Vertex colors
 	size += Tex0Size(surf)							'Vertex tex coords 0
 	size += Tex1Size(surf)							'Vertex tex coords 1
-	If includeBones Then size += WeightsSize(surf)	'Vertex bones
+	size += WeightsSize(surf)	'Vertex bones
 	
 	Return size
 End
 
-Function MeshSize:Int(mesh:Mesh, includeBones:Bool)
+Function MeshSize:Int(mesh:Mesh)
 	'Fixed header
 	Local size:Int = 4	'Id & version
 	size += 2			'Number of surfaces
@@ -152,7 +153,7 @@ Function MeshSize:Int(mesh:Mesh, includeBones:Bool)
 	'Surfaces
 	For Local i:Int = 0 Until mesh.NumSurfaces
 		size += MaterialSize(mesh.Material(i))
-		size += SurfaceSize(mesh.Surface(i), includeBones)
+		size += SurfaceSize(mesh.Surface(i))
 	Next
 	
 	Return size 
@@ -183,6 +184,9 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	'Shininess
 	stream.WriteFloat(mat.Shininess)
 	
+	'Specular Power
+	stream.WriteFloat(mat.SpecularPower)
+	
 	'Cube opacity
 	stream.WriteFloat(mat.CubeOpacity)
 	
@@ -210,7 +214,7 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	If mat.CubeTexture Then filename = StripDir(mat.CubeTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 End
 
-Function WriteSurfaceData:Void(stream:DataStream, surf:Surface, includeBones:Bool)
+Function WriteSurfaceData:Void(stream:DataStream, surf:Surface)
 	'Number of indices and vertices
 	stream.WriteInt(surf.NumTriangles * 3)
 	stream.WriteShort(surf.NumVertices)
@@ -222,7 +226,7 @@ Function WriteSurfaceData:Void(stream:DataStream, surf:Surface, includeBones:Boo
 	If ColorsSize(surf) > 0	Then vertexFlags |= 4
 	If Tex0Size(surf) > 0 Then vertexFlags |= 8
 	If Tex1Size(surf) > 0 Then vertexFlags |= 16
-	If includeBones And WeightsSize(surf) > 0 Then vertexFlags |= 32
+	If WeightsSize(surf) > 0 Then vertexFlags |= 32
 	stream.WriteByte(vertexFlags)
 	
 	'Indices
@@ -277,8 +281,8 @@ Function WriteSurfaceData:Void(stream:DataStream, surf:Surface, includeBones:Boo
 	Next
 End
 
-Function CreateMeshData:DataBuffer(mesh:Mesh, includeBones:Bool)
-	Local stream:DataStream = New DataStream(New DataBuffer(MeshSize(mesh, includeBones)))
+Function CreateMeshData:DataBuffer(mesh:Mesh)
+	Local stream:DataStream = New DataStream(New DataBuffer(MeshSize(mesh)))
 	
 	'Id & version
 	stream.WriteByte("M"[0])
@@ -292,7 +296,7 @@ Function CreateMeshData:DataBuffer(mesh:Mesh, includeBones:Bool)
 	'Surfaces
 	For Local i:Int = 0 Until mesh.NumSurfaces
 		WriteMaterialData(stream, mesh.Material(i))
-		WriteSurfaceData(stream, mesh.Surface(i), includeBones)
+		WriteSurfaceData(stream, mesh.Surface(i))
 	Next
 	
 	Return stream.Data
@@ -458,8 +462,8 @@ Function CreateAnimationData:DataBuffer(mesh:Mesh)
 End
 #End
 
-Function SaveMesh:Void(mesh:Mesh, filename:String, includeBones:Bool)
-	Local meshData:DataBuffer = CreateMeshData(mesh, includeBones)
+Function SaveMesh:Void(mesh:Mesh, filename:String)
+	Local meshData:DataBuffer = CreateMeshData(mesh)
 	Local fileStream:FileStream = New FileStream(filename, "w")
 	fileStream.WriteAll(meshData, 0, meshData.Length)
 	fileStream.Close()

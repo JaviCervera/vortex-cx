@@ -21,7 +21,7 @@ Import surface
 Import texture
 
 Public
-Class World Final
+Class World
 	Function Init:Bool(numLights:Int = 4, numBones:Int = 75)
 		If numLights <= 0 Then numLights = 1
 		If numBones <= 0 Then numBones = 1

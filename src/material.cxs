@@ -3,7 +3,6 @@ Strict
 Private
 Import color
 Import math3d
-Import renderlist
 Import renderer
 Import renderstate
 Import shader
@@ -11,13 +10,13 @@ Import texture
 
 Public
 
-Class Material Final
+Class Material
 Public
 	Method New(colorTex:Texture = Null, shader:Shader = Null)
 		mShader = shader
 		mColor = color.Color.WHITE
 		mColorTex = colorTex
-		mShininess = 0
+		mShininess = 0.001
 		mCubeOpacity = 0.5
 		mRefractCoef = -1
 		mBlendMode = Renderer.BLEND_SOLID
@@ -26,6 +25,7 @@ Public
 		mDepthWrite = True
 		mCastShadows = True
 		mReceiveShadows = True
+		mSpecularPower = 64
 		Mat4Identity(mTextureMatrix)
 	End
 	
@@ -43,7 +43,7 @@ Public
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mShader = other.mShader And mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mShininessTex = other.mShininessTex And mLightTex = other.mLightTex And mCubeTex = other.mCubeTex And mShininess = other.mShininess And mCubeOpacity = other.mCubeOpacity And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mLighting = other.mLighting And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows And mReceiveShadows = other.mReceiveShadows
+		If mShader = other.mShader And mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mShininessTex = other.mShininessTex And mLightTex = other.mLightTex And mCubeTex = other.mCubeTex And mShininess = other.mShininess And mSpecularPower = other.mSpecularPower And mCubeOpacity = other.mCubeOpacity And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mLighting = other.mLighting And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows And mReceiveShadows = other.mReceiveShadows
 			Return True
 		Else
 			Return False
@@ -60,6 +60,7 @@ Public
 		mLightTex = other.mLightTex
 		mCubeTex = other.mCubeTex
 		mShininess = other.mShininess
+		mSpecularPower = other.mSpecularPower
 		mCubeOpacity = other.mCubeOpacity
 		mRefractCoef = other.mRefractCoef
 		mBlendMode = other.mBlendMode
@@ -144,6 +145,14 @@ Public
 		Return mShininess
 	End
 	
+	Method SpecularPower:Void(power:Float) Property
+		mSpecularPower = power
+	End
+	
+	Method SpecularPower:Float() Property
+		Return mSpecularPower
+	End
+	
 	Method CubeOpacity:Void(opacity:Float) Property
 		opacity = Clamp(opacity, 0.0, 1.0)
 		mCubeOpacity = opacity
@@ -223,6 +232,7 @@ Public
 		'Set renderer settings
 		Renderer.Color(mColor)
 		RenderState.Shininess = mShininess
+		RenderState.SpecularPower = mSpecularPower
 		RenderState.CubeOpacity = mCubeOpacity
 		RenderState.RefractCoef = mRefractCoef
 		Renderer.BlendMode(mBlendMode)
@@ -280,6 +290,7 @@ Private
 	Field mLightTex				: Texture
 	Field mCubeTex				: Texture
 	Field mShininess			: Float
+	Field mSpecularPower	: Float
 	Field mCubeOpacity		: Float
 	Field mRefractCoef		: Float
 	Field mBlendMode			: Int

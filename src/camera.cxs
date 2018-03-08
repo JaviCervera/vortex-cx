@@ -13,7 +13,7 @@ Import world
 Public
 Import entity
 
-Class Camera Extends Entity Final
+Class Camera Extends Entity
 	Const CLEAR_NONE	: Int = 0
 	Const CLEAR_COLOR	: Int = 1
 	Const CLEAR_SKYBOX	: Int = 2
@@ -157,7 +157,13 @@ Class Camera Extends Entity Final
 		mFramebuffer = fb
 	End
 	
+	Function Current:Camera()
+		Return mCurrent
+	End
+	
 	Method _PrepareForRender:Void()
+		mCurrent = Self
+	
 		'Set framebuffer
 		If mFramebuffer
 			mFramebuffer.Use()
@@ -190,6 +196,7 @@ Class Camera Extends Entity Final
 		End
 	End
 Private
+	Global mCurrent				: Camera
 	Field mVX					: Int
 	Field mVY					: Int
 	Field mVW					: Int

@@ -7,7 +7,7 @@ Import math3d
 Import renderer
 
 Public
-Class Surface Final
+Class Surface
 Public
 	Method New(mode:Int = Renderer.MODE_TRIANGLES)
 		mMode = mode

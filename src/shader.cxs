@@ -9,7 +9,7 @@ Import shader_code
 
 Private
 
-Class ShaderUniforms Final
+Class ShaderUniforms
 Public
 	Field mModelViewProjection:Int
 	Field mModelView:Int
@@ -36,6 +36,7 @@ Public
 	Field mMaterialColor:Int
 	Field mAmbient:Int
 	Field mMaterialShininess:Int
+	Field mMaterialSpecularPower:Int
 	Field mCubeOpacity:Int
 	Field mRefractCoef:Int
 	Field mFogData:Int
@@ -67,8 +68,9 @@ Public
 		mMaterialColor = Renderer.ShaderLocation(shader, "MaterialColor")
 		mAmbient = Renderer.ShaderLocation(shader, "Ambient")
 		mMaterialShininess = Renderer.ShaderLocation(shader, "MaterialShininess")
+		mMaterialSpecularPower = Renderer.ShaderLocation(shader, "MaterialSpecularPower")
 		mCubeOpacity = Renderer.ShaderLocation(shader, "CubeOpacity")
-		mRefractCoef = Renderer.ShaderLocation(shader, "refractCoef")
+		mRefractCoef = Renderer.ShaderLocation(shader, "MaterialRefractCoef")
 		mFogData = Renderer.ShaderLocation(shader, "Fog.Data")
 		mFogColor = Renderer.ShaderLocation(shader, "Fog.Color")
 		mShadowsEnabled = Renderer.ShaderLocation(shader, "ShadowsEnabled")
@@ -162,6 +164,9 @@ Public
 	
 		'Set shininess
 		If mMaterialShininess <> -1 Then Renderer.SetShaderFloat(mMaterialShininess, RenderState.Shininess)
+		
+		'Set specular power
+		If mMaterialSpecularPower <> -1 Then Renderer.SetShaderFloat(mMaterialSpecularPower, RenderState.SpecularPower)
 		
 		'Set cube opacity
 		If mCubeOpacity <> -1 Then Renderer.SetShaderFloat(mCubeOpacity, RenderState.CubeOpacity)

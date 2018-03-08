@@ -10,7 +10,7 @@ Import world
 Public
 Import entity
 
-Class Light Extends Entity Final
+Class Light Extends Entity
 	'Const TYPE_DIRECTIONAL	: Int = 0
 	'Const TYPE_POINT		: Int = 1
 	

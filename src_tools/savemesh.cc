@@ -44,6 +44,7 @@ void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights
     f.write(reinterpret_cast<const char*>(&blend), sizeof(blend));
     f.write(reinterpret_cast<const char*>(&flags), sizeof(flags));
     f.write(reinterpret_cast<const char*>(&surf.material.shininess), sizeof(surf.material.shininess));
+    f.write(reinterpret_cast<const char*>(&surf.material.specular_power), sizeof(surf.material.specular_power));
     f.write(reinterpret_cast<const char*>(&cubeOpacity), sizeof(cubeOpacity));
     f.write(reinterpret_cast<const char*>(&refrCoef), sizeof(refrCoef));
     f.write(reinterpret_cast<const char*>(&usedTexs), sizeof(usedTexs));
@@ -70,10 +71,6 @@ void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights
     f.write(reinterpret_cast<const char*>(&vertexFlags), sizeof(vertexFlags));
     f.write(reinterpret_cast<const char*>(&surf.indices[0]), numIndices * sizeof(surf.indices[0]));
     for ( int v = 0; v < numVertices; ++v ) {
-      unsigned short b0 = static_cast<unsigned short>(surf.vertices[v].bones[0]);
-      unsigned short b1 = static_cast<unsigned short>(surf.vertices[v].bones[1]);
-      unsigned short b2 = static_cast<unsigned short>(surf.vertices[v].bones[2]);
-      unsigned short b3 = static_cast<unsigned short>(surf.vertices[v].bones[3]);
       f.write(reinterpret_cast<const char*>(&surf.vertices[v].x), sizeof(float));
       f.write(reinterpret_cast<const char*>(&surf.vertices[v].y), sizeof(float));
       f.write(reinterpret_cast<const char*>(&surf.vertices[v].z), sizeof(float));
@@ -88,6 +85,10 @@ void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights
       f.write(reinterpret_cast<const char*>(&surf.vertices[v].u1), sizeof(float));
       f.write(reinterpret_cast<const char*>(&surf.vertices[v].v1), sizeof(float));
       if ( exportWeights ) {
+        unsigned short b0 = static_cast<unsigned short>(surf.vertices[v].bones[0]);
+        unsigned short b1 = static_cast<unsigned short>(surf.vertices[v].bones[1]);
+        unsigned short b2 = static_cast<unsigned short>(surf.vertices[v].bones[2]);
+        unsigned short b3 = static_cast<unsigned short>(surf.vertices[v].bones[3]);
         f.write(reinterpret_cast<const char*>(&b0), sizeof(b0));
         f.write(reinterpret_cast<const char*>(&b1), sizeof(b1));
         f.write(reinterpret_cast<const char*>(&b2), sizeof(b2));

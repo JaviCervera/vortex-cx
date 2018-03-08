@@ -9,7 +9,7 @@ Import renderer
 Import texture
 
 Public
-Class Cache Final
+Class Cache
 Public
 	Function _Push:Void()
 		mStack = mStack.Resize(mStack.Length() + 1)

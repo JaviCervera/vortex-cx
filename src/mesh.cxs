@@ -14,7 +14,7 @@ Import surface
 Import texture
 
 Public
-Class Mesh Final
+Class Mesh
 Public
 	Method New()
 		mFilename = ""
@@ -597,6 +597,7 @@ Public
 			If flags & 1 Then mat.Culling = True Else mat.Culling = False
 			If flags & 2 Then mat.DepthWrite = True Else mat.DepthWrite = False
 			mat.Shininess = stream.ReadFloat()
+			mat.SpecularPower = stream.ReadFloat()
 			mat.CubeOpacity = stream.ReadFloat()
 			mat.RefractionCoef = stream.ReadFloat()
 			

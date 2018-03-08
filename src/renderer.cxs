@@ -21,7 +21,7 @@ Const GLSL_VERSION : String = ""
 
 Public
 
-Class Renderer Final
+Class Renderer
 Public
 	Const BLEND_SOLID:Int = 0
 	Const BLEND_ALPHA:Int = 1

@@ -6,7 +6,7 @@ It is inspired by the design of the Blitz3D engine, but it uses many object orie
 >>> Coordinate system and rotations
 Vortex uses a left handed coordinate system where X points right, Y points up, and Z points away from the viewer.
 
-Rotations are using euler angles expressed in degrees.
+Rotations use euler angles expressed in degrees.
 
 >>> Screen coordinates
 In Vortex, coordinates 0,0 represent the top left corner of the screen, while coordinates DeviceWidth(), DeviceHeight() represent the bottom right. This is a common convention in many graphics libraries (like Mojo).
@@ -632,10 +632,17 @@ Sets the opacity of the material, with 0 being completely transparent and 1 bein
 Returns the opacity of the material, in the range 0 (transparent) .. 1 (opaque).
 
 # Method Shininess:Void(shininess:Float) Property
-Sets the specular shininess of the material. A value of 0 will disable specular reflections entirely, whereas a value in the range (0,1] will indicate the strength of the specular reflection.
+Sets the shininess of the material. A value of 0 will disable specular reflections entirely, whereas a value in the range (0,1] will indicate the strength of the specular reflection.
 
 # Method Shininess:Float() Property
-Returns the specular shininess of the material.
+Returns the shininess of the material.
+
+# Method SpecularPower:Void(power:Float) Property
+Returns the specular power of the material.
+	
+# Method SpecularPower:Float() Property
+Sets the specular power of the material.
+This value is multiplied by the material's shininess to calculate the strength of the specular reflection.
 
 # Method CubeOpacity:Void(opacity:Float) Property
 Sets the opacity of the cubemap. The default opacity is 0.5.
