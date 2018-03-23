@@ -20,10 +20,10 @@ Public
 	
 		'Init vortex
 		If Not World.Init() Then EndApp()
-		Print "Vendor name: " + Stats.VendorName()
-		Print "Renderer name: " + Stats.RendererName()
-		Print "API version name: " + Stats.APIVersionName()
-		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
 		mFont = Font.Load("system.fnt.dat")
@@ -69,7 +69,7 @@ Public
 		mCam.ViewportHeight = DeviceHeight()
 		
 		'Rotate triangle
-		mModel.Yaw += 64 * Stats.DeltaTime()
+		mModel.Yaw += 64 * World.DeltaTime()
 		
 		Return False
 	End
@@ -78,16 +78,16 @@ Public
 		'Render world
 		World.Render()
 		
-		'Setup renderer for 2D graphics
-		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		'Setup graphics for 2D
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Renderer.Color(Color.BLACK)
-		Local text:String = Stats.FPS() + " FPS"
+		Graphics.Color(Color.BLACK)
+		Local text:String = Graphics.Fps() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
-		text = "Render calls: " + Stats.RenderCalls()
+		text = "Render calls: " + Graphics.RenderCalls()
 		mFont.Draw(2, 18, text)
 	
 		Return False

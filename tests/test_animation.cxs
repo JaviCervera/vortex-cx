@@ -1,3 +1,6 @@
+'NOTE: Do not use skinned animation! It has some bugs that need to be fixed.
+'Check  the vertexanimation test to see how to use animation in the current version.
+
 Strict
 
 #GLFW_WINDOW_TITLE="Vortex2 Animation Test"
@@ -20,10 +23,10 @@ Public
 	
 		'Init vortex
 		If Not World.Init() Then EndApp()
-		Print "Vendor name: " + Stats.VendorName()
-		Print "Renderer name: " + Stats.RendererName()
-		Print "API version name: " + Stats.APIVersionName()
-		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
 		mFont = Font.Load("system.fnt.dat")
@@ -73,17 +76,17 @@ Public
 		'Render world
 		World.Render()
 		
-		'Setup renderer for 2D graphics
-		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.Color(Color.WHITE)
+		'Setup graphics for 2D
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Graphics.Color(Color.WHITE)
 		'mFont.Draw(4, DeviceHeight() - 20, "Time: " + Int(mDwarfModel.AnimTime))
 		
 		'Draw FPS
-		Local text:String = Stats.FPS() + " FPS"
+		Local text:String = Graphics.Fps() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
-		text = "Render calls: " + Stats.RenderCalls()
+		text = "Render calls: " + Graphics.RenderCalls()
 		mFont.Draw(2, 18, text)
 	
 		Return False

@@ -41,7 +41,7 @@ Function LoadMesh:Mesh(filename:String, animMode:Int)
 	
 	'Load native mesh
 	Local baseName:String = StripExt(StripExt(filename))
-	Local mesh:Mesh = Mesh.Load(filename, baseName + ".skl.dat", Renderer.FILTER_TRILINEAR, False)
+	Local mesh:Mesh = Mesh.Load(filename, baseName + ".skl.dat", Texture.FILTER_TRILINEAR, False)
 	If mesh
 		If Not mesh.LoadAnimation(baseName + ".anm.dat") Then mesh.LoadVertexAnimation(baseName + ".vta.dat")
 	End

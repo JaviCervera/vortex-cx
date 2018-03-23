@@ -29,10 +29,10 @@ Public
 	
 		'Init vortex
 		If Not World.Init() Then EndApp()
-		Print "Vendor name: " + Stats.VendorName()
-		Print "Renderer name: " + Stats.RendererName()
-		Print "API version name: " + Stats.APIVersionName()
-		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Create points
 		mP0 = [0.0, 0, -16]
@@ -50,7 +50,7 @@ Public
 		mSphere = New Model(Mesh.Load("sphere.msh.dat"))
 		
 		'Create line mesh
-		Local lineSurf:Surface = New Surface(Renderer.MODE_LINES)
+		Local lineSurf:Surface = New Surface(Surface.MODE_LINES)
 		lineSurf.AddVertex(mP0[0], mP0[1], mP0[2], 0, 0, 0, Color.WHITE, 0, 0)
 		lineSurf.AddVertex(mP1[0], mP1[1], mP1[2], 0, 0, 0, Color.WHITE, 0, 0)
 		lineSurf.AddIndex(0)

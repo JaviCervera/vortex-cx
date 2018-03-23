@@ -20,10 +20,10 @@ Public
 	
 		'Init vortex
 		If Not World.Init() Then EndApp()
-		Print "Vendor name: " + Stats.VendorName()
-		Print "Renderer name: " + Stats.RendererName()
-		Print "API version name: " + Stats.APIVersionName()
-		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
 		mFont = Font.Load("system.fnt.dat")
@@ -77,10 +77,10 @@ Public
 	
 		'Rotate cubes
 		For Local cube:Model = Eachin mCubes
-			cube.Turn(0, 32 * Stats.DeltaTime(), 0)
+			cube.Turn(0, 32 * World.DeltaTime(), 0)
 		Next
 		
-		'Switch lighiting mode and separate depth pass
+		'Switch lighting mode and separate depth pass
 		If KeyHit(KEY_SPACE) Then World.SeparateDepthPass(Not World.SeparateDepthPass())
 		
 		Return False
@@ -92,12 +92,12 @@ Public
 		World.Render()
 		renderTime = Millisecs() - renderTime
 		
-		'Setup renderer for 2D graphics
-		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		'Setup graphics for 2D
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Renderer.Color(Color.WHITE)
-		Local text:String = Stats.FPS() + " FPS"
+		Graphics.Color(Color.WHITE)
+		Local text:String = Graphics.Fps() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw render time
@@ -105,7 +105,7 @@ Public
 		mFont.Draw(2, 18, text)
 		
 		'Draw RenderCalls
-		text = "Render calls: " + Stats.RenderCalls()
+		text = "Render calls: " + Graphics.RenderCalls()
 		mFont.Draw(2, 34, text)
 		
 		'Draw depth mode

@@ -21,10 +21,10 @@ Public
 	
 		'Init vortex
 		If Not World.Init() Then EndApp()
-		Print "Vendor name: " + Stats.VendorName()
-		Print "Renderer name: " + Stats.RendererName()
-		Print "API version name: " + Stats.APIVersionName()
-		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
 		mFont = Font.Load("system.fnt.dat")
@@ -58,7 +58,7 @@ Public
 		mCam.ViewportHeight = DeviceHeight()
 		
 		'Update camera rotation
-		mValue += 0.5 * Stats.DeltaTime()
+		mValue += 0.5 * World.DeltaTime()
 		mCam.Yaw = 30 * Sinr(mValue)
 		
 		Return False
@@ -68,14 +68,14 @@ Public
 		'Render world
 		World.Render()
 		
-		'Setup renderer for 2D graphics
-		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		'Setup graphics for 2D
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw
 		Local text:String = "Van Gogh Room by ruslans3d is licensed under CC Attribution"
-		Renderer.Color(Color.RGB(15, 15, 15, 200))
-		Renderer.DrawRect(0, 8, DeviceWidth(), 20)
-		Renderer.Color(Color.RGB(100, 120, 153))
+		Graphics.Color(Color.RGB(15, 15, 15, 200))
+		Graphics.DrawRect(0, 8, DeviceWidth(), 20)
+		Graphics.Color(Color.RGB(100, 120, 153))
 		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 8, text)
 	
 		Return False

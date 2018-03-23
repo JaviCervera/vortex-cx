@@ -5,7 +5,7 @@ Class TestApp Extends App
 	Method OnCreate:Int()
 		'Init Vortex
 		If Not World.Init()
-			Print Stats.ShaderError()
+			'Print Graphics.ShaderError()
 			EndApp()
 		End
 		
@@ -31,7 +31,7 @@ Class TestApp Extends App
 		World.Update()
 
 		'Rotate cube
-		mCube.Turn(32 * Stats.DeltaTime(), 32 * Stats.DeltaTime(), 0)
+		mCube.Turn(32 * World.DeltaTime(), 32 * World.DeltaTime(), 0)
 	End
 	
 	Method OnRender:Int()
@@ -39,14 +39,14 @@ Class TestApp Extends App
 		mFramebuffer.Use()
 		
 		'Draw 2D stuff
-		Renderer.Setup2D(0, 0, 512, 512)
-		Renderer.ClearColorBuffer(Color.WHITE)
-		Renderer.Color(Color.ORANGE)
-		Renderer.DrawRect(Rnd(0, 512), Rnd(0, 512), Rnd(0, 512), Rnd(0, 512))
-		Renderer.Color(Color.BROWN)
-		Renderer.DrawRect(Rnd(0, 512), Rnd(0, 512), Rnd(0, 512), Rnd(0, 512))
-		Renderer.Color(Color.GREEN)
-		Renderer.DrawEllipse(Rnd(0, 512), Rnd(0, 512), Rnd(0, 512), Rnd(0, 512))
+		Graphics.Setup2D(0, 0, 512, 512)
+		Graphics.ClearColorBuffer(Color.WHITE)
+		Graphics.Color(Color.ORANGE)
+		Graphics.DrawRect(Rnd(0, 512), Rnd(0, 512), Rnd(0, 512), Rnd(0, 512))
+		Graphics.Color(Color.BROWN)
+		Graphics.DrawRect(Rnd(0, 512), Rnd(0, 512), Rnd(0, 512), Rnd(0, 512))
+		Graphics.Color(Color.GREEN)
+		Graphics.DrawEllipse(Rnd(0, 512), Rnd(0, 512), Rnd(0, 512), Rnd(0, 512))
 		
 		'Render back to screen
 		Framebuffer.UseScreen()

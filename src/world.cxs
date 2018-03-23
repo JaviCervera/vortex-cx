@@ -8,15 +8,16 @@ Import collision
 Import color
 Import entity
 Import framebuffer
+Import graphics
 Import light
 Import listener
 Import material
 Import math3d
 Import mesh
+Import mojo.app
 Import renderer
 Import renderstate
 Import shader
-Import stats
 Import surface
 Import texture
 
@@ -27,7 +28,6 @@ Class World
 		If numBones <= 0 Then numBones = 1
 		If Renderer.Init(numLights, numBones)
 			Cache._Push()
-			Stats._Init()
 			mSkybox = Mesh.CreateSkybox()
 			mSkybox.Material(0).Shader = Shader._Skybox()
 			mSkybox.Material(0).DepthWrite = False
@@ -40,14 +40,17 @@ Class World
 			FogColor(Color.BLACK)
 			SeparateDepthPass(False)
 			Shadows(False)
+			mLastMillisecs = Millisecs()
 			Return True
 		Else
+			mLastMillisecs = Millisecs()
 			Return False
 		End
 	End
 	
 	Function Update:Void()
-		Stats._UpdateDeltaTime()
+		mDeltaTime = (Millisecs() - mLastMillisecs) / 1000.0
+		mLastMillisecs = Millisecs()
 		For Local e:Entity = Eachin mEnabledEntities
 			e._Update()
 		Next
@@ -56,7 +59,7 @@ Class World
 	
 	Function Render:Void()
 		'Update screen fps
-		Stats._UpdateFPS()
+		Graphics._UpdateFPS()
 		Local numRenderCalls:Int = 0
 		
 		'Is there sun light?
@@ -175,8 +178,12 @@ Class World
 			End
 			
 			'Set num render calls
-			Stats._SetRenderCalls(numRenderCalls)
+			Graphics._SetRenderCalls(numRenderCalls)
 		End
+	End
+	
+	Function DeltaTime:Float()
+		Return mDeltaTime
 	End
 
 	Function SkyboxTexture:Texture()
@@ -290,7 +297,7 @@ Class World
 			If shadowTexSize <= 0 Then shadowTexSize = 1024
 			mShadowsRange = range
 			mShadowsSunDist = sunDistance
-			shadowTexSize = Min(shadowTexSize, Stats.MaxTextureSize())
+			shadowTexSize = Min(shadowTexSize, Graphics.MaxTextureSize())
 			mFramebuffer = New Framebuffer(shadowTexSize, shadowTexSize, True)
 		End
 	End
@@ -372,6 +379,8 @@ Class World
 		Return mEntities
 	End
 Private
+	Global mLastMillisecs				: Int
+	Global mDeltaTime						: Float
 	Global mEntities						: List<Entity> = New List<Entity>
 	Global mEnabledEntities			: List<Entity> = New List<Entity>
 	Global mVisibleEntities			: List<Entity> = New List<Entity>

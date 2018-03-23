@@ -60,9 +60,9 @@ Public
 	End
 	
 	Method Render:Void(currentFont:Font)
-		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.BlendMode(Renderer.BLEND_ALPHA)
-		Renderer.ClearColorBuffer(Color.RGB(50, 50, 50))
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Graphics.BlendMode(Graphics.BLEND_ALPHA)
+		Graphics.ClearColorBuffer(Color.RGB(50, 50, 50))
 		If currentFont
 			DrawPanel(mFontRect, "Font: " + StripDir(StripExt(StripExt(currentFont.Filename))), mFont)
 		Else
@@ -78,12 +78,12 @@ Public
 			Local rectWidth:Int = Min(currentFont.Texture.Width, 512)
 			Local rectHeight:Int = Min(currentFont.Texture.Height, 512)
 		
-			Renderer.Color(Color.WHITE)
+			Graphics.Color(Color.WHITE)
 			currentFont.Texture.Draw((DeviceWidth() - rectWidth)/2, (DeviceHeight() - rectHeight)/2, rectWidth, rectHeight)
 			
-			Renderer.Color(Color.RGB(25, 25, 25))
-			Renderer.DrawRect(4, 40, DeviceWidth() - 8, currentFont.TextHeight(mDisplayText) * 2)
-			Renderer.Color(Color.WHITE)
+			Graphics.Color(Color.RGB(25, 25, 25))
+			Graphics.DrawRect(4, 40, DeviceWidth() - 8, currentFont.TextHeight(mDisplayText) * 2)
+			Graphics.Color(Color.WHITE)
 			currentFont.Draw(8, 40, mDisplayText)
 		End
 	End

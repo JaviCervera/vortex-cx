@@ -23,10 +23,10 @@ Public
 	
 		'Init vortex
 		If Not World.Init() Then EndApp()
-		Print "Vendor name: " + Stats.VendorName()
-		Print "Renderer name: " + Stats.RendererName()
-		Print "API version name: " + Stats.APIVersionName()
-		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
 		mFont = Font.Load("system.fnt.dat")
@@ -64,7 +64,7 @@ Public
 		mCam.ViewportHeight = DeviceHeight()
 		
 		'Update model
-		mModel.Yaw += 32 * Stats.DeltaTime()
+		mModel.Yaw += 32 * World.DeltaTime()
 		
 		Return False
 	End
@@ -73,12 +73,12 @@ Public
 		'Render world
 		World.Render()
 		
-		'Setup renderer for 2D graphics
-		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		'Setup graphics for 2D
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw mesh credits
 		Local text:String = "Hover Bike by Ptis is licensed under CC Attribution-NonCommercial"
-		Renderer.Color(Color.BLACK)
+		Graphics.Color(Color.BLACK)
 		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 8, text)
 		
 		'Draw shader type
@@ -86,7 +86,7 @@ Public
 		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, DeviceHeight() - mFont.TextHeight(text) - 8, text)
 		
 		'Draw FPS
-		text = Stats.FPS() + " FPS"
+		text = Graphics.Fps() + " FPS"
 		mFont.Draw(8, 8, text)
 	
 		Return False

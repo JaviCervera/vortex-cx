@@ -18,10 +18,10 @@ Class TestApp Extends App
 	
 		'Init vortex
 		If Not World.Init() Then EndApp()
-		Print "Vendor name: " + Stats.VendorName()
-		Print "Renderer name: " + Stats.RendererName()
-		Print "API version name: " + Stats.APIVersionName()
-		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Create framebuffer
 		mFramebuffer = New Framebuffer(512, 512, False)
@@ -54,7 +54,7 @@ Class TestApp Extends App
 		
 		'Create Mojo2 stuff
 		mCanvas = New Canvas
-		vortex.Renderer.SetupMojo()	'Call this to capture Mojo's currently bound buffers
+		Graphics.SetupMojo()	'Call this to capture Mojo's currently bound buffers
 		mCanvas.SetAmbientLight(0.2, 0.2, 0.2)
 		mTile = Image.Load("t3.png", 0, 0)
 
@@ -87,7 +87,7 @@ Class TestApp Extends App
 		World.Render()
 		
 		'Prepare Mojo rendering to the framebuffer
-		vortex.Renderer.SetupMojo()
+		Graphics.SetupMojo()
 		mFramebuffer.Use()
 		
 		'Render to framebuffer with Mojo
@@ -110,11 +110,11 @@ Class TestApp Extends App
 		
 		'Draw text with mojo
 		mCanvas.SetProjection2d(0, DeviceWidth(), 0, DeviceHeight()) 'now we are rendering to the screen, so top and bottom are set correctly
-		Local text:String = Stats.FPS() + " FPS"
+		Local text:String = Graphics.Fps() + " FPS"
 		mCanvas.SetBlendMode(BlendMode.Alpha)
 		mCanvas.SetColor(0, 0, 0)
 		mCanvas.DrawText(text, 2, 2)
-		text = "Render calls: " + Stats.RenderCalls()
+		text = "Render calls: " + Graphics.RenderCalls()
 		mCanvas.DrawText(text, 2, 18)
 		
 		'Flush pending rendering operations

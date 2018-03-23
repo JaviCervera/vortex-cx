@@ -39,6 +39,10 @@ Public
 	Function ChangeAlpha:Int(color:Int, newAlpha:Int)
 		Return (newAlpha Shl 24) | (color & $00FFFFFF)
 	End
+	
+	Function Multiply:Int(color:Int, factor:Float)
+		Return RGB(Int(Red(color) * factor), Int(Green(color) * factor), Int(Blue(color) * factor), Alpha(color))
+	End
 Private
 	Method New()
 	End

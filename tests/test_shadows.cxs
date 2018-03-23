@@ -20,10 +20,10 @@ Public
 	
 		'Init vortex
 		If Not World.Init() Then EndApp()
-		Print "Vendor name: " + Stats.VendorName()
-		Print "Renderer name: " + Stats.RendererName()
-		Print "API version name: " + Stats.APIVersionName()
-		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
 		mFont = Font.Load("system.fnt.dat")
@@ -64,7 +64,7 @@ Public
 		'mModel.Yaw -= 32 * Stats.DeltaTime()
 		
 		'Update sun rotation
-		World.SunRotation(World.SunPitch(), World.SunYaw() + 32 * Stats.DeltaTime())
+		World.SunRotation(World.SunPitch(), World.SunYaw() + 32 * World.DeltaTime())
 		
 		Return False
 	End
@@ -73,19 +73,19 @@ Public
 		'Render world
 		World.Render()
 		
-		'Setup renderer for 2D graphics
-		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		'Setup graphics for 2D
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Render thumbnail of depth view (the closer a fragment is to camera, the darker it looks)
 		'World.DepthTexture().Draw(DeviceWidth() - DeviceWidth()/3 - 4, DeviceHeight() - DeviceHeight()/3 - 4, DeviceWidth()/3, -DeviceHeight()/3)
 		
 		'Draw FPS
-		Renderer.Color(Color.YELLOW)
-		Local text:String = Stats.FPS() + " FPS"
+		Graphics.Color(Color.YELLOW)
+		Local text:String = Graphics.Fps() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
-		text = "Render calls: " + Stats.RenderCalls()
+		text = "Render calls: " + Graphics.RenderCalls()
 		mFont.Draw(2, 18, text)
 	
 		Return False

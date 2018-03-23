@@ -120,7 +120,7 @@ Returns the Z coordinate of the specified scale keyframe. The value of `index` g
 
 # Class Camera Extends Entity
 
-A camera is a type of `Entity` that represents the player in the 3D world. It has a position and rotation, a viewport that will indicate the region of the screen where the camera will be renderer, and other properties like the clear mode and projection settings.
+A camera is a type of `Entity` that represents the player in the 3D world. It has a position and rotation, a viewport that will indicate the region of the screen where the camera will be rendered, and other properties like the clear mode and projection settings.
 
 # Const CLEAR_NONE : Int
 # Const CLEAR_COLOR : Int
@@ -668,10 +668,10 @@ Sets the blend mode of the material. This defines how the final look of the geom
 It takes one of the following values:
 
 | Value             | Meaning
-| Renderer.BLEND_SOLID | The object is solid and it is not blended with the background. This is the default value.
-| Renderer.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
-| Renderer.BLEND_ADD   | The computed color of the material is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
-| Renderer.BLEND_MUL   | The computed color of the material is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
+| Graphics.BLEND_SOLID | The object is solid and it is not blended with the background. This is the default value.
+| Graphics.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
+| Graphics.BLEND_ADD   | The computed color of the material is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
+| Graphics.BLEND_MUL   | The computed color of the material is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
 
 # Method BlendMode:Int() Property
 Returns the blend mode of the material.
@@ -695,7 +695,7 @@ Enables or disables depth buffer writing. When it is disabled, other geometry fu
 Returns whether depth buffer writing is enabled.
 
 # Method CastShadows:Void(enable:Bool) Property
-Enables or disables shadow casting. It is enabled by default. Only used if blend mode is `Renderer.BLEND_SOLID`.
+Enables or disables shadow casting. It is enabled by default. Only used if blend mode is `Graphics.BLEND_SOLID`.
 
 # Method CastShadows:Bool() Property
 Returns whether shadow casting is enabled.
@@ -720,7 +720,7 @@ Creates a new empty mesh.
 # Method New(other:Mesh)
 Creates a new mesh that is a copy of the mesh passed as parameter.
 
-# Function Load(filename:String, skeletonFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+# Function Load(filename:String, skeletonFilename:String = "", texFilter:Int = Texture.FILTER_TRILINEAR, cache:Bool = True)
 Loads and returns the mesh with the specified filename, or `Null` if the mesh could not be loaded.
 You can also specify a skeleton file that will be loaded with the mesh (it is possible to load it afterwards with `Mesh.LoadSkeleton`).
 If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one mesh more than once).
@@ -874,9 +874,10 @@ Sets the last frame in the animation sequence.
 
 
 
-# Class Renderer
+# Class Graphics
 
-The Renderer is the class used to draw graphics on the screen in immediate mode, and the direct link with the underlying rendering API (OpenGL). For most stuff, you do not need to deal with this class directly, but for example if you want to draw your 2D graphics above the 3D scene, after drawing all your 3D geometry, you must call `Renderer.Setup2D` to setup the context for 2D drawing, and then perform your drawing operations.
+`Graphics` is the class used to draw graphics on the screen in immediate mode.
+For example, if you want to draw your 2D graphics above the 3D scene, after drawing all your 3D geometry, you must call `Graphics.Setup2D` to setup the context for 2D drawing, and then perform your drawing operations.
 
 # Function Setup2D:Void(x:Int, y:Int, width:Int, height:Int)
 Setups the context for 2D drawing. The parameters define the rectangle within the screen where drawing will take place. You must call this function before doing any 2D drawing.
@@ -888,28 +889,52 @@ Setups the context for drawing with Mojo2.
 Sets the blend mode to use when painting. Possible values are:
 
 | Value       | Meaning
-| Renderer.BLEND_SOLID | The object is solid and it is not blended with the background. This is the default value.
-| Renderer.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
-| Renderer.BLEND_ADD   | The computed color is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
-| Renderer.BLEND_MUL   | The computed color is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
+| Graphics.BLEND_SOLID | The object is solid and it is not blended with the background. This is the default value.
+| Graphics.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
+| Graphics.BLEND_ADD   | The computed color is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
+| Graphics.BLEND_MUL   | The computed color is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
 
 # Function Color:Void(color:Int)
 Sets the drawing color.
 
 # Function ClearColorBuffer:Void(color:Int = Color.BLACK)
-Clears the background (actually, the area defined when the call to `Renderer.Setup2D` was made) with the specified color.
+Clears the background (actually, the area defined when the call to `Graphics.Setup2D` was made) with the specified color.
 
-# Function DrawPoint:Void(x:Float, y:Float, z:Float)
-Draws a point at the specified coordinates. For 2D graphics, `z` should be 0.
+# Function DrawLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)
+Draws a line that goes from x1, y1 to x2, y2.
 
-# Function DrawLine:Void(x1:Float, y1:Float, z1:Float, x2:Float, y2:Float, z2:Float)
-Draws a line that goes from x1, y1 to x2, y2. For 2D graphics, both `z1` and `z2` should be 0.
+# Function DrawRect:Void(x:Float, y:Float, width:Float, height:Float)
+Draws a filled rectangle at the specified coordinates, with the given width and height.
 
-# Function DrawRect:Void(x:Float, y:Float, z:Float, width:Float, height:Float)
-Draws a filled rectangle at the specified coordinates, with the given width and height. For 2D graphics, `z` should be 0.
+# Function DrawEllipse:Void(x:Float, y:Float, width:Float, height:Float)
+Draw a filled ellipse at the specified coordinates, with the given width and height.
 
-# Function DrawEllipse:Void(x:Float, y:Float, z:Float, width:Float, height:Float)
-Draw a filled ellipse at the specified coordinates, with the given width and height. For 2D graphics, `z` should be 0.
+# Function Fps:Int()
+Returns the current screen FPS.
+
+# Function RenderCalls:Int()
+Returns the number of render calls performed in the last call to `World.Render`.
+
+# Function VendorName:String()
+Returns the name of the vendor of the renderer implementation.
+	
+# Function RendererName:String()
+Returns the name of the renderer implementation.
+	
+# Function APIVersionName:String()
+Returns the API version name as provided by the driver.
+	
+# Function ShadingVersionName:String()
+Returns the shading language version name as provided by the driver.
+
+# Function APIVersion:Float()
+Get the version of the API supported by this machine (currently, the version of OpenGL supported by the implementation).
+
+# Function ShadingVersion:Float()
+Get the version of the shading language supported by this machine (currently, the version of GLSL supported by the implementation).
+
+# Function MaxTextureSize:Int()
+Returns the maximum texture size supported by the device.
 
 
 
@@ -946,7 +971,7 @@ A sprite is a 2D object in a 3D world. It has width and height, but no depth. It
 # Const MODE_SPHERICAL	: Int
 # Const MODE_CYLINDRICAL	: Int
 
-# Method New(texture:Texture, hframes:Int = 1, vframes:Int = 1, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
+# Method New(texture:Texture, hframes:Int = 1, vframes:Int = 1, orientation:Int = Sprite.MODE_SPHERICAL, parent:Entity = Null)
 Creates a new sprite with the specified texture. The size of the sprite will be set to the size of the texture. The parameters `hframes` and `vframes` indicate the number of horizontal and vertical animation frames contained in the texture. The value of `orientation` can be:
 
 | Value       | Meaning
@@ -986,10 +1011,10 @@ Returns the number of vertical frames that this sprite has (1 by default).
 # Method Frames:Void(horizontal:Int, vertical:Int)
 Sets the number of horizontal and vertical frames that this sprite has.
 
-# Method FPS:Int() Property
+# Method AnimFps:Int() Property
 Returns the animation frames per second of the sprite.
 
-# Method FPS:Void(fps:Int) Property
+# Method AnimFps:Void(fps:Int) Property
 Sets the animation frames per second of the sprite. To play the sequence backwards, set this to a negative value.
 
 # Method CurrentFrame:Int() Property
@@ -1001,56 +1026,19 @@ Forces the sprite to show the specified animation frame. This can be used to ani
 
 
 
-# Class Stats
-
-This class stores some statistics like the elapsed time since the last update and the screen FPS.
-
-# Function DeltaTime:Float()
-Returns the elapsed time in seconds since the last update.
-
-# Function FPS:Int()
-Returns the current screen FPS.
-
-# Function RenderCalls:Int()
-Returns the number of render calls performed in the last call to `World.Render`.
-
-# Function VendorName:String()
-Returns the name of the vendor of the renderer implementation.
-	
-# Function RendererName:String()
-Returns the name of the renderer implementation.
-	
-# Function APIVersionName:String()
-Returns the API version name as provided by the driver.
-	
-# Function ShadingVersionName:String()
-Returns the shading language version name as provided by the driver.
-
-# Function APIVersion:Float()
-Get the version of the API supported by this machine (currently, the version of OpenGL supported by the implementation).
-
-# Function ShadingVersion:Float()
-Get the version of the shading language supported by this machine (currently, the version of GLSL supported by the implementation).
-
-# Function MaxTextureSize:Int()
-Returns the maximum texture size supported by the device.
-
-
-
-
 # Class Surface
 
 The surface class contains a set of geometry (vertices and indices that form triangles) and a material to draw that geometry.
 
-# Method New(mode:Int = Renderer.MODE_TRIANGLES)
+# Method New(mode:Int = Surface.MODE_TRIANGLES)
 Creates a new surface with the specified drawing mode. It must be one of:
 
 | Value | Meaning
-| Renderer.MODE_POINTS | Every vertex in the surface represents a point.
-| Renderer.MODE_LINES | Every 2 vertices in the surface represents a line.
-| Renderer.MODE_TRIANGLES | Every 3 vertices in the surface represents a triangle (this is the default mode).
-| Renderer.MODE_TRIANGLESTRIP | Every vertex is connected to the two previous ones to make triangles.
-| Renderer.MODE_TRIANGLEFAN | Every vertex is connected to the first and the previous ones to make triangles.
+| Surface.MODE_POINTS | Every vertex in the surface represents a point.
+| Surface.MODE_LINES | Every 2 vertices in the surface represents a line.
+| Surface.MODE_TRIANGLES | Every 3 vertices in the surface represents a triangle (this is the default mode).
+| Surface.MODE_TRIANGLESTRIP | Every vertex is connected to the two previous ones to make triangles.
+| Surface.MODE_TRIANGLEFAN | Every vertex is connected to the first and the previous ones to make triangles.
 
 # Method New(other:Surface)
 Creates a new surface that is a copy of the one passed as parameter.
@@ -1063,11 +1051,11 @@ Deallocates all the resources used by this surface. You don't normally need to c
 Returns the drawing mode of the surface. It can be one of:
 
 | Value | Meaning
-| Renderer.MODE_POINTS | Every vertex in the surface represents a point.
-| Renderer.MODE_LINES | Every 2 vertices in the surface represents a line.
-| Renderer.MODE_TRIANGLES | Every 3 vertices in the surface represents a triangle (this is the default mode).
-| Renderer.MODE_TRIANGLESTRIP | Every vertex is connected to the two previous ones to make triangles.
-| Renderer.MODE_TRIANGLEFAN | Every vertex is connected to the first and the previous ones to make triangles.
+| Surface.MODE_POINTS | Every vertex in the surface represents a point.
+| Surface.MODE_LINES | Every 2 vertices in the surface represents a line.
+| Surface.MODE_TRIANGLES | Every 3 vertices in the surface represents a triangle (this is the default mode).
+| Surface.MODE_TRIANGLESTRIP | Every vertex is connected to the two previous ones to make triangles.
+| Surface.MODE_TRIANGLEFAN | Every vertex is connected to the first and the previous ones to make triangles.
 
 # Method Set:Void(other:Surface)
 Sets this surface's material and geometry data to copy those of the mesh passed as parameter. The surface is automatically rebuilt.
@@ -1076,11 +1064,11 @@ Sets this surface's material and geometry data to copy those of the mesh passed 
 Adds a new index to the surface. Depending on the drawing mode, each primitive will require a different number of indices:
 
 | Mode | Indices per primitive
-| Renderer.MODE_POINTS | 1
-| Renderer.MODE_LINES | 2
-| Renderer.MODE_TRIANGLES | 3
-| Renderer.MODE_TRIANGLESTRIP | 3 for the first one, 1 for the rest.
-| Renderer.MODE_TRIANGLEFAN | 3 for the first one, 1 for the rest.
+| Surface.MODE_POINTS | 1
+| Surface.MODE_LINES | 2
+| Surface.MODE_TRIANGLES | 3
+| Surface.MODE_TRIANGLESTRIP | 3 for the first one, 1 for the rest.
+| Surface.MODE_TRIANGLEFAN | 3 for the first one, 1 for the rest.
 
 Returns the number of indices before adding this one.
 
@@ -1094,25 +1082,25 @@ Sets the value of the specified index number.
 Returns the value of the specified index number.
 
 # Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
-Adds a new triangle to the surface if the drawing mode is `Renderer.MODE_TRIANGLES` and returns the index of the triangle within the surface.
+Adds a new triangle to the surface if the drawing mode is `Surface.MODE_TRIANGLES` and returns the index of the triangle within the surface.
 In this drawing mode, a triangle contains three indices, that reference the vertices in the surface.
-If the drawing mode is not `Renderer.MODE_TRIANGLES`, this function does nothing and returns `-1`.
+If the drawing mode is not `Surface.MODE_TRIANGLES`, this function does nothing and returns `-1`.
 This is just a convenience method you can use instead of making three calls to `Surface.AddIndex`.
 
 # Method NumTriangles:Int() Property
 Returns the number of triangles in the surface.
 
 # Method Triangle:Void(tri:Int, v0:Int, v1:Int, v2:Int)
-Changes the vertex indices used by a specified triangle if the drawing mode is `Renderer.MODE_TRIANGLES`. Otherwise, it does nothing.
+Changes the vertex indices used by a specified triangle if the drawing mode is `Surface.MODE_TRIANGLES`. Otherwise, it does nothing.
 
 # Method TriangleV0:Int(tri:Int)
-Returns the index of the first vertex in the specified triangle if the drawing mode is `Renderer.MODE_TRIANGLES`. Otherwise, it returns -1.
+Returns the index of the first vertex in the specified triangle if the drawing mode is `Surface.MODE_TRIANGLES`. Otherwise, it returns -1.
 
 # Method TriangleV1:Int(tri:Int)
-Returns the index of the second vertex in the specified triangle if the drawing mode is `Renderer.MODE_TRIANGLES`. Otherwise, it returns -1.
+Returns the index of the second vertex in the specified triangle if the drawing mode is `Surface.MODE_TRIANGLES`. Otherwise, it returns -1.
 
 # Method TriangleV2:Int(tri:Int)
-Returns the index of the third vertex in the specified triangle if the drawing mode is `Renderer.MODE_TRIANGLES`. Otherwise, it returns -1.
+Returns the index of the third vertex in the specified triangle if the drawing mode is `Surface.MODE_TRIANGLES`. Otherwise, it returns -1.
 
 # Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, color:Int, u:Float, v:Float)
 Adds a new vertex to the surface, with the given position, normal, color, and texture coordinates. Returns the index of the vertex within the surface.
@@ -1201,35 +1189,35 @@ A texture represents a buffer in video memory that contains pixel data.
 Textures can be contained in materials and applied to objects together with other information like color and opacity, or drawn to the screen directly (for example to render 2D sprites).
 
 # Method New(width:Int, height:Int)
-Creates a blank texture with the specified width and height. This function is used by framebuffers to create the texture to render the scene into. Its filtering is set to `Renderer.FILTER_NONE`.
+Creates a blank texture with the specified width and height. This function is used by framebuffers to create the texture to render the scene into. Its filtering is set to `Texture.FILTER_NONE`.
 
-# Method New(buffer:DataBuffer, width:Int, height:Int, filter:Int = Renderer.FILTER_TRILINEAR)
+# Method New(buffer:DataBuffer, width:Int, height:Int, filter:Int = Texture.FILTER_TRILINEAR)
 Creates a texture with the specified size and filter mode, and the pixels stored in the data buffer. The value of `filter` must be one of:
 
-* Renderer.FILTER_NONE
-* Renderer.FILTER_LINEAR
-* Renderer.FILTER_BILINEAR
-* Renderer.FILTER_TRILINEAR
+* Texture.FILTER_NONE
+* Texture.FILTER_LINEAR
+* Texture.FILTER_BILINEAR
+* Texture.FILTER_TRILINEAR
 
-# Function Load(filename:String, filter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+# Function Load(filename:String, filter:Int = Texture.FILTER_TRILINEAR, cache:Bool = True)
 Loads and returns the texture with the specified filename, or `Null` if the texture could not be loaded.
 If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one texture more than once).
 The value of `filter` must be one of:
 
-* Renderer.FILTER_NONE
-* Renderer.FILTER_LINEAR
-* Renderer.FILTER_BILINEAR
-* Renderer.FILTER_TRILINEAR
+* Texture.FILTER_NONE
+* Texture.FILTER_LINEAR
+* Texture.FILTER_BILINEAR
+* Texture.FILTER_TRILINEAR
 
-# Function Load(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+# Function Load(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Texture.FILTER_TRILINEAR, cache:Bool = True)
 Loads and returns the cubemap texture with the specified filenames (one for each face of the cube), or `Null` if the texture could not be loaded.
 If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one texture more than once).
 The value of `filter` must be one of:
 
-* Renderer.FILTER_NONE
-* Renderer.FILTER_LINEAR
-* Renderer.FILTER_BILINEAR
-* Renderer.FILTER_TRILINEAR
+* Texture.FILTER_NONE
+* Texture.FILTER_LINEAR
+* Texture.FILTER_BILINEAR
+* Texture.FILTER_TRILINEAR
 
 # Method Discard:Void()
 Discards the resources used by this texture.
@@ -1269,6 +1257,9 @@ Updates all entities in the world. This should be called on the app's `OnUpdate`
 
 # Function Render:Void()
 Renders the world. This should be called on the app's `OnRender` method.
+
+# Function DeltaTime:Float()
+Returns the elapsed time in seconds since the last world update.
 
 # Function SkyboxTexture:Texture()
 Returns the cubemap texture that is used as background on camera's that have the `ClearMode` property set to `Camera.CLEAR_SKYBOX`. Defaults to `Null`.

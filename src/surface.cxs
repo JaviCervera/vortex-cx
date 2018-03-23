@@ -9,7 +9,13 @@ Import renderer
 Public
 Class Surface
 Public
-	Method New(mode:Int = Renderer.MODE_TRIANGLES)
+	Const MODE_POINTS					: Int = Renderer.MODE_POINTS
+	Const MODE_LINES					: Int = Renderer.MODE_LINES
+	Const MODE_TRIANGLES			: Int = Renderer.MODE_TRIANGLES
+	Const MODE_TRIANGLESTRIP	: Int = Renderer.MODE_TRIANGLESTRIP
+	Const MODE_TRIANGLEFAN		: Int = Renderer.MODE_TRIANGLEFAN
+	
+	Method New(mode:Int = Surface.MODE_TRIANGLES)
 		mMode = mode
 		mIndices = New DataBuffer(INC * 2, True)
 		mVertices = New DataBuffer(INC * VERTEX_SIZE, True)
@@ -100,7 +106,7 @@ Public
 	End
 
 	Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
-		If mMode = Renderer.MODE_TRIANGLES
+		If mMode = MODE_TRIANGLES
 			AddIndex(v0)
 			AddIndex(v1)
 			AddIndex(v2)
@@ -112,9 +118,9 @@ Public
 
 	Method NumTriangles:Int() Property
 		Select mMode
-		Case Renderer.MODE_TRIANGLES
+		Case MODE_TRIANGLES
 			Return NumIndices / 3
-		Case Renderer.MODE_TRIANGLESTRIP, Renderer.MODE_TRIANGLEFAN
+		Case MODE_TRIANGLESTRIP, MODE_TRIANGLEFAN
 			Return Max(0, NumIndices - 2)
 		Default
 			Return 0
@@ -122,7 +128,7 @@ Public
 	End
 
 	Method Triangle:Void(tri:Int, v0:Int, v1:Int, v2:Int)
-		If mMode = Renderer.MODE_TRIANGLES
+		If mMode = MODE_TRIANGLES
 			mIndices.PokeShort(tri * 6, v0)
 			mIndices.PokeShort(tri * 6 + 2, v1)
 			mIndices.PokeShort(tri * 6 + 4, v2)
@@ -131,15 +137,15 @@ Public
 	End
 
 	Method TriangleV0:Int(tri:Int)
-		If mMode = Renderer.MODE_TRIANGLES Then Return mIndices.PeekShort(tri*6) Else Return -1
+		If mMode = MODE_TRIANGLES Then Return mIndices.PeekShort(tri*6) Else Return -1
 	End
 
 	Method TriangleV1:Int(tri:Int)
-		If mMode = Renderer.MODE_TRIANGLES Then Return mIndices.PeekShort(tri*6 + 2) Else Return -1
+		If mMode = MODE_TRIANGLES Then Return mIndices.PeekShort(tri*6 + 2) Else Return -1
 	End
 
 	Method TriangleV2:Int(tri:Int)
-		If mMode = Renderer.MODE_TRIANGLES Then Return mIndices.PeekShort(tri*6 + 4) Else Return -1
+		If mMode = MODE_TRIANGLES Then Return mIndices.PeekShort(tri*6 + 4) Else Return -1
 	End
 
 	Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, color:Int, u0:Float, v0:Float)
@@ -331,7 +337,7 @@ Public
 		For Local i:Int = 0 Until NumVertices
 			VertexNormal(i, -VertexNX(i), -VertexNY(i), -VertexNZ(i))
 		Next
-		If mMode = Renderer.MODE_TRIANGLES
+		If mMode = MODE_TRIANGLES
 			For Local i:Int = 0 Until NumTriangles
 				Triangle(i, TriangleV2(i), TriangleV1(i), TriangleV0(i))
 			Next

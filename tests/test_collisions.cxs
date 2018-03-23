@@ -66,22 +66,22 @@ Public
 		mCam.ViewportHeight = DeviceHeight()
 		
 		'Update ball
-		If KeyDown(KEY_UP) Then mBall.Move(0, 0, 2 * Stats.DeltaTime())
-		If KeyDown(KEY_DOWN) Then mBall.Move(0, 0, -2 * Stats.DeltaTime())
-		If KeyDown(KEY_LEFT) Then mBall.Move(-2 * Stats.DeltaTime(), 0, 0)
-		If KeyDown(KEY_RIGHT) Then mBall.Move(2 * Stats.DeltaTime(), 0, 0)
+		If KeyDown(KEY_UP) Then mBall.Move(0, 0, 2 * World.DeltaTime())
+		If KeyDown(KEY_DOWN) Then mBall.Move(0, 0, -2 * World.DeltaTime())
+		If KeyDown(KEY_LEFT) Then mBall.Move(-2 * World.DeltaTime(), 0, 0)
+		If KeyDown(KEY_RIGHT) Then mBall.Move(2 * World.DeltaTime(), 0, 0)
 		
 		'Update camera yaw
 		mCam.Yaw = (mBall.WorldX - 6.5) / 6.5 * -15
 		
 		'Update door
-		mDoor.Move(0, 2 * Stats.DeltaTime() * mDoorDir, 0)
+		mDoor.Move(0, 2 * World.DeltaTime() * mDoorDir, 0)
 		If mDoor.Y >= 2 Then mDoor.Y = 2; mDoorDir *= -1
 		If mDoor.Y <= 0 Then mDoor.Y = 0; mDoorDir *= -1
 		If mDoor.Collided Then mDoorDir *= -1
 		
 		'Update block ball
-		mBlockBall.Move(0, 2 * Stats.DeltaTime() * mBlockBallDir, 0)
+		mBlockBall.Move(0, 2 * World.DeltaTime() * mBlockBallDir, 0)
 		If mBlockBall.Y >= 4 Then mBlockBall.Y = 4; mBlockBallDir *= -1
 		If mBlockBall.Y <= 0 Then mBlockBall.Y = 0; mBlockBallDir *= -1
 		If mBlockBall.Collided Then mBlockBallDir *= -1
@@ -96,16 +96,16 @@ Public
 		'Render world
 		World.Render()
 		
-		'Setup renderer for 2D graphics
-		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.Color(Color.WHITE)
+		'Setup graphics for 2D
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Graphics.Color(Color.WHITE)
 		
 		'Draw FPS
-		Local text:String = Stats.FPS() + " FPS"
+		Local text:String = Graphics.Fps() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
-		text = "Render calls: " + Stats.RenderCalls()
+		text = "Render calls: " + Graphics.RenderCalls()
 		mFont.Draw(2, 18, text)
 		
 		'Draw shadows message

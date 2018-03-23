@@ -6,7 +6,6 @@ Import math3d
 Import mesh
 Import renderer
 Import renderstate
-Import stats
 Import world
 
 Public
@@ -193,8 +192,8 @@ Class Model Extends Entity 'Implements IMaterialDelegate Final
 	
 	Method _Update:Void()
 		If mAnimFps <> 0
-			mCurrentFrame += mAnimFps * Stats.DeltaTime()
-			'mCurrentFrame += mAnimSpeed * mMesh._AnimSpeed * Stats.DeltaTime()
+			mCurrentFrame += mAnimFps * World.DeltaTime()
+			'mCurrentFrame += mAnimSpeed * mMesh._AnimSpeed * World.DeltaTime()
 			If mCurrentFrame > mLastFrame Then mCurrentFrame -= mLastFrame - mFirstFrame
 			If mCurrentFrame < mFirstFrame Then mCurrentFrame += mLastFrame - mFirstFrame
 			If mAnimMatrices.Length > 0	Then mMesh._Animate(mAnimMatrices, mCurrentFrame, mFirstFrame, mLastFrame)

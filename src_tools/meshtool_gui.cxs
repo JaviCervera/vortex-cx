@@ -14,9 +14,9 @@ Public
 	Method New()	
 		'Load resources
 		mFont = Font.Load("Roboto-Black_16.fnt.dat")
-		mCubeTex = Texture.Load("cube.png", Renderer.FILTER_NONE)
-		mOpenTex = Texture.Load("folder.png", Renderer.FILTER_NONE)
-		mSaveTex = Texture.Load("disk.png", Renderer.FILTER_NONE)
+		mCubeTex = Texture.Load("cube.png", Texture.FILTER_NONE)
+		mOpenTex = Texture.Load("folder.png", Texture.FILTER_NONE)
+		mSaveTex = Texture.Load("disk.png", Texture.FILTER_NONE)
 		mCube = Mesh.CreateCube()
 
 		mCubeRect = New Rect(4, 4, 16, 16)
@@ -219,7 +219,7 @@ Public
 			'Blend
 			Elseif mBlendModeRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				currentModel.Material(mSelMat).BlendMode += 1
-				If currentModel.Material(mSelMat).BlendMode > Renderer.BLEND_MUL Then currentModel.Material(mSelMat).BlendMode = 0
+				If currentModel.Material(mSelMat).BlendMode > Graphics.BLEND_MUL Then currentModel.Material(mSelMat).BlendMode = 0
 			'Culling
 			Elseif mCullingRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				currentModel.Material(mSelMat).Culling = Not currentModel.Material(mSelMat).Culling
@@ -266,16 +266,16 @@ Public
 	End
 	
 	Method Render:Void(currentModel:Model)
-		'Setup Renderer for 2D
-		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.BlendMode(Renderer.BLEND_ALPHA)
-		Renderer.Color(Color.WHITE)
+		'Setup graphics for 2D
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Graphics.BlendMode(Graphics.BLEND_ALPHA)
+		Graphics.Color(Color.WHITE)
 		
 		'Draw toolbar icons
 		mCubeTex.Draw(mCubeRect.x, mCubeRect.y)
 		mOpenTex.Draw(mOpenRect.x, mOpenRect.y)
 		mSaveTex.Draw(mSaveRect.x, mSaveRect.y)
-		Renderer.Color(mAnimationModeButtonColor)
+		Graphics.Color(mAnimationModeButtonColor)
 		'mFont.Draw(mAnimationsRect.x, mAnimationsRect.y, mAnimationModeNames[mAnimationMode])
 		
 		If currentModel
@@ -285,7 +285,7 @@ Public
 			'DrawPanel(mRollRect, "Roll: " + mRollFix, mFont)
 			
 			'Draw loaded mesh info
-			Renderer.Color(Color.WHITE)
+			Graphics.Color(Color.WHITE)
 			mFont.Draw(8, 28, "Num Surfaces: " + currentModel.Mesh.NumSurfaces)
 			mFont.Draw(8, 44, "Num Bones: " + currentModel.Mesh.NumBones)
 			mFont.Draw(8, 60, "Num Frames: " + currentModel.Mesh.NumFrames)
@@ -303,7 +303,7 @@ Public
 			
 			'Diffuse texture
 			If currentModel.Material(mSelMat).ColorTexture
-				Renderer.Color(Color.WHITE)
+				Graphics.Color(Color.WHITE)
 				currentModel.Material(mSelMat).ColorTexture.Draw(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
@@ -311,7 +311,7 @@ Public
 			
 			'Normal texture
 			If currentModel.Material(mSelMat).NormalTexture
-				Renderer.Color(Color.WHITE)
+				Graphics.Color(Color.WHITE)
 				currentModel.Material(mSelMat).NormalTexture.Draw(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
@@ -319,7 +319,7 @@ Public
 			
 			'Shininess texture
 			If currentModel.Material(mSelMat).ShininessTexture
-				Renderer.Color(Color.WHITE)
+				Graphics.Color(Color.WHITE)
 				currentModel.Material(mSelMat).ShininessTexture.Draw(mMaterialRect.x + mShininessTexRect.x, mMaterialRect.y + mShininessTexRect.y, mShininessTexRect.width, mShininessTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mShininessTexRect.x, mMaterialRect.y + mShininessTexRect.y, mNormalTexRect.width, mShininessTexRect.height)
@@ -327,7 +327,7 @@ Public
 			
 			'Light texture
 			If currentModel.Material(mSelMat).LightTexture
-				Renderer.Color(Color.WHITE)
+				Graphics.Color(Color.WHITE)
 				currentModel.Material(mSelMat).LightTexture.Draw(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
@@ -335,14 +335,14 @@ Public
 			
 			'Cube texture
 			If currentModel.Material(mSelMat).CubeTexture
-				Renderer.Color(Color.WHITE)
+				Graphics.Color(Color.WHITE)
 				currentModel.Material(mSelMat).CubeTexture.Draw(mMaterialRect.x + mCubemapRect.x, mMaterialRect.y + mCubemapRect.y, mCubemapRect.width, mCubemapRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mCubemapRect.x, mMaterialRect.y + mCubemapRect.y, mCubemapRect.width, mCubemapRect.height)
 			End
 			
 			'Draw texts
-			Renderer.Color(Color.WHITE)
+			Graphics.Color(Color.WHITE)
 			mFont.Draw(mMaterialRect.x + mDiffuseTexRect.x + 2, mMaterialRect.y + mDiffuseTexRect.y, "Color")
 			mFont.Draw(mMaterialRect.x + mNormalTexRect.x + 2, mMaterialRect.y + mNormalTexRect.y, "Normal")
 			mFont.Draw(mMaterialRect.x + mShininessTexRect.x + 2, mMaterialRect.y + mShininessTexRect.y, "Shininess")
@@ -356,13 +356,13 @@ Public
 			DrawPanel(mMaterialRect.x + mSpecularPowerRect.x, mMaterialRect.y + mSpecularPowerRect.y, mSpecularPowerRect.width, mSpecularPowerRect.height, "SpecPow: " + String(currentModel.Material(mSelMat).SpecularPower)[..6], mFont)
 			Local blendStr:String = ""
 			Select currentModel.Material(mSelMat).BlendMode
-			Case Renderer.BLEND_SOLID
+			Case Graphics.BLEND_SOLID
 				blendStr = "Solid"
-			Case Renderer.BLEND_ALPHA
+			Case Graphics.BLEND_ALPHA
 				blendStr = "Alpha"
-			Case Renderer.BLEND_ADD
+			Case Graphics.BLEND_ADD
 				blendStr = "Add"
-			Case Renderer.BLEND_MUL
+			Case Graphics.BLEND_MUL
 				blendStr = "Mul"
 			End
 			DrawPanel(mMaterialRect.x + mBlendModeRect.x, mMaterialRect.y + mBlendModeRect.y, mBlendModeRect.width, mBlendModeRect.height, "Blend: " + blendStr, mFont)

@@ -2,7 +2,6 @@
 '* Added #defines to shader code, so there are several combinations for the default shader (static / skinned, no fog / fog, no shadows / shadows, no cubemap / cubemap, vlit / plit)
 '* Refactored RenderState class (add PixelLighting, NormalMapping, SpecularMapping, CubeMapping, DepthPass)
 '- Reduced shader vars (compact floats in vec4's, etc), rename and document them
-'- Rename FPS to Fps on several classes
 '- Optimize size of meshes exported with meshtool
 '* Change font format
 'TODO v2.0-beta3
@@ -10,11 +9,12 @@
 '- Make Entity.EmitSound work on Android (although without looping support)
 '- Make shadows work even without lights and when Material.Lighting = False
 '- Make sure that shadows work correctly on skinned meshes
+'- Add Material.AmbientTexture and Material.AmbientColor
+'- Add Material.SpecularTexture and Material.SpecularColor (replace shininess with this)
 '- Add Material.EmissiveTexture and Material.EmissiveColor
 '- Add Material._RendersStep (should improve sprite rendering speed?)
 '- Add Texture.SetPixels method
 '- Add alpha support to shadows
-'- Add stats test
 '- Add shader test
 '- Add picking test
 '- Fix animation issues
@@ -38,8 +38,6 @@
 '- Add spot lights
 '- Add multiple shadows
 '- Improve shadows (PCF, cascade...)
-'- Add Material.AmbientTexture and Material.AmbientColor
-'- Add Material.SpecularTexture and Material.SpecularColor
 'TODO v2.2:
 '- Sort lights before rendering each model
 '- Check that an object's bounding box is in view before rendering
@@ -65,15 +63,14 @@ Import src.color
 Import src.entity
 Import src.font
 Import src.framebuffer
+Import src.graphics
 Import src.light
 Import src.listener
 Import src.material
 Import src.mesh
 Import src.model
-Import src.renderer
 Import src.shader
 Import src.sprite
-Import src.stats
 Import src.surface
 Import src.texture
 Import src.world

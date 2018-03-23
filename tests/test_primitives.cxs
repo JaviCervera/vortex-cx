@@ -31,10 +31,10 @@ Public
 	
 		'Init vortex
 		If Not World.Init() Then EndApp()
-		Print "Vendor name: " + Stats.VendorName()
-		Print "Renderer name: " + Stats.RendererName()
-		Print "API version name: " + Stats.APIVersionName()
-		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Init primitives
 		mNumPrimitives = 0
@@ -75,27 +75,27 @@ Public
 		'Render world (it actually renders nothing here, but sets the screen fps)
 		World.Render()
 		
-		'Setup renderer for 2D graphics
-		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Renderer.ClearColorBuffer()
+		'Setup graphics for 2D graphics
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		Graphics.ClearColorBuffer()
 		For Local i:Int = 0 Until mNumPrimitives
 			Local prim:Prim = mPrimitives[i]
-			Renderer.Color(prim.color)
+			Graphics.Color(prim.color)
 			Select prim.type
 				Case PRIM_POINT
-					Renderer.DrawPoint(prim.x, prim.y)
+					Graphics.DrawPoint(prim.x, prim.y)
 				Case PRIM_LINE
-					Renderer.DrawLine(prim.x, prim.y, prim.z, prim.w)
+					Graphics.DrawLine(prim.x, prim.y, prim.z, prim.w)
 				Case PRIM_RECT
-					Renderer.DrawRect(prim.x, prim.y, prim.z, prim.w)
+					Graphics.DrawRect(prim.x, prim.y, prim.z, prim.w)
 				Case PRIM_ELLIPSE
-					Renderer.DrawEllipse(prim.x, prim.y, prim.z, prim.w)
+					Graphics.DrawEllipse(prim.x, prim.y, prim.z, prim.w)
 			End
 		Next
 		
 		'Draw FPS
-		Renderer.Color(Color.WHITE)
-		Local text$ = Stats.FPS() + " FPS"
+		Graphics.Color(Color.WHITE)
+		Local text:String = Graphics.Fps() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls

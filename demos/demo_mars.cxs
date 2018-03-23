@@ -23,10 +23,10 @@ Public
 	
 		'Init vortex
 		If Not World.Init() Then EndApp()
-		Print "Vendor name: " + Stats.VendorName()
-		Print "Renderer name: " + Stats.RendererName()
-		Print "API version name: " + Stats.APIVersionName()
-		Print "Shading version name: " + Stats.ShadingVersionName()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
 		mFont = Font.Load("system.fnt.dat")
@@ -65,20 +65,20 @@ Public
 		mCam.ViewportWidth = DeviceWidth()
 		mCam.ViewportHeight = DeviceHeight()
 		
-		If KeyDown(KEY_Q) Then mCam.Move(0, MOVE_SPEED * Stats.DeltaTime(), 0)
-		If KeyDown(KEY_A) Then mCam.Move(0, -MOVE_SPEED * Stats.DeltaTime(), 0)
+		If KeyDown(KEY_Q) Then mCam.Move(0, MOVE_SPEED * World.DeltaTime(), 0)
+		If KeyDown(KEY_A) Then mCam.Move(0, -MOVE_SPEED * World.DeltaTime(), 0)
 		
-		If KeyDown(KEY_W) Then mCam.Turn(-ROT_SPEED * Stats.DeltaTime(), 0, 0)
-		If KeyDown(KEY_S) Then mCam.Turn(ROT_SPEED * Stats.DeltaTime(), 0, 0)
+		If KeyDown(KEY_W) Then mCam.Turn(-ROT_SPEED * World.DeltaTime(), 0, 0)
+		If KeyDown(KEY_S) Then mCam.Turn(ROT_SPEED * World.DeltaTime(), 0, 0)
 		
-		If KeyDown(KEY_UP) Then mCam.Move(0, 0, MOVE_SPEED * Stats.DeltaTime())
-		If KeyDown(KEY_DOWN) Then mCam.Move(0, 0, -MOVE_SPEED * Stats.DeltaTime())
+		If KeyDown(KEY_UP) Then mCam.Move(0, 0, MOVE_SPEED * World.DeltaTime())
+		If KeyDown(KEY_DOWN) Then mCam.Move(0, 0, -MOVE_SPEED * World.DeltaTime())
 		If KeyDown(KEY_SHIFT)
-			If KeyDown(KEY_LEFT) Then mCam.Move(-MOVE_SPEED * Stats.DeltaTime(), 0, 0)
-			If KeyDown(KEY_RIGHT) Then mCam.Move(MOVE_SPEED * Stats.DeltaTime(), 0, 0)
+			If KeyDown(KEY_LEFT) Then mCam.Move(-MOVE_SPEED * World.DeltaTime(), 0, 0)
+			If KeyDown(KEY_RIGHT) Then mCam.Move(MOVE_SPEED * World.DeltaTime(), 0, 0)
 		Else
-			If KeyDown(KEY_LEFT) Then mCam.Turn(0, -ROT_SPEED * Stats.DeltaTime(), 0)
-			If KeyDown(KEY_RIGHT) Then mCam.Turn(0, ROT_SPEED * Stats.DeltaTime(), 0)
+			If KeyDown(KEY_LEFT) Then mCam.Turn(0, -ROT_SPEED * World.DeltaTime(), 0)
+			If KeyDown(KEY_RIGHT) Then mCam.Turn(0, ROT_SPEED * World.DeltaTime(), 0)
 		End
 		
 		Return False
@@ -88,16 +88,16 @@ Public
 		'Render world
 		World.Render()
 		
-		'Setup renderer for 2D graphics
-		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		'Setup graphics for 2D
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Renderer.Color(Color.WHITE)
-		Local text$ = Stats.FPS() + " FPS"
+		Graphics.Color(Color.WHITE)
+		Local text$ = Graphics.Fps() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls
-		text = "Render calls: " + Stats.RenderCalls()
+		text = "Render calls: " + Graphics.RenderCalls()
 		mFont.Draw(2, 18, text)
 		
 		'Draw mesh attribution

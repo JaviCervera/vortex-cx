@@ -6,7 +6,6 @@ Import material
 Import math3d
 Import renderer
 Import renderstate
-Import stats
 Import surface
 Import texture
 Import world
@@ -129,11 +128,11 @@ Class Sprite Extends Entity 'Implements IMaterialDelegate Final
 		mVFrames = vertical
 	End
 	
-	Method FPS:Int() Property
+	Method AnimFps:Int() Property
 		Return mAnimFPS
 	End
 	
-	Method FPS:Void(fps:Int) Property
+	Method AnimFps:Void(fps:Int) Property
 		mAnimFPS = fps
 	End
 	
@@ -182,7 +181,7 @@ Class Sprite Extends Entity 'Implements IMaterialDelegate Final
 	
 	Method _Update:Void()
 		If mAnimFPS <> 0
-			mCurrentFrame += mAnimFPS * Stats.DeltaTime()
+			mCurrentFrame += mAnimFPS * World.DeltaTime()
 			If Int(mCurrentFrame) > LastFrame Then mCurrentFrame -= (LastFrame - FirstFrame) + 1
 			If Int(mCurrentFrame) < FirstFrame Then mCurrentFrame += (LastFrame - FirstFrame) + 2
 		End
