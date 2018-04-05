@@ -49,7 +49,7 @@ Public
 		Renderer.DrawEllipse(x, y, width, height)
 	End
 	
-	Function Fps:Int()
+	Function FPS:Int()
 		Return mFps
 	End
 	

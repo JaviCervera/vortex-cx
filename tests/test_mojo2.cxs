@@ -110,7 +110,7 @@ Class TestApp Extends App
 		
 		'Draw text with mojo
 		mCanvas.SetProjection2d(0, DeviceWidth(), 0, DeviceHeight()) 'now we are rendering to the screen, so top and bottom are set correctly
-		Local text:String = Graphics.Fps() + " FPS"
+		Local text:String = Graphics.FPS() + " FPS"
 		mCanvas.SetBlendMode(BlendMode.Alpha)
 		mCanvas.SetColor(0, 0, 0)
 		mCanvas.DrawText(text, 2, 2)

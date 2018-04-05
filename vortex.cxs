@@ -1,28 +1,30 @@
 'TODO v2.0-beta2
+'- Check why text does not render correctly when using pixel lighting
+'- Optimize size of meshes exported with meshtool (and do not export vta if mesh is static)
+'- Check which should be a surface's default ambient color
+'* Change font format
+'TODO v2.0-beta3
 '* Added #defines to shader code, so there are several combinations for the default shader (static / skinned, no fog / fog, no shadows / shadows, no cubemap / cubemap, vlit / plit)
 '* Refactored RenderState class (add PixelLighting, NormalMapping, SpecularMapping, CubeMapping, DepthPass)
 '- Reduced shader vars (compact floats in vec4's, etc), rename and document them
-'- Optimize size of meshes exported with meshtool
-'* Change font format
-'TODO v2.0-beta3
+'- Fix animation issues
+'- Animate surface indices
+'- Add fixes for Android
+'TODO v2.0-beta4
 '- Move matrices calculation out of ShaderUniforms.Prepare
-'- Make Entity.EmitSound work on Android (although without looping support)
-'- Make shadows work even without lights and when Material.Lighting = False
-'- Make sure that shadows work correctly on skinned meshes
+'- Add Material._RendersStep (should improve sprite rendering speed?)
 '- Add Material.AmbientTexture and Material.AmbientColor
 '- Add Material.SpecularTexture and Material.SpecularColor (replace shininess with this)
 '- Add Material.EmissiveTexture and Material.EmissiveColor
-'- Add Material._RendersStep (should improve sprite rendering speed?)
 '- Add Texture.SetPixels method
-'- Add alpha support to shadows
 '- Add shader test
 '- Add picking test
-'- Fix animation issues
-'- Animate surface indices
 '- Fix framebuffer, retina display and rotation on iOS
-'- Add fixes for Android
 'TODO v2.0:
 '- Refactor Cache class (add _AddFont, _AddTexture, etc methods)
+'- Make shadows work even without lights and when Material.Lighting = False
+'- Add alpha support to shadows
+'- Make sure that shadows work correctly on skinned meshes
 '- Add cone, cylinder and sphere primitives (maybe rename wedge to ramp)?
 '- Add support for filters param in RequestFile (dialog module)
 '- Fix render to texture on HTML5

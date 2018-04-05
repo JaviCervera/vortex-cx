@@ -50,6 +50,7 @@ Public
 		Vec3Set(other.mBoxMax[0], other.mBoxMax[1], other.mBoxMax[2], mBoxMax)
 	End
 	
+	#Rem
 	Function Load:Mesh(filename:String, skeletonFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
 		Local mesh:Mesh
 		If cache
@@ -66,7 +67,23 @@ Public
 		
 		Return mesh
 	End
+	#End
 	
+	Function Load:Mesh(filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+		Local mesh:Mesh
+		If cache
+			mesh = Cache._LoadMesh(filename, texFilter)
+		Else
+			'Fix filename
+			Local fixedFilename:String = filename
+			If filename.Length > 2 And String.FromChar(filename[0]) <> "/" And String.FromChar(filename[1]) <> ":" Then fixedFilename = "cerberus://data/" + filename
+
+			mesh = _LoadData(DataBuffer.Load(fixedFilename), filename, texFilter)
+		End
+		Return mesh
+	End
+	
+	#Rem
 	Method LoadSkeleton:Bool(filename:String)
 		'Fix filename
 		Local fixedFilename:String = filename
@@ -82,6 +99,7 @@ Public
 		
 		Return _LoadAnimationData(DataBuffer.Load(fixedFilename), sequenceName)
 	End
+	#End
 	
 	Method LoadVertexAnimation:Bool(filename:String, sequenceName:String = "")
 		'Fix filename
@@ -589,14 +607,14 @@ Public
 			Local mat:Material = New Material
 			Local flags:Int = 0
 			mat.Color = stream.ReadInt()
-			stream.ReadInt()	'Unused specular color
+			Local specular:Int = stream.ReadInt()	'Used for shininess only by now
 			stream.ReadInt()	'Unused emissive color
 			stream.ReadInt()	'Unused ambient color
 			mat.BlendMode = stream.ReadByte() & $FF
 			flags = stream.ReadByte() & $FF
 			If flags & 1 Then mat.Culling = True Else mat.Culling = False
 			If flags & 2 Then mat.DepthWrite = True Else mat.DepthWrite = False
-			mat.Shininess = stream.ReadFloat()
+			mat.Shininess = Color.Alpha(specular) / 255.0 'stream.ReadFloat()
 			mat.SpecularPower = stream.ReadFloat()
 			mat.CubeOpacity = stream.ReadFloat()
 			mat.RefractionCoef = stream.ReadFloat()
@@ -616,19 +634,19 @@ Public
 				If str <> "" Then str = meshPath + str
 				mat.NormalTexture = Texture.Load(str, texFilter)
 			End
-			If usedTexs & 4	'Shininess tex
+			If usedTexs & 4	'Specular tex (used for Shininess by now)
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
 				mat.ShininessTexture = Texture.Load(str, texFilter)
 			End
-			If usedTexs & 64	'Lightmap
+			If usedTexs & 32	'Lightmap
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
 				mat.LightTexture = Texture.Load(str, texFilter)
 			End
-			If usedTexs & 128	'Cubemap
+			If usedTexs & 64	'Cubemap
 				Local strLen:Int = stream.ReadInt()
 				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
 				For Local t:Int = 0 Until cubeTexs.Length

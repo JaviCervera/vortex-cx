@@ -128,11 +128,11 @@ Class Sprite Extends Entity 'Implements IMaterialDelegate Final
 		mVFrames = vertical
 	End
 	
-	Method AnimFps:Int() Property
+	Method AnimFPS:Int() Property
 		Return mAnimFPS
 	End
 	
-	Method AnimFps:Void(fps:Int) Property
+	Method AnimFPS:Void(fps:Int) Property
 		mAnimFPS = fps
 	End
 	

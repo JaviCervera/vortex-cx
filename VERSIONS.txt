@@ -14,7 +14,7 @@ This release brings lots of changes. API should be more or less stabilized now:
 - Added Material.CubeOpacity
 - Added Lighting and ReceiveShadows properties to Material
 - Added Shader property to Material
-- Returned to previous Fps based animation system, instead of the duration based one
+- Returned to previous FPS based animation system, instead of the duration based one
 - Does not parse GL version on init anymore to prevent crash on some old Android versions
 - Reduced the number of shader uniform and varying vars needed
 - Added different shaders:
@@ -34,7 +34,6 @@ This release brings lots of changes. API should be more or less stabilized now:
 - Added Color.Multiply
 - Public Renderer class renamed Graphics
 - Removed Stats class (DeltaTime is now on World, the rest on Graphics)
-- Renamed FPS to Fps or AnimFps on several classes
 - Several bug fixes
 - Thanks to SLotman from the Cerberus-X community for his help to make Vortex work on Android!
 

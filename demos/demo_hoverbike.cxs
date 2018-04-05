@@ -86,7 +86,7 @@ Public
 		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, DeviceHeight() - mFont.TextHeight(text) - 8, text)
 		
 		'Draw FPS
-		text = Graphics.Fps() + " FPS"
+		text = Graphics.FPS() + " FPS"
 		mFont.Draw(8, 8, text)
 	
 		Return False

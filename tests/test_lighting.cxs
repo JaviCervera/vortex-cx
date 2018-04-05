@@ -99,7 +99,7 @@ Public
 		
 		'Draw FPS
 		Graphics.Color(Color.WHITE)
-		Local text:String = Graphics.Fps() + " FPS"
+		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls

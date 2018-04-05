@@ -73,6 +73,7 @@ Class Entity
 	End
 	
 	Method Active:Void(active:Bool) Property
+		'World._EntityNeedsUpdate(Self, active)
 		mActive = active
 		For Local c:Entity = Eachin mChildren
 			c.Active = active
@@ -139,7 +140,7 @@ Class Entity
 		QuatSetEuler(mRotation[0], mRotation[1], mRotation[2], mTempArr)
 		QuatMulVec3(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3], x, y, z, mTempArr)
 		
-		If CollisionMode <> COLLISION_NONE And Active
+		If CollisionMode <> COLLISION_NONE 'And Active
 			'Reset collision status
 			mCollided = False
 			mCollidedEntity = Null

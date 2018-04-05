@@ -110,7 +110,7 @@ Public
 		
 		'Draw FPS
 		Graphics.Color(Color.RGB(125, 161, 191))
-		text = Graphics.Fps() + " FPS"
+		text = Graphics.FPS() + " FPS"
 		mFont.Draw(8, 8, text)
 	
 		Return False

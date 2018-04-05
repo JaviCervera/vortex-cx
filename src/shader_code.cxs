@@ -22,7 +22,7 @@ Const STD_UNIFORMS:String = "" +
 "uniform float MaterialRefractCoef;" +
 "uniform float DepthEpsilon;" +
 "uniform FogInfo Fog;" +
-"uniform mat4 Bones[MAX_BONES];" +
+'"uniform mat4 Bones[MAX_BONES];" +
 'These uniforms should be compacted into a flags int
 '"uniform int Flags;" +
 "uniform bool UseColorTex;" +
@@ -115,6 +115,7 @@ Const SHADER_CALC_LIGHTING:String = "" +
 "	return lighting;" +
 "}~n"
 
+#Rem
 Const SHADER_CALC_SKINNING:String = "" +
 "vec4 CalcSkinning(vec4 vertex) {" +
 "	mat4 boneTransform = mat4(1);" +
@@ -124,6 +125,7 @@ Const SHADER_CALC_SKINNING:String = "" +
 "	}" +
 "	return boneTransform * vertex;" +
 "}~n"
+#End
 
 Const SHADER_CALC_CUBE_COORDS:String = "" +
 "vec3 CalcCubeCoords(vec3 NV, vec3 N) {" +
@@ -136,13 +138,13 @@ Const SHADER_CALC_TBN_MATRIX:String = "" +
 "	return mat3(tangent, cross(tangent, normal), normal);" +
 "}"
 
-Const MIN_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER_CALC_SKINNING +
+Const MIN_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + 'SHADER_CALC_SKINNING +
 "void main() {" +
 	'Get vec4 version of VertexPos
 "	vec4 VertexPos4 = vec4(VertexPos, 1);" +
 
 	'Vertex skinning
-"	if ( Skinned ) VertexPos4 = CalcSkinning(VertexPos4);" +
+'"	if ( Skinned ) VertexPos4 = CalcSkinning(VertexPos4);" +
 
 	'Calculate vectors used in lighting and fog calculations
 "	vec3 V;" +
@@ -205,13 +207,13 @@ Const MIN_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
 "	if ( Fog.Data[2] != 0.0 ) gl_FragColor = vec4(mix(Fog.Color, vec3(gl_FragColor), FFogFactor), gl_FragColor.a);" +
 "}"
 
-Const MIN_SHADOWS_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER_CALC_SKINNING +
+Const MIN_SHADOWS_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + 'SHADER_CALC_SKINNING +
 "void main() {" +
 	'Get vec4 version of VertexPos
 "	vec4 VertexPos4 = vec4(VertexPos, 1);" +
 
 	'Vertex skinning
-"	if ( Skinned ) VertexPos4 = CalcSkinning(VertexPos4);" +
+'"	if ( Skinned ) VertexPos4 = CalcSkinning(VertexPos4);" +
 
 	'Calculate vectors used in lighting and fog calculations
 "	vec3 V;" +
@@ -285,13 +287,13 @@ Const MIN_SHADOWS_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
 "	if ( Fog.Data[2] != 0.0 ) gl_FragColor = vec4(mix(Fog.Color, vec3(gl_FragColor), FFogFactor), gl_FragColor.a);" +
 "}"
 
-Const VLIT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER_CALC_SKINNING + SHADER_CALC_CUBE_COORDS +
+Const VLIT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER_CALC_CUBE_COORDS + 'SHADER_CALC_SKINNING +
 "void main() {" +
 	'Get vec4 version of VertexPos
 "	vec4 VertexPos4 = vec4(VertexPos, 1);" +
 
 	'Vertex skinning
-"	if ( Skinned ) VertexPos4 = CalcSkinning(VertexPos4);" +
+'"	if ( Skinned ) VertexPos4 = CalcSkinning(VertexPos4);" +
 
 	'Calculate vectors used in lighting, env mapping and fog calculations
 "	vec3 V;" +
@@ -377,13 +379,13 @@ Const VLIT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
 "	if ( Fog.Data[2] != 0.0 ) gl_FragColor = vec4(mix(Fog.Color, vec3(gl_FragColor), FFogFactor), gl_FragColor.a);" +
 "}"
 
-Const PLIT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_SKINNING + SHADER_CALC_CUBE_COORDS + SHADER_CALC_TBN_MATRIX +
+Const PLIT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_CUBE_COORDS + SHADER_CALC_TBN_MATRIX + 'SHADER_CALC_SKINNING +
 "void main() {" +
 	'Get vec4 version of VertexPos
 "	vec4 VertexPos4 = vec4(VertexPos, 1);" +
 
 	'Vertex skinning
-"	if ( Skinned ) VertexPos4 = CalcSkinning(VertexPos4);" +
+'"	if ( Skinned ) VertexPos4 = CalcSkinning(VertexPos4);" +
 
 	'Calculate vectors used in lighting, env mapping and fog calculations
 "	vec3 V;" +
@@ -483,7 +485,7 @@ Const PLIT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING +
 "	if ( Fog.Data[2] != 0.0 ) gl_FragColor = vec4(mix(Fog.Color, vec3(gl_FragColor), FFogFactor), gl_FragColor.a);" +
 "}"
 
-Const DEFAULT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_SKINNING + SHADER_CALC_LIGHTING + SHADER_CALC_CUBE_COORDS + SHADER_CALC_TBN_MATRIX +
+Const DEFAULT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER_CALC_CUBE_COORDS + SHADER_CALC_TBN_MATRIX + 'SHADER_CALC_SKINNING +
 "void main() {" +
 	'Get vec4 version of VertexPos
 "	vec4 VertexPos4 = vec4(VertexPos, 1);~n" +

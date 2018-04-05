@@ -1,6 +1,6 @@
 Strict
 
-#GLFW_WINDOW_TITLE="Vortex2 Animation Test"
+#GLFW_WINDOW_TITLE="Vortex2 Vertex Animation Test"
 #GLFW_WINDOW_WIDTH=800
 #GLFW_WINDOW_HEIGHT=600
 #GLFW_WINDOW_RESIZABLE=True
@@ -69,7 +69,7 @@ Public
 		'mFont.Draw(4, DeviceHeight() - 20, "Time: " + Int(mDwarfModel.AnimTime))
 		
 		'Draw FPS
-		Local text:String = Graphics.Fps() + " FPS"
+		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls

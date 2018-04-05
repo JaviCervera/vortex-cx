@@ -6,6 +6,9 @@ static int rgb(unsigned char r, unsigned char g, unsigned char b, unsigned char 
   return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
+template<typename T> T min(T a, T b) { return a < b ? a : b; }
+template<typename T> T max(T a, T b) { return a > b ? a : b; }
+
 void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights) {
   // create file
   std::ofstream f(filename.c_str(), std::ios::binary | std::ios::trunc);
@@ -25,7 +28,7 @@ void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights
 
     // write material
     int color     = rgb(surf.material.red, surf.material.green, surf.material.blue, surf.material.opacity);
-    int specular  = 0xffffffff;
+    int specular  = rgb(255, 255, 255, static_cast<unsigned char>(min(static_cast<int>(surf.material.shininess * 255), 255))); //0xffffffff;
     int emissive  = 0x00000000;
     int ambient   = 0xffffffff;
     unsigned char blend = static_cast<unsigned char>(surf.material.blend);
@@ -36,14 +39,14 @@ void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights
     if ( surf.material.culling ) flags |= 1;
     if ( surf.material.depth_write ) flags |= 2;
     if ( surf.material.base_tex != "" ) usedTexs |= 1;
-    if ( surf.material.lightmap != "" ) usedTexs |= 64;
+    if ( surf.material.lightmap != "" ) usedTexs |= 32;
     f.write(reinterpret_cast<const char*>(&color), sizeof(color));
     f.write(reinterpret_cast<const char*>(&specular), sizeof(specular));
     f.write(reinterpret_cast<const char*>(&emissive), sizeof(emissive));
     f.write(reinterpret_cast<const char*>(&ambient), sizeof(ambient));
     f.write(reinterpret_cast<const char*>(&blend), sizeof(blend));
     f.write(reinterpret_cast<const char*>(&flags), sizeof(flags));
-    f.write(reinterpret_cast<const char*>(&surf.material.shininess), sizeof(surf.material.shininess));
+    //f.write(reinterpret_cast<const char*>(&surf.material.shininess), sizeof(surf.material.shininess));
     f.write(reinterpret_cast<const char*>(&surf.material.specular_power), sizeof(surf.material.specular_power));
     f.write(reinterpret_cast<const char*>(&cubeOpacity), sizeof(cubeOpacity));
     f.write(reinterpret_cast<const char*>(&refrCoef), sizeof(refrCoef));

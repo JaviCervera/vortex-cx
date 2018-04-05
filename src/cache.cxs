@@ -44,7 +44,8 @@ Public
 		Next
 
 		'If it was not found, load it
-		Local mesh:Mesh = Mesh.Load(filename, skeletonFilename, texFilter, False)
+		'Local mesh:Mesh = Mesh.Load(filename, skeletonFilename, texFilter, False)
+		Local mesh:Mesh = Mesh.Load(filename, texFilter, False)
 		If mesh <> Null Then mStack[mStack.Length() -1].mMeshes.Set(filename, mesh)
 		Return mesh
 	End

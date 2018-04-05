@@ -41,7 +41,7 @@ Public
 		mSprite = New Sprite(tex, 5, 5)
 		mSprite.Size(16, 16)
 		mSprite.LastFrame -= 3	'Skip the last three frames in the animation, since they are empty
-		mSprite.AnimFps = 16
+		mSprite.AnimFPS = 16
 		
 		'Disable sun
 		World.SunColor(Color.BLACK)
@@ -75,7 +75,7 @@ Public
 		
 		'Draw FPS
 		Graphics.Color(Color.WHITE)
-		Local text:String = Graphics.Fps() + " FPS"
+		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		
 		'Draw RenderCalls

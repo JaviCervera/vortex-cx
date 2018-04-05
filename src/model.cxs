@@ -50,11 +50,11 @@ Class Model Extends Entity 'Implements IMaterialDelegate Final
 		End
 	End
 	
-	Method AnimFps:Float() Property
+	Method AnimFPS:Float() Property
 		Return mAnimFps
 	End
 	
-	Method AnimFps:Void(fps:Float) Property
+	Method AnimFPS:Void(fps:Float) Property
 		mAnimFps = fps
 		If mLastFrame = 0 Then mLastFrame = Mesh.NumFrames
 	End

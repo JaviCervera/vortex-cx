@@ -41,9 +41,11 @@ Function LoadMesh:Mesh(filename:String, animMode:Int)
 	
 	'Load native mesh
 	Local baseName:String = StripExt(StripExt(filename))
-	Local mesh:Mesh = Mesh.Load(filename, baseName + ".skl.dat", Texture.FILTER_TRILINEAR, False)
+	'Local mesh:Mesh = Mesh.Load(filename, baseName + ".skl.dat", Texture.FILTER_TRILINEAR, False)
+	Local mesh:Mesh = Mesh.Load(filename, Texture.FILTER_TRILINEAR, False)
 	If mesh
-		If Not mesh.LoadAnimation(baseName + ".anm.dat") Then mesh.LoadVertexAnimation(baseName + ".vta.dat")
+		'If Not mesh.LoadAnimation(baseName + ".anm.dat") Then mesh.LoadVertexAnimation(baseName + ".vta.dat")
+		mesh.LoadVertexAnimation(baseName + ".vta.dat")
 	End
 	Return mesh
 End
@@ -53,10 +55,10 @@ Function MaterialSize:Int(mat:Material)
 	Local size:Int = 4	'Base Color
 	size += 4						'Specular color (unused yet)
 	size += 4						'Emissive color (unused yet)
-	size += 4						'Ambient color (unused yet)
+	size += 4						'Ambient color (only alpha is used for shininess)
 	size += 1						'BlendMode
 	size += 1						'Flags
-	size += 4						'Shininess
+	'size += 4						'Shininess
 	size += 4						'Specular power
 	size += 4						'Cube opacity
 	size += 4						'RefractCoef
@@ -164,7 +166,8 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	stream.WriteInt(mat.Color)
 	
 	'Specular Color
-	stream.WriteInt(Color.WHITE)
+	'stream.WriteInt(Color.WHITE)
+	stream.WriteInt(Color.ChangeAlpha(Color.WHITE, Min(Int(mat.Shininess * 255), 255)))
 	
 	'Emissive Color
 	stream.WriteInt(Color.BLACK)
@@ -182,7 +185,7 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	stream.WriteByte(flags)
 	
 	'Shininess
-	stream.WriteFloat(mat.Shininess)
+	'stream.WriteFloat(mat.Shininess)
 	
 	'Specular Power
 	stream.WriteFloat(mat.SpecularPower)
@@ -194,15 +197,15 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	stream.WriteFloat(mat.RefractionCoef)
 	
 	'Used textures
-	Local usedTexs:Int = 0	'1=Color,2=Normal,4=Shininess,8=Specular,16=Emissive,32=Ambient,64=Lightmap,128=Cube
+	Local usedTexs:Int = 0	'1=Color,2=Normal,4=Specular/Shininess,8=Emissive,16=Ambient,32=Lightmap,64=Cube
 	If mat.ColorTexture Then usedTexs |= 1
 	If mat.NormalTexture Then usedTexs |= 2
 	If mat.ShininessTexture Then usedTexs |= 4
-	'If mat.SpecularTexture Then usedTexs |= 8
-	'If mat.EmissiveTexture Then usedTexs |= 16
-	'If mat.AmbientTexture Then usedTexs |= 32
-	If mat.LightTexture Then usedTexs |= 64
-	If mat.CubeTexture Then usedTexs |= 128
+	'If mat.SpecularTexture Then usedTexs |= 4
+	'If mat.EmissiveTexture Then usedTexs |= 8
+	'If mat.AmbientTexture Then usedTexs |= 16
+	If mat.LightTexture Then usedTexs |= 32
+	If mat.CubeTexture Then usedTexs |= 64
 	stream.WriteByte(usedTexs)
 	
 	'Texture names

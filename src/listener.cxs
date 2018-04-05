@@ -42,8 +42,11 @@ Class Listener Final
 	End
 	
 	Function AvailableChannel:Int()
-		For Local i:Int = 1 Until 32
-			If ChannelState(i) = 0 Or ChannelState(i) = -1 Then Return i
+		mLastCheckedChannel += 1
+		If mLastCheckedChannel = 32 Then mLastCheckedChannel = 0
+		For Local i:Int = 0 Until 32
+			Local channel:Int = (mLastCheckedChannel + i) Mod 32
+			If ChannelState(channel) = 0 Or ChannelState(channel) = -1 Then Return channel
 		Next
 		Return -1
 	End
@@ -70,6 +73,7 @@ Private
 	Method New()
 	End
 	
-	Global mListener:Entity
-	Global mEmittedSounds:List<EmittedSound> = New List<EmittedSound>
+	Global mListener			: Entity
+	Global mEmittedSounds		: List<EmittedSound> = New List<EmittedSound>
+	Global mLastCheckedChannel	: Int = -1
 End
