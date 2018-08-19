@@ -13,10 +13,10 @@ It has been released under the terms of the [**MIT license**](https://en.wikiped
 * Loads textures in the most common formats: JPG, PNG, BMP...
 * Includes tool to convert **TrueType** (ttf) fonts into bitmap based fonts.
 * Meshes can be created in code or loaded from a custom format (includes tool which uses the [**Irrlicht**](http://irrlicht.sourceforge.net) engine to import meshes, with support for several popular formats).
-* **Materials** support diffuse color, diffuse texture, lightmap, normal map, reflection and refraction cube maps, opacity, and specular reflections. They also support different blending modes: alpha, additive, multiplicative.
+* **Materials** support diffuse color, diffuse texture, lightmap, normal map, cube map, opacity, specular reflections and shadows. They also support different blending modes: solid, alpha, additive, multiplicative.
 * **Dynamic lighting** with directional and point lights (configurable number of lights).
 * **Realtime shadows** from a single directional light source.
-* **Skeletal animation** for meshes.
+* **Vertex based animation** for meshes (vertex animations are automatically generated from skeletal animations).
 * **Linear fog** for ambient effects.
 
 ## Installation

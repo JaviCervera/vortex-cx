@@ -1,9 +1,12 @@
 'TODO v2.0-beta2
-'- Check why text does not render correctly when using pixel lighting
-'- Optimize size of meshes exported with meshtool (and do not export vta if mesh is static)
 '* Change font format
-'- Update README.md
+'- Add Material.AmbientTexture and Material.AmbientColor
+'- Add Material.EmissiveTexture and Material.EmissiveColor
+'- Add Material.SpecularTexture and Material.SpecularColor (replace shininess with this)
+'- Optimize size of meshes exported with meshtool (and do not export vta if mesh is static)
 'TODO v2.0-beta3
+'- Write JSON based UI in tools
+'- Check why text does not render correctly when using pixel lighting
 '* Added #defines to shader code, so there are several combinations for the default shader (static / skinned, no fog / fog, no shadows / shadows, no cubemap / cubemap, vlit / plit)
 '* Refactored RenderState class (add PixelLighting, NormalMapping, SpecularMapping, CubeMapping, DepthPass)
 '- Reduced shader vars (compact floats in vec4's, etc), rename and document them
@@ -13,9 +16,6 @@
 'TODO v2.0-beta4
 '- Move matrices calculation out of ShaderUniforms.Prepare
 '- Add Material._RendersStep (should improve sprite rendering speed?)
-'- Add Material.AmbientTexture and Material.AmbientColor
-'- Add Material.SpecularTexture and Material.SpecularColor (replace shininess with this)
-'- Add Material.EmissiveTexture and Material.EmissiveColor
 '- Add Texture.SetPixels method
 '- Add shader test
 '- Add picking test
