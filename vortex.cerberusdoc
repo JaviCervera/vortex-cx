@@ -671,8 +671,8 @@ Returns the height of the mesh.
 # Method Depth:Float() Property
 Returns the depth of the mesh.
 
-# Method UpdateBoundingBox:Void()
-Updates the bounding box of the mesh. This method should be called if you have added vertices or modified the position of any vertex in the mesh.
+# Method Rebuild:Void()
+Updates the buffers and bounding box of the mesh. This method should be called if you have added vertices or modified the data of any vertex in the mesh.
 
 # Method BoxMinX:Float() Property
 Returns the origin X coordinate of the bounding box that wraps the mesh.
@@ -706,6 +706,9 @@ Flips all triangles in the mesh and inverts its normals.
 
 # Method ColorVertices:Void(color:Int)
 Sets the color of all vertices in the mesh.
+
+# Function CreateTriangle:Mesh()
+Creates a triangle mesh with a base and height of 1.
 
 # Function CreateQuad:Mesh()
 Creates a quad mesh with a width and height of 1.
@@ -786,7 +789,7 @@ Sets the blend mode to use when painting. Possible values are:
 # Function Color:Void(color:Int)
 Sets the drawing color.
 
-# Function ClearColorBuffer:Void(color:Int = Color.BLACK)
+# Function Clear:Void(color:Int = Color.BLACK)
 Clears the background (actually, the area defined when the call to `Graphics.Setup2D` was made) with the specified color.
 
 # Function DrawLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)

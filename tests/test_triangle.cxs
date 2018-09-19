@@ -33,20 +33,16 @@ Public
 		mCam.ClearColor = Color.WHITE
 		mCam.Position(0, 0, -2)
 		
-		'Create surface
-		Local tri:Surface = New Surface()
-		tri.AddTriangle(0, 1, 2)
-		tri.AddVertex(0,0.5,0,     0,0,-1, Color.RED,	0,0)
-		tri.AddVertex(0.5,-0.5,0,  0,0,-1, Color.GREEN,	0,0)
-		tri.AddVertex(-0.5,-0.5,0, 0,0,-1, Color.BLUE,	0,0)
-		
-		'Create mesh
-		Local mesh:Mesh = New Mesh()
-		mesh.AddSurface(tri)
-		mesh.Material(0).Culling = False
+		'Create triangle mesh
+		Local tri:Mesh = Mesh.CreateTriangle()
+		tri.Surface(0).VertexColor(0, Color.RED)
+		tri.Surface(0).VertexColor(1, Color.GREEN)
+		tri.Surface(0).VertexColor(2, Color.BLUE)
+		tri.Rebuild() 'After modifying a mesh, we must rebuild it
+		tri.Material(0).Culling = False
 		
 		'Create triangle model
-		mModel = New Model(mesh)
+		mModel = New Model(tri)
 		
 		'Disable sun
 		World.SunColor(Color.BLACK)

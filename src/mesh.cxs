@@ -302,6 +302,24 @@ Public
 		Next
 	End
 	
+	Function CreateTriangle:Mesh()
+		Local surf:Surface = New Surface
+		surf.AddVertex(   0,  0.5, 0,  0, 0, -1,  Color.WHITE,  0, 0)
+		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
+		surf.AddVertex( 0.5, -0.5, 0,  0, 0, -1,  Color.WHITE,  1, 1)
+		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
+		surf.AddVertex(-0.5, -0.5, 0,  0, 0, -1,  Color.WHITE,  0, 1)
+		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
+		surf.AddTriangle(0, 1, 2)
+		
+		'Create mesh with surface
+		Local tri:Mesh = New Mesh
+		tri.AddSurface(surf)
+		tri.Rebuild()
+		
+		Return tri
+	End Function
+	
 	Function CreateQuad:Mesh()
 		Local surf:Surface = New Surface
 		surf.AddVertex(-0.5,  0.5, 0,  0, 0, -1,  Color.WHITE,  0, 0)
