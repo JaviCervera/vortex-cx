@@ -8,11 +8,11 @@
 //! Irrlicht SDK Version
 #define IRRLICHT_VERSION_MAJOR 1
 #define IRRLICHT_VERSION_MINOR 8
-#define IRRLICHT_VERSION_REVISION 3
+#define IRRLICHT_VERSION_REVISION 4
 // This flag will be defined only in SVN, the official release code will have
 // it undefined
 //#define IRRLICHT_VERSION_SVN -alpha
-#define IRRLICHT_SDK_VERSION "1.8.3"
+#define IRRLICHT_SDK_VERSION "1.8.4"
 
 #include <stdio.h> // TODO: Although included elsewhere this is required at least for mingw
 
@@ -107,14 +107,14 @@
 
 
 //! Define _IRR_COMPILE_WITH_JOYSTICK_SUPPORT_ if you want joystick events.
-#define _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
+//#define _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
 #ifdef NO_IRR_COMPILE_WITH_JOYSTICK_EVENTS_
 #undef _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
 #endif
 
 
 //! Maximum number of texture an SMaterial can have, up to 8 are supported by Irrlicht.
-#define _IRR_MATERIAL_MAX_TEXTURES_ 4
+#define _IRR_MATERIAL_MAX_TEXTURES_ 8
 
 //! Define _IRR_COMPILE_WITH_DIRECT3D_8_ and _IRR_COMPILE_WITH_DIRECT3D_9_ to
 //! compile the Irrlicht engine with Direct3D8 and/or DIRECT3D9.
@@ -136,7 +136,7 @@ headers, e.g. Summer 2004.  This is a Microsoft issue, not an Irrlicht one.
 //! Define _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_ if you want to use DirectInput for joystick handling.
 /** This only applies to Windows devices, currently only supported under Win32 device.
 If not defined, Windows Multimedia library is used, which offers also broad support for joystick devices. */
-#define _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
+//#define _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
 #ifdef NO_IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
 #undef _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
 #endif
@@ -161,7 +161,7 @@ If not defined, Windows Multimedia library is used, which offers also broad supp
 //! Define _IRR_COMPILE_WITH_OPENGL_ to compile the Irrlicht engine with OpenGL.
 /** If you do not wish the engine to be compiled with OpenGL, comment this
 define out. */
-#define _IRR_COMPILE_WITH_OPENGL_
+//#define _IRR_COMPILE_WITH_OPENGL_
 #ifdef NO_IRR_COMPILE_WITH_OPENGL_
 #undef _IRR_COMPILE_WITH_OPENGL_
 #endif
@@ -169,14 +169,14 @@ define out. */
 //! Define _IRR_COMPILE_WITH_SOFTWARE_ to compile the Irrlicht engine with software driver
 /** If you do not need the software driver, or want to use Burning's Video instead,
 comment this define out */
-#define _IRR_COMPILE_WITH_SOFTWARE_
+//#define _IRR_COMPILE_WITH_SOFTWARE_
 #ifdef NO_IRR_COMPILE_WITH_SOFTWARE_
 #undef _IRR_COMPILE_WITH_SOFTWARE_
 #endif
 
 //! Define _IRR_COMPILE_WITH_BURNINGSVIDEO_ to compile the Irrlicht engine with Burning's video driver
 /** If you do not need this software driver, you can comment this define out. */
-#define _IRR_COMPILE_WITH_BURNINGSVIDEO_
+//#define _IRR_COMPILE_WITH_BURNINGSVIDEO_
 #ifdef NO_IRR_COMPILE_WITH_BURNINGSVIDEO_
 #undef _IRR_COMPILE_WITH_BURNINGSVIDEO_
 #endif
@@ -185,7 +185,7 @@ comment this define out */
 /** If you do not wish the engine to be compiled with X11, comment this
 define out. */
 // Only used in LinuxDevice.
-#define _IRR_COMPILE_WITH_X11_
+//#define _IRR_COMPILE_WITH_X11_
 #ifdef NO_IRR_COMPILE_WITH_X11_
 #undef _IRR_COMPILE_WITH_X11_
 #endif
@@ -201,7 +201,7 @@ define out. */
 //! to remove the dependencies such that Irrlicht will compile on those systems, too.
 //! If you don't need colored cursors you can also disable the Xcursor extension
 #if defined(_IRR_LINUX_PLATFORM_) && defined(_IRR_COMPILE_WITH_X11_)
-#define _IRR_LINUX_X11_VIDMODE_
+//#define _IRR_LINUX_X11_VIDMODE_
 //#define _IRR_LINUX_X11_RANDR_
 #ifdef NO_IRR_LINUX_X11_VIDMODE_
 #undef _IRR_LINUX_X11_VIDMODE_
@@ -223,7 +223,7 @@ define out. */
 //! Define _IRR_COMPILE_WITH_GUI_ to compile the engine with the built-in GUI
 /** Disable this if you are using an external library to draw the GUI. If you disable this then
 you will not be able to use anything provided by the GUI Environment, including loading fonts. */
-#define _IRR_COMPILE_WITH_GUI_
+//#define _IRR_COMPILE_WITH_GUI_
 #ifdef NO_IRR_COMPILE_WITH_GUI_
 #undef _IRR_COMPILE_WITH_GUI_
 #endif
@@ -460,27 +460,27 @@ B3D, MS3D or X meshes */
 #endif
 
 //! Define _IRR_COMPILE_WITH_IRR_WRITER_ if you want to write static .irrMesh files
-#define _IRR_COMPILE_WITH_IRR_WRITER_
+//#define _IRR_COMPILE_WITH_IRR_WRITER_
 #ifdef NO_IRR_COMPILE_WITH_IRR_WRITER_
 #undef _IRR_COMPILE_WITH_IRR_WRITER_
 #endif
 //! Define _IRR_COMPILE_WITH_COLLADA_WRITER_ if you want to write Collada files
-#define _IRR_COMPILE_WITH_COLLADA_WRITER_
+//#define _IRR_COMPILE_WITH_COLLADA_WRITER_
 #ifdef NO_IRR_COMPILE_WITH_COLLADA_WRITER_
 #undef _IRR_COMPILE_WITH_COLLADA_WRITER_
 #endif
 //! Define _IRR_COMPILE_WITH_STL_WRITER_ if you want to write .stl files
-#define _IRR_COMPILE_WITH_STL_WRITER_
+//#define _IRR_COMPILE_WITH_STL_WRITER_
 #ifdef NO_IRR_COMPILE_WITH_STL_WRITER_
 #undef _IRR_COMPILE_WITH_STL_WRITER_
 #endif
 //! Define _IRR_COMPILE_WITH_OBJ_WRITER_ if you want to write .obj files
-#define _IRR_COMPILE_WITH_OBJ_WRITER_
+//#define _IRR_COMPILE_WITH_OBJ_WRITER_
 #ifdef NO_IRR_COMPILE_WITH_OBJ_WRITER_
 #undef _IRR_COMPILE_WITH_OBJ_WRITER_
 #endif
 //! Define _IRR_COMPILE_WITH_PLY_WRITER_ if you want to write .ply files
-#define _IRR_COMPILE_WITH_PLY_WRITER_
+//#define _IRR_COMPILE_WITH_PLY_WRITER_
 #ifdef NO_IRR_COMPILE_WITH_PLY_WRITER_
 #undef _IRR_COMPILE_WITH_PLY_WRITER_
 #endif
@@ -548,37 +548,37 @@ B3D, MS3D or X meshes */
 #endif
 
 //! Define _IRR_COMPILE_WITH_BMP_WRITER_ if you want to write .bmp files
-#define _IRR_COMPILE_WITH_BMP_WRITER_
+//#define _IRR_COMPILE_WITH_BMP_WRITER_
 #ifdef NO_IRR_COMPILE_WITH_BMP_WRITER_
 #undef _IRR_COMPILE_WITH_BMP_WRITER_
 #endif
 //! Define _IRR_COMPILE_WITH_JPG_WRITER_ if you want to write .jpg files
-#define _IRR_COMPILE_WITH_JPG_WRITER_
+//#define _IRR_COMPILE_WITH_JPG_WRITER_
 #ifdef NO_IRR_COMPILE_WITH_JPG_WRITER_
 #undef _IRR_COMPILE_WITH_JPG_WRITER_
 #endif
 //! Define _IRR_COMPILE_WITH_PCX_WRITER_ if you want to write .pcx files
-#define _IRR_COMPILE_WITH_PCX_WRITER_
+//#define _IRR_COMPILE_WITH_PCX_WRITER_
 #ifdef NO_IRR_COMPILE_WITH_PCX_WRITER_
 #undef _IRR_COMPILE_WITH_PCX_WRITER_
 #endif
 //! Define _IRR_COMPILE_WITH_PNG_WRITER_ if you want to write .png files
-#define _IRR_COMPILE_WITH_PNG_WRITER_
+//#define _IRR_COMPILE_WITH_PNG_WRITER_
 #ifdef NO_IRR_COMPILE_WITH_PNG_WRITER_
 #undef _IRR_COMPILE_WITH_PNG_WRITER_
 #endif
 //! Define _IRR_COMPILE_WITH_PPM_WRITER_ if you want to write .ppm files
-#define _IRR_COMPILE_WITH_PPM_WRITER_
+//#define _IRR_COMPILE_WITH_PPM_WRITER_
 #ifdef NO_IRR_COMPILE_WITH_PPM_WRITER_
 #undef _IRR_COMPILE_WITH_PPM_WRITER_
 #endif
 //! Define _IRR_COMPILE_WITH_PSD_WRITER_ if you want to write .psd files
-#define _IRR_COMPILE_WITH_PSD_WRITER_
+//#define _IRR_COMPILE_WITH_PSD_WRITER_
 #ifdef NO_IRR_COMPILE_WITH_PSD_WRITER_
 #undef _IRR_COMPILE_WITH_PSD_WRITER_
 #endif
 //! Define _IRR_COMPILE_WITH_TGA_WRITER_ if you want to write .tga files
-#define _IRR_COMPILE_WITH_TGA_WRITER_
+//#define _IRR_COMPILE_WITH_TGA_WRITER_
 #ifdef NO_IRR_COMPILE_WITH_TGA_WRITER_
 #undef _IRR_COMPILE_WITH_TGA_WRITER_
 #endif
