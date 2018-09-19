@@ -34,7 +34,6 @@ Public
 		'Create camera
 		mCam = New Camera()
 		mCam.ClearMode = Camera.CLEAR_SKYBOX
-		mCam.Position(0, 0, -6)
 		
 		'Create sphere
 		mModel = New Model(Mesh.Load("sphere.msh.dat"))

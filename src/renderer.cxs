@@ -152,7 +152,7 @@ Public
 		'Setup 2D
 		glEnable(GL_BLEND)
 		glEnable(GL_SCISSOR_TEST)
-		glFrontFace(GL_CCW)
+		glFrontFace(GL_CW)
 		BlendMode(BLEND_ALPHA)
 		Color(color.Color.WHITE)
 		SetTextures(0, 0, 0, 0, 0)

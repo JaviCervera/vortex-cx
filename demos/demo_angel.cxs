@@ -69,7 +69,6 @@ Public
 		
 		'Update model
 		mModel.Yaw += 32 * World.DeltaTime()
-		mModel.Move(0, 0, 0)
 		
 		'Update lighting
 		mValue += World.DeltaTime()

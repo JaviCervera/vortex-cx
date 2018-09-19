@@ -52,6 +52,7 @@ Class Entity
 			If mParent Then mParent.mChildren.RemoveFirst(Self)
 			If p Then p.mChildren.AddLast(Self)
 			mParent = p
+			_UpdateTransform()
 		End
 	End
 	

@@ -305,7 +305,7 @@ Public
 	End
 	
 	Method Discard:Void()
-		If mHandle <> 0 Then glDeleteProgram(mHandle)
+		If mHandle <> 0 Then Renderer.FreeShader(mHandle)
 		mHandle = 0
 		mDelegate = Null
 	End
@@ -349,30 +349,6 @@ Public
 	
 	Method Handle:Int() Property
 		Return mHandle
-	End
-	
-	Method Location:Int(name:String)
-		Return Renderer.ShaderLocation(mHandle, name)
-	End
-	
-	Method SetInt:Void(location:Int, val:Int)
-		Renderer.SetShaderInt(location, val)
-	End
-	
-	Method SetFloat:Void(location:Int, val:Float)
-		Renderer.SetShaderFloat(location, val)
-	End
-	
-	Method SetVec2:Void(location:Int, x:Float, y:Float)
-		Renderer.SetShaderVec2(location, x, y)
-	End
-	
-	Method SetVec3:Void(location:Int, x:Float, y:Float, z:Float)
-		Renderer.SetShaderVec3(location, x, y, z)
-	End
-	
-	Method SetVec4:Void(location:Int, x:Float, y:Float, z:Float, w:Float)
-		Renderer.SetShaderVec4(location, x, y, z, w)
 	End
 	
 	Function DefaultType:Void(type:Int)

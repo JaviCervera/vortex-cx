@@ -29,7 +29,7 @@ Public
 		Renderer.Color(color)
 	End
 	
-	Function ClearColorBuffer:Void(col:Int = color.Color.BLACK)
+	Function Clear:Void(col:Int = color.Color.BLACK)
 		Renderer.ClearColorBuffer(col)
 	End
 	

@@ -132,7 +132,7 @@ Public
 		If mat = Null Then mat = New Material
 		mSurfaces = mSurfaces.Resize(mSurfaces.Length + 1)
 		mSurfaces[mSurfaces.Length-1] = surf
-		UpdateBoundingBox()
+		Rebuild()
 		surf.Rebuild()
 		mMaterials = mMaterials.Resize(mMaterials.Length + 1)
 		mMaterials[mMaterials.Length-1] = mat
@@ -218,7 +218,7 @@ Public
 		Return mBoxMax[2] - mBoxMin[2]
 	End
 	
-	Method UpdateBoundingBox:Void()
+	Method Rebuild:Void()
 		If NumSurfaces > 0 And Surface(0).NumVertices > 0
 			'Init
 			Vec3Set(Surface(0).VertexX(0), Surface(0).VertexY(0), Surface(0).VertexZ(0), mBoxMin)
@@ -241,6 +241,7 @@ Public
 				If vy > mBoxMax[1] Then mBoxMax[1] = vy
 				If vz > mBoxMax[2] Then mBoxMax[2] = vz
 			Next
+			surf.Rebuild()
 		Next
 	End
 	
@@ -272,21 +273,21 @@ Public
 		For Local surf:Surface = Eachin mSurfaces
 			surf.Translate(x, y, z)
 		Next
-		UpdateBoundingBox()
+		Rebuild()
 	End
 
 	Method Rotate:Void(pitch:Float, yaw:Float, roll:Float)
 		For Local surf:Surface = Eachin mSurfaces
 			surf.Rotate(pitch, yaw, roll)
 		Next
-		UpdateBoundingBox()
+		Rebuild()
 	End
 
 	Method Scale:Void(x:Float, y:Float, z:Float)
 		For Local surf:Surface = Eachin mSurfaces
 			surf.Scale(x, y, z)
 		Next
-		UpdateBoundingBox()
+		Rebuild()
 	End
 
 	Method Flip:Void()
@@ -317,7 +318,7 @@ Public
 		'Create mesh with surface
 		Local quad:Mesh = New Mesh
 		quad.AddSurface(surf)
-		quad.UpdateBoundingBox()
+		quad.Rebuild()
 		
 		Return quad
 	End
@@ -400,7 +401,7 @@ Public
 		'Create mesh with surface
 		Local cube:Mesh = New Mesh
 		cube.AddSurface(surf)
-		cube.UpdateBoundingBox()
+		cube.Rebuild()
 		
 		Return cube
 	End
@@ -483,7 +484,7 @@ Public
 		'Create mesh with surface
 		Local skybox:Mesh = New Mesh
 		skybox.AddSurface(surf)
-		skybox.UpdateBoundingBox()
+		skybox.Rebuild()
 		
 		Return skybox
 	End
@@ -548,7 +549,7 @@ Public
 		'Create mesh with surface
 		Local wedge:Mesh = New Mesh
 		wedge.AddSurface(surf)
-		wedge.UpdateBoundingBox()
+		wedge.Rebuild()
 		
 		Return wedge
 	End
@@ -658,11 +659,9 @@ Public
 			'Surface
 			Local surf:Surface = New Surface
 			
-			'Number of indices and vertices
+			'Number of indices, vertices and vertex flags
 			Local numIndices:Int = stream.ReadInt()
 			Local numVertices:Int = stream.ReadShort() & $FFFF
-			
-			'Vertex flags
 			Local vertexFlags:Int = stream.ReadByte() & $FF
 			
 			'Indices
@@ -755,7 +754,7 @@ Public
 		
 		stream.Close()
 		
-		mesh.UpdateBoundingBox()
+		mesh.Rebuild()
 		
 		Return mesh
 	End

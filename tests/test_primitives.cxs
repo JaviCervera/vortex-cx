@@ -77,7 +77,7 @@ Public
 		
 		'Setup graphics for 2D graphics
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Graphics.ClearColorBuffer()
+		Graphics.Clear()
 		For Local i:Int = 0 Until mNumPrimitives
 			Local prim:Prim = mPrimitives[i]
 			Graphics.Color(prim.color)

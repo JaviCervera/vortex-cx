@@ -34,6 +34,7 @@ This release brings lots of changes. API should be more or less stabilized now:
 - Added Color.Multiply
 - Public Renderer class renamed Graphics
 - Removed Stats class (DeltaTime is now on World, the rest on Graphics)
+- Mesh.UpdateBoundingBox has been renamed to Mesh.Rebuild, and now rebuilds all surfaces
 - Several bug fixes
 - Thanks to SLotman from the Cerberus-X community for his help to make Vortex work on Android!
 
