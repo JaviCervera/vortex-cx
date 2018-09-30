@@ -81,7 +81,6 @@ Public
 		
 		'Update camera view
 		mCam.Viewport(0, 24, DeviceWidth(), DeviceHeight() - 24)
-		mCam.AspectRatio = Float(mCam.ViewportWidth) / mCam.ViewportHeight
 		
 		'Update camera controls
 		If MouseHit(MOUSE_RIGHT)

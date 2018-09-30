@@ -59,11 +59,6 @@ Public
 		'Update world
 		World.Update()
 		
-		'Update camera view
-		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
-		mCam.ViewportWidth = DeviceWidth()
-		mCam.ViewportHeight = DeviceHeight()
-		
 		'Rotate triangle
 		mModel.Yaw += 64 * World.DeltaTime()
 		

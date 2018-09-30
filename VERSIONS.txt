@@ -35,6 +35,7 @@ This release brings lots of changes. API should be more or less stabilized now:
 - Public Renderer class renamed Graphics
 - Removed Stats class (DeltaTime is now on World, the rest on Graphics)
 - Mesh.UpdateBoundingBox has been renamed to Mesh.Rebuild, and now rebuilds all surfaces
+- Cameras now adjust the view and ratio automatically if ViewportWidth, ViewportHeight or AspectRatio is -1 (which is now the default)
 - Changed binary font format. Fonts generated with previous versions won't render correctly anymore
 - Several bug fixes
 - Thanks to SLotman from the Cerberus-X community for his help on Android!

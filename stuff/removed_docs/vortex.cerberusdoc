@@ -118,3 +118,19 @@ Gets the bone at the specified `index`, which is a value between `0` and `NumBon
 # Method LoadVertexAnimation:Bool(filename:String, sequenceName:String = "")
 ADD THIS TO THE END:
 You should not mix bone and vertex animation data within the same mesh.
+
+
+
+
+# Class Surface
+
+# Method VertexBone:Void(vertex:Int, index:Int, bone:Int, weight:Float)
+Sets one of the bones that the vertex is attached to, and the weight that the bone has on the vertex (between 0 and 1).
+A vertex can be attached to a maximum of four bones, specified in the `index` parameter with a value between 0 and 3.
+Bone is the index within the mesh of the specified bone.
+
+# Method VertexBoneIndex:Int(vertex:Int, index:Int)
+Returns the specified vertex bone index.
+
+# Method VertexBoneWeight:Float(vertex:Int, index:Int)
+Return the specified vertex bone weight.

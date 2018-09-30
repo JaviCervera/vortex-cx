@@ -20,11 +20,11 @@ Class Camera Extends Entity
 	
 	Method New(parent:Entity = Null)
 		Super.New(parent)
-		Viewport(0, 0, DeviceWidth(), DeviceHeight())
+		Viewport(0, 0, -1, -1)
 		mClearMode = CLEAR_COLOR
 		mClearColor = Color.RGB(55, 155, 255)
 		FovY = 50
-		AspectRatio = Float(DeviceWidth()) / DeviceHeight()
+		AspectRatio = -1
 		Near = 1
 		Far = 1000
 		Visible = True
@@ -63,11 +63,19 @@ Class Camera Extends Entity
 	End
 	
 	Method ViewportWidth:Int() Property
-		Return mVW
+		If mVW <> -1
+			Return mVW
+		Else
+			Return DeviceWidth()
+		End
 	End
 	
 	Method ViewportHeight:Int() Property
-		Return mVH
+		If mVH <> -1
+			Return mVH
+		Else
+			Return DeviceHeight()
+		End
 	End
 	
 	Method ViewportX:Void(val:Int) Property
@@ -126,7 +134,11 @@ Class Camera Extends Entity
 	End
 	
 	Method AspectRatio:Float() Property
-		Return mRatio
+		If mRatio <> -1
+			Return mRatio
+		Else
+			Return Float(ViewportWidth) / ViewportHeight
+		End
 	End
 	
 	Method AspectRatio:Void(ratio:Float) Property
@@ -157,13 +169,7 @@ Class Camera Extends Entity
 		mFramebuffer = fb
 	End
 	
-	Function Current:Camera()
-		Return mCurrent
-	End
-	
 	Method _PrepareForRender:Void()
-		mCurrent = Self
-	
 		'Set framebuffer
 		If mFramebuffer
 			mFramebuffer.Use()
@@ -172,15 +178,15 @@ Class Camera Extends Entity
 		End
 
 		'Set viewport
-		Renderer.Setup3D(mVX, mVY, mVW, mVH)
+		Renderer.Setup3D(mVX, mVY, ViewportWidth, ViewportHeight)
 		
 		'Set projection matrix
 		If mOrtho
 			Local height:Float = mFovY * 0.5
-			Local width:Float = height * mRatio
+			Local width:Float = height * AspectRatio
 			Mat4OrthoLH(-width, width, -height, height, mNear, mFar, RenderState.ProjectionMatrix)
 		Else
-			Mat4PerspectiveLH(mFovY, mRatio, mNear, mFar, RenderState.ProjectionMatrix)
+			Mat4PerspectiveLH(mFovY, AspectRatio, mNear, mFar, RenderState.ProjectionMatrix)
 		End
 		
 		'Set view matrix
@@ -196,7 +202,6 @@ Class Camera Extends Entity
 		End
 	End
 Private
-	Global mCurrent				: Camera
 	Field mVX					: Int
 	Field mVY					: Int
 	Field mVW					: Int

@@ -80,11 +80,6 @@ Public
 		'Update world
 		World.Update()
 		
-		'Update camera
-		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
-		mCam.ViewportWidth = DeviceWidth()
-		mCam.ViewportHeight = DeviceHeight()
-		
 		'Update model
 		mModel.Yaw += 32 * World.DeltaTime()
 		

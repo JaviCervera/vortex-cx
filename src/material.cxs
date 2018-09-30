@@ -127,14 +127,6 @@ Public
 	Method CubeTexture:Texture() Property
 		Return mCubeTex
 	End
-	
-	Method RefractionTexture:Void(tex:Texture) Property
-		mRefractTex = tex
-	End
-	
-	Method RefractionTexture:Texture() Property
-		Return mRefractTex
-	End
 
 	Method Shininess:Void(shininess:Float) Property
 		'shininess = Clamp(shininess, 0.0, 1.0)

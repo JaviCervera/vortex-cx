@@ -47,7 +47,7 @@ Public
 	End
 	
 	Method OnRender:Int()
-		'Render world
+		'Render world (it actually renders nothing here, but sets the screen fps)
 		World.Render()
 		
 		'Draw image

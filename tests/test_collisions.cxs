@@ -60,11 +60,6 @@ Public
 		'Update world
 		World.Update()
 		
-		'Update camera view
-		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
-		mCam.ViewportWidth = DeviceWidth()
-		mCam.ViewportHeight = DeviceHeight()
-		
 		'Update ball
 		If KeyDown(KEY_UP) Then mBall.Move(0, 0, 2 * World.DeltaTime())
 		If KeyDown(KEY_DOWN) Then mBall.Move(0, 0, -2 * World.DeltaTime())

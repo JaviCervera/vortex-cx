@@ -160,6 +160,9 @@ Returns the alpha component of the specified color.
 # Function ChangeAlpha:Int(color:Int, newAlpha:Int)
 Returns the specified color, but replacing the alpha with the value specified in `newAlpha`.
 
+# Function Multiply:Int(color:Int, factor:Float)
+Multiples the given `color` by the specified `factor` and returns the resulting color.
+
 
 
 
@@ -426,6 +429,74 @@ Indicates whether this framebuffer has a depth buffer or not.
 
 
 
+# Class Graphics
+
+`Graphics` is the class used to draw graphics on the screen in immediate mode.
+For example, if you want to draw your 2D graphics above the 3D scene, after drawing all your 3D geometry, you must call `Graphics.Setup2D` to setup the context for 2D drawing, and then perform your drawing operations.
+
+# Function Setup2D:Void(x:Int, y:Int, width:Int, height:Int)
+Setups the context for 2D drawing. The parameters define the rectangle within the screen where drawing will take place. You must call this function before doing any 2D drawing.
+
+# Function SetupMojo:Void()
+Setups the context for drawing with Mojo2.
+
+# Function BlendMode:Void(mode:Int)
+Sets the blend mode to use when painting. Possible values are:
+
+| Value       | Meaning
+| Graphics.BLEND_SOLID | The object is solid and it is not blended with the background. This is the default value.
+| Graphics.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
+| Graphics.BLEND_ADD   | The computed color is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
+| Graphics.BLEND_MUL   | The computed color is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
+
+# Function Color:Void(color:Int)
+Sets the drawing color.
+
+# Function Clear:Void(color:Int = Color.BLACK)
+Clears the background (actually, the area defined when the call to `Graphics.Setup2D` was made) with the specified color.
+
+# Function DrawPoint:Void(x:Float, y:Float)
+Draws a point at the specified position.
+
+# Function DrawLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)
+Draws a line that goes from x1, y1 to x2, y2.
+
+# Function DrawRect:Void(x:Float, y:Float, width:Float, height:Float)
+Draws a filled rectangle at the specified coordinates, with the given width and height.
+
+# Function DrawEllipse:Void(x:Float, y:Float, width:Float, height:Float)
+Draw a filled ellipse at the specified coordinates, with the given width and height.
+
+# Function FPS:Int()
+Returns the current screen FPS.
+
+# Function RenderCalls:Int()
+Returns the number of render calls performed in the last call to `World.Render`.
+
+# Function VendorName:String()
+Returns the name of the vendor of the renderer implementation.
+	
+# Function RendererName:String()
+Returns the name of the renderer implementation.
+	
+# Function APIVersionName:String()
+Returns the API version name as provided by the driver.
+	
+# Function ShadingVersionName:String()
+Returns the shading language version name as provided by the driver.
+
+# Function APIVersion:Float()
+Get the version of the API supported by this machine (currently, the version of OpenGL supported by the implementation).
+
+# Function ShadingVersion:Float()
+Get the version of the shading language supported by this machine (currently, the version of GLSL supported by the implementation).
+
+# Function MaxTextureSize:Int()
+Returns the maximum texture size supported by the device.
+
+
+
+
 # Class Light Extends Entity
 
 Vortex supports defining lights sources that can shine on objects.
@@ -474,8 +545,8 @@ Returns an available channel number (one that is not currently being used) that 
 A material represents visual information such as textures, color, or shininess.
 It is used to render objects with a specific appearance.
 
-# Method New(colorTex:Texture = Null)
-Creates a new material with the specified color texture.
+# Method New(colorTex:Texture = Null, shader:Shader = Null)
+Creates a new material with the specified color texture and shader.
 
 # Method New(other:Material)
 Creates a new material that is a copy of another one.
@@ -533,12 +604,6 @@ If the value of `RefractionCoef` is negative, the cubemap will be reflective (li
 
 # Method CubeTexture:Texture() Property
 Returns the cubemap texture of the material, or `Null` if there is no cubemap texture.
-
-# Method Opacity:Void(opacity:Float) Property
-Sets the opacity of the material, with 0 being completely transparent and 1 being completely opaque. The default value is 1.
-
-# Method Opacity:Float() Property
-Returns the opacity of the material, in the range 0 (transparent) .. 1 (opaque).
 
 # Method Shininess:Void(shininess:Float) Property
 Sets the shininess of the material. A value of 0 will disable specular reflections entirely, whereas a value in the range (0,1] will indicate the strength of the specular reflection.
@@ -614,6 +679,9 @@ Ensables or disables shadows on this material. It is enabled by default.
 	
 # Method ReceiveShadows:Bool() Property
 Returns whether this material receives shadows.
+
+# Method TextureMatrix:Float[]() Property
+Returns a 16 float array contaning the texture matrix of this material. If you don't know what this is, then you don't need it (it is normally for internal use).
 
 
 
@@ -766,71 +834,6 @@ Sets the last frame in the animation sequence.
 
 
 
-# Class Graphics
-
-`Graphics` is the class used to draw graphics on the screen in immediate mode.
-For example, if you want to draw your 2D graphics above the 3D scene, after drawing all your 3D geometry, you must call `Graphics.Setup2D` to setup the context for 2D drawing, and then perform your drawing operations.
-
-# Function Setup2D:Void(x:Int, y:Int, width:Int, height:Int)
-Setups the context for 2D drawing. The parameters define the rectangle within the screen where drawing will take place. You must call this function before doing any 2D drawing.
-
-# Function SetupMojo:Void()
-Setups the context for drawing with Mojo2.
-
-# Function BlendMode:Void(mode:Int)
-Sets the blend mode to use when painting. Possible values are:
-
-| Value       | Meaning
-| Graphics.BLEND_SOLID | The object is solid and it is not blended with the background. This is the default value.
-| Graphics.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
-| Graphics.BLEND_ADD   | The computed color is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
-| Graphics.BLEND_MUL   | The computed color is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
-
-# Function Color:Void(color:Int)
-Sets the drawing color.
-
-# Function Clear:Void(color:Int = Color.BLACK)
-Clears the background (actually, the area defined when the call to `Graphics.Setup2D` was made) with the specified color.
-
-# Function DrawLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)
-Draws a line that goes from x1, y1 to x2, y2.
-
-# Function DrawRect:Void(x:Float, y:Float, width:Float, height:Float)
-Draws a filled rectangle at the specified coordinates, with the given width and height.
-
-# Function DrawEllipse:Void(x:Float, y:Float, width:Float, height:Float)
-Draw a filled ellipse at the specified coordinates, with the given width and height.
-
-# Function FPS:Int()
-Returns the current screen FPS.
-
-# Function RenderCalls:Int()
-Returns the number of render calls performed in the last call to `World.Render`.
-
-# Function VendorName:String()
-Returns the name of the vendor of the renderer implementation.
-	
-# Function RendererName:String()
-Returns the name of the renderer implementation.
-	
-# Function APIVersionName:String()
-Returns the API version name as provided by the driver.
-	
-# Function ShadingVersionName:String()
-Returns the shading language version name as provided by the driver.
-
-# Function APIVersion:Float()
-Get the version of the API supported by this machine (currently, the version of OpenGL supported by the implementation).
-
-# Function ShadingVersion:Float()
-Get the version of the shading language supported by this machine (currently, the version of GLSL supported by the implementation).
-
-# Function MaxTextureSize:Int()
-Returns the maximum texture size supported by the device.
-
-
-
-
 # Class Shader
 
 A shader is a program that runs on the GPU to perform the drawing of all elements on the screen. Every material has a shader assigned.
@@ -914,6 +917,18 @@ Returns the animation frame currently being displayed by the sprite.
 
 # Method CurrentFrame:Void(frame:Int) Property
 Forces the sprite to show the specified animation frame. This can be used to animate the sprite manually.
+
+# Method FirstFrame:Int() Property
+Returns the first frame used when animating the sprite.
+
+# Method FirstFrame:Void(frame:Int) Property
+Sets the first frame used when animating the sprite.
+
+# Method LastFrame:Int() Property
+Returns the last frame used when animating the sprite.
+
+# Method LastFrame:Void(frame:Int) Property
+Sets the last frame used when animating the sprite.
 
 
 
@@ -1006,16 +1021,14 @@ Sets the position of the specified vertex.
 # Method VertexNormal:Void(index:Int, nx:Float, ny:Float, nz:Float)
 Sets the normal vector of the specified vertex.
 
+# Method VertexTangent:Void(index:Int, nx:Float, ny:Float, nz:Float)
+Sets the tangent vector of the specified vertex.
+
 # Method VertexColor:Void(index:Int, color:Int)
 Sets the color of the specified vertex.
 
 # Method VertexTexCoords:Void(index:Int, u:Float, v:Float, set:Int = 0)
 Sets the texture coordinates of the specified vertex.
-
-# Method VertexBone:Void(vertex:Int, index:Int, bone:Int, weight:Float)
-Sets one of the bones that the vertex is attached to, and the weight that the bone has on the vertex (between 0 and 1).
-A vertex can be attached to a maximum of four bones, specified in the `index` parameter with a value between 0 and 3.
-Bone is the index within the mesh of the specified bone.
 
 # Method VertexX:Float(index:Int)
 Returns the X position of the specified vertex.
@@ -1035,6 +1048,15 @@ Returns the Y component of the normal of the specified vertex.
 # Method VertexNZ:Float(index:Int)
 Returns the Z component of the normal of the specified vertex.
 
+# Method VertexTX:Float(index:Int)
+Returns the X component of the tangent of the specified vertex.
+
+# Method VertexTY:Float(index:Int)
+Returns the Y component of the tangent of the specified vertex.
+
+# Method VertexTZ:Float(index:Int)
+Returns the Z component of the tangent of the specified vertex.
+
 # Method VertexColor:Int(index:Int)
 Returns the color of the specified vertex.
 
@@ -1043,12 +1065,6 @@ Returns the U texture coordinate of the specified vertex.
 
 # Method VertexV:Float(index:Int, set:Int = 0)
 Returns the V texture coordinate of the specified vertex.
-
-# Method VertexBoneIndex:Int(vertex:Int, index:Int)
-Returns the specified vertex bone index.
-
-# Method VertexBoneWeight:Float(vertex:Int, index:Int)
-Return the specified vertex bone weight.
 
 # Method Translate:Void(x:Float, y:Float, z:Float)
 Translates all vertices in the surface.
@@ -1068,9 +1084,6 @@ Sets the color of all vertices in the surface.
 # Method Rebuild:Void()
 Rebuilds the internal representation of the geometry in the surface.
 To increase rendering performance, Vortex holds a copy of the data of all surfaces in video memory, so whenever you make a change to the geometry of a surface, you must call this function so the video memory is updated.
-
-# Method Draw:Void()
-Draws the surface. You don't normally need to call this function, because you will draw surfaces through a `RenderBatch`.
 
 
 
@@ -1140,9 +1153,9 @@ You can also specifY a width and a height different than its original size, and 
 
 # Class World
 
-# Function Init:Bool(numLights:Int = 4, numBones:Int = 75)
+# Function Init:Bool(numLights:Int = 4)
 Initializes the Vortex library. This should be called before any other function in the library.
-You can override the maximum number of lights in the world and the maximum number of bones per mesh.
+You can override the maximum number of lights in the world.
 
 # Function Update:Void()
 Updates all entities in the world. This should be called on the app's `OnUpdate` method.

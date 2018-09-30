@@ -75,11 +75,6 @@ Public
 		'Update world
 		World.Update()
 		
-		'Update camera
-		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
-		mCam.ViewportWidth = DeviceWidth()
-		mCam.ViewportHeight = DeviceHeight()
-		
 		'Update lights
 		For Local i:Int = 0 Until 3
 			mLights[i].Yaw -= 32 * World.DeltaTime()

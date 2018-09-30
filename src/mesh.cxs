@@ -185,6 +185,7 @@ Public
 	End
 	#End
 	
+	#Rem
 	Method AddBone:Void(bone:Bone)
 		mBones = mBones.Resize(mBones.Length() + 1)
 		mBones[mBones.Length() - 1] = bone
@@ -205,6 +206,7 @@ Public
 		Next
 		Return -1
 	End
+	#End
 	
 	Method Width:Float() Property
 		Return mBoxMax[0] - mBoxMin[0]
@@ -952,6 +954,7 @@ Public
 		Return True
 	End
 	
+	#Rem
 	Method _Animate:Void(animMatrices:Float[][], frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
 		'We can only animate if the mesh has bones
 		If mBones.Length() > 0
@@ -972,6 +975,7 @@ Public
 			Next
 		End
 	End
+	#End
 	
 	Method _AnimateVertices:Void(frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
 		'If we have not specified the ending frame of the sequence, take the last frame in the entire animation
