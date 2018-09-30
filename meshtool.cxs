@@ -120,7 +120,7 @@ Public
 	Method OnRender:Int()
 		'Clear background
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Graphics.ClearColorBuffer(Color.WHITE)
+		Graphics.Clear(Color.WHITE)
 		
 		'Render world
 		World.Render()

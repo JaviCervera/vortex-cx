@@ -20,9 +20,9 @@ Public
 		mCubeOpacity = 0.5
 		mRefractCoef = -1
 		mBlendMode = Renderer.BLEND_SOLID
-		mLighting = True
 		mCulling = True
 		mDepthWrite = True
+		mLighting = True
 		mCastShadows = True
 		mReceiveShadows = True
 		mSpecularPower = 64

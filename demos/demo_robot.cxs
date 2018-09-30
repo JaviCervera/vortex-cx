@@ -29,7 +29,7 @@ Public
 		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
-		mFont = Font.Load("system.fnt.dat")
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
 		
 		'Create camera
 		mCam = New Camera()

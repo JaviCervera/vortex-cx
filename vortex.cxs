@@ -1,8 +1,6 @@
-'TODO v2.0-beta2
-'* Change font format
-'- Add Material.Fog and export Lighting, Fog, CastShadows and ReceiveShadows material flags to mesh file
-'- Optimize size of meshes exported with meshtool (and do not export vta if mesh is static)
-'TODO v2.0-beta3
+'TODO v2.0.0-beta3
+'- Add Material.Fog and export flag to mesh file
+'- Vertex color importing in meshtool
 '- Write JSON based UI in tools
 '- Add picogfx backend
 '- Add Material.AmbientTexture and Material.AmbientColor
@@ -16,14 +14,14 @@
 '- Fix animation issues
 '- Animate surface indices
 '- Add fixes for Android
-'TODO v2.0-beta4
+'TODO v2.0.0-beta4
 '- Move matrices calculation out of ShaderUniforms.Prepare
 '- Add Material._RendersStep (should improve sprite rendering speed?)
 '- Add Texture.SetPixels method
 '- Add shader test
 '- Add picking test
 '- Fix framebuffer, retina display and rotation on iOS
-'TODO v2.0:
+'TODO v2.0.0:
 '- Refactor Cache class (add _AddFont, _AddTexture, etc methods)
 '- Make shadows work even without lights and when Material.Lighting = False
 '- Add alpha support to shadows
@@ -38,18 +36,18 @@
 '- Document tools
 '- Make sure that everything is documented
 '- Consider switching to Zlib or another license?
-'TODO v2.1:
+'TODO v2.1.0:
 '- Add particles
 '- Add spot lights
 '- Add multiple shadows
 '- Improve shadows (PCF, cascade...)
-'TODO v2.2:
+'TODO v2.2.0:
 '- Sort lights before rendering each model
 '- Check that an object's bounding box is in view before rendering
 '- Add SpriteBatch
 '- Add RenderList
 
-'TODO v2.x:
+'TODO v2.x.x:
 '- Add bloom filter based on emissive and specular outputs
 '- Masked blend mode?
 '- Texture compression?

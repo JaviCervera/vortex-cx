@@ -62,7 +62,7 @@ Public
 	Method Render:Void(currentFont:Font)
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		Graphics.BlendMode(Graphics.BLEND_ALPHA)
-		Graphics.ClearColorBuffer(Color.RGB(50, 50, 50))
+		Graphics.Clear(Color.RGB(50, 50, 50))
 		If currentFont
 			DrawPanel(mFontRect, "Font: " + StripDir(StripExt(StripExt(currentFont.Filename))), mFont)
 		Else

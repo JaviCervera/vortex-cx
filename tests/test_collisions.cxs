@@ -22,7 +22,7 @@ Public
 		If Not World.Init() Then EndApp()
 		
 		'Load font
-		mFont = Font.Load("system.fnt.dat")
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
 		
 		'Setup world
 		World.Ambient(Color.LIGHT_GRAY)

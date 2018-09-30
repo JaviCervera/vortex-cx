@@ -26,7 +26,7 @@ Public
 		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
-		mFont = Font.Load("system.fnt.dat")
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
 		
 		'Load image
 		mImage = Texture.Load("smile.png")
@@ -52,7 +52,7 @@ Public
 		
 		'Draw image
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Graphics.ClearColorBuffer()
+		Graphics.Clear()
 		mImage.Draw((DeviceWidth() - mImage.Width)/2, (DeviceHeight() - mImage.Height)/2)
 		
 		'Draw FPS

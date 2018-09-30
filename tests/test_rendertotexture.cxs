@@ -40,7 +40,7 @@ Class TestApp Extends App
 		
 		'Draw 2D stuff
 		Graphics.Setup2D(0, 0, 512, 512)
-		Graphics.ClearColorBuffer(Color.WHITE)
+		Graphics.Clear(Color.WHITE)
 		Graphics.Color(Color.ORANGE)
 		Graphics.DrawRect(Rnd(0, 512), Rnd(0, 512), Rnd(0, 512), Rnd(0, 512))
 		Graphics.Color(Color.BROWN)

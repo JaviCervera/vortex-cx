@@ -28,7 +28,7 @@ Public
 		'Shader.DefaultType(Shader.TYPE_VERTEX_LIGHTING)
 		
 		'Load font
-		mFont = Font.Load("system.fnt.dat")
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
 		
 		'Create camera
 		mCam = New Camera()

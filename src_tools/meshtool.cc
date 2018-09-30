@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
   }
 
   // save vertex animations
-  if ( isVertexAnim ) {
+  if ( isVertexAnim && mesh->num_frames > 1 ) {
     SaveVTA(mesh, StripExt(meshfile) + ".vta.dat");
   }
   
