@@ -169,7 +169,13 @@ Class Camera Extends Entity
 		mFramebuffer = fb
 	End
 	
+	Function Current:Camera()
+		Return mCurrent
+	End
+	
 	Method _PrepareForRender:Void()
+		mCurrent = Self
+	
 		'Set framebuffer
 		If mFramebuffer
 			mFramebuffer.Use()
@@ -202,6 +208,7 @@ Class Camera Extends Entity
 		End
 	End
 Private
+	Global mCurrent				: Camera
 	Field mVX					: Int
 	Field mVY					: Int
 	Field mVW					: Int
