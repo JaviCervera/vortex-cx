@@ -180,8 +180,11 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	
 	'Flags
 	Local flags:Int = 0
-	If mat.Culling Then flags |= 1
-	If mat.DepthWrite Then flags |= 2
+	If Not mat.Culling Then flags |= 1
+	If Not mat.DepthWrite Then flags |= 2
+	If Not mat.Lighting Then flags |= 4
+	If Not mat.CastShadows Then flags |= 8
+	If Not mat.ReceiveShadows Then flags |= 16
 	stream.WriteByte(flags)
 	
 	'Shininess

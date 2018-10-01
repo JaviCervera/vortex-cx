@@ -28,7 +28,7 @@ Public
 		'Shader.DefaultType(Shader.TYPE_VERTEX_LIGHTING)
 		
 		'Load font
-		mFont = Font.Load("system.fnt.dat")
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
 		
 		'Create camera
 		mCam = New Camera()
@@ -61,11 +61,6 @@ Public
 		
 		'Update world
 		World.Update()
-		
-		'Update camera view
-		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
-		mCam.ViewportWidth = DeviceWidth()
-		mCam.ViewportHeight = DeviceHeight()
 		
 		'Update model
 		mModel.Yaw += 32 * World.DeltaTime()

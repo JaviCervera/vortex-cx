@@ -43,7 +43,7 @@ Public
 		Next
 		
 		'Load font
-		mFont = Font.Load("system.fnt.dat")
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
 		
 		Return False
 	End

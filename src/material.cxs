@@ -20,9 +20,9 @@ Public
 		mCubeOpacity = 0.5
 		mRefractCoef = -1
 		mBlendMode = Renderer.BLEND_SOLID
-		mLighting = True
 		mCulling = True
 		mDepthWrite = True
+		mLighting = True
 		mCastShadows = True
 		mReceiveShadows = True
 		mSpecularPower = 64
@@ -126,14 +126,6 @@ Public
 	
 	Method CubeTexture:Texture() Property
 		Return mCubeTex
-	End
-	
-	Method RefractionTexture:Void(tex:Texture) Property
-		mRefractTex = tex
-	End
-	
-	Method RefractionTexture:Texture() Property
-		Return mRefractTex
 	End
 
 	Method Shininess:Void(shininess:Float) Property

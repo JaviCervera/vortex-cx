@@ -7,14 +7,14 @@
 #include <iostream>
 #include <vector>
 
+#define FIRST_CHAR 32
+#define NUM_CHARS 224
+
 using namespace std;
 
 int main(int argc, char* argv[]) {
-  int firstChar = 32;
-  int numGlyphs = 224;
-
   // check command line
-  if ( argc != 3 ) {
+  if (argc != 3) {
     cout << "Usage: fonttool fontfile fontsize" << endl;
     return -1;
   }
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 
   // read file
   ifstream file(fontfile.c_str(), std::ios::binary | std::ios::ate);
-  if ( !file.is_open() ) {
+  if (!file.is_open()) {
     cout << "Error: Could not load file '" << fontfile << "'" << endl;
     return -1;
   }
@@ -34,18 +34,18 @@ int main(int argc, char* argv[]) {
   file.read(reinterpret_cast<char*>(&buf[0]), buf.size());
 
   // bake font into temp alpha buffer
-  stbtt_bakedchar charData[224];
+  stbtt_bakedchar charData[NUM_CHARS];
   int imgWidth = 128, imgHeight = 128;
   std::vector<unsigned char> alphaBuffer(imgWidth * imgHeight);
-  while ( stbtt_BakeFontBitmap(&buf[0], 0, fontsize, &alphaBuffer[0], imgWidth, imgHeight, firstChar, numGlyphs, charData) <= 0 ) {
-    if ( imgWidth == imgHeight ) imgWidth *= 2;
+  while (stbtt_BakeFontBitmap(&buf[0], 0, fontsize, &alphaBuffer[0], imgWidth, imgHeight, FIRST_CHAR, NUM_CHARS, charData) <= 0) {
+    if (imgWidth == imgHeight) imgWidth *= 2;
     else imgHeight *= 2;
     alphaBuffer.resize(imgWidth * imgHeight);
   }
   
   // copy alpha buffer into color buffer
   std::vector<unsigned char> colorBuffer(imgWidth * imgHeight * 4, 255);
-  for ( int i = 0; i < imgWidth*imgHeight; i++ ) {
+  for (int i = 0; i < imgWidth*imgHeight; i++) {
     colorBuffer[i*4 + 3] = alphaBuffer[i];
   }
   
@@ -71,30 +71,15 @@ int main(int argc, char* argv[]) {
   dat.write(reinterpret_cast<const char*>(&fontHeight), sizeof(fontHeight));
 
   // num glyphs
+  int numGlyphs = NUM_CHARS;
   dat.write(reinterpret_cast<const char*>(&numGlyphs), sizeof(numGlyphs));
 
   // first char
+  int firstChar = FIRST_CHAR;
   dat.write(reinterpret_cast<const char*>(&firstChar), sizeof(firstChar));
 
   // glyphs
-  for ( size_t i = 0; i < numGlyphs; ++i ) {
-    float x = charData[i].x0;
-    float y = charData[i].y0;
-    float width = charData[i].x1 - charData[i].x0;
-    float height = charData[i].y1 - charData[i].y0;
-    float xoffset = charData[i].xoff;
-    float yoffset = height + charData[i].yoff;
-    dat.write(reinterpret_cast<const char*>(&x), sizeof(x));
-    dat.write(reinterpret_cast<const char*>(&y), sizeof(y));
-    dat.write(reinterpret_cast<const char*>(&width), sizeof(width));
-    dat.write(reinterpret_cast<const char*>(&height), sizeof(height));
-    dat.write(reinterpret_cast<const char*>(&xoffset), sizeof(xoffset));
-    dat.write(reinterpret_cast<const char*>(&yoffset), sizeof(yoffset));
-  }
-
-  /*
-  // glyphs
-  for ( size_t i = 0; i < numGlyphs; ++i ) {
+  for (size_t i = 0; i < NUM_CHARS; ++i) {
     float px = 0, py = 0;
     stbtt_aligned_quad q;
     stbtt_GetBakedQuad(charData, imgWidth, imgHeight, i, &px, &py, &q, true);
@@ -111,7 +96,6 @@ int main(int argc, char* argv[]) {
     dat.write(reinterpret_cast<const char*>(&xoffset), sizeof(xoffset));
     dat.write(reinterpret_cast<const char*>(&yoffset), sizeof(yoffset));
   }
-  */
 
   return 0;
 }

@@ -84,11 +84,12 @@ Public
 	End
 
 	Method Draw:Void(x:Float, y:Float, text:String)
+		y += mMaxHeight
 		For Local i:Int = 0 Until text.Length()
 			Local glyph:Glyph = mGlyphs[text[i]-32]
 			If text[i]-32 <> 0 And glyph.mWidth <> 0 And glyph.mHeight <> 0
-				mTexture.Draw(x + glyph.mXOffset, y + (mMaxHeight - glyph.mHeight) + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
-				'mTexture.Draw(x + glyph.mXOffset, y + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
+				'mTexture.Draw(x + glyph.mXOffset, y + (mMaxHeight - glyph.mHeight) + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
+				mTexture.Draw(x + glyph.mXOffset, y + glyph.mYOffset, 0, 0, glyph.mX, glyph.mY, glyph.mWidth, glyph.mHeight)
 			End
 			x += glyph.mWidth
 		Next

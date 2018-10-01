@@ -26,7 +26,7 @@ Public
 		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
-		mFont = Font.Load("system.fnt.dat")
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
 		
 		'Set fog
 		World.FogEnabled(True)
@@ -69,11 +69,6 @@ Public
 		
 		'Update world
 		World.Update()
-		
-		'Update camera view
-		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
-		mCam.ViewportWidth = DeviceWidth()
-		mCam.ViewportHeight = DeviceHeight()
 	
 		'Rotate cubes
 		For Local cube:Model = Eachin mCubes
