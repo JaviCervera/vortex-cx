@@ -26,7 +26,7 @@ Public
 		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
-		mFont = Font.Load("system.fnt.dat")
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
 		
 		'Set skybox
 		World.SkyboxTexture(Texture.Load("left.jpg", "right.jpg", "front.jpg", "back.jpg", "top.jpg", "bottom.jpg"))
@@ -57,11 +57,6 @@ Public
 		
 		'Update world
 		World.Update()
-		
-		'Update camera
-		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
-		mCam.ViewportWidth = DeviceWidth()
-		mCam.ViewportHeight = DeviceHeight()
 		
 		'Rotate camera
 		mCam.Yaw += 32 * World.DeltaTime()

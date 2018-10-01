@@ -17,8 +17,8 @@ Class Entity
 	Const COLLISION_BOX		: Int = 2
 
 	Method New(parent:Entity = Null)
-		Parent = parent
 		mChildren = New List<Entity>
+		Parent = parent
 		mActive = False		'Subclases should change this if needed
 		mVisible = False	'Subclases should change this if needed
 		Scale(1, 1, 1)

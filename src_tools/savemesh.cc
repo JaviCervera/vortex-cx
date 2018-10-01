@@ -2,12 +2,48 @@
 #include "stringutils.h"
 #include <fstream>
 
+template<typename T> T min(T a, T b) { return a < b ? a : b; }
+template<typename T> T max(T a, T b) { return a > b ? a : b; }
+
 static int rgb(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
   return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
-template<typename T> T min(T a, T b) { return a < b ? a : b; }
-template<typename T> T max(T a, T b) { return a > b ? a : b; }
+static int NormalsSize(const surface_t& surf) {
+  for (size_t v = 0; v < surf.vertices.size(); ++v) {
+    if (surf.vertices[v].nx != 0 || surf.vertices[v].ny != 0 || surf.vertices[v].nz != 0) {
+      return surf.vertices.size() * 3 * 4;
+    }
+  }
+  return 0;
+}
+
+static int TangentsSize(const surface_t& surf) {
+  for (size_t v = 0; v < surf.vertices.size(); ++v) {
+    if (surf.vertices[v].tx != 0 || surf.vertices[v].ty != 0 || surf.vertices[v].tz != 0) {
+      return surf.vertices.size() * 3 * 4;
+    }
+  }
+  return 0;
+}
+
+static int Tex0Size(const surface_t& surf) {
+  for (size_t v = 0; v < surf.vertices.size(); ++v) {
+    if (surf.vertices[v].u0 != 0 || surf.vertices[v].v0 != 0) {
+      return surf.vertices.size() * 2 * 4;
+    }
+  }
+  return 0;
+}
+
+static int Tex1Size(const surface_t& surf) {
+  for (size_t v = 0; v < surf.vertices.size(); ++v) {
+    if (surf.vertices[v].u1 != surf.vertices[v].u0 || surf.vertices[v].v1 != surf.vertices[v].v0) {
+      return surf.vertices.size() * 2 * 4;
+    }
+  }
+  return 0;
+}
 
 void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights) {
   // create file
@@ -36,8 +72,8 @@ void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights
     float cubeOpacity = 0.5f;
     float refrCoef = -1;
     unsigned char usedTexs = 0;
-    if ( surf.material.culling ) flags |= 1;
-    if ( surf.material.depth_write ) flags |= 2;
+    if ( !surf.material.culling ) flags |= 1;
+    if ( !surf.material.depth_write ) flags |= 2;
     if ( surf.material.base_tex != "" ) usedTexs |= 1;
     if ( surf.material.lightmap != "" ) usedTexs |= 32;
     f.write(reinterpret_cast<const char*>(&color), sizeof(color));
@@ -67,7 +103,11 @@ void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights
     // write surface
     int numIndices = static_cast<int>(surf.indices.size());
     unsigned short numVertices = static_cast<unsigned short>(surf.vertices.size());
-    unsigned char vertexFlags = 1 | 2 | 8 | 16;
+    unsigned char vertexFlags = 0;
+    if ( NormalsSize(surf) > 0 ) vertexFlags |= 1;
+    if ( TangentsSize(surf) > 0 ) vertexFlags |= 2;
+    if ( Tex0Size(surf) > 0 ) vertexFlags |= 8;
+    if ( Tex1Size(surf) > 0 ) vertexFlags |= 16;
     if ( exportWeights ) vertexFlags |= 32;
     f.write(reinterpret_cast<const char*>(&numIndices), sizeof(numIndices));
     f.write(reinterpret_cast<const char*>(&numVertices), sizeof(numVertices));
@@ -77,17 +117,25 @@ void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights
       f.write(reinterpret_cast<const char*>(&surf.vertices[v].x), sizeof(float));
       f.write(reinterpret_cast<const char*>(&surf.vertices[v].y), sizeof(float));
       f.write(reinterpret_cast<const char*>(&surf.vertices[v].z), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].nx), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].ny), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].nz), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].tx), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].ty), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].tz), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].u0), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].v0), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].u1), sizeof(float));
-      f.write(reinterpret_cast<const char*>(&surf.vertices[v].v1), sizeof(float));
-      if ( exportWeights ) {
+      if ( vertexFlags & 1 ) {
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].nx), sizeof(float));
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].ny), sizeof(float));
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].nz), sizeof(float));
+      }
+      if ( vertexFlags & 2 ) {
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].tx), sizeof(float));
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].ty), sizeof(float));
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].tz), sizeof(float));
+      }
+      if ( vertexFlags & 8 ) {
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].u0), sizeof(float));
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].v0), sizeof(float));
+      }
+      if ( vertexFlags & 16 ) {
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].u1), sizeof(float));
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].v1), sizeof(float));
+      }
+      if ( vertexFlags & 32 ) {
         unsigned short b0 = static_cast<unsigned short>(surf.vertices[v].bones[0]);
         unsigned short b1 = static_cast<unsigned short>(surf.vertices[v].bones[1]);
         unsigned short b2 = static_cast<unsigned short>(surf.vertices[v].bones[2]);

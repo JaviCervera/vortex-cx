@@ -26,7 +26,7 @@ Public
 		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
-		mFont = Font.Load("system.fnt.dat")		
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")		
 		
 		'Load texture
 		Local smileTex:Texture = Texture.Load("smile.png")
@@ -60,11 +60,6 @@ Public
 		
 		'Update world
 		World.Update()
-		
-		'Update camera
-		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
-		mCam.ViewportWidth = DeviceWidth()
-		mCam.ViewportHeight = DeviceHeight()
 		
 		'Increment camera rotation
 		mCam.Yaw += 32 * World.DeltaTime()

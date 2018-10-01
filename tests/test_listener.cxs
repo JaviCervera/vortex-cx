@@ -27,7 +27,7 @@ Public
 		Print "Shading version name: " + Graphics.ShadingVersionName()
 		
 		'Load font
-		mFont = Font.Load("system.fnt.dat")
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
 		
 		'Load sound and get available channel
 		mSound = LoadSound("heli.wav")
@@ -86,11 +86,6 @@ Public
 		
 		'Update world
 		World.Update()
-		
-		'Update camera view
-		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
-		mCam.ViewportWidth = DeviceWidth()
-		mCam.ViewportHeight = DeviceHeight()
 		
 		'Rotate and move camera
 		If KeyDown(KEY_LEFT) Then mCam.Yaw -= 64 * World.DeltaTime()

@@ -70,11 +70,6 @@ Class TestApp Extends App
 		'Update world
 		World.Update()
 		
-		'Update camera view
-		mCam.AspectRatio = Float(DeviceWidth()) / DeviceHeight()
-		mCam.ViewportWidth = DeviceWidth()
-		mCam.ViewportHeight = DeviceHeight()
-		
 		'Rotate quad
 		mModel.Pitch = ((MouseY() * 2 / DeviceHeight()) - 1) * -20
 		mModel.Yaw = ((MouseX() * 2 / DeviceWidth()) - 1) * -20

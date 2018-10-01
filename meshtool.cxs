@@ -81,7 +81,6 @@ Public
 		
 		'Update camera view
 		mCam.Viewport(0, 24, DeviceWidth(), DeviceHeight() - 24)
-		mCam.AspectRatio = Float(mCam.ViewportWidth) / mCam.ViewportHeight
 		
 		'Update camera controls
 		If MouseHit(MOUSE_RIGHT)
@@ -120,7 +119,7 @@ Public
 	Method OnRender:Int()
 		'Clear background
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Graphics.ClearColorBuffer(Color.WHITE)
+		Graphics.Clear(Color.WHITE)
 		
 		'Render world
 		World.Render()

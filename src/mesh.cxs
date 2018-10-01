@@ -185,6 +185,7 @@ Public
 	End
 	#End
 	
+	#Rem
 	Method AddBone:Void(bone:Bone)
 		mBones = mBones.Resize(mBones.Length() + 1)
 		mBones[mBones.Length() - 1] = bone
@@ -205,6 +206,7 @@ Public
 		Next
 		Return -1
 	End
+	#End
 	
 	Method Width:Float() Property
 		Return mBoxMax[0] - mBoxMin[0]
@@ -631,8 +633,11 @@ Public
 			stream.ReadInt()	'Unused ambient color
 			mat.BlendMode = stream.ReadByte() & $FF
 			flags = stream.ReadByte() & $FF
-			If flags & 1 Then mat.Culling = True Else mat.Culling = False
-			If flags & 2 Then mat.DepthWrite = True Else mat.DepthWrite = False
+			If flags & 1 Then mat.Culling = False Else mat.Culling = True
+			If flags & 2 Then mat.DepthWrite = False Else mat.DepthWrite = True
+			If flags & 4 Then mat.Lighting = False Else mat.Lighting = True
+			If flags & 8 Then mat.CastShadows = False Else mat.CastShadows = True
+			If flags & 16 Then mat.ReceiveShadows = False Else mat.ReceiveShadows = True
 			mat.Shininess = Color.Alpha(specular) / 255.0 'stream.ReadFloat()
 			mat.SpecularPower = stream.ReadFloat()
 			mat.CubeOpacity = stream.ReadFloat()
@@ -949,6 +954,7 @@ Public
 		Return True
 	End
 	
+	#Rem
 	Method _Animate:Void(animMatrices:Float[][], frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
 		'We can only animate if the mesh has bones
 		If mBones.Length() > 0
@@ -969,6 +975,7 @@ Public
 			Next
 		End
 	End
+	#End
 	
 	Method _AnimateVertices:Void(frame:Float, firstFrame:Int = 0, lastFrame:Int = 0)
 		'If we have not specified the ending frame of the sequence, take the last frame in the entire animation
