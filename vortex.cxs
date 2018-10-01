@@ -1,29 +1,30 @@
 'TODO v2.0.0-beta3
-'- Add Material.Fog and export flag to mesh file
 '- Vertex color importing in meshtool
-'- Write JSON based UI in tools
-'- Add picogfx backend
+'- Add Material.Fog and export flag to mesh file
 '- Add Material.AmbientTexture and Material.AmbientColor
 '- Add Material.EmissiveTexture and Material.EmissiveColor
 '- Add Material.SpecularTexture and Material.SpecularColor (Shininess property only modifies the Alpha of this color)
-'- Add MD2 and ASSBIN loaders (remove meshtool?)
+'- Add Texture.SetPixels method
+'- Write JSON based UI in tools
+'- Rewrite renderer
 '- Check why text does not render correctly when using pixel lighting
 '* Added #defines to shader code, so there are several combinations for the default shader (static / skinned, no fog / fog, no shadows / shadows, no cubemap / cubemap, vlit / plit)
 '* Refactored RenderState class (add PixelLighting, NormalMapping, SpecularMapping, CubeMapping, DepthPass)
 '- Reduced shader vars (compact floats in vec4's, etc), rename and document them
-'- Fix animation issues
-'- Animate surface indices
 '- Add fixes for Android
+
 'TODO v2.0.0-beta4
+'- Fix bone animation issues
+'- Animate surface indices
 '- Move matrices calculation out of ShaderUniforms.Prepare
 '- Add Material._RendersStep (should improve sprite rendering speed?)
-'- Add Texture.SetPixels method
 '- Add shader test
 '- Add picking test
 '- Fix framebuffer, retina display and rotation on iOS
+
 'TODO v2.0.0:
-'- Refactor Cache class (add _AddFont, _AddTexture, etc methods)
-'- Make shadows work even without lights and when Material.Lighting = False
+'- Refactor Cache class (add _AddFont, _AddTexture, etc methods) - not needed anymore?
+'- Make shadows work even without lights and when Material.Lighting = False - without lights?
 '- Add alpha support to shadows
 '- Make sure that shadows work correctly on skinned meshes
 '- Add cone, cylinder and sphere primitives (maybe rename wedge to ramp)?
@@ -36,30 +37,34 @@
 '- Document tools
 '- Make sure that everything is documented
 '- Consider switching to Zlib or another license?
+
 'TODO v2.1.0:
 '- Add particles
+'- Add SpriteBatch
+
+'TODO v2.2.0:
 '- Add spot lights
 '- Add multiple shadows
-'- Improve shadows (PCF, cascade...)
-'TODO v2.2.0:
+'- Improve shadows (PCF, cascaded...)
+
+'TODO v2.3.0:
 '- Sort lights before rendering each model
 '- Check that an object's bounding box is in view before rendering
-'- Add SpriteBatch
 '- Add RenderList
 
 'TODO v2.x.x:
 '- Add bloom filter based on emissive and specular outputs
 '- Masked blend mode?
 '- Texture compression?
-'- Write Assimp mesh loader
 '- Write worldtool with lightmapping support
+'- Add MD2, OBJ and ASSBIN loaders (replace meshtool with materialtool?) - not sure about this
 
 'Enable depth buffer when using this module
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 
 Strict
 
-Import src.bone
+'Import src.bone
 Import src.cache
 Import src.camera
 Import src.color
