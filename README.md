@@ -27,3 +27,16 @@ You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, 
 * **Sean T. Barret** for his **stb_image_write** and **stb_truetype** libraries, used on the tools (these libraries are public domain).
 
 ![meshtool](./stuff/meshtool.jpg)
+
+## TODO v2.0.0-beta3
+- [ ] Use CamelCase in constants
+- [ ] Vertex color importing in meshtool
+- [ ] Add Material.Fog and export flag to mesh file
+- [ ] Add Material.AmbientTexture and Material.AmbientColor
+- [ ] Add Material.EmissiveTexture and Material.EmissiveColor
+- [ ] Add Material.SpecularTexture and Material.SpecularColor (Shininess property only modifies the Alpha of this color)
+- [ ] Add Texture.SetPixels method
+- [ ] Rewrite renderer
+- [ ] Added #defines to shader code, so there are several combinations for the default shader (static / skinned, no fog / fog, no shadows / shadows, no cubemap / cubemap, vlit / plit)
+- [ ] Reduced shader vars (compact floats in vec4's, etc), rename and document them
+- [ ] Add fixes for Android

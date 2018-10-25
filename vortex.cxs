@@ -1,19 +1,5 @@
-'TODO v2.0.0-beta3
-'- Vertex color importing in meshtool
-'- Add Material.Fog and export flag to mesh file
-'- Add Material.AmbientTexture and Material.AmbientColor
-'- Add Material.EmissiveTexture and Material.EmissiveColor
-'- Add Material.SpecularTexture and Material.SpecularColor (Shininess property only modifies the Alpha of this color)
-'- Add Texture.SetPixels method
-'- Write JSON based UI in tools
-'- Rewrite renderer
-'- Check why text does not render correctly when using pixel lighting
-'* Added #defines to shader code, so there are several combinations for the default shader (static / skinned, no fog / fog, no shadows / shadows, no cubemap / cubemap, vlit / plit)
-'* Refactored RenderState class (add PixelLighting, NormalMapping, SpecularMapping, CubeMapping, DepthPass)
-'- Reduced shader vars (compact floats in vec4's, etc), rename and document them
-'- Add fixes for Android
-
 'TODO v2.0.0-beta4
+'- Write JSON based UI in tools
 '- Fix bone animation issues
 '- Animate surface indices
 '- Move matrices calculation out of ShaderUniforms.Prepare
