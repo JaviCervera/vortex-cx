@@ -14,15 +14,15 @@ Public
 Import entity
 
 Class Camera Extends Entity
-	Const CLEAR_NONE	: Int = 0
-	Const CLEAR_COLOR	: Int = 1
-	Const CLEAR_SKYBOX	: Int = 2
+	Const ClearNone	: Int = 0
+	Const ClearColor	: Int = 1
+	Const ClearSkybox	: Int = 2
 	
 	Method New(parent:Entity = Null)
 		Super.New(parent)
 		Viewport(0, 0, -1, -1)
-		mClearMode = CLEAR_COLOR
-		mClearColor = Color.RGB(55, 155, 255)
+		mClearMode = ClearColor
+		mBackColor = Color.RGB(55, 155, 255)
 		FovY = 50
 		AspectRatio = -1
 		Near = 1
@@ -39,7 +39,7 @@ Class Camera Extends Entity
 	Method CollisionMode:Void(mode:Int) Property
 		If mode <> Super.CollisionMode
 			Super.CollisionMode(mode)
-			If mode <> COLLISION_NONE Then Active = True
+			If mode <> CollisionNone Then Active = True
 		End
 	End
 	
@@ -106,15 +106,15 @@ Class Camera Extends Entity
 	End
 	
 	Method ClearMode:Void(mode:Int) Property
-		mClearMode = Clamp(mode, CLEAR_NONE, CLEAR_SKYBOX)
+		mClearMode = Clamp(mode, ClearNone, ClearSkybox)
 	End
 	
-	Method ClearColor:Int() Property
-		Return mClearColor
+	Method BackColor:Int() Property
+		Return mBackColor
 	End
 	
-	Method ClearColor:Void(color:Int) Property
-		mClearColor = color
+	Method BackColor:Void(color:Int) Property
+		mBackColor = color
 	End
 	
 	Method Orthographic:Bool() Property
@@ -201,9 +201,9 @@ Class Camera Extends Entity
 		'Clear buffers
 		Renderer.ClearDepthBuffer()
 		Select mClearMode
-		Case CLEAR_COLOR
-			Renderer.ClearColorBuffer(ClearColor)
-		Case CLEAR_SKYBOX
+		Case ClearColor
+			Renderer.ClearColorBuffer(BackColor)
+		Case ClearSkybox
 			World._RenderSkybox(WorldX, WorldY, WorldZ)
 		End
 	End
@@ -214,7 +214,7 @@ Private
 	Field mVW					: Int
 	Field mVH					: Int
 	Field mClearMode	: Int
-	Field mClearColor	: Int
+	Field mBackColor	: Int
 	Field mOrtho			: Bool
 	Field mFovY				: Float
 	Field mRatio			: Float

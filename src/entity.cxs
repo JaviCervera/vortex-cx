@@ -12,9 +12,9 @@ Import world
 
 Public
 Class Entity
-	Const COLLISION_NONE	: Int = 0
-	Const COLLISION_SPHERE	: Int = 1
-	Const COLLISION_BOX		: Int = 2
+	Const CollisionNone	: Int = 0
+	Const CollisionSphere	: Int = 1
+	Const CollisionBox		: Int = 2
 
 	Method New(parent:Entity = Null)
 		mChildren = New List<Entity>
@@ -141,7 +141,7 @@ Class Entity
 		QuatSetEuler(mRotation[0], mRotation[1], mRotation[2], mTempArr)
 		QuatMulVec3(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3], x, y, z, mTempArr)
 		
-		If CollisionMode <> COLLISION_NONE 'And Active
+		If CollisionMode <> CollisionNone 'And Active
 			'Reset collision status
 			mCollided = False
 			mCollidedEntity = Null
@@ -155,8 +155,8 @@ Class Entity
 			If collideWithEntities
 				For Local other:Entity = Eachin World._Entities()
 					'Do not check collisions with itself
-					If other <> Self And other.CollisionMode <> COLLISION_NONE And other.Active
-						If CollisionMode = COLLISION_SPHERE And other.CollisionMode = COLLISION_SPHERE
+					If other <> Self And other.CollisionMode <> CollisionNone And other.Active
+						If CollisionMode = CollisionSphere And other.CollisionMode = CollisionSphere
 							If Collision.SphereSphere(WorldX + mTempArr[0], WorldY, WorldZ, mSqRadius, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
@@ -172,7 +172,7 @@ Class Entity
 								mCollidedEntity = other
 								mTempArr[2] = 0
 							End
-						Elseif CollisionMode = COLLISION_SPHERE And other.CollisionMode = COLLISION_BOX
+						Elseif CollisionMode = CollisionSphere And other.CollisionMode = CollisionBox
 							If Collision.BoxSphere(other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ, WorldX + mTempArr[0], WorldY, WorldZ, mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
@@ -188,7 +188,7 @@ Class Entity
 								mCollidedEntity = other
 								mTempArr[2] = 0
 							End
-						Elseif CollisionMode = COLLISION_BOX And other.CollisionMode = COLLISION_SPHERE
+						Elseif CollisionMode = CollisionBox And other.CollisionMode = CollisionSphere
 							If Collision.BoxSphere(BoxMinX + mTempArr[0], BoxMinY, BoxMinZ, BoxMaxX + mTempArr[0], BoxMaxY, BoxMaxZ, other.WorldX, other.WorldY, other.WorldZ, other.mSqRadius)
 								mCollided = True
 								mCollidedEntity = other
@@ -204,7 +204,7 @@ Class Entity
 								mCollidedEntity = other
 								mTempArr[2] = 0
 							End
-						Elseif CollisionMode = COLLISION_BOX And other.CollisionMode = COLLISION_BOX
+						Elseif CollisionMode = CollisionBox And other.CollisionMode = CollisionBox
 							If Collision.BoxBox(BoxMinX + mTempArr[0], BoxMinY, BoxMinZ, BoxMaxX + mTempArr[0], BoxMaxY, BoxMaxZ, other.BoxMinX, other.BoxMinY, other.BoxMinZ, other.BoxMaxX, other.BoxMaxY, other.BoxMaxZ)
 								mCollided = True
 								mCollidedEntity = other

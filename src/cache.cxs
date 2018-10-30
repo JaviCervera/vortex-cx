@@ -35,7 +35,7 @@ Public
 		Return font
 	End
 
-	Function _LoadMesh:Mesh(filename:String, skeletonFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
+	Function _LoadMesh:Mesh(filename:String, skeletonFilename:String = "", texFilter:Int = Renderer.FilterTrilinear)
 		'Search for the mesh in all allocated caches
 		For Local i:Int = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mMeshes.Contains(filename)
@@ -64,7 +64,7 @@ Public
 		Return sound
 	End
 
-	Function _LoadTexture:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
+	Function _LoadTexture:Texture(filename:String, filter:Int = Renderer.FilterTrilinear)
 		'Search for the texture in all allocated caches
 		For Local i:Int = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mTextures.Contains(filename)
@@ -78,7 +78,7 @@ Public
 		Return tex
 	End
 	
-	Function _LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
+	Function _LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FilterTrilinear)
 		Local filename:String = left + "," + right + "," + front + "," + back + "," + top + "," + bottom
 		
 		'Search for the texture in all allocated caches

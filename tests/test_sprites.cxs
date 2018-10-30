@@ -34,7 +34,7 @@ Public
 		'Create camera
 		mCam = New Camera()
 		mCam.Rotate(45, -45, 0)
-		mCam.ClearColor = Color.WHITE
+		mCam.BackColor = Color.White
 		
 		'Create sprites
 		Local x:Float = -8, z:Float = -8
@@ -47,7 +47,7 @@ Public
 		Next
 		
 		'Disable sun
-		World.SunColor(Color.BLACK)
+		World.SunColor(Color.Black)
 		
 		Return False
 	End
@@ -77,7 +77,7 @@ Public
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Graphics.Color(Color.BLACK)
+		Graphics.Color(Color.Black)
 		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

@@ -32,7 +32,7 @@ Public
 		mCam = New Camera()
 		mCam.Position(0, 64, -128)
 		mCam.Rotate(15, 0, 0)
-		mCam.ClearColor = Color.RGB(15, 15, 15)
+		mCam.BackColor = Color.RGB(15, 15, 15)
 		
 		'Load dwarf model
 		Local model:Model = New Model(Mesh.Load("dwarf.msh.dat"))
@@ -60,7 +60,7 @@ Public
 		
 		'Setup graphics for 2D
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Graphics.Color(Color.WHITE)
+		Graphics.Color(Color.White)
 		'mFont.Draw(4, DeviceHeight() - 20, "Time: " + Int(mDwarfModel.AnimTime))
 		
 		'Draw FPS

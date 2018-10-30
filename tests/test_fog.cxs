@@ -30,13 +30,13 @@ Public
 		
 		'Set fog
 		World.FogEnabled(True)
-		World.FogColor(Color.DARK_GRAY)
+		World.FogColor(Color.DarkGray)
 		World.FogMinDistance(0)
 		World.FogMaxDistance(20)
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.ClearColor = Color.DARK_GRAY
+		mCam.BackColor = Color.DarkGray
 		mCam.Position(0, 0, -7)
 		mCam.Far = 5000
 		
@@ -49,10 +49,10 @@ Public
 		Local z:Float = mCubes.Length / 16 * 2 - 2
 		For Local i:Int = 0 Until mCubes.Length Step 2
 			mCubes[i] = New Model(mesh)
-			mCubes[i].Material.Color = Color.BROWN
+			mCubes[i].Material.Color = Color.Brown
 			mCubes[i].Position(x, -1.5, z)
 			mCubes[i+1] = New Model(mesh)
-			mCubes[i+1].Material.Color = Color.BROWN
+			mCubes[i+1].Material.Color = Color.Brown
 			mCubes[i+1].Position(x, 1.5, z)
 			x += 2
 			If x > 7 Then x = -7; z -= 2
@@ -91,7 +91,7 @@ Public
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Graphics.Color(Color.WHITE)
+		Graphics.Color(Color.White)
 		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

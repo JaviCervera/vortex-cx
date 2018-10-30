@@ -25,7 +25,7 @@ Public
 		Print "Renderer name: " + Graphics.RendererName()
 		Print "API version name: " + Graphics.APIVersionName()
 		Print "Shading version name: " + Graphics.ShadingVersionName()
-		'Shader.DefaultType(Shader.TYPE_VERTEX_LIGHTING)
+		'Shader.DefaultType(Shader.TypeVertexLighting)
 		
 		'Load font
 		mFont = Font.Load("Roboto-Black_16.fnt.dat")
@@ -34,7 +34,7 @@ Public
 		mCam = New Camera()
 		mCam.Position(7, 7, -7)
 		mCam.Rotate(37.5, -45, 0)
-		mCam.ClearColor = Color.RGB(15, 15, 15)
+		mCam.BackColor = Color.RGB(15, 15, 15)
 		
 		'Create model
 		mModel = New Model(Mesh.Load("angel.msh.dat"))

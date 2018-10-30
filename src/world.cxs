@@ -31,12 +31,12 @@ Class World
 			mSkybox.Material(0).Shader = Shader._Skybox()
 			mSkybox.Material(0).DepthWrite = False
 			SunRotation(45, -45)
-			SunColor(Color.WHITE)
+			SunColor(Color.White)
 			Ambient(Color.RGB(75, 75, 75))
 			FogEnabled(False)
 			FogMinDistance(600)
 			FogMaxDistance(1000)
-			FogColor(Color.BLACK)
+			FogColor(Color.Black)
 			SeparateDepthPass(False)
 			Shadows(False)
 			mLastMillisecs = Millisecs()
@@ -63,7 +63,7 @@ Class World
 		
 		'Is there sun light?
 		Local sunLightEnabled:Bool = False
-		If mSunColor <> Color.BLACK Then sunLightEnabled = True
+		If mSunColor <> Color.Black Then sunLightEnabled = True
 		
 		'Get number of lights
 		Local numLights:Int = Min(mLights.Count() + sunLightEnabled, Renderer.MaxLights())
@@ -97,12 +97,12 @@ Class World
 				Shader._CurrentDefault(Shader._Shadow())
 				Mat4Copy(mDepthProj, RenderState.ProjectionMatrix)
 				Mat4Copy(mDepthView, RenderState.ViewMatrix)
-				Renderer.ClearColorBuffer(Color.WHITE)
+				Renderer.ClearColorBuffer(Color.White)
 				Renderer.ClearDepthBuffer()
 				
 				'Render entities for shadow step
 				For Local e:Entity = Eachin mVisibleEntities
-					numRenderCalls += e._Render(Material.STEP_SHADOWS)
+					numRenderCalls += e._Render(Material.StepShadows)
 				Next
 				
 				'Set screen
@@ -120,7 +120,7 @@ Class World
 				
 				'Render entities to capture depth
 				For Local e:Entity = Eachin mVisibleEntities
-					numRenderCalls += e._Render(Material.STEP_SOLID)
+					numRenderCalls += e._Render(Material.StepSolid)
 				Next
 				
 				Shader._CurrentDefault(Shader._Default3D())
@@ -170,7 +170,7 @@ Class World
 			
 			'Render all steps
 			If mSeparateDepthPass Then Renderer.SetDepthWrite(False)
-			For Local step_:Int = Material.STEP_SOLID Until Material.STEP_COUNT
+			For Local step_:Int = Material.StepSolid Until Material.StepCount
 				For Local e:Entity = Eachin mVisibleEntities
 					numRenderCalls += e._Render(step_)
 				Next
@@ -373,7 +373,7 @@ Class World
 	
 	Function _RenderSkybox:Void(x:Float, y:Float, z:Float)
 		Mat4TransformEuler(x, y, z, 0, 0, 0, 10, 10, 10, RenderState.ModelMatrix)
-		mSkybox.Material(0)._PrepareForRender(Material.STEP_NODEPTHWRITE)
+		mSkybox.Material(0)._PrepareForRender(Material.StepNoDepthWrite)
 		mSkybox.Surface(0)._Render()
 	End
 	

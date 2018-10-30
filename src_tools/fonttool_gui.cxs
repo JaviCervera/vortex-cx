@@ -61,7 +61,7 @@ Public
 	
 	Method Render:Void(currentFont:Font)
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Graphics.BlendMode(Graphics.BLEND_ALPHA)
+		Graphics.BlendMode(Graphics.BlendAlpha)
 		Graphics.Clear(Color.RGB(50, 50, 50))
 		If currentFont
 			DrawPanel(mFontRect, "Font: " + StripDir(StripExt(StripExt(currentFont.Filename))), mFont)
@@ -78,12 +78,12 @@ Public
 			Local rectWidth:Int = Min(currentFont.Texture.Width, 512)
 			Local rectHeight:Int = Min(currentFont.Texture.Height, 512)
 		
-			Graphics.Color(Color.WHITE)
+			Graphics.Color(Color.White)
 			currentFont.Texture.Draw((DeviceWidth() - rectWidth)/2, (DeviceHeight() - rectHeight)/2, rectWidth, rectHeight)
 			
 			Graphics.Color(Color.RGB(25, 25, 25))
 			Graphics.DrawRect(4, 40, DeviceWidth() - 8, currentFont.TextHeight(mDisplayText) * 2)
-			Graphics.Color(Color.WHITE)
+			Graphics.Color(Color.White)
 			currentFont.Draw(8, 40, mDisplayText)
 		End
 	End

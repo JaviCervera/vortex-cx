@@ -51,7 +51,7 @@ Public
 	End
 	
 	#Rem
-	Function Load:Mesh(filename:String, skeletonFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+	Function Load:Mesh(filename:String, skeletonFilename:String = "", texFilter:Int = Renderer.FilterTrilinear, cache:Bool = True)
 		Local mesh:Mesh
 		If cache
 			mesh = Cache._LoadMesh(filename, skeletonFilename, texFilter)
@@ -69,7 +69,7 @@ Public
 	End
 	#End
 	
-	Function Load:Mesh(filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR, cache:Bool = True)
+	Function Load:Mesh(filename:String, texFilter:Int = Renderer.FilterTrilinear, cache:Bool = True)
 		Local mesh:Mesh
 		If cache
 			mesh = Cache._LoadMesh(filename, texFilter)
@@ -306,11 +306,11 @@ Public
 	
 	Function CreateTriangle:Mesh()
 		Local surf:Surface = New Surface
-		surf.AddVertex(   0,  0.5, 0,  0, 0, -1,  Color.WHITE,  0, 0)
+		surf.AddVertex(   0,  0.5, 0,  0, 0, -1,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, -0.5, 0,  0, 0, -1,  Color.WHITE,  1, 1)
+		surf.AddVertex( 0.5, -0.5, 0,  0, 0, -1,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex(-0.5, -0.5, 0,  0, 0, -1,  Color.WHITE,  0, 1)
+		surf.AddVertex(-0.5, -0.5, 0,  0, 0, -1,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
 		surf.AddTriangle(0, 1, 2)
 		
@@ -324,13 +324,13 @@ Public
 	
 	Function CreateQuad:Mesh()
 		Local surf:Surface = New Surface
-		surf.AddVertex(-0.5,  0.5, 0,  0, 0, -1,  Color.WHITE,  0, 0)
+		surf.AddVertex(-0.5,  0.5, 0,  0, 0, -1,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5,  0.5, 0,  0, 0, -1,  Color.WHITE,  1, 0)
+		surf.AddVertex( 0.5,  0.5, 0,  0, 0, -1,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex(-0.5, -0.5, 0,  0, 0, -1,  Color.WHITE,  0, 1)
+		surf.AddVertex(-0.5, -0.5, 0,  0, 0, -1,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, -0.5, 0,  0, 0, -1,  Color.WHITE,  1, 1)
+		surf.AddVertex( 0.5, -0.5, 0,  0, 0, -1,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
 		surf.AddTriangle(0, 1, 2)
 		surf.AddTriangle(3, 2, 1)
@@ -347,73 +347,73 @@ Public
 		Local surf:Surface = New Surface
 		
 		'Front face
-		surf.AddVertex(-0.5,  0.5, -0.5,  0, 0, -1,  Color.WHITE,  0, 0)
+		surf.AddVertex(-0.5,  0.5, -0.5,  0, 0, -1,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5,  0.5, -0.5,  0, 0, -1,  Color.WHITE,  1, 0)
+		surf.AddVertex( 0.5,  0.5, -0.5,  0, 0, -1,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex(-0.5, -0.5, -0.5,  0, 0, -1,  Color.WHITE,  0, 1)
+		surf.AddVertex(-0.5, -0.5, -0.5,  0, 0, -1,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, -0.5, -0.5,  0, 0, -1,  Color.WHITE,  1, 1)
+		surf.AddVertex( 0.5, -0.5, -0.5,  0, 0, -1,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
 		surf.AddTriangle(0, 1, 2)
 		surf.AddTriangle(3, 2, 1)
 		
 		'Back face
-		surf.AddVertex( 0.5,  0.5, 0.5,  0, 0, 1,  Color.WHITE,  0, 0)
+		surf.AddVertex( 0.5,  0.5, 0.5,  0, 0, 1,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, -1, 0, 0)
-		surf.AddVertex(-0.5,  0.5, 0.5,  0, 0, 1,  Color.WHITE,  1, 0)
+		surf.AddVertex(-0.5,  0.5, 0.5,  0, 0, 1,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, -1, 0, 0)
-		surf.AddVertex( 0.5, -0.5, 0.5,  0, 0, 1,  Color.WHITE,  0, 1)
+		surf.AddVertex( 0.5, -0.5, 0.5,  0, 0, 1,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, -1, 0, 0)
-		surf.AddVertex(-0.5, -0.5, 0.5,  0, 0, 1,  Color.WHITE,  1, 1)
+		surf.AddVertex(-0.5, -0.5, 0.5,  0, 0, 1,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, -1, 0, 0)
 		surf.AddTriangle(4, 5, 6)
 		surf.AddTriangle(7, 6, 5)
 		
 		'Left face
-		surf.AddVertex(-0.5,  0.5,  0.5,  -1, 0, 0,  Color.WHITE,  0, 0)
+		surf.AddVertex(-0.5,  0.5,  0.5,  -1, 0, 0,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, -1)
-		surf.AddVertex(-0.5,  0.5, -0.5,  -1, 0, 0,  Color.WHITE,  1, 0)
+		surf.AddVertex(-0.5,  0.5, -0.5,  -1, 0, 0,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, -1)
-		surf.AddVertex(-0.5, -0.5,  0.5,  -1, 0, 0,  Color.WHITE,  0, 1)
+		surf.AddVertex(-0.5, -0.5,  0.5,  -1, 0, 0,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, -1)
-		surf.AddVertex(-0.5, -0.5, -0.5,  -1, 0, 0,  Color.WHITE,  1, 1)
+		surf.AddVertex(-0.5, -0.5, -0.5,  -1, 0, 0,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, -1)
 		surf.AddTriangle(8, 9, 10)
 		surf.AddTriangle(11, 10, 9)
 		
 		'Right face
-		surf.AddVertex(0.5,  0.5, -0.5,  1, 0, 0,  Color.WHITE,  0, 0)
+		surf.AddVertex(0.5,  0.5, -0.5,  1, 0, 0,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, 1)
-		surf.AddVertex(0.5,  0.5,  0.5,  1, 0, 0,  Color.WHITE,  1, 0)
+		surf.AddVertex(0.5,  0.5,  0.5,  1, 0, 0,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, 1)
-		surf.AddVertex(0.5, -0.5, -0.5,  1, 0, 0,  Color.WHITE,  0, 1)
+		surf.AddVertex(0.5, -0.5, -0.5,  1, 0, 0,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, 1)
-		surf.AddVertex(0.5, -0.5,  0.5,  1, 0, 0,  Color.WHITE,  1, 1)
+		surf.AddVertex(0.5, -0.5,  0.5,  1, 0, 0,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, 1)
 		surf.AddTriangle(12, 13, 14)
 		surf.AddTriangle(15, 14, 13)
 		
 		'Top face
-		surf.AddVertex(-0.5, 0.5,  0.5,  0, 1, 0,  Color.WHITE,  0, 0)
+		surf.AddVertex(-0.5, 0.5,  0.5,  0, 1, 0,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, 0.5,  0.5,  0, 1, 0,  Color.WHITE,  1, 0)
+		surf.AddVertex( 0.5, 0.5,  0.5,  0, 1, 0,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex(-0.5, 0.5, -0.5,  0, 1, 0,  Color.WHITE,  0, 1)
+		surf.AddVertex(-0.5, 0.5, -0.5,  0, 1, 0,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, 0.5, -0.5,  0, 1, 0,  Color.WHITE,  1, 1)
+		surf.AddVertex( 0.5, 0.5, -0.5,  0, 1, 0,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
 		surf.AddTriangle(16, 17, 18)
 		surf.AddTriangle(19, 18, 17)
 		
 		'Bottom face
-		surf.AddVertex(-0.5, -0.5, -0.5,  0, -1, 0,  Color.WHITE,  0, 0)
+		surf.AddVertex(-0.5, -0.5, -0.5,  0, -1, 0,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, -0.5, -0.5,  0, -1, 0,  Color.WHITE,  1, 0)
+		surf.AddVertex( 0.5, -0.5, -0.5,  0, -1, 0,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex(-0.5, -0.5,  0.5,  0, -1, 0,  Color.WHITE,  0, 1)
+		surf.AddVertex(-0.5, -0.5,  0.5,  0, -1, 0,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, -0.5,  0.5,  0, -1, 0,  Color.WHITE,  1, 1)
+		surf.AddVertex( 0.5, -0.5,  0.5,  0, -1, 0,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
 		surf.AddTriangle(20, 21, 22)
 		surf.AddTriangle(23, 22, 21)
@@ -430,73 +430,73 @@ Public
 		Local surf:Surface = New Surface
 		
 		'Back face
-		surf.AddVertex(-0.5,  0.5, -0.5,  0, 0, 1,  Color.WHITE,  0, 0)
+		surf.AddVertex(-0.5,  0.5, -0.5,  0, 0, 1,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, -1, 0, 0)
-		surf.AddVertex( 0.5,  0.5, -0.5,  0, 0, 1,  Color.WHITE,  1, 0)
+		surf.AddVertex( 0.5,  0.5, -0.5,  0, 0, 1,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, -1, 0, 0)
-		surf.AddVertex(-0.5, -0.5, -0.5,  0, 0, 1,  Color.WHITE,  0, 1)
+		surf.AddVertex(-0.5, -0.5, -0.5,  0, 0, 1,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, -1, 0, 0)
-		surf.AddVertex( 0.5, -0.5, -0.5,  0, 0, 1,  Color.WHITE,  1, 1)
+		surf.AddVertex( 0.5, -0.5, -0.5,  0, 0, 1,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, -1, 0, 0)
 		surf.AddTriangle(0, 2, 1)
 		surf.AddTriangle(3, 1, 2)
 		
 		'Front face
-		surf.AddVertex( 0.5,  0.5, 0.5,  0, 0, -1,  Color.WHITE,  0, 0)
+		surf.AddVertex( 0.5,  0.5, 0.5,  0, 0, -1,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex(-0.5,  0.5, 0.5,  0, 0, -1,  Color.WHITE,  1, 0)
+		surf.AddVertex(-0.5,  0.5, 0.5,  0, 0, -1,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, -0.5, 0.5,  0, 0, -1,  Color.WHITE,  0, 1)
+		surf.AddVertex( 0.5, -0.5, 0.5,  0, 0, -1,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex(-0.5, -0.5, 0.5,  0, 0, -1,  Color.WHITE,  1, 1)
+		surf.AddVertex(-0.5, -0.5, 0.5,  0, 0, -1,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
 		surf.AddTriangle(4, 6, 5)
 		surf.AddTriangle(7, 5, 6)
 		
 		'Left face
-		surf.AddVertex(-0.5,  0.5,  0.5,  1, 0, 0,  Color.WHITE,  0, 0)
+		surf.AddVertex(-0.5,  0.5,  0.5,  1, 0, 0,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, 1)
-		surf.AddVertex(-0.5,  0.5, -0.5,  1, 0, 0,  Color.WHITE,  1, 0)
+		surf.AddVertex(-0.5,  0.5, -0.5,  1, 0, 0,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, 1)
-		surf.AddVertex(-0.5, -0.5,  0.5,  1, 0, 0,  Color.WHITE,  0, 1)
+		surf.AddVertex(-0.5, -0.5,  0.5,  1, 0, 0,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, 1)
-		surf.AddVertex(-0.5, -0.5, -0.5,  1, 0, 0,  Color.WHITE,  1, 1)
+		surf.AddVertex(-0.5, -0.5, -0.5,  1, 0, 0,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, 1)
 		surf.AddTriangle(8, 10, 9)
 		surf.AddTriangle(11, 9, 10)
 		
 		'Right face
-		surf.AddVertex(0.5,  0.5, -0.5,  -1, 0, 0,  Color.WHITE,  0, 0)
+		surf.AddVertex(0.5,  0.5, -0.5,  -1, 0, 0,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, -1)
-		surf.AddVertex(0.5,  0.5,  0.5,  -1, 0, 0,  Color.WHITE,  1, 0)
+		surf.AddVertex(0.5,  0.5,  0.5,  -1, 0, 0,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, -1)
-		surf.AddVertex(0.5, -0.5, -0.5,  -1, 0, 0,  Color.WHITE,  0, 1)
+		surf.AddVertex(0.5, -0.5, -0.5,  -1, 0, 0,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, -1)
-		surf.AddVertex(0.5, -0.5,  0.5,  -1, 0, 0,  Color.WHITE,  1, 1)
+		surf.AddVertex(0.5, -0.5,  0.5,  -1, 0, 0,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, -1)
 		surf.AddTriangle(12, 14, 13)
 		surf.AddTriangle(15, 13, 14)
 		
 		'Top face
-		surf.AddVertex(-0.5, 0.5,  0.5,  0, -1, 0,  Color.WHITE,  0, 0)
+		surf.AddVertex(-0.5, 0.5,  0.5,  0, -1, 0,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, 0.5,  0.5,  0, -1, 0,  Color.WHITE,  1, 0)
+		surf.AddVertex( 0.5, 0.5,  0.5,  0, -1, 0,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex(-0.5, 0.5, -0.5,  0, -1, 0,  Color.WHITE,  0, 1)
+		surf.AddVertex(-0.5, 0.5, -0.5,  0, -1, 0,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, 0.5, -0.5,  0, -1, 0,  Color.WHITE,  1, 1)
+		surf.AddVertex( 0.5, 0.5, -0.5,  0, -1, 0,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
 		surf.AddTriangle(16, 18, 17)
 		surf.AddTriangle(19, 17, 18)
 		
 		'Bottom face
-		surf.AddVertex(-0.5, -0.5, -0.5,  0, 1, 0,  Color.WHITE,  0, 0)
+		surf.AddVertex(-0.5, -0.5, -0.5,  0, 1, 0,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, -0.5, -0.5,  0, 1, 0,  Color.WHITE,  1, 0)
+		surf.AddVertex( 0.5, -0.5, -0.5,  0, 1, 0,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex(-0.5, -0.5,  0.5,  0, 1, 0,  Color.WHITE,  0, 1)
+		surf.AddVertex(-0.5, -0.5,  0.5,  0, 1, 0,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, -0.5,  0.5,  0, 1, 0,  Color.WHITE,  1, 1)
+		surf.AddVertex( 0.5, -0.5,  0.5,  0, 1, 0,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
 		surf.AddTriangle(20, 22, 21)
 		surf.AddTriangle(23, 21, 22)
@@ -513,55 +513,55 @@ Public
 		Local surf:Surface = New Surface
 		
 		'Back face
-		surf.AddVertex( 0.5,  0.5, 0.5,  0, 0, 1,  Color.WHITE,  0, 0)
+		surf.AddVertex( 0.5,  0.5, 0.5,  0, 0, 1,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, -1, 0, 0)
-		surf.AddVertex(-0.5,  0.5, 0.5,  0, 0, 1,  Color.WHITE,  1, 0)
+		surf.AddVertex(-0.5,  0.5, 0.5,  0, 0, 1,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, -1, 0, 0)
-		surf.AddVertex( 0.5, -0.5, 0.5,  0, 0, 1,  Color.WHITE,  0, 1)
+		surf.AddVertex( 0.5, -0.5, 0.5,  0, 0, 1,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, -1, 0, 0)
-		surf.AddVertex(-0.5, -0.5, 0.5,  0, 0, 1,  Color.WHITE,  1, 1)
+		surf.AddVertex(-0.5, -0.5, 0.5,  0, 0, 1,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, -1, 0, 0)
 		surf.AddTriangle(0, 1, 2)
 		surf.AddTriangle(3, 2, 1)
 		
 		'Left face
-		surf.AddVertex(-0.5,  0.5,  0.5,  -1, 0, 0,  Color.WHITE,  0, 0)
+		surf.AddVertex(-0.5,  0.5,  0.5,  -1, 0, 0,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, -1)
-		surf.AddVertex(-0.5, -0.5,  0.5,  -1, 0, 0,  Color.WHITE,  0, 1)
+		surf.AddVertex(-0.5, -0.5,  0.5,  -1, 0, 0,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, -1)
-		surf.AddVertex(-0.5, -0.5, -0.5,  -1, 0, 0,  Color.WHITE,  1, 1)
+		surf.AddVertex(-0.5, -0.5, -0.5,  -1, 0, 0,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, -1)
 		surf.AddTriangle(6, 5, 4)
 		
 		'Right face
-		surf.AddVertex(0.5,  0.5,  0.5,  1, 0, 0,  Color.WHITE,  1, 0)
+		surf.AddVertex(0.5,  0.5,  0.5,  1, 0, 0,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, 1)
-		surf.AddVertex(0.5, -0.5, -0.5,  1, 0, 0,  Color.WHITE,  0, 1)
+		surf.AddVertex(0.5, -0.5, -0.5,  1, 0, 0,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, 1)
-		surf.AddVertex(0.5, -0.5,  0.5,  1, 0, 0,  Color.WHITE,  1, 1)
+		surf.AddVertex(0.5, -0.5,  0.5,  1, 0, 0,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 0, 0, 1)
 		surf.AddTriangle(9, 8, 7)
 		
 		'Top face
-		surf.AddVertex(-0.5, 0.5,  0.5,  0, 1, 0,  Color.WHITE,  0, 0)
+		surf.AddVertex(-0.5, 0.5,  0.5,  0, 1, 0,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, 0.5,  0.5,  0, 1, 0,  Color.WHITE,  1, 0)
+		surf.AddVertex( 0.5, 0.5,  0.5,  0, 1, 0,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex(-0.5, -0.5, -0.5,  0, 1, 0,  Color.WHITE, 0, 1)
+		surf.AddVertex(-0.5, -0.5, -0.5,  0, 1, 0,  Color.White, 0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, -0.5, -0.5,  0, 1, 0,  Color.WHITE, 1, 1)
+		surf.AddVertex( 0.5, -0.5, -0.5,  0, 1, 0,  Color.White, 1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
 		surf.AddTriangle(10, 11, 12)
 		surf.AddTriangle(13, 12, 11)
 		
 		'Bottom face
-		surf.AddVertex(-0.5, -0.5, -0.5,  0, -1, 0,  Color.WHITE,  0, 0)
+		surf.AddVertex(-0.5, -0.5, -0.5,  0, -1, 0,  Color.White,  0, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, -0.5, -0.5,  0, -1, 0,  Color.WHITE,  1, 0)
+		surf.AddVertex( 0.5, -0.5, -0.5,  0, -1, 0,  Color.White,  1, 0)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex(-0.5, -0.5,  0.5,  0, -1, 0,  Color.WHITE,  0, 1)
+		surf.AddVertex(-0.5, -0.5,  0.5,  0, -1, 0,  Color.White,  0, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
-		surf.AddVertex( 0.5, -0.5,  0.5,  0, -1, 0,  Color.WHITE,  1, 1)
+		surf.AddVertex( 0.5, -0.5,  0.5,  0, -1, 0,  Color.White,  1, 1)
 		surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
 		surf.AddTriangle(14, 15, 16)
 		surf.AddTriangle(17, 16, 15)
@@ -575,7 +575,7 @@ Public
 	End
 	
 	#Rem
-	Function _Load:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
+	Function _Load:Mesh(filename:String, skeletonFilename:String = "", animationFilename:String = "", texFilter:Int = Renderer.FilterTrilinear)
 		'Fix filenames
 		Local fixedFilename:String = filename
 		Local fixedSkeletonFilename:String = skeletonFilename
@@ -608,7 +608,7 @@ Public
 	End
 	#End
 	
-	Function _LoadData:Mesh(data:DataBuffer, filename:String, texFilter:Int = Renderer.FILTER_TRILINEAR)
+	Function _LoadData:Mesh(data:DataBuffer, filename:String, texFilter:Int = Renderer.FilterTrilinear)
 		Local stream:DataStream = New DataStream(data)
 		Local meshPath:String = ExtractDir(filename)
 		If meshPath <> "" Then meshPath += "/"
@@ -638,7 +638,7 @@ Public
 			If flags & 4 Then mat.Lighting = False Else mat.Lighting = True
 			If flags & 8 Then mat.CastShadows = False Else mat.CastShadows = True
 			If flags & 16 Then mat.ReceiveShadows = False Else mat.ReceiveShadows = True
-			mat.Shininess = Color.Alpha(specular) / 255.0 'stream.ReadFloat()
+			mat.Shininess = Color.A(specular) / 255.0 'stream.ReadFloat()
 			mat.SpecularPower = stream.ReadFloat()
 			mat.CubeOpacity = stream.ReadFloat()
 			mat.RefractionCoef = stream.ReadFloat()
@@ -723,7 +723,7 @@ Public
 				End
 				
 				'Load colors if present
-				Local color:Int = Color.WHITE
+				Local color:Int = Color.White
 				If vertexFlags & 4 = 4 Then color = stream.ReadInt()
 				
 				'Load texcoords0 if present

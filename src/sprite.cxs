@@ -14,25 +14,25 @@ Public
 Import entity
 
 Class Sprite Extends Entity 'Implements IMaterialDelegate Final
-	Const MODE_STATIC		: Int = 0
-	Const MODE_SPHERICAL	: Int = 1
-	Const MODE_CYLINDRICAL	: Int = 2
+	Const ModeStatic		: Int = 0
+	Const ModeSpherical	: Int = 1
+	Const ModeCylindrical	: Int = 2
 	
-	Method New(texture:Texture, hframes:Int = 1, vframes:Int = 1, orientation:Int = MODE_SPHERICAL, parent:Entity = Null)
+	Method New(texture:Texture, hframes:Int = 1, vframes:Int = 1, orientation:Int = ModeSpherical, parent:Entity = Null)
 		Super.New(parent)
 		mOrientation = orientation
 		mMaterial = New Material(texture)', Self)
-		mMaterial.BlendMode = Renderer.BLEND_ALPHA
+		mMaterial.BlendMode = Renderer.BlendAlpha
 		mMaterial.Culling = False
 		
 		
 		'Create quad
 		If mSurface = Null
 			mSurface = New Surface()
-			mSurface.AddVertex(-0.5,  0.5, 0,  0, 0, -1,  Color.WHITE,  0, 0)
-			mSurface.AddVertex( 0.5,  0.5, 0,  0, 0, -1,  Color.WHITE,  1, 0)
-			mSurface.AddVertex( 0.5, -0.5, 0,  0, 0, -1,  Color.WHITE,  1, 1)
-			mSurface.AddVertex(-0.5, -0.5, 0,  0, 0, -1,  Color.WHITE,  0, 1)
+			mSurface.AddVertex(-0.5,  0.5, 0,  0, 0, -1,  Color.White,  0, 0)
+			mSurface.AddVertex( 0.5,  0.5, 0,  0, 0, -1,  Color.White,  1, 0)
+			mSurface.AddVertex( 0.5, -0.5, 0,  0, 0, -1,  Color.White,  1, 1)
+			mSurface.AddVertex(-0.5, -0.5, 0,  0, 0, -1,  Color.White,  0, 1)
 			mSurface.AddTriangle(0, 1, 2)
 			mSurface.AddTriangle(0, 2, 3)
 			mSurface.Rebuild()
@@ -198,9 +198,9 @@ Class Sprite Extends Entity 'Implements IMaterialDelegate Final
 		Mat4Translate(mMaterial.TextureMatrix, col, row, 0, mMaterial.TextureMatrix)
 		
 		'Orientation
-		If mOrientation <> MODE_STATIC
+		If mOrientation <> ModeStatic
 			Local cylindrical:Bool = False
-			If mOrientation = MODE_CYLINDRICAL Then cylindrical = True
+			If mOrientation = ModeCylindrical Then cylindrical = True
 			Mat4BillboardLH(RenderState.ViewMatrix, WorldX, WorldY, WorldZ, Spin, Width, Height, cylindrical, _Transform)
 		End
 		

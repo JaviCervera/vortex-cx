@@ -152,7 +152,7 @@ Public
 		Local firstChar:Int = stream.ReadInt()
 		
 		'Load texture
-		Local tex:Texture = texture.Texture.Load(texName, Renderer.FILTER_NONE, False)
+		Local tex:Texture = texture.Texture.Load(texName, Renderer.FilterNone, False)
 		If Not tex Then Return Null
 		
 		'Create font

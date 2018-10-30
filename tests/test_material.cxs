@@ -33,7 +33,7 @@ Public
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.ClearMode = Camera.CLEAR_SKYBOX
+		mCam.ClearMode = Camera.ClearSkybox
 		
 		'Create box
 		mModel = New Model(Mesh.Load("cube.msh.dat"))
@@ -43,8 +43,8 @@ Public
 		mLight.Radius = 10
 		
 		'Disable sun and setup lighting
-		World.SunColor(Color.BLACK)
-		World.Ambient(Color.WHITE)
+		World.SunColor(Color.Black)
+		World.Ambient(Color.White)
 			
 		Return False
 	End
@@ -78,7 +78,7 @@ Public
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Graphics.Color(Color.WHITE)
+		Graphics.Color(Color.White)
 		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

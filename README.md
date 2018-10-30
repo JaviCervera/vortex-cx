@@ -29,7 +29,7 @@ You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, 
 ![meshtool](./stuff/meshtool.jpg)
 
 ## TODO v2.0.0-beta3
-- [ ] Use CamelCase in constants
+- [x] Use CamelCase in constants
 - [ ] Vertex color importing in meshtool
 - [ ] Add Material.Fog and export flag to mesh file
 - [ ] Add Material.AmbientTexture and Material.AmbientColor

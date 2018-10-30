@@ -32,7 +32,7 @@ Public
 		mCam = New Camera()
 		mCam.Position(0, 100, -260)
 		mCam.Rotate(15, 0, 0)
-		mCam.ClearColor = Color.RGB(50, 25, 55)
+		mCam.BackColor = Color.RGB(50, 25, 55)
 		
 		'Create model
 		mModel = New Model(Mesh.Load("low-poly-mill.msh.dat"))
@@ -72,7 +72,7 @@ Public
 		'World.DepthTexture().Draw(DeviceWidth() - DeviceWidth()/3 - 4, DeviceHeight() - DeviceHeight()/3 - 4, DeviceWidth()/3, -DeviceHeight()/3)
 		
 		'Draw FPS
-		Graphics.Color(Color.YELLOW)
+		Graphics.Color(Color.Yellow)
 		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

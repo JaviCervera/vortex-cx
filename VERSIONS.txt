@@ -1,3 +1,8 @@
+V2.0-beta3
+- All constants changed to CamelCase
+- Red, Green, Blue, Alpha functions in Color class renamed to R, G, B, A
+- Camera.ClearColor property changed to Camera.BackColor
+
 V2.0-beta2
 This release brings lots of changes. API should be more or less stabilized now:
 - Added vertex animation support (which is now the default in meshtool since there is a bug with skinned meshes)

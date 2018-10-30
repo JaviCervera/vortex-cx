@@ -35,7 +35,7 @@ Public
 		mCam = New Camera()
 		mCam.Orthographic = True
 		mCam.Z = -1
-		mCam.ClearColor = Color.BLACK
+		mCam.BackColor = Color.Black
 		
 		'Create sprite
 		mSprite = New Sprite(tex, 5, 5)
@@ -44,7 +44,7 @@ Public
 		mSprite.AnimFPS = 16
 		
 		'Disable sun
-		World.SunColor(Color.BLACK)
+		World.SunColor(Color.Black)
 		
 		Return False
 	End
@@ -69,7 +69,7 @@ Public
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Graphics.Color(Color.WHITE)
+		Graphics.Color(Color.White)
 		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

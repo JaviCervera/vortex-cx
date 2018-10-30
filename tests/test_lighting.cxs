@@ -33,7 +33,7 @@ Public
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.ClearColor = Color.BLACK
+		mCam.BackColor = Color.Black
 		mCam.Position(0, 32, -90)
 		mCam.Rotate(16, 0, 0)
 		
@@ -52,16 +52,16 @@ Public
 		mLights[0].Radius = 48
 		mLights[1].Radius = 48
 		mLights[2].Radius = 48
-		mLights[0].Color = Color.RED
-		mLights[1].Color = Color.GREEN
-		mLights[2].Color = Color.BLUE
+		mLights[0].Color = Color.Red
+		mLights[1].Color = Color.Green
+		mLights[2].Color = Color.Blue
 		mLights[0].Yaw = 0
 		mLights[1].Yaw = 120
 		mLights[2].Yaw = 240
 		
 		'Disable sun and set ambient
-		World.SunColor(Color.BLACK)
-		World.Ambient(Color.BLACK)
+		World.SunColor(Color.Black)
+		World.Ambient(Color.Black)
 		
 		Return False
 	End
@@ -93,7 +93,7 @@ Public
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Graphics.Color(Color.WHITE)
+		Graphics.Color(Color.White)
 		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

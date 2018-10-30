@@ -12,7 +12,7 @@ Class TestApp Extends App
 		'Create camera
 		mCam = New Camera()
 		mCam.Position(0, 0, -3)
-		mCam.ClearColor = Color.DARK_GRAY
+		mCam.BackColor = Color.DarkGray
 		
 		'Create framebuffer without depth buffer
 		mFramebuffer = New Framebuffer(512, 512, False)
@@ -40,12 +40,12 @@ Class TestApp Extends App
 		
 		'Draw 2D stuff
 		Graphics.Setup2D(0, 0, 512, 512)
-		Graphics.Clear(Color.WHITE)
-		Graphics.Color(Color.ORANGE)
+		Graphics.Clear(Color.White)
+		Graphics.Color(Color.Orange)
 		Graphics.DrawRect(Rnd(0, 512), Rnd(0, 512), Rnd(0, 512), Rnd(0, 512))
-		Graphics.Color(Color.BROWN)
+		Graphics.Color(Color.Brown)
 		Graphics.DrawRect(Rnd(0, 512), Rnd(0, 512), Rnd(0, 512), Rnd(0, 512))
-		Graphics.Color(Color.GREEN)
+		Graphics.Color(Color.Green)
 		Graphics.DrawEllipse(Rnd(0, 512), Rnd(0, 512), Rnd(0, 512), Rnd(0, 512))
 		
 		'Render back to screen

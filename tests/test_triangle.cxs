@@ -30,14 +30,14 @@ Public
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.ClearColor = Color.WHITE
+		mCam.BackColor = Color.White
 		mCam.Position(0, 0, -2)
 		
 		'Create triangle mesh
 		Local tri:Mesh = Mesh.CreateTriangle()
-		tri.Surface(0).VertexColor(0, Color.RED)
-		tri.Surface(0).VertexColor(1, Color.GREEN)
-		tri.Surface(0).VertexColor(2, Color.BLUE)
+		tri.Surface(0).VertexColor(0, Color.Red)
+		tri.Surface(0).VertexColor(1, Color.Green)
+		tri.Surface(0).VertexColor(2, Color.Blue)
 		tri.Rebuild() 'After modifying a mesh, we must rebuild it
 		tri.Material(0).Culling = False
 		
@@ -45,7 +45,7 @@ Public
 		mModel = New Model(tri)
 		
 		'Disable sun
-		World.SunColor(Color.BLACK)
+		World.SunColor(Color.Black)
 		
 		Return False
 	End
@@ -73,7 +73,7 @@ Public
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Graphics.Color(Color.BLACK)
+		Graphics.Color(Color.Black)
 		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

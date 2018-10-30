@@ -31,9 +31,9 @@ An *entity* is anything that exists in your 3D world. It has a position, rotatio
 
 A camera is a type of `Entity` that represents the player in the 3D world. It has a position and rotation, a viewport that will indicate the region of the screen where the camera will be rendered, and other properties like the clear mode and projection settings.
 
-# Const CLEAR_NONE : Int
-# Const CLEAR_COLOR : Int
-# Const CLEAR_SKYBOX : Int
+# Const ClearNone : Int
+# Const ClearColor : Int
+# Const ClearSkybox : Int
 
 # Method New(parent:Entity = Null)
 Creates a new camera entity with the specified parent (if any).
@@ -68,22 +68,22 @@ Sets the region of the screen that the camera will be drawn to.
 # Method ClearMode:Int() Property
 Returns the clear mode for this camera. Depending on the value of this property, the viewport will be cleared with a plain color or a textured skybox before performing rendering.
 | Value | Meaning
-| Camera.CLEAR_NONE | Does not clear the viewport before rendering.
-| Camera.CLEAR_COLOR | Clears the viewport with the color defined by the `ClearColor` property.
-| Camera.CLEAR_SKYBOX | Clears the viewport with the skybox defined by the `World.SkyboxTexture` function (defaults to `Null`).
+| Camera.ClearNone | Does not clear the viewport before rendering.
+| Camera.ClearColor | Clears the viewport with the color defined by the `ClearColor` property.
+| Camera.ClearSkybox | Clears the viewport with the skybox defined by the `World.SkyboxTexture` function (defaults to `Null`).
 
 # Method ClearMode:Void(mode:Int) Property
 Sets the clear mode for this camera. Depending on the value of this property, the viewport will be cleared with a plain color or a textured skybox before performing rendering.
 | Value | Meaning
-| Camera.CLEAR_NONE | Does not clear the viewport before rendering.
-| Camera.CLEAR_COLOR | Clears the viewport with the color defined by the `ClearColor` property.
-| Camera.CLEAR_SKYBOX | Clears the viewport with the skybox defined by the `World.SkyboxTexture` function (defaults to `Null`).
+| Camera.ClearNone | Does not clear the viewport before rendering.
+| Camera.ClearColor | Clears the viewport with the color defined by the `ClearColor` property.
+| Camera.ClearSkybox | Clears the viewport with the skybox defined by the `World.SkyboxTexture` function (defaults to `Null`).
 
-# Method ClearColor:Int() Property
-Returns the clear color used by this camera in case that the `ClearMode` property is set to `Camera.CLEAR_COLOR`.
+# Method BackColor:Int() Property
+Returns the back color used by this camera in case that the `ClearMode` property is set to `Camera.ClearColor`.
 
-# Method ClearColor:Void(color:Int) Property
-Sets the clear color used by this camera in case that the `ClearMode` property is set to `Camera.CLEAR_COLOR`.
+# Method BackColor:Void(color:Int) Property
+Sets the clear back used by this camera in case that the `ClearMode` property is set to `Camera.ClearColor`.
 
 # Method Orthographic:Bool() Property
 Returns whether this camera uses an orthogrsphic projection.
@@ -128,33 +128,33 @@ Sets the framebuffer into which this camera renders. Set it to `Null` to render 
 
 While internally a color is treated as 4 float values (red, green, blue, alpha), this information is packed inside a single integer, and we work with color components that go from 0 to 255. This class allows you to pack the color components into a single color integer, and extract each component from the color. It also has a set of predefined constants with some commonly used colors.
 
-# Const RED			: Int
-# Const GREEN			: Int
-# Const BLUE			: Int
-# Const CYAN			: Int
-# Const MAGENTA		: Int
-# Const YELLOW		: Int
-# Const BLACK			: Int
-# Const WHITE			: Int
-# Const GRAY			: Int
-# Const LIGHT_GRAY	: Int
-# Const DARK_GRAY		: Int
-# Const ORANGE		: Int
-# Const BROWN			: Int
+# Const Red			: Int
+# Const Green			: Int
+# Const Blue			: Int
+# Const Cyan			: Int
+# Const Magenta		: Int
+# Const Yellow		: Int
+# Const Black			: Int
+# Const White			: Int
+# Const Gray			: Int
+# Const LightGray	: Int
+# Const DarkGray		: Int
+# Const Orange		: Int
+# Const Brown			: Int
 
 # Function RGB:Int(r:Int, g:Int, b:Int, a:Int = 255)
 Returns a color with the specified RGBA components.
 
-# Function Red:Int(color:Int)
+# Function R:Int(color:Int)
 Returns the red component of the specified color.
 
-# Function Green:Int(color:Int)
+# Function G:Int(color:Int)
 Returns the green component of the specified color.
 
-# Function Blue:Int(color:Int)
+# Function B:Int(color:Int)
 Returns the blue component of the specified color.
 
-# Function Alpha:Int(color:Int)
+# Function A:Int(color:Int)
 Returns the alpha component of the specified color.
 
 # Function ChangeAlpha:Int(color:Int, newAlpha:Int)
@@ -168,9 +168,9 @@ Multiples the given `color` by the specified `factor` and returns the resulting 
 
 # Class Entity
 
-# Const COLLISION_NONE		: Int
-# Const COLLISION_SPHERE	: Int
-# Const COLLISION_BOX		: Int
+# Const CollisionNone		: Int
+# Const CollisionSphere	: Int
+# Const CollisionBox		: Int
 
 Everything that exists in the 3D world is an entity. Basically, an entity is an object which has a position, rotation and scale. This is the base class for all the types of elements that can be part of your world, like cameras, models, lights and sprites.
 
@@ -243,7 +243,7 @@ Returns the Z position of the entity in the world.
 Sets the local position of the entity.
 
 # Method Move:Void(x:Float, y:Float, z:Float, collideWithEntities:Bool = True)
-Moves the entity from its current location, taking its orientation into account. If `collideWithEntities`is set to `True` and `CollisionMode` is different to `Entity.COLLISION_NONE`, then collision woth other entities will be performed during movement. Static collisions will always be checked if the entitiy's `CollisionMode` is different to `Entity.COLLISION_NONE`. The entity will not reach its destination point if a collision is detected.
+Moves the entity from its current location, taking its orientation into account. If `collideWithEntities`is set to `True` and `CollisionMode` is different to `Entity.CollisionNone`, then collision woth other entities will be performed during movement. Static collisions will always be checked if the entitiy's `CollisionMode` is different to `Entity.CollisionNone`. The entity will not reach its destination point if a collision is detected.
 
 # Method Pitch:Float() Property
 Returns the pitch of X rotation of the entity.
@@ -300,21 +300,21 @@ Sets the Z scale factor of the entity.
 Sets the scale factor of the entity.
 
 # Method CollisionMode:Int() Property
-Returns the collision mode for the entity. Default is `Entity.COLLISION_NONE`.
+Returns the collision mode for the entity. Default is `Entity.CollisionNone`.
 
 # Method CollisionMode:Void(mode:Int) Property
 Sets the collision mode for the entity. Possible values are:
 
 | Value | Meaning
-| Entity.COLLISION_NONE | Do not check for collisions.
-| Entity.COLLISION_SPHERE | Check for collisions using the entity's radius.
-| Entity.COLLISION_BOX | Check for collisions using the entity's bounding box.
+| Entity.CollisionNone | Do not check for collisions.
+| Entity.CollisionSphere | Check for collisions using the entity's radius.
+| Entity.CollisionBox | Check for collisions using the entity's bounding box.
 
 # Method Radius:Float() Property
-Returns the radius of the entity. This is used for collision detection when `CollisionMode` is set to `Entity.COLLISION_SPHERE`.
+Returns the radius of the entity. This is used for collision detection when `CollisionMode` is set to `Entity.CollisionSphere`.
 
 # Method Radius:Void(rad:Float) Property
-Sets the radius of the entity. This is used for collision detection when `CollisionMode` is set to `Entity.COLLISION_SPHERE`.
+Sets the radius of the entity. This is used for collision detection when `CollisionMode` is set to `Entity.CollisionSphere`.
 
 # Method Collided:Bool() Property
 Returns whether the entity collided on the last movement or not.
@@ -444,15 +444,15 @@ Setups the context for drawing with Mojo2.
 Sets the blend mode to use when painting. Possible values are:
 
 | Value       | Meaning
-| Graphics.BLEND_SOLID | The object is solid and it is not blended with the background. This is the default value.
-| Graphics.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
-| Graphics.BLEND_ADD   | The computed color is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
-| Graphics.BLEND_MUL   | The computed color is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
+| Graphics.BlendSolid | The object is solid and it is not blended with the background. This is the default value.
+| Graphics.BlendAlpha | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
+| Graphics.BlendAdd   | The computed color is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
+| Graphics.BlendMul   | The computed color is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
 
 # Function Color:Void(color:Int)
 Sets the drawing color.
 
-# Function Clear:Void(color:Int = Color.BLACK)
+# Function Clear:Void(color:Int = Color.Black)
 Clears the background (actually, the area defined when the call to `Graphics.Setup2D` was made) with the specified color.
 
 # Function DrawPoint:Void(x:Float, y:Float)
@@ -642,10 +642,10 @@ Sets the blend mode of the material. This defines how the final look of the geom
 It takes one of the following values:
 
 | Value             | Meaning
-| Graphics.BLEND_SOLID | The object is solid and it is not blended with the background. This is the default value.
-| Graphics.BLEND_ALPHA | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
-| Graphics.BLEND_ADD   | The computed color of the material is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
-| Graphics.BLEND_MUL   | The computed color of the material is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
+| Graphics.BlendSolid | The object is solid and it is not blended with the background. This is the default value.
+| Graphics.BlendAlpha | The computed alpha value of the material (taking into account both material alpha and texture alpha values) is used to blend with the background.
+| Graphics.BlendAdd   | The computed color of the material is added to the background. This is useful to render "glow" geometry, such as fire and lasers.
+| Graphics.BlendMul   | The computed color of the material is multiplied with the background. This is useful to render lightmap geometry on top of other geometry.
 
 # Method BlendMode:Int() Property
 Returns the blend mode of the material.
@@ -669,7 +669,7 @@ Enables or disables depth buffer writing. When it is disabled, other geometry fu
 Returns whether depth buffer writing is enabled.
 
 # Method CastShadows:Void(enable:Bool) Property
-Enables or disables shadow casting. It is enabled by default. Only used if blend mode is `Graphics.BLEND_SOLID`.
+Enables or disables shadow casting. It is enabled by default. Only used if blend mode is `Graphics.BlendSolid`.
 
 # Method CastShadows:Bool() Property
 Returns whether shadow casting is enabled.
@@ -697,7 +697,7 @@ Creates a new empty mesh.
 # Method New(other:Mesh)
 Creates a new mesh that is a copy of the mesh passed as parameter.
 
-# Function Load(filename:String, texFilter:Int = Texture.FILTER_TRILINEAR, cache:Bool = True)
+# Function Load(filename:String, texFilter:Int = Texture.FilterTrilinear, cache:Bool = True)
 Loads and returns the mesh with the specified filename, or `Null` if the mesh could not be loaded.
 If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one mesh more than once).
 
@@ -862,17 +862,17 @@ Return the description of the errors that occured while compiling or linking the
 
 A sprite is a 2D object in a 3D world. It has width and height, but no depth. It can be oriented automatically so that it always faces the camera.
 
-# Const MODE_STATIC		: Int
-# Const MODE_SPHERICAL	: Int
-# Const MODE_CYLINDRICAL	: Int
+# Const ModeStatic		: Int
+# Const ModeSpherical	: Int
+# Const ModeCylindrical	: Int
 
-# Method New(texture:Texture, hframes:Int = 1, vframes:Int = 1, orientation:Int = Sprite.MODE_SPHERICAL, parent:Entity = Null)
+# Method New(texture:Texture, hframes:Int = 1, vframes:Int = 1, orientation:Int = Sprite.ModeSpherical, parent:Entity = Null)
 Creates a new sprite with the specified texture. The size of the sprite will be set to the size of the texture. The parameters `hframes` and `vframes` indicate the number of horizontal and vertical animation frames contained in the texture. The value of `orientation` can be:
 
 | Value       | Meaning
-| Sprite.MODE_STATIC | The sprite does not rotate to face the camera.
-| Sprite.MODE_SPHERICAL   | The sprite rotates freely to face the camera.
-| Sprite.MODE_CYLINDRICAL   | The sprite rotates on its Y axis to face the camera.
+| Sprite.ModeStatic | The sprite does not rotate to face the camera.
+| Sprite.ModeSpherical   | The sprite rotates freely to face the camera.
+| Sprite.ModeCylindrical   | The sprite rotates on its Y axis to face the camera.
 
 # Method Orientation:Int() Property
 Returns the orientation mode of the sprite.
@@ -881,9 +881,9 @@ Returns the orientation mode of the sprite.
 Sets the orientation mode of the sprite. It can be one of the following values:
 
 | Value       | Meaning
-| Sprite.MODE_STATIC | The sprite does not rotate to face the camera.
-| Sprite.MODE_SPHERICAL   | The sprite rotates freely to face the camera.
-| Sprite.MODE_CYLINDRICAL   | The sprite rotates on its Y axis to face the camera.
+| Sprite.ModeStatic | The sprite does not rotate to face the camera.
+| Sprite.ModeSpherical   | The sprite rotates freely to face the camera.
+| Sprite.ModeCylindrical   | The sprite rotates on its Y axis to face the camera.
 
 # Method Spin:Float() Property
 Returns the spin rotation of the sprite.
@@ -937,15 +937,15 @@ Sets the last frame used when animating the sprite.
 
 The surface class contains a set of geometry (vertices and indices that form triangles) and a material to draw that geometry.
 
-# Method New(mode:Int = Surface.MODE_TRIANGLES)
+# Method New(mode:Int = Surface.ModeTriangles)
 Creates a new surface with the specified drawing mode. It must be one of:
 
 | Value | Meaning
-| Surface.MODE_POINTS | Every vertex in the surface represents a point.
-| Surface.MODE_LINES | Every 2 vertices in the surface represents a line.
-| Surface.MODE_TRIANGLES | Every 3 vertices in the surface represents a triangle (this is the default mode).
-| Surface.MODE_TRIANGLESTRIP | Every vertex is connected to the two previous ones to make triangles.
-| Surface.MODE_TRIANGLEFAN | Every vertex is connected to the first and the previous ones to make triangles.
+| Surface.ModePoints | Every vertex in the surface represents a point.
+| Surface.ModeLines | Every 2 vertices in the surface represents a line.
+| Surface.ModeTriangles | Every 3 vertices in the surface represents a triangle (this is the default mode).
+| Surface.ModeTriangleStrip | Every vertex is connected to the two previous ones to make triangles.
+| Surface.ModeTriangleFan | Every vertex is connected to the first and the previous ones to make triangles.
 
 # Method New(other:Surface)
 Creates a new surface that is a copy of the one passed as parameter.
@@ -958,11 +958,11 @@ Deallocates all the resources used by this surface. You don't normally need to c
 Returns the drawing mode of the surface. It can be one of:
 
 | Value | Meaning
-| Surface.MODE_POINTS | Every vertex in the surface represents a point.
-| Surface.MODE_LINES | Every 2 vertices in the surface represents a line.
-| Surface.MODE_TRIANGLES | Every 3 vertices in the surface represents a triangle (this is the default mode).
-| Surface.MODE_TRIANGLESTRIP | Every vertex is connected to the two previous ones to make triangles.
-| Surface.MODE_TRIANGLEFAN | Every vertex is connected to the first and the previous ones to make triangles.
+| Surface.ModePoints | Every vertex in the surface represents a point.
+| Surface.ModeLines | Every 2 vertices in the surface represents a line.
+| Surface.ModeTriangles | Every 3 vertices in the surface represents a triangle (this is the default mode).
+| Surface.ModeTriangleStrip | Every vertex is connected to the two previous ones to make triangles.
+| Surface.ModeTriangleFan | Every vertex is connected to the first and the previous ones to make triangles.
 
 # Method Set:Void(other:Surface)
 Sets this surface's material and geometry data to copy those of the mesh passed as parameter. The surface is automatically rebuilt.
@@ -971,11 +971,11 @@ Sets this surface's material and geometry data to copy those of the mesh passed 
 Adds a new index to the surface. Depending on the drawing mode, each primitive will require a different number of indices:
 
 | Mode | Indices per primitive
-| Surface.MODE_POINTS | 1
-| Surface.MODE_LINES | 2
-| Surface.MODE_TRIANGLES | 3
-| Surface.MODE_TRIANGLESTRIP | 3 for the first one, 1 for the rest.
-| Surface.MODE_TRIANGLEFAN | 3 for the first one, 1 for the rest.
+| Surface.ModePoints | 1
+| Surface.ModeLines | 2
+| Surface.ModeTriangles | 3
+| Surface.ModeTriangleStrip | 3 for the first one, 1 for the rest.
+| Surface.ModeTriangleFan | 3 for the first one, 1 for the rest.
 
 Returns the number of indices before adding this one.
 
@@ -989,25 +989,25 @@ Sets the value of the specified index number.
 Returns the value of the specified index number.
 
 # Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
-Adds a new triangle to the surface if the drawing mode is `Surface.MODE_TRIANGLES` and returns the index of the triangle within the surface.
+Adds a new triangle to the surface if the drawing mode is `Surface.ModeTriangles` and returns the index of the triangle within the surface.
 In this drawing mode, a triangle contains three indices, that reference the vertices in the surface.
-If the drawing mode is not `Surface.MODE_TRIANGLES`, this function does nothing and returns `-1`.
+If the drawing mode is not `Surface.ModeTriangles`, this function does nothing and returns `-1`.
 This is just a convenience method you can use instead of making three calls to `Surface.AddIndex`.
 
 # Method NumTriangles:Int() Property
 Returns the number of triangles in the surface.
 
 # Method Triangle:Void(tri:Int, v0:Int, v1:Int, v2:Int)
-Changes the vertex indices used by a specified triangle if the drawing mode is `Surface.MODE_TRIANGLES`. Otherwise, it does nothing.
+Changes the vertex indices used by a specified triangle if the drawing mode is `Surface.ModeTriangles`. Otherwise, it does nothing.
 
 # Method TriangleV0:Int(tri:Int)
-Returns the index of the first vertex in the specified triangle if the drawing mode is `Surface.MODE_TRIANGLES`. Otherwise, it returns -1.
+Returns the index of the first vertex in the specified triangle if the drawing mode is `Surface.ModeTriangles`. Otherwise, it returns -1.
 
 # Method TriangleV1:Int(tri:Int)
-Returns the index of the second vertex in the specified triangle if the drawing mode is `Surface.MODE_TRIANGLES`. Otherwise, it returns -1.
+Returns the index of the second vertex in the specified triangle if the drawing mode is `Surface.ModeTriangles`. Otherwise, it returns -1.
 
 # Method TriangleV2:Int(tri:Int)
-Returns the index of the third vertex in the specified triangle if the drawing mode is `Surface.MODE_TRIANGLES`. Otherwise, it returns -1.
+Returns the index of the third vertex in the specified triangle if the drawing mode is `Surface.ModeTriangles`. Otherwise, it returns -1.
 
 # Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, color:Int, u:Float, v:Float)
 Adds a new vertex to the surface, with the given position, normal, color, and texture coordinates. Returns the index of the vertex within the surface.
@@ -1094,35 +1094,35 @@ A texture represents a buffer in video memory that contains pixel data.
 Textures can be contained in materials and applied to objects together with other information like color and opacity, or drawn to the screen directly (for example to render 2D sprites).
 
 # Method New(width:Int, height:Int)
-Creates a blank texture with the specified width and height. This function is used by framebuffers to create the texture to render the scene into. Its filtering is set to `Texture.FILTER_NONE`.
+Creates a blank texture with the specified width and height. This function is used by framebuffers to create the texture to render the scene into. Its filtering is set to `Texture.FilterNone`.
 
-# Method New(buffer:DataBuffer, width:Int, height:Int, filter:Int = Texture.FILTER_TRILINEAR)
+# Method New(buffer:DataBuffer, width:Int, height:Int, filter:Int = Texture.FilterTrilinear)
 Creates a texture with the specified size and filter mode, and the pixels stored in the data buffer. The value of `filter` must be one of:
 
-* Texture.FILTER_NONE
-* Texture.FILTER_LINEAR
-* Texture.FILTER_BILINEAR
-* Texture.FILTER_TRILINEAR
+* Texture.FilterNone
+* Texture.FilterLinear
+* Texture.FilterBilinear
+* Texture.FilterTrilinear
 
-# Function Load(filename:String, filter:Int = Texture.FILTER_TRILINEAR, cache:Bool = True)
+# Function Load(filename:String, filter:Int = Texture.FilterTrilinear, cache:Bool = True)
 Loads and returns the texture with the specified filename, or `Null` if the texture could not be loaded.
 If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one texture more than once).
 The value of `filter` must be one of:
 
-* Texture.FILTER_NONE
-* Texture.FILTER_LINEAR
-* Texture.FILTER_BILINEAR
-* Texture.FILTER_TRILINEAR
+* Texture.FilterNone
+* Texture.FilterLinear
+* Texture.FilterBilinear
+* Texture.FilterTrilinear
 
-# Function Load(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Texture.FILTER_TRILINEAR, cache:Bool = True)
+# Function Load(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Texture.FilterTrilinear, cache:Bool = True)
 Loads and returns the cubemap texture with the specified filenames (one for each face of the cube), or `Null` if the texture could not be loaded.
 If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one texture more than once).
 The value of `filter` must be one of:
 
-* Texture.FILTER_NONE
-* Texture.FILTER_LINEAR
-* Texture.FILTER_BILINEAR
-* Texture.FILTER_TRILINEAR
+* Texture.FilterNone
+* Texture.FilterLinear
+* Texture.FilterBilinear
+* Texture.FilterTrilinear
 
 # Method Discard:Void()
 Discards the resources used by this texture.
@@ -1167,10 +1167,10 @@ Renders the world. This should be called on the app's `OnRender` method.
 Returns the elapsed time in seconds since the last world update.
 
 # Function SkyboxTexture:Texture()
-Returns the cubemap texture that is used as background on camera's that have the `ClearMode` property set to `Camera.CLEAR_SKYBOX`. Defaults to `Null`.
+Returns the cubemap texture that is used as background on camera's that have the `ClearMode` property set to `Camera.ClearSkybox`. Defaults to `Null`.
 
 # Function SkyboxTexture:Void(tex:Texture)
-Sets the cubemap texture that is used as background on camera's that have the `ClearMode` property set to `Camera.CLEAR_SKYBOX`. Defaults to `Null`.
+Sets the cubemap texture that is used as background on camera's that have the `ClearMode` property set to `Camera.ClearSkybox`. Defaults to `Null`.
 
 # Function NumEntities:Int()
 Returns the number of entities that exist in the world.
@@ -1191,10 +1191,10 @@ Returns the yaw rotation of the sun.
 Sets the rotation of the sun.
 
 # Function SunColor:Int()
-Returns the color of the sun. Default is `Color.WHITE`.
+Returns the color of the sun. Default is `Color.White`.
 
 # Function SunColor:Void(color:Int)
-Sets the color of the sun. Setting it to `Color.BLACK` disables the sun light.
+Sets the color of the sun. Setting it to `Color.Black` disables the sun light.
 
 # Function Ambient:Int()
 Returns the ambient color of the world (this is, the lighting that will be received by all geometry independent from the light sources).

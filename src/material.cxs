@@ -14,12 +14,12 @@ Class Material
 Public
 	Method New(colorTex:Texture = Null, shader:Shader = Null)
 		mShader = shader
-		mColor = color.Color.WHITE
+		mColor = color.Color.White
 		mColorTex = colorTex
 		mShininess = 0.001
 		mCubeOpacity = 0.5
 		mRefractCoef = -1
-		mBlendMode = Renderer.BLEND_SOLID
+		mBlendMode = Renderer.BlendSolid
 		mCulling = True
 		mDepthWrite = True
 		mLighting = True
@@ -216,10 +216,10 @@ Public
 
 	Method _PrepareForRender:Bool(step_:Int)
 		'Abort if this material does not render in this step
-		If step_ = STEP_SHADOWS And (mBlendMode <> Renderer.BLEND_SOLID Or Not CastShadows) Then Return False
-		If step_ = STEP_SOLID And (mBlendMode <> Renderer.BLEND_SOLID Or Not mDepthWrite) Then Return False
-		If step_ = STEP_DEPTHWRITE And (mBlendMode = Renderer.BLEND_SOLID Or Not mDepthWrite) Then Return False
-		If step_ = STEP_NODEPTHWRITE And mDepthWrite Then Return False
+		If step_ = StepShadows And (mBlendMode <> Renderer.BlendSolid Or Not CastShadows) Then Return False
+		If step_ = StepSolid And (mBlendMode <> Renderer.BlendSolid Or Not mDepthWrite) Then Return False
+		If step_ = StepDepthWrite And (mBlendMode = Renderer.BlendSolid Or Not mDepthWrite) Then Return False
+		If step_ = StepNoDepthWrite And mDepthWrite Then Return False
 		
 		'Set renderer settings
 		Renderer.Color(mColor)
@@ -230,7 +230,7 @@ Public
 		Renderer.BlendMode(mBlendMode)
 		Renderer.SetCulling(mCulling)
 		Mat4Copy(mTextureMatrix, RenderState.TextureMatrix)
-		If Not RenderState.SeparateDepthPass Or step_ <> STEP_SOLID Then Renderer.SetDepthWrite(mDepthWrite)
+		If Not RenderState.SeparateDepthPass Or step_ <> StepSolid Then Renderer.SetDepthWrite(mDepthWrite)
 	
 		'Set textures
 		Local colorHandle:Int = 0
@@ -268,11 +268,11 @@ Public
 	End
 	
 	'Used internally by the engine
-	Const STEP_SHADOWS:Int = 0				'Shadow step
-	Const STEP_SOLID:Int = 1					'Solid blend with depth writing
-	Const STEP_DEPTHWRITE:Int = 2			'Other blends with depth writing
-	Const STEP_NODEPTHWRITE:Int = 3		'All entitites with no depth writing
-	Const STEP_COUNT:Int = 4
+	Const StepShadows:Int = 0				'Shadow step
+	Const StepSolid:Int = 1					'Solid blend with depth writing
+	Const StepDepthWrite:Int = 2			'Other blends with depth writing
+	Const StepNoDepthWrite:Int = 3		'All entitites with no depth writing
+	Const StepCount:Int = 4
 Private
 	Field mShader				: Shader
 	Field mColor					: Int

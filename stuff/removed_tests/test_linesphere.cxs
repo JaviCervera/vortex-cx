@@ -52,9 +52,9 @@ Public
 		mSphere = New Model(Mesh.Load("sphere.msh.dat"))
 		
 		'Create line mesh
-		Local lineSurf:Surface = New Surface(Surface.MODE_LINES)
-		lineSurf.AddVertex(mP0[0], mP0[1], mP0[2], 0, 0, 0, Color.WHITE, 0, 0)
-		lineSurf.AddVertex(mP1[0], mP1[1], mP1[2], 0, 0, 0, Color.WHITE, 0, 0)
+		Local lineSurf:Surface = New Surface(Surface.ModeLines)
+		lineSurf.AddVertex(mP0[0], mP0[1], mP0[2], 0, 0, 0, Color.White, 0, 0)
+		lineSurf.AddVertex(mP1[0], mP1[1], mP1[2], 0, 0, 0, Color.White, 0, 0)
 		lineSurf.AddIndex(0)
 		lineSurf.AddIndex(1)
 		Local lineMesh:Mesh = New Mesh
@@ -82,9 +82,9 @@ Public
 		mCam.ViewportHeight = DeviceHeight()
 		
 		If LineSphereCollision(mP0[0], mP0[1], mP0[2], mP1[0], mP1[1], mP1[2], mSphere.WorldX, mSphere.WorldY, mSphere.WorldZ, 1)
-			mSphere.Material.Color = Color.RED
+			mSphere.Material.Color = Color.Red
 		Else
-			mSphere.Material.Color = Color.WHITE
+			mSphere.Material.Color = Color.White
 		End
 		
 		Return False
@@ -99,7 +99,7 @@ Public
 		Renderer.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Renderer.SetColor(Color.WHITE)
+		Renderer.SetColor(Color.White)
 		Local text:String = Stats.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

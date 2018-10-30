@@ -8,10 +8,10 @@ Import world
 Public
 Class Graphics
 Public
-	Const BLEND_SOLID:Int = Renderer.BLEND_SOLID
-	Const BLEND_ALPHA:Int = Renderer.BLEND_ALPHA
-	Const BLEND_ADD:Int = Renderer.BLEND_ADD
-	Const BLEND_MUL:Int = Renderer.BLEND_MUL
+	Const BlendSolid:Int = Renderer.BlendSolid
+	Const BlendAlpha:Int = Renderer.BlendAlpha
+	Const BlendAdd:Int = Renderer.BlendAdd
+	Const BlendMul:Int = Renderer.BlendMul
 	
 	Function Setup2D:Void(x:Int, y:Int, width:Int, height:Int)
 		Renderer.Setup2D(x, y, width, height)
@@ -29,7 +29,7 @@ Public
 		Renderer.Color(color)
 	End
 	
-	Function Clear:Void(col:Int = color.Color.BLACK)
+	Function Clear:Void(col:Int = color.Color.Black)
 		Renderer.ClearColorBuffer(col)
 	End
 	

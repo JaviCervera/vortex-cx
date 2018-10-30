@@ -92,7 +92,7 @@ Returns the Z coordinate of the specified scale keyframe. The value of `index` g
 
 # Class Mesh
 
-# Function Load(filename:String, skeletonFilename:String = "", texFilter:Int = Texture.FILTER_TRILINEAR, cache:Bool = True)
+# Function Load(filename:String, skeletonFilename:String = "", texFilter:Int = Texture.FilterTrilinear, cache:Bool = True)
 Loads and returns the mesh with the specified filename, or `Null` if the mesh could not be loaded.
 You can also specify a skeleton file that will be loaded with the mesh (it is possible to load it afterwards with `Mesh.LoadSkeleton`).
 If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one mesh more than once).
