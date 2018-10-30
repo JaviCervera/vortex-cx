@@ -638,6 +638,7 @@ Public
 			If flags & 4 Then mat.Lighting = False Else mat.Lighting = True
 			If flags & 8 Then mat.CastShadows = False Else mat.CastShadows = True
 			If flags & 16 Then mat.ReceiveShadows = False Else mat.ReceiveShadows = True
+			If flags & 32 Then mat.Fog = False Else mat.Fog = True
 			mat.Shininess = Color.A(specular) / 255.0 'stream.ReadFloat()
 			mat.SpecularPower = stream.ReadFloat()
 			mat.CubeOpacity = stream.ReadFloat()

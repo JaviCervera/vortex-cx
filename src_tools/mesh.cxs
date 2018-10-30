@@ -95,7 +95,7 @@ End
 Function ColorsSize:Int(surf:Surface)
 	For Local v:Int = 0 Until surf.NumVertices
 		If surf.VertexColor(v) <> Color.White
-			Return surf.NumVertices * 1 * 4
+			Return surf.NumVertices * 4
 		End
 	Next
 	Return 0
@@ -185,6 +185,7 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	If Not mat.Lighting Then flags |= 4
 	If Not mat.CastShadows Then flags |= 8
 	If Not mat.ReceiveShadows Then flags |= 16
+	If Not mat.Fog Then flags |= 32
 	stream.WriteByte(flags)
 	
 	'Shininess

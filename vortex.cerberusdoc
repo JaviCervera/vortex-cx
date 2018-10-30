@@ -680,6 +680,12 @@ Ensables or disables shadows on this material. It is enabled by default.
 # Method ReceiveShadows:Bool() Property
 Returns whether this material receives shadows.
 
+# Method Fog:Void(enable:Bool) Property
+Enables or disabled fogging on this material. It is enabled by default. If fog is not enabled in the World, this property has no effect.
+
+# Method Fog:Bool() Property
+Returns whether this material is affected by fog. If fog is not enabled in the World, this property has no effect.
+
 # Method TextureMatrix:Float[]() Property
 Returns a 16 float array contaning the texture matrix of this material. If you don't know what this is, then you don't need it (it is normally for internal use).
 

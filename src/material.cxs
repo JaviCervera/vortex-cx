@@ -25,6 +25,7 @@ Public
 		mLighting = True
 		mCastShadows = True
 		mReceiveShadows = True
+		mFog = True
 		mSpecularPower = 64
 		Mat4Identity(mTextureMatrix)
 	End
@@ -43,7 +44,7 @@ Public
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mShader = other.mShader And mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mShininessTex = other.mShininessTex And mLightTex = other.mLightTex And mCubeTex = other.mCubeTex And mShininess = other.mShininess And mSpecularPower = other.mSpecularPower And mCubeOpacity = other.mCubeOpacity And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mLighting = other.mLighting And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows And mReceiveShadows = other.mReceiveShadows
+		If mShader = other.mShader And mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mShininessTex = other.mShininessTex And mLightTex = other.mLightTex And mCubeTex = other.mCubeTex And mShininess = other.mShininess And mSpecularPower = other.mSpecularPower And mCubeOpacity = other.mCubeOpacity And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mLighting = other.mLighting And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows And mReceiveShadows = other.mReceiveShadows And mFog = other.mFog
 			Return True
 		Else
 			Return False
@@ -69,6 +70,7 @@ Public
 		mDepthWrite = other.mDepthWrite
 		mCastShadows = other.mCastShadows
 		mReceiveShadows = other.mReceiveShadows
+		mFog = other.mFog
 		Mat4Copy(other.mTextureMatrix, mTextureMatrix)
 	End
 	
@@ -210,6 +212,14 @@ Public
 		Return mReceiveShadows
 	End
 	
+	Method Fog:Bool() Property
+		Return mFog
+	End
+	
+	Method Fog:Void(enable:Bool) Property
+		mFog = enable
+	End
+	
 	Method TextureMatrix:Float[]() Property
 		Return mTextureMatrix
 	End
@@ -253,6 +263,10 @@ Public
 		Local prevShadowsEnabled:Bool = RenderState.ShadowsEnabled
 		If Not ReceiveShadows Then RenderState.ShadowsEnabled = False
 		
+		'Override FogEnabled state with Fog property
+		Local prevFogEnabled:Bool = RenderState.FogEnabled
+		If Not Fog Then RenderState.FogEnabled = False
+		
 		'Prepare bound shader
 		If mShader <> Null
 			mShader._Prepare()
@@ -263,6 +277,7 @@ Public
 		'Restore state settings
 		RenderState.NumLights = prevNumLights
 		RenderState.ShadowsEnabled = prevShadowsEnabled
+		RenderState.FogEnabled = prevFogEnabled
 		
 		Return True
 	End
@@ -291,5 +306,6 @@ Private
 	Field mDepthWrite			: Bool
 	Field mCastShadows		: Bool
 	Field mReceiveShadows	: Bool
+	Field mFog				: Bool
 	Field mTextureMatrix	: Float[16]
 End

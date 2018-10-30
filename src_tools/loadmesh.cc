@@ -69,6 +69,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
     }
 
     // vertices
+    video::S3DVertex* vertices = static_cast<video::S3DVertex*>(mesh_buffer->getVertices());
     video::S3DVertex2TCoords* vertices2t = mesh_buffer->getVertexType() == video::EVT_2TCOORDS ? static_cast<video::S3DVertex2TCoords*>(mesh_buffer->getVertices()) : 0;
     video::S3DVertexTangents* verticesTangents = tangent_mesh->getMeshBuffer(i)->getVertexType() == video::EVT_TANGENTS ? static_cast<video::S3DVertexTangents*>(tangent_mesh->getMeshBuffer(i)->getVertices()) : 0;
     for ( size_t v = 0; v < mesh_buffer->getVertexCount(); ++v ) {
@@ -89,6 +90,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
       surf.vertices.back().tx = tx;
       surf.vertices.back().ty = ty;
       surf.vertices.back().tz = tz;
+      surf.vertices.back().color = vertices[v].Color.color;
     }
 
     // vertex animation frames
