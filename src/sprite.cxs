@@ -179,6 +179,14 @@ Class Sprite Extends Entity 'Implements IMaterialDelegate Final
 	End
 	#End
 	
+	Method BoxMinZ:Float() Property
+		Return BoxMinX
+	End
+	
+	Method BoxMaxZ:Float() Property
+		Return BoxMaxX
+	End
+	
 	Method _Update:Void()
 		If mAnimFPS <> 0
 			mCurrentFrame += mAnimFPS * World.DeltaTime()
