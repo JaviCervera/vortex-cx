@@ -381,15 +381,15 @@ Class Entity
 	End
 	
 	Method BoxMaxX:Float() Property
-		Return WorldX - Width/2
+		Return WorldX + Width/2
 	End
 	
 	Method BoxMaxY:Float() Property
-		Return WorldY - Height/2
+		Return WorldY + Height/2
 	End
 	
 	Method BoxMaxZ:Float() Property
-		Return WorldZ - Depth/2
+		Return WorldZ + Depth/2
 	End
 	
 	Method UserData:Object() Property
