@@ -32,10 +32,11 @@ You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, 
 - [x] Use CamelCase in constants
 - [x] Vertex color importing in meshtool
 - [x] Add Material.Fog and export flag to mesh file
-- [ ] Rewrite renderer
-- [ ] Add Material.AmbientTexture and Material.AmbientColor
+- [ ] Add Capture class
+- [ ] Add Trigger class
 - [ ] Add Material.EmissiveTexture and Material.EmissiveColor
 - [ ] Add Material.SpecularTexture and Material.SpecularColor (Shininess property only modifies the Alpha of this color)
+- [ ] Add Material.AmbientTexture and Material.AmbientColor
 - [ ] Add Texture.SetPixels method
 - [ ] Added #defines to shader code, so there are several combinations for the default shader (static / skinned, no fog / fog, no shadows / shadows, no cubemap / cubemap, vlit / plit)
 - [ ] Reduced shader vars (compact floats in vec4's, etc), rename and document them
