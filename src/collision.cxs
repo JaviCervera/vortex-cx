@@ -17,8 +17,8 @@ Class Collision
 	End
 	
 	Function BoxSphere:Bool(minx:Float, miny:Float, minz:Float, maxx:Float, maxy:Float, maxz:Float, sx:Float, sy:Float, sz:Float, sqrad:Float)
-		'Check if point is in box
-		If IsPointInBox(minx, miny, minz, maxx, maxy, maxz, sx, sy, sz)
+		'Check if sphere center is in box
+		If IsPointInBox(sx, sy, sz, minx, miny, minz, maxx, maxy, maxz)
 			Return True
 		Else
 			'Find closest point on the surface of the box
