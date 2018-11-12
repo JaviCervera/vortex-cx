@@ -1,18 +1,25 @@
 'TODO v2.0.0-beta4
+'- Add Material.EmissiveTexture and Material.EmissiveColor
+'- Add Material.SpecularTexture and Material.SpecularColor (Shininess property only modifies the Alpha of this color)
+'- Add Material.AmbientTexture and Material.AmbientColor
 '- Write JSON based UI in tools
-'- Fix bone animation issues
-'- Animate surface indices
-'- Move matrices calculation out of ShaderUniforms.Prepare
-'- Add Material._RendersStep (should improve sprite rendering speed?)
+'- Add MD2, OBJ and ASSBIN loaders
+'- Make meshtool load meshes natively. Support for Irrlicht and Assimp command line converters. Saves materials in separate JSON file, which can be specified when loading the mesh.
+
+'TODO v2.0.0-beta5
 '- Add shader test
 '- Add picking test
+'- Move matrices calculation out of ShaderUniforms.Prepare
+'- Add Material._RendersStep (should improve sprite rendering speed?)
+'- Added #defines to shader code, so there are several combinations for the default shader (static / skinned, no fog / fog, no shadows / shadows, no cubemap / cubemap, vlit / plit)
+'- Reduced shader vars (compact floats in vec4's, etc), rename and document them
+'- Add fixes for Android
 '- Fix framebuffer, retina display and rotation on iOS
 
 'TODO v2.0.0:
 '- Refactor Cache class (add _AddFont, _AddTexture, etc methods) - not needed anymore?
 '- Make shadows work even without lights and when Material.Lighting = False - without lights?
 '- Add alpha support to shadows
-'- Make sure that shadows work correctly on skinned meshes
 '- Add cone, cylinder and sphere primitives (maybe rename wedge to ramp)?
 '- Add support for filters param in RequestFile (dialog module)
 '- Fix render to texture on HTML5
@@ -34,6 +41,11 @@
 '- Improve shadows (PCF, cascaded...)
 
 'TODO v2.3.0:
+'- Add bone animation
+'- Make sure that shadows work correctly on skinned meshes
+'- Animate surface indices
+
+'TODO v2.4.0:
 '- Sort lights before rendering each model
 '- Check that an object's bounding box is in view before rendering
 '- Add RenderList
@@ -43,7 +55,6 @@
 '- Masked blend mode?
 '- Texture compression?
 '- Write worldtool with lightmapping support
-'- Add MD2, OBJ and ASSBIN loaders (replace meshtool with materialtool?) - not sure about this
 
 'Enable depth buffer when using this module
 #OPENGL_DEPTH_BUFFER_ENABLED=True
