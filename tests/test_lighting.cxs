@@ -33,7 +33,7 @@ Public
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.BackColor = Color.Black
+		mCam.BackgroundColor = Color.Black
 		mCam.Position(0, 32, -90)
 		mCam.Rotate(16, 0, 0)
 		

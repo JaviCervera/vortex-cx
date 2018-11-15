@@ -12,7 +12,7 @@ Class TestApp Extends App
 		'Create camera
 		mCam = New Camera()
 		mCam.Position(0, 0, -3)
-		mCam.BackColor = Color.DarkGray
+		mCam.BackgroundColor = Color.DarkGray
 		
 		'Create framebuffer without depth buffer
 		mFramebuffer = New Framebuffer(512, 512, False)

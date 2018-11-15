@@ -30,7 +30,7 @@ Public
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.BackColor = Color.White
+		mCam.BackgroundColor = Color.White
 		mCam.Position(0, 0, -2)
 		
 		'Create triangle mesh

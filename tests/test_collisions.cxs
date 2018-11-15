@@ -40,7 +40,7 @@ Public
 		mCam = New Camera(mBall)
 		mCam.Position(0, 14, -16)
 		mCam.Rotate(45, 0, 0)
-		mCam.BackColor = Color.RGB(15, 25, 55)
+		mCam.BackgroundColor = Color.RGB(15, 25, 55)
 		
 		'Create level
 		CreateLevel()

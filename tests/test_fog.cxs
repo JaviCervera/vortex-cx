@@ -36,7 +36,7 @@ Public
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.BackColor = Color.DarkGray
+		mCam.BackgroundColor = Color.DarkGray
 		mCam.Position(0, 0, -7)
 		mCam.Far = 5000
 		

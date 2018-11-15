@@ -34,7 +34,7 @@ Public
 		'Create camera
 		mCam = New Camera()
 		mCam.Rotate(45, -45, 0)
-		mCam.BackColor = Color.White
+		mCam.BackgroundColor = Color.White
 		
 		'Create sprites
 		Local x:Float = -8, z:Float = -8

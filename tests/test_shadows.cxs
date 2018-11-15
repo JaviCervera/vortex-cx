@@ -32,7 +32,7 @@ Public
 		mCam = New Camera()
 		mCam.Position(0, 100, -260)
 		mCam.Rotate(15, 0, 0)
-		mCam.BackColor = Color.RGB(50, 25, 55)
+		mCam.BackgroundColor = Color.RGB(50, 25, 55)
 		
 		'Create model
 		mModel = New Model(Mesh.Load("low-poly-mill.msh.dat"))

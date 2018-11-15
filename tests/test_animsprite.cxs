@@ -35,7 +35,7 @@ Public
 		mCam = New Camera()
 		mCam.Orthographic = True
 		mCam.Z = -1
-		mCam.BackColor = Color.Black
+		mCam.BackgroundColor = Color.Black
 		
 		'Create sprite
 		mSprite = New Sprite(tex, 5, 5)

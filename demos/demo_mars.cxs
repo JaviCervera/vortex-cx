@@ -33,7 +33,7 @@ Public
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.BackColor = Color.RGB(15, 15, 15)
+		mCam.BackgroundColor = Color.RGB(15, 15, 15)
 		mCam.Position(0, 50, 150)
 		mCam.Yaw = 180
 		mCam.Far = 5000
