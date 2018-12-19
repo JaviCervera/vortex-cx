@@ -33,7 +33,7 @@ You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, 
 - [x] Vertex color importing in meshtool
 - [x] Add Material.Fog and export flag to mesh file
 - [ ] Add box collision with static boxes
-- [ ] Add Trigger class
+- [ ] Add Trigger and TriggerDelegate to Entity class
 - [ ] Add Capture class
 - [ ] Add Texture.SetPixels method
 - [ ] Add Material.EmissiveTexture and Material.EmissiveColor
