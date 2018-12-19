@@ -1,30 +1,22 @@
-'TODO v2.0.0-beta4
-'- Add Material.EmissiveTexture and Material.EmissiveColor
-'- Add Material.SpecularTexture and Material.SpecularColor (Shininess property only modifies the Alpha of this color)
-'- Add Material.AmbientTexture and Material.AmbientColor
-'- Add MD2, OBJ and ASSBIN loaders
-'- Make meshtool load meshes natively. Support for Irrlicht and Assimp command line converters. Save materials in separate JSON file, which can be specified when loading the mesh.
-
 'TODO v2.0.0
 '- Add fixes for Android
 '- Fix framebuffer, retina display and rotation on iOS
-'- Refactor Cache class (add _AddFont, _AddTexture, etc methods) - not needed anymore?
-'- Make shadows work even without lights and when Material.Lighting = False - without lights?
+'- Make shadows work even when Material.Lighting = False
 '- Add alpha support to shadows
-'- Add cone, cylinder and sphere primitives (maybe rename wedge to ramp)?
-'- Add support for filters param in RequestFile (dialog module)
 '- Fix render to texture on HTML5
 '- Fix test_mojo2 on HTML5
 '- Add Building section to README.md
-'- Change mesh in shadows demo
 '- Clean comments
 '- Document tools
-'- Make sure that everything is documented
-'- Consider switching to Zlib or another license?
+'- Make sure that every class & method is documented
 
 'TODO v3.0.0:
 '- Rewrite backend using PicoGFX
+'- Add MD2, OBJ and ASSBIN loaders
+'- Make meshtool load meshes natively. Support for Irrlicht and Assimp command line converters. Save materials in separate JSON file, which can be specified when loading the mesh.
 '- Add shader test (maybe rewrite all samples?)
+'- Add cone, cylinder and sphere primitives (maybe rename wedge to ramp)?
+'- Add support for filters param in RequestFile (dialog module)
 '- Move matrices calculation out of ShaderUniforms.Prepare
 '- Add Material._RendersStep (should improve sprite rendering speed?)
 '- Added #defines to shader code, so there are several combinations for the default shader (static / skinned, no fog / fog, no shadows / shadows, no cubemap / cubemap, vlit / plit)
