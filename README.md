@@ -34,7 +34,6 @@ You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, 
 - [x] Add Material.Fog and export flag to mesh file
 - [ ] Add box collision with static boxes
 - [ ] Add Trigger and TriggerDelegate to Entity class
-- [ ] Add Capture class
 - [ ] Add Texture.SetPixels method
 - [ ] Add Material.EmissiveTexture and Material.EmissiveColor
 - [ ] Add Material.SpecularTexture and Material.SpecularColor (Shininess property only modifies the Alpha of this color)
