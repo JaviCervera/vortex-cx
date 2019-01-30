@@ -14,6 +14,11 @@ Strict
 #BINARY_FILES += "*.exe"
 #End
 
+'Ensure 32 bit Windows builds
+#If HOST = "winnt"
+#CC_OPTS="-m32"
+#End
+
 'Imports
 Import mojo.app
 Import mojo.input

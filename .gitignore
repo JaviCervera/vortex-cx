@@ -21,6 +21,11 @@ fonttool
 *.dylib
 *.so
 
+# Monkey source and docs
+*.monkey
+*.monkeydoc
+!convert2monkey.monkey
+
 # Qt
 /.qmake.cache
 /.qmake.stash

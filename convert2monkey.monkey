@@ -3,6 +3,11 @@
 
 Strict
 
+'Ensure 32 bit Windows builds
+#If HOST = "winnt"
+#CC_OPTS="-m32"
+#End
+
 Import os
 
 Function Main:Int()
