@@ -32,6 +32,7 @@ You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, 
 - [x] Use CamelCase in constants
 - [x] Vertex color importing in meshtool
 - [x] Add Material.Fog and export flag to mesh file
+- [ ] Add Entity.LookAt
 - [ ] Flip render to texture Y
 - [ ] Add box collision with static boxes
 - [ ] Add Trigger and TriggerDelegate to Entity class
