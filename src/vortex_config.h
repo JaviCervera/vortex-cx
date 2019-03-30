@@ -2,6 +2,6 @@
 #define VORTEX_CONFIG_H_INCLUDED
 
 #define USE_ALLEGRO
-#define USE_DEFAULT_FONT
+//#define USE_DEFAULT_FONT
 
 #endif /* VORTEX_CONFIG_H_INCLUDED */

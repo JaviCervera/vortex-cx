@@ -4,25 +4,24 @@
 #include "types.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define _min(A, B)       (A < B ? A : B)
-#define _max(A, B)       (A > B ? A : B)
-#define _clamp(A, B, C)  _min(_max(A, B), C)
-#define _alloc(T)        ((T*)malloc(sizeof(T)))
-#define _allocnum(T,S)   ((T*)malloc(S*sizeof(T)))
+#define Min(A, B)       (A < B ? A : B)
+#define Max(A, B)       (A > B ? A : B)
+#define Clamp(A, B, C)  Min(Max(A, B), C)
+#define Alloc(T)        ((T*)malloc(sizeof(T)))
+#define AllocNum(T,N)   ((T*)malloc(N*sizeof(T)))
 
-void ext_strip(const char* filename, char* out, size_t len);
-void ext_extract(const char* filename, char* out, size_t len);
-void dir_strip(const char* filename, char* out, size_t len);
-void dir_extract(const char* filename, char* out, size_t len);
-bool_t dir_contents(const char* path, char* out, size_t len);
-void dir_current(char* out, size_t len);
-bool_t dir_change(const char* path);
-int str_casecmp(char const *a, char const *b);
-void str_write(const char* str, const char* filename, bool_t append);
+void StripExt(const char* filename, char* out, size_t len);
+void ExtractExt(const char* filename, char* out, size_t len);
+void StripDir(const char* filename, char* out, size_t len);
+void ExtractDir(const char* filename, char* out, size_t len);
+bool_t DirContents(const char* path, char* out, size_t len);
+void CurrentDir(char* out, size_t len);
+bool_t ChangeDir(const char* path);
+int CompareStringInsensitive(char const *a, char const *b);
+void WriteString(const char* str, const char* filename, bool_t append);
 
 #ifdef __cplusplus
 } /* extern "C" */
