@@ -1,41 +1,28 @@
-![Vortex](./stuff/vortex_med.png)
+# Vortex
 
 ## Introduction
-Vortex is an open-source, lightweight 3D graphics rendering library which is easy to use and easy to integrate with any application that requires graphics. It can also be used as the base for a higher level graphics or game engine.
+Vortex is an open-source, lightweight 3D graphics rendering library which is easy to use and integrate with any application that requires graphics.
 
-It has been released under the terms of the [**MIT license**](https://en.wikipedia.org/wiki/MIT_License), which allows its use within both open and closed source software. This license allows to use the library in commercial applications.
+It has been released under the terms of the [**Zlib license**](https://en.wikipedia.org/wiki/Zlib_License), which allows its use within both open and closed source software. This license allows to use the library in commercial applications.
 
 ## Features
-* A clean, simple object oriented API programmed in the [**Cerberus-X**](http://www.cerberus-x.com) language.
-* Works on all Cerberus-X targets that support OpenGL ES 2: **Windows**, **macOS**, **Linux**, **Android**, **iOS** and **HTML5**.
-* Graphics architecture based on modern **OpenGL ES 2.0**. It makes use of shaders and vertex buffer objects.
-* Supports 2D (primitives, images, text) and 3D rendering.
-* Loads textures in the most common formats: JPG, PNG, BMP...
-* Includes tool to convert **TrueType** (ttf) fonts into bitmap based fonts.
-* Meshes can be created in code or loaded from a custom format (includes tool which uses the [**Irrlicht**](http://irrlicht.sourceforge.net) engine to import meshes, with support for several popular formats).
-* **Materials** support diffuse color, diffuse texture, lightmap, normal map, cube map, opacity, specular reflections and shadows. They also support different blending modes: solid, alpha, additive, multiplicative.
-* **Dynamic lighting** with directional and point lights (configurable number of lights).
-* **Realtime shadows** from a single directional light source.
-* **Vertex based animation** for meshes (vertex animations are automatically generated from skeletal animations).
-* **Linear fog** for ambient effects.
+* A clean, simple procedural API programmed in C.
+* Works on Windows, macOS and Linux (and probably other UNIX variants). Android, iOS and Emscripten support is planned.
+* Graphics architecture based on modern OpenGL ES 2.0. It makes use of shaders and vertex buffer objects.
+* 2D (primitives, images, text) and 3D rendering.
+* Assimp (assbin) and MD2 model formats supported.
+* Most common texture formats are support: JPG, PNG, BMP...
+* TrueType (ttf) fonts for text rendering.
+* Diffuse, emissive, specular and ambient colors supported.
+* Diffuse, emissive, specular, ambient, normal and cubemap textures supported.
+* Solid, alpha, additive and multiplicative blned modes.
+* Dynamic lighting with directional, point and spot lights.
+* Realtime shadows from a single directional light and multiple spot lights.
+* Vertex based animation.
+* Linear fog for ambient effects.
 
 ## Installation
 You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, or download as a zip file and put the vortex folder on that same **<*CerberusFolder*>/modules_ext** location. You should select **Help -> Rebuild Help** on the Cerberus-X IDE (Ted) afterwards, and the documentation will be available in your modules help.
 
 ## Acknowledgments
-* The **Irrlicht team** for the engine used on the mesh tool (Irrlicht is licensed under the Zlib license).
 * **Sean T. Barret** for his **stb_image_write** and **stb_truetype** libraries, used on the tools (these libraries are public domain).
-
-![meshtool](./stuff/meshtool.jpg)
-
-## TODO v2.0.0-beta3
-- [x] Use CamelCase in constants
-- [x] Vertex color importing in meshtool
-- [x] Add Material.Fog and export flag to mesh file
-- [ ] Flip render to texture Y
-- [ ] Add box collision with static boxes
-- [ ] Add Trigger and TriggerDelegate to Entity class
-- [ ] Add Texture.SetPixels method
-- [ ] Add Material.EmissiveTexture and Material.EmissiveColor
-- [ ] Add Material.SpecularTexture and Material.SpecularColor (Shininess property only modifies the Alpha of this color)
-- [ ] Add Material.AmbientTexture and Material.AmbientColor

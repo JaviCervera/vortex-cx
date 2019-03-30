@@ -1,0 +1,3 @@
+To export a mesh using the command line tool, you should do:
+
+assimp dump <input> -b -cfull -lh -fuv -fwo -ptv

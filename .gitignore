@@ -1,47 +1,43 @@
-#CMake folders
-meshtool/_CMAKE/
+.vscode
+_CMAKE
+_build/*.dll
+_build/*.dylib
+_build/*.so
+stuff/inputcodes_out.txt
 
-# Tests build folders
-*.build*/
 
-# BlitzMax build folders
-.bmx/
-*/.bmx/
+# Created by https://www.gitignore.io/api/windows,linux,osx
 
-#Visual Studio Code folders
-.vscode/
-*/.vscode/
+### Windows ###
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
 
-# Tools
-meshtool
-fonttool
-*.bin
-*.exe
-*.dll
-*.dylib
-*.so
+# Folder config file
+Desktop.ini
 
-# Monkey source and docs
-*.monkey
-*.monkeydoc
-!convert2monkey.monkey
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
 
-# Qt
-/.qmake.cache
-/.qmake.stash
-*.pro.user
-*.pro.user.*
-*.qbs.user
-*.qbs.user.*
-*.moc
-moc_*.cpp
-qrc_*.cpp
-ui_*.h
-Makefile*
-*-build-*
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
 
-# QtCreator
-*.autosave
+# Windows shortcuts
+*.lnk
+
+
+### Linux ###
+*~
+
+# KDE directory preferences
+.directory
+
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
+
 
 ### OSX ###
 .DS_Store
@@ -69,32 +65,3 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-
-### Linux ###
-*~
-
-# KDE directory preferences
-.directory
-
-# Linux trash folder which might appear on any partition or disk
-.Trash-*
-
-### Windows ###
-# Windows image file caches
-Thumbs.db
-ehthumbs.db
-
-# Folder config file
-Desktop.ini
-
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
-
-# Windows Installer files
-*.cab
-*.msi
-*.msm
-*.msp
-
-# Windows shortcuts
-*.lnk
