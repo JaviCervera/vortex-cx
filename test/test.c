@@ -2,16 +2,14 @@
 #include "../lib/litelibs/liteunit.h"
 #include "../src/vortex.h"
 
-void TestOpenScreen(ltestcase_t* testcase)
-{
+void TestOpenScreen(ltestcase_t* testcase) {
     bool_t opened = OpenScreen(640, 480, FALSE, FALSE);
     ltest_assert(testcase, opened);
     ltest_assert(testcase, IsScreenOpened());
     CloseScreen();
 }
 
-void TestScreenSize(ltestcase_t* testcase)
-{
+void TestScreenSize(ltestcase_t* testcase) {
     OpenScreen(640, 480, FALSE, FALSE);
     ltest_assert(testcase, GetScreenWidth() == 640);
     ltest_assert(testcase, GetScreenHeight() == 480);
