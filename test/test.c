@@ -1,40 +1,35 @@
 #define LITE_UNIT_IMPLEMENTATION
-#include "liteunit.h"
-#include "../src/platform_allegro.c"
-
-void InitPlatform(ltestcase_t* testcase)
-{
-  p_Init();
-}
-
-void DeinitPlatform(ltestcase_t* testcase)
-{
-  p_Shutdown();
-}
+#include "../lib/litelibs/liteunit.h"
+#include "../src/vortex.h"
 
 void TestOpenScreen(ltestcase_t* testcase)
 {
-  void* screen = p_OpenScreen(640, 480, FALSE, 0, FALSE, FALSE);
-  ltest_assert(testcase, screen != NULL);
-  p_CloseScreen(screen);
+    bool_t opened = OpenScreen(640, 480, FALSE, FALSE);
+    ltest_assert(testcase, opened);
+    ltest_assert(testcase, IsScreenOpened());
+    CloseScreen();
 }
 
 void TestScreenSize(ltestcase_t* testcase)
 {
-  void* screen = p_OpenScreen(640, 480, FALSE, 0, FALSE, FALSE);
-  //ltest_assert(testcase, p_GetScreenWidth(screen) == 640);
-  //ltest_assert(testcase, p_GetScreenHeight(screen) == 400);
-  ltest_assert(testcase, 0);
-  p_CloseScreen(screen);
+    OpenScreen(640, 480, FALSE, FALSE);
+    ltest_assert(testcase, GetScreenWidth() == 640);
+    ltest_assert(testcase, GetScreenHeight() == 480);
+    CloseScreen();
 }
 
 int main() {
-  ltestcase_t platform;
-  ltestcase_init(&platform, "platform", InitPlatform, DeinitPlatform, NULL, NULL);
-  ltestcase_addtest(&platform, TestOpenScreen, "Checking that p_OpenScreen returns a pointer");
-  ltestcase_addtest(&platform, TestOpenScreen, "Checking that correct screen size is returned");
+  ltestcase_t screen;
   
-  ltestcase_run(&platform);
+  InitVortex();
+  
+  ltestcase_init(&screen, "screen", NULL, NULL, NULL, NULL);
+  ltestcase_addtest(&screen, TestOpenScreen, "Checking that OpenScreen works");
+  ltestcase_addtest(&screen, TestScreenSize, "Checking that correct screen size is returned");
+  
+  ltestcase_run(&screen);
+  
+  FinishVortex();
   
   return 0;
 }

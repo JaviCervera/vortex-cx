@@ -10,7 +10,7 @@ extern "C" {
 struct Texture;
 
 // Screen
-EXPORT void CALL OpenScreen(int width, int height, bool_t fullscreen, bool_t resizable);
+EXPORT bool_t CALL OpenScreen(int width, int height, bool_t fullscreen, bool_t resizable);
 EXPORT void CALL CloseScreen();
 EXPORT void CALL RefreshScreen();
 EXPORT void CALL SetScreenTitle(const char* title);

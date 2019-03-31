@@ -21,6 +21,6 @@ cd ..
 
 echo "moving vortex to _build dir..."
 mkdir _build
-mv _CMAKE/vortex.dylib _build/vortex.dylib
+mv _CMAKE/libvortex.dylib _build/libvortex.dylib
 
 echo "done."

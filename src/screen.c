@@ -28,7 +28,7 @@ static struct Font* _screen_font = NULL;
 static struct Font* _default_font = NULL;
 #endif
 
-EXPORT void CALL OpenScreen(int width, int height, bool_t fullscreen, bool_t resizable) {
+EXPORT bool_t CALL OpenScreen(int width, int height, bool_t fullscreen, bool_t resizable) {
     /* Close previous screen */
     CloseScreen();
 
@@ -37,8 +37,12 @@ EXPORT void CALL OpenScreen(int width, int height, bool_t fullscreen, bool_t res
 
     /* load default font */
 #ifdef USE_DEFAULT_FONT
-    _default_font = LoadFontBase64(DEFAULT_FONT, DEFAULT_FONT_BLOCKSIZE, 12);
-    _screen_font = _default_font;
+    if (_screen_ptr) {
+        _default_font = LoadFontBase64(DEFAULT_FONT, DEFAULT_FONT_BLOCKSIZE, 12);
+        _screen_font = _default_font;
+    }
+    
+    return _screen_ptr != NULL;
 #endif
 }
 

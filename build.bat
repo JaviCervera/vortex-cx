@@ -21,6 +21,6 @@ cd ..
 
 echo moving vortex to _build dir...
 mkdir _build
-move "_CMAKE\libvortex.dll" "_build\vortex.dll"
+move "_CMAKE\libvortex.dll" "_build\libvortex.dll"
 
 pause

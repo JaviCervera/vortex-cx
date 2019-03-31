@@ -26,11 +26,7 @@
 #undef STB_TRUETYPE_IMPLEMENTATION
 #include "../lib/stb/stb_vorbis.c"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-bool_t InitVortex()
+EXPORT bool_t CALL InitVortex()
 {
     bool_t ret;
     ret = p_Init();
@@ -39,13 +35,9 @@ bool_t InitVortex()
     return ret != FALSE;
 }
 
-void FinishVortex()
+EXPORT void CALL FinishVortex()
 {
     CloseScreen();
     /*FinishAudio();*/
     p_Shutdown();
 }
-
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
