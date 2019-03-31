@@ -92,7 +92,8 @@ void* p_OpenScreen(int width, int height, bool_t fullscreen, int samples, bool_t
     al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, samples > 0, ALLEGRO_SUGGEST);
     al_set_new_display_option(ALLEGRO_SAMPLES, samples, ALLEGRO_SUGGEST);
     al_set_new_display_option(ALLEGRO_VSYNC, vsync ? 1 : 2, ALLEGRO_SUGGEST);
-    al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_REQUIRE);
+    al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_SUGGEST);
+    al_set_new_display_option(ALLEGRO_FLOAT_DEPTH, 1, ALLEGRO_SUGGEST);
 
     /* Create event queue */
     queue = al_create_event_queue();
