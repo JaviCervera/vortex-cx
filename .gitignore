@@ -1,8 +1,8 @@
 .vscode
 _CMAKE
-_build/*.dll
-_build/*.dylib
-_build/*.so
+*.dll
+*.dylib
+*.so
 stuff/inputcodes_out.txt
 
 

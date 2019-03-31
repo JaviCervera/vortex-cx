@@ -16,7 +16,7 @@ add_library(vortex SHARED ${VORTEX_FILES})
 
 #Add platform specific options
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	add_definitions(-DWIN32)
+	add_definitions(-DWIN32 -DDLLEXPORT)
 	if (MSVC)
 		message("Platform is Windows (MSVC)")
 		#add_definitions(-D_CRT_SECURE_NO_WARNINGS)

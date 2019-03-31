@@ -71,7 +71,7 @@ int main(int, char**)
   {
     const std::string& line = *it;
     if ( line == "" ) continue;
-    std::string outname = string_replace(line, "ALLEGRO_KEY_", "_KEY_");
+    std::string outname = string_replace(line, "ALLEGRO_KEY_", "KEY_");
     outname = string_replace(outname, "_ESCAPE", "_ESC");
     std::transform(outname.begin(), outname.end(), outname.begin(), ::toupper);
     
