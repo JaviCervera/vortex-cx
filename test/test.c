@@ -17,17 +17,17 @@ void TestScreenSize(ltestcase_t* testcase) {
 }
 
 int main() {
-  ltestcase_t screen;
-  
-  InitVortex();
-  
-  ltestcase_init(&screen, "screen", NULL, NULL, NULL, NULL);
-  ltestcase_addtest(&screen, TestOpenScreen, "Checking that OpenScreen works");
-  ltestcase_addtest(&screen, TestScreenSize, "Checking that correct screen size is returned");
-  
-  ltestcase_run(&screen);
-  
-  FinishVortex();
-  
-  return 0;
+    ltestcase_t screen;
+    
+    InitVortex();
+    
+    ltestcase_init(&screen, "screen", NULL, NULL, NULL, NULL);
+    ltestcase_addtest(&screen, TestOpenScreen, "Checking that OpenScreen works");
+    ltestcase_addtest(&screen, TestScreenSize, "Checking that correct screen size is returned");
+    
+    ltestcase_run(&screen);
+    
+    FinishVortex();
+    
+    return 0;
 }

@@ -19,8 +19,8 @@ echo "building vortex..."
 make
 cd ..
 
-echo "moving vortex to _build dir..."
+echo "copying vortex to _build dir..."
 mkdir _build
-mv _CMAKE/libvortex.dylib _build/libvortex.dylib
+cp _CMAKE/libvortex.dylib _build/libvortex.dylib
 
 echo "done."
