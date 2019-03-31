@@ -1,4 +1,5 @@
-#if USE_DEFAULT_FONT
+#include "vortex_config.h"
+#ifdef USE_DEFAULT_FONT
 #include "../lib/base64/base64.h"
 #endif
 #include "../lib/litelibs/litegfx.h"
@@ -6,7 +7,6 @@
 #include "font.h"
 #include "resource.h"
 #include "util.h"
-#include "vortex_config.h"
 #include <stdio.h>
 #include <string.h>
 

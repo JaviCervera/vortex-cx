@@ -1,8 +1,11 @@
+#include "vortex_config.h"
 #include "../lib/litelibs/litegfx.h"
 #include "../lib/litelibs/litemath3d.h"
 #include "../lib/stb/stretchy_buffer.h"
 #include "color.h"
+#ifdef USE_DEFAULT_FONT
 #include "default_font.h"
+#endif
 #include "font.h"
 #include "platform.h"
 #include "screen.h"
