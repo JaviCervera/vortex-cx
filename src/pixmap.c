@@ -61,17 +61,12 @@ EXPORT int CALL GetPixmapWidth(const struct Pixmap* pixmap) { return pixmap->wid
 
 EXPORT int CALL GetPixmapHeight(const struct Pixmap* pixmap) { return pixmap->height; }
 
-EXPORT int CALL GetPixmapColor(const struct Pixmap* pixmap, int x, int y)
-{
+EXPORT int CALL GetPixmapColor(const struct Pixmap* pixmap, int x, int y) {
     return pixmap->pixels[y*pixmap->width + x];
 }
 
-EXPORT void CALL SetPixmapColor(struct Pixmap* pixmap, int x, int y, int color)
-{
+EXPORT void CALL SetPixmapColor(struct Pixmap* pixmap, int x, int y, int color) {
     pixmap->pixels[y*pixmap->width + x] = color;
 }
 
-const void* _GetPixmapPtr(const struct Pixmap* pixmap)
-{
-    return pixmap->pixels;
-}
+const void* _GetPixmapPtr(const struct Pixmap* pixmap) { return pixmap->pixels; }
