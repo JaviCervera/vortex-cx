@@ -66,4 +66,6 @@ The library `vortex.so` will be created on the `_build` folder (it is a 64 bit b
 
 ## Acknowledgments
 
-* **Sean T. Barret** for his **stb_image_write** and **stb_truetype** libraries, used on the tools (these libraries are public domain).
+* The [**Allegro**](https://github.com/liballeg/allegro5) developers.
+* **Sean T. Barret** for his wonderful [**stb** libraries](https://github.com/nothings/stb).
+* **Zhicheng Wei** for his [Base64 library](https://github.com/zhicheng/base64).
