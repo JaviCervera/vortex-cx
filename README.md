@@ -1,7 +1,5 @@
 # Vortex
 
-## Introduction
-
 Vortex is an open-source, lightweight 3D graphics rendering library which is easy to use and integrate with any application that requires graphics.
 
 It has been released under the terms of the [**Zlib license**](https://en.wikipedia.org/wiki/Zlib_License), which allows its use within both open and closed source software. This license allows to use the library in commercial applications.
