@@ -8,6 +8,10 @@ Since Vortex uses submodules, to correctly clone the repository, do:
 
 `git clone --recursive https://github.com/JaviCervera/vortex.git`
 
+Or, if you are using SSH:
+
+`git clone --recursive git@github.com:JaviCervera/vortex.git`
+
 If you have already cloned the repository without initializing submodules, you can do it afterwards running this on the Vortex repository:
 
 `git submodule update --init`
