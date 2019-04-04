@@ -47,8 +47,7 @@ Once built, you can drastically reduce the size of the generated `libvortex.dll`
 
 You should have **Cmake** and **swig3.0** installed to be able to build the engine. You can install them for example with [Brew](https://brew.sh/). After installing Brew on your system, type:
 
-`$brew install cmake`
-`$brew install swig3.0`
+`$brew install cmake swig3.0`
 
 Then, just double click from Finder on `build.command` and the library `libvortex.dylib` will be created on the `_build` folder.
 
@@ -56,9 +55,7 @@ Then, just double click from Finder on `build.command` and the library `libvorte
 
 You should have **Cmake** and **swig3.0** installed to be able to build the engine. For example, to install them on Ubuntu, type:
 
-`$sudo apt install cmake`
-
-`$sudo apt install swig3.0`
+`$sudo apt install cmake swig3.0`
 
 Then, from a Terminal go to the Vortex folder and run the build script:
 
