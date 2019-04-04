@@ -39,9 +39,9 @@ To pull changes from the repository, including its submodules, do:
 
 ## Building on Windows
 
-You should have **Cmake** installed and added to your `PATH` to build the engine. In order to compile, just double click the `build.bat` file. The library `vortex.dll` will be created on the `_build` folder.
+You should have **Cmake** installed and added to your `PATH` to build the engine. In order to compile, just double click the `build.bat` file. The library `libvortex.dll` will be created on the `_build` folder.
 
-Once built, you can drastically reduce the size of the generated `vortex.dll` executable by running `compress.exe`, which will use the UPX compressor.
+Once built, you can drastically reduce the size of the generated `libvortex.dll` executable by running `compress.exe`, which will use the UPX compressor.
 
 ## Building on macOS
 
@@ -50,7 +50,7 @@ You should have **Cmake** and **swig3.0** installed to be able to build the engi
 `$brew install cmake`
 `$brew install swig3.0`
 
-Then, just double click from Finder on `build.command` and the library `vortex.dylib` will be created on the `_build` folder.
+Then, just double click from Finder on `build.command` and the library `libvortex.dylib` will be created on the `_build` folder.
 
 ## Building on Linux
 
@@ -64,7 +64,7 @@ Then, from a Terminal go to the Vortex folder and run the build script:
 
 `$./build.sh`
 
-The library `vortex.so` will be created on the `_build` folder (it is a 64 bit binary).
+The library `libvortex.so` will be created on the `_build` folder (it is a 64 bit binary).
 
 ## Acknowledgments
 
