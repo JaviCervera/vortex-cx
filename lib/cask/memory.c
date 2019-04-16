@@ -29,6 +29,7 @@ size_t CRelease(void* memory) {
 }
 
 void* CAutorelease(void* mem) {
+    _CAddToPool(mem, CActivePool());
 }
 
 void* _CAlloc(size_t size, void (* dealloc_callback)(void*)) {

@@ -19,6 +19,8 @@ void CDrainPool(struct CMemoryPool* pool);
 
 struct CMemoryPool* CActivePool();
 
+void _CAddToPool(void* memory, struct CMemoryPool* pool);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

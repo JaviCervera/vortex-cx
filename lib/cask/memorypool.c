@@ -15,11 +15,17 @@ struct CMemoryPool* CAllocPool() {
 }
 
 void CDrainPool(struct CMemoryPool* pool) {
+    /*for (size_t i = 0; i < CSize(pool->objects); ++i) {
+        pool->objects[i*]
+    }*/
+    CRelease(pool->objects);
+    pool->objects = NULL;
 }
 
 struct CMemoryPool* CActivePool() {
-    if (!_pools) {
-        
-    }
     return _pools[CSize(_pools) - 1];
+}
+
+void _CAddToPool(void* memory, struct CMemoryPool* pool) {
+    CPushElement(pool, memory);
 }
