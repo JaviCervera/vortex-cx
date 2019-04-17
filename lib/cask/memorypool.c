@@ -2,30 +2,26 @@
 #include "memory.h"
 #include "memorypool.h"
 
-struct CMemoryPool {
-    CArray(void*) objects;
-};
+/* A pool is just an array of objects */
+typedef CArray(void*) CMemoryPool;
 
-static CArray(struct CMemoryPool*) _pools = NULL;
+/* Internal stack of pools */
+static CArray(CMemoryPool) _pools = NULL;
 
-struct CMemoryPool* CAllocPool() {
-    struct CMemoryPool* pool = CAllocFunc(struct CMemoryPool, CDrainPool);
-    CPushElement(_pools, pool);
-    return pool;
+
+void CPushPool() {
+    CPushMany(_pools, 1);
 }
 
-void CDrainPool(struct CMemoryPool* pool) {
-    /*for (size_t i = 0; i < CSize(pool->objects); ++i) {
-        pool->objects[i*]
-    }*/
-    CRelease(pool->objects);
-    pool->objects = NULL;
+void CPopPool() {
+	CPop(_pools);
 }
 
-struct CMemoryPool* CActivePool() {
-    return _pools[CSize(_pools) - 1];
+void CDrainPool() {
+	/*  */
+    CRelease(CBack(_pools));
 }
 
-void _CAddToPool(void* memory, struct CMemoryPool* pool) {
-    CPushElement(pool, memory);
+void _CAutorelease(void* memory) {
+    CPush(CBack(_pools), memory);
 }

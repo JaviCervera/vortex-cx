@@ -15,19 +15,6 @@ size_t CRetain(void* memory) {
     return ++memory->refcount;
 }
 
-size_t CRelease(void* memory) {
-    size_t new_count;
-    
-    new_count = --memory->refcount;
-    if (new_count == 0) {
-        if (memory->dealloc_callback) {
-            memory->dealloc_callback(memory);
-        }
-        free(_CGetStub(memory));
-    }
-    return new_count;
-}
-
 void* CAutorelease(void* mem) {
     _CAddToPool(mem, CActivePool());
 }
@@ -37,7 +24,7 @@ void* _CAlloc(size_t size, void (* dealloc_callback)(void*)) {
     return _CAllocEx(size, &dummy, 0, dealloc_callback);
 }
 
-void* _CAllocEx(
+void* _CAllocStub(
         size_t size,
         void* stub,
         size_t stub_size,
@@ -59,6 +46,20 @@ void* _CAllocEx(
     info->dealloc_callback = dealloc_callback;
     
     return block + stub_size + sizeof(CMemoryInfo);
+}
+
+size_t _CRelease(void** memory) {
+    size_t new_count;
+    
+    new_count = --*memory->refcount;
+    if (new_count == 0) {
+        if (*memory->dealloc_callback) {
+            *memory->dealloc_callback(*memory);
+        }
+        free(_CGetStub(*memory));
+        *memory = NULL;
+    }
+    return new_count;
 }
 
 CMemoryInfo* _GetInfo(void* mem) {

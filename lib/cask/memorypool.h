@@ -3,23 +3,19 @@
 
 #include <stdlib.h>
 
-#define CAlloc(T) ((T*)_CAlloc(sizeof(T), 0, 0))
-#define CAllocEx(T,S,F) ((T*)_CAllocEx(sizeof(T), &S, sizeof(S), F))
-#define CGetStub(T,M) ((T*)_CGetStub(M))
+#define CAutorelease(A) (_CAutorelease(A), A)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct CMemoryPool;
+void CPushPool();
 
-struct CMemoryPool* CAllocPool();
+void CPopPool();
 
-void CDrainPool(struct CMemoryPool* pool);
+void CDrainPool();
 
-struct CMemoryPool* CActivePool();
-
-void _CAddToPool(void* memory, struct CMemoryPool* pool);
+void _CAutorelease(void* memory);
 
 #ifdef __cplusplus
 } /* extern "C" */
