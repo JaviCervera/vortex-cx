@@ -19,6 +19,15 @@ echo "building glfw..."
 make
 cd ../../..
 
+echo "generating sdl2 project for mingw..."
+mkdir lib/sdl2/_CMAKE
+cd lib/sdl2/_CMAKE
+cmake -G "Unix Makefiles" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 -DCMAKE_BUILD_TYPE=MinSizeRel -DSDL_SHARED=OFF ..
+
+echo "building sdl2..."
+make
+cd ../../..
+
 echo "generating vortex project for gcc..."
 mkdir _CMAKE
 cd _CMAKE

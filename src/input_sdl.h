@@ -3,7 +3,7 @@
 
 #include "vortex_config.h"
 
-#ifdef USE_SDL
+#ifdef USE_SDL2
 
 #define KEY_RETURN 13
 #define KEY_ESC 27
@@ -245,6 +245,6 @@
 #define KEY_AUDIOREWIND 1073742109
 #define KEY_AUDIOFASTFORWARD 1073742110
 
-#endif /* USE_SDL */
+#endif /* USE_SDL2 */
 
 #endif /* INPUT_SDL_H_INCLUDED */

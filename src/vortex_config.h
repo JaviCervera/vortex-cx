@@ -3,7 +3,7 @@
 
 /*#define USE_ALLEGRO*/ /*** Not finished ***/
 #define USE_GLFW
-/*#define USE_SDL*/
+/*#define USE_SDL2*/
 #define USE_TINYFILEDIALOGS
 
 #define USE_DEFAULT_FONT

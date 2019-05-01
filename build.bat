@@ -20,6 +20,16 @@ echo building glfw...
 mingw32-make
 cd ../../..
 
+echo generating sdl2 project for mingw...
+cd lib/sdl2
+mkdir _CMAKE
+cd _CMAKE
+cmake -G "MinGW Makefiles" -DCMAKE_C_FLAGS=-m32 -DCMAKE_BUILD_TYPE=MinSizeRel -DSDL_SHARED=OFF -DSDL_ATOMIC=OFF -DSDL_CPUINFO=OFF -DSDL_DLOPEN=OFF -DSDL_FILE=OFF -DSDL_FILESYSTEM=OFF -DSDL_RENDER=OFF -DSDL_THREADS=OFF -DVIDEO_VULKAN=OFF -DVIDEO_OPENGLES=OFF -DDIRECTX=OFF -DRENDER_D3D=OFF ..
+
+echo building sdl2...
+mingw32-make
+cd ../../..
+
 echo generating vortex project for mingw...
 mkdir _CMAKE
 cd _CMAKE

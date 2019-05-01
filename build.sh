@@ -19,6 +19,15 @@ echo "building glfw..."
 make
 cd ../../..
 
+echo "generating sdl2 project for mingw..."
+mkdir lib/sdl2/_CMAKE
+cd lib/sdl2/_CMAKE
+cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=MinSizeRel -DSDL_SHARED=OFF -DSDL_ATOMIC=OFF -DSDL_CPUINFO=OFF -DSDL_DLOPEN=OFF -DSDL_FILE=OFF -DSDL_FILESYSTEM=OFF -DSDL_RENDER=OFF -DSDL_THREADS=OFF -DVIDEO_VULKAN=OFF -DVIDEO_OPENGLES=OFF -DVIDEO_WAYLAND=OFF ..
+
+echo "building sdl2..."
+make
+cd ../../..
+
 echo "generating vortex project for gcc..."
 mkdir _CMAKE
 cd _CMAKE
