@@ -10,6 +10,15 @@ echo "building allegro..."
 make
 cd ../../..
 
+echo "generating glfw project for gcc..."
+mkdir lib/glfw/_CMAKE
+cd lib/glfw/_CMAKE
+cmake -G "Unix Makefiles" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_SHARED_LIBS=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_INSTALL=OFF ..
+
+echo "building glfw..."
+make
+cd ../../..
+
 echo "generating vortex project for gcc..."
 mkdir _CMAKE
 cd _CMAKE

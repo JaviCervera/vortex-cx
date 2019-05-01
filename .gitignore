@@ -1,5 +1,6 @@
 .vscode
 _CMAKE
+*.exe
 *.dll
 *.dylib
 *.so

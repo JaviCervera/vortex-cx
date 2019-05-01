@@ -1,12 +1,13 @@
+#include "vortex_config.h"
+
+#ifdef USE_ALLEGRO
+
 #include "../lib/allegro/include/allegro5/allegro.h"
 #include "../lib/allegro/addons/native_dialog/allegro5/allegro_native_dialog.h"
 #include "../lib/allegro/addons/audio/allegro5/allegro_audio.h"
 #include "platform.h"
 #include "util.h"
-#include "vortex_config.h"
 #include <math.h>
-
-#ifdef USE_ALLEGRO
 
 typedef struct {
     ALLEGRO_DISPLAY* display;

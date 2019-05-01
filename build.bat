@@ -10,6 +10,16 @@ echo building allegro...
 mingw32-make
 cd ../../..
 
+echo generating glfw project for mingw...
+cd lib/glfw
+mkdir _CMAKE
+cd _CMAKE
+cmake -G "MinGW Makefiles" -DCMAKE_C_FLAGS=-m32 -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_SHARED_LIBS=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_INSTALL=OFF ..
+
+echo building glfw...
+mingw32-make
+cd ../../..
+
 echo generating vortex project for mingw...
 mkdir _CMAKE
 cd _CMAKE
