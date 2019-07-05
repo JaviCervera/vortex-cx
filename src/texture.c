@@ -63,8 +63,6 @@ EXPORT void CALL SetTexturePixels(struct Texture* texture, const struct Pixmap* 
     }
 }
 
-EXPORT void CALL SetTextureFilter(bool_t filter) {
-    _texture_filtering = filter;
-}
+EXPORT void CALL SetTextureFilter(bool_t filter) { _texture_filtering = filter; }
 
 const void* _GetTexturePtr(const struct Texture* texture) { return texture ? texture->ptr : NULL; }

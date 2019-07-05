@@ -16,6 +16,11 @@ void TestScreenSize(ltestcase_t* testcase) {
     CloseScreen();
 }
 
+void TestDesktop(ltestcase_t* testcase) {
+    ltest_assert(testcase, GetDesktopWidth() > 0);
+    ltest_assert(testcase, GetDesktopHeight() > 0);
+}
+
 int main() {
     ltestcase_t screen;
     
@@ -24,6 +29,7 @@ int main() {
     ltestcase_init(&screen, "screen", NULL, NULL, NULL, NULL);
     ltestcase_addtest(&screen, TestOpenScreen, "Checking that OpenScreen works");
     ltestcase_addtest(&screen, TestScreenSize, "Checking that correct screen size is returned");
+    ltestcase_addtest(&screen, TestDesktop, "Checking that desktop size can be obtained");
     
     ltestcase_run(&screen);
     

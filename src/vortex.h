@@ -2,6 +2,7 @@
 #define VORTEX_H_INCLUDED
 
 #include "color.h"
+#include "font.h"
 #include "input.h"
 #include "pixmap.h"
 #include "screen.h"
