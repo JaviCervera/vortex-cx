@@ -3,9 +3,6 @@
 #include "../lib/litelibs/litemath3d.h"
 #include "../lib/stb/stretchy_buffer.h"
 #include "color.h"
-#ifdef USE_DEFAULT_FONT
-#include "default_font.h"
-#endif
 #include "font.h"
 #include "platform.h"
 #define VORTEX_NO_BLEND_MODES
@@ -14,23 +11,12 @@
 #include "util.h"
 #include <string.h>
 
-typedef struct {
-    char name[STRING_SIZE];
-    float height;
-    struct Font* font;
-} LoadedFont;
-
 static void* _screen_ptr = NULL;
 static float _screen_delta = 0;
 static float _screen_lasttime = 0;
 static int _screen_fps = 0;
 static int _screen_fpscounter = 0;
 static float _screen_fpstime = 0;
-static LoadedFont* _screen_loadedfonts = NULL;
-static struct Font* _screen_font = NULL;
-#ifdef USE_DEFAULT_FONT
-static struct Font* _default_font = NULL;
-#endif
 
 EXPORT bool_t CALL OpenScreen(int width, int height, bool_t fullscreen, bool_t resizable) {
     /* Close previous screen */
@@ -39,37 +25,17 @@ EXPORT bool_t CALL OpenScreen(int width, int height, bool_t fullscreen, bool_t r
     /* Open screen */
     _screen_ptr = p_OpenScreen(width, height, fullscreen, 0, TRUE, resizable);
 
-    /* Load default font */
-#ifdef USE_DEFAULT_FONT
+    /* Reload default font */
     if (_screen_ptr) {
-#if defined(USE_RETINA) && defined(__APPLE__)
-        const int size = 28;
-#else
-        const int size = 14;
-#endif
-        _default_font = _LoadFontBase64(DEFAULT_FONT, DEFAULT_FONT_BLOCKSIZE, size);
-        _screen_font = _default_font;
+        _LoadDefaultFont();
     }
-#endif
 
     return _screen_ptr != NULL;
 }
 
 EXPORT void CALL CloseScreen() {
-    int i;
-
-    /* Unload fonts */
-    for (i = 0; i < sb_count(_screen_loadedfonts); ++i) {
-        FreeFont(_screen_loadedfonts[i].font);
-    }
-    sb_free(_screen_loadedfonts);
-    _screen_font = NULL;
-    
     /* Unload default font */
-#ifdef USE_DEFAULT_FONT
-    if (_default_font) FreeFont(_default_font);
-    _default_font = NULL;
-#endif
+    _FreeDefaultFont();
 
     /* Close screen if opened */
     if (_screen_ptr) p_CloseScreen(_screen_ptr);
@@ -132,39 +98,6 @@ EXPORT void CALL SetColor(int color) {
         Alpha(color) / 255.0f);
 }
 
-EXPORT void CALL SetFont(const char* filename, float height) {
-    struct Font* font = NULL;
-    int i;
-
-    /* Search for already loaded font */
-    for (i = 0; i < sb_count(_screen_loadedfonts); ++i) {
-        if (strcmp(_screen_loadedfonts[i].name, filename) == 0
-                && _screen_loadedfonts[i].height == height) {
-            _screen_font = _screen_loadedfonts[i].font;
-            return;
-        }
-    }
-
-    /* Load font */
-    font = LoadFont(filename, height);
-    if (font) {
-        LoadedFont data;
-
-        strncpy(data.name, filename, STRING_SIZE);
-        data.name[STRING_SIZE-1] = 0;
-        data.height = height;
-        data.font = font;
-        sb_push(_screen_loadedfonts, data);
-        _screen_font = font;
-    }
-}
-
-EXPORT void CALL SetDefaultFont() {
-#ifdef USE_DEFAULT_FONT
-    _screen_font = _default_font;
-#endif
-}
-
 EXPORT void CALL ClearScreen(int color) {
     lgfx_clearcolorbuffer(
         Red(color) / 255.0f,
@@ -213,16 +146,8 @@ EXPORT void CALL DrawTextureSizedRot(const struct Texture* tex, float x, float y
     ltex_drawrotsized(ltex, x, y, angle, 0.5f, 0.5f, width != 0 ? width : ltex->width, height != 0 ? height : ltex->height, 0, 0, 1, 1);
 }
 
-EXPORT void CALL DrawText(const char* text, float x, float y) {
-    DrawTextWithFont(_screen_font, text, x, y);
-}
-
-EXPORT float CALL GetTextWidth(const char* text) {
-    return GetFontTextWidth(_screen_font, text);
-}
-
-EXPORT float CALL GetTextHeight(const char* text) {
-    return GetFontTextHeight(_screen_font, text);
+EXPORT void CALL DrawText(const struct Font* font, const char* text, float x, float y) {
+    _DrawText(font, text, x, y);
 }
 
 EXPORT float CALL GetDeltaTime() {

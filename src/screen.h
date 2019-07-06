@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 
+struct Font;
 struct Texture;
 
 // Screen
@@ -36,8 +37,6 @@ EXPORT void CALL SetViewport(int x, int y, int w, int h);
 EXPORT void CALL SetResolution(int w, int h);
 EXPORT void CALL SetBlendMode(int mode);
 EXPORT void CALL SetColor(int color);
-EXPORT void CALL SetFont(const char* filename, float height);
-EXPORT void CALL SetDefaultFont();
 EXPORT void CALL ClearScreen(int color);
 EXPORT void CALL DrawPoint(float x, float y);
 EXPORT void CALL DrawLine(float x1, float y1, float x2, float y2);
@@ -47,9 +46,7 @@ EXPORT void CALL DrawTexture(const struct Texture* tex, float x, float y);
 EXPORT void CALL DrawTextureRot(const struct Texture* tex, float x, float y, float angle);
 EXPORT void CALL DrawTextureSized(const struct Texture* tex, float x, float y, float width, float height);
 EXPORT void CALL DrawTextureSizedRot(const struct Texture* tex, float x, float y, float width, float height, float angle);
-EXPORT void CALL DrawText(const char* text, float x, float y);
-EXPORT float CALL GetTextWidth(const char* text);
-EXPORT float CALL GetTextHeight(const char* text);
+EXPORT void CALL DrawText(const struct Font* font, const char* text, float x, float y);
 
 // Misc
 EXPORT float CALL GetDeltaTime();

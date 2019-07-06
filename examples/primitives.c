@@ -66,7 +66,7 @@ int main() {
         /* Draw FPS */
         SetColor(COLOR_WHITE);
         sprintf(str, "%i FPS", GetScreenFPS());
-        DrawText(str, 2, 2);
+        DrawText(NULL, str, 2, 2);
 
         /* Make changes visible on screen */
         RefreshScreen();

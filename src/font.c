@@ -4,6 +4,9 @@
 #endif
 #include "../lib/litelibs/litegfx.h"
 #include "../lib/stb/stb_truetype.h"
+#ifdef USE_DEFAULT_FONT
+#include "default_font.h"
+#endif
 #include "font.h"
 #include "resource.h"
 #include "util.h"
@@ -18,6 +21,10 @@ struct Font {
     float height;
     float maxheight;
 };
+
+#ifdef USE_DEFAULT_FONT
+static struct Font* _font_default = NULL;
+#endif
 
 static void FontDeleter(struct Font* font) {
     ltex_free(font->tex);
@@ -103,19 +110,7 @@ void FreeFont(struct Font* font) {
 
 float GetFontHeight(const struct Font* font) { return font->height; }
 
-void DrawTextWithFont(const struct Font* font, const char* text, float x, float y) {
-    size_t len, i;
-
-    y += font->maxheight;
-    len = strlen(text);
-    for (i = 0; i < len; ++i) {
-        stbtt_aligned_quad q;
-        stbtt_GetBakedQuad(font->glyphs, font->tex->width, font->tex->height, Min(text[i] - 32, 94), &x, &y, &q, TRUE);
-        ltex_drawrotsized(font->tex, q.x0, q.y0, 0, 0, 0, q.x1 - q.x0, q.y1 - q.y0, q.s0, q.t0, q.s1, q.t1);
-    }
-}
-
-float GetFontTextWidth(const struct Font* font, const char* text) {
+float GetTextWidth(const struct Font* font, const char* text) {
     float x = 0, y = 0;
     stbtt_aligned_quad q = { 0 };
     size_t len, i;
@@ -127,7 +122,7 @@ float GetFontTextWidth(const struct Font* font, const char* text) {
     return q.x1;
 }
 
-float GetFontTextHeight(const struct Font* font, const char* text) {
+float GetTextHeight(const struct Font* font, const char* text) {
     float x = 0, y = 0, miny = 999999, maxy = -999999;
     stbtt_aligned_quad q = { 0 };
     size_t len, i;
@@ -141,8 +136,8 @@ float GetFontTextHeight(const struct Font* font, const char* text) {
     return maxy - miny;
 }
 
-struct Font* _LoadFontBase64(const char* data, size_t size, float height) {
 #ifdef USE_DEFAULT_FONT
+struct Font* _LoadFontBase64(const char* data, size_t size, float height) {
     unsigned char* buffer;
     struct Font* font;
 
@@ -155,7 +150,37 @@ struct Font* _LoadFontBase64(const char* data, size_t size, float height) {
     free(buffer);
 
     return font;
-#else
-    return NULL;
+}
 #endif
+
+void _LoadDefaultFont() {
+#ifdef USE_DEFAULT_FONT
+#if defined(USE_RETINA) && defined(__APPLE__)
+    const int size = 28;
+#else
+    const int size = 14;
+#endif
+    _font_default = _LoadFontBase64(DEFAULT_FONT, DEFAULT_FONT_BLOCKSIZE, size);
+#endif
+}
+
+void _FreeDefaultFont() {
+#ifdef USE_DEFAULT_FONT
+    if (_font_default) FreeFont(_font_default);
+    _font_default = NULL;
+#endif
+}
+
+void _DrawText(const struct Font* font, const char* text, float x, float y) {
+    size_t len, i;
+
+    if (!font) font = _font_default;
+
+    y += font->maxheight;
+    len = strlen(text);
+    for (i = 0; i < len; ++i) {
+        stbtt_aligned_quad q;
+        stbtt_GetBakedQuad(font->glyphs, font->tex->width, font->tex->height, Min(text[i] - 32, 94), &x, &y, &q, TRUE);
+        ltex_drawrotsized(font->tex, q.x0, q.y0, 0, 0, 0, q.x1 - q.x0, q.y1 - q.y0, q.s0, q.t0, q.s1, q.t1);
+    }
 }
