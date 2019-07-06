@@ -7,6 +7,7 @@
 #define USE_TINYFILEDIALOGS
 
 #define USE_DEFAULT_FONT
+#define USE_PAK
 /*#define USE_RETINA*/
 
 #endif /* VORTEX_CONFIG_H_INCLUDED */

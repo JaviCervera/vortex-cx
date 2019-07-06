@@ -1,4 +1,5 @@
 #include "../lib/stb/stb_image.h"
+#include "file_system.h"
 #include "pixmap.h"
 #include "util.h"
 
@@ -17,19 +18,19 @@ EXPORT struct Pixmap* CALL CreatePixmap(int width, int height) {
 }
 
 EXPORT struct Pixmap* CALL LoadPixmap(const char* filename) {
+    long len;
     unsigned char* buffer;
-    int w, h;
     struct Pixmap* pixmap;
 
-    /* Load buffer */
-    buffer = stbi_load(filename, &w, &h, NULL, 4);
-    if (!buffer) return NULL;
+    /* Read file */
+    len = GetFileSize(filename);
+    if (len == 0) return NULL;
+    buffer = AllocNum(unsigned char, len);
+    GetFileContents(filename, buffer);
 
-    /* Create pixmap */
-    pixmap = Alloc(struct Pixmap);
-    pixmap->pixels = (int*)buffer;
-    pixmap->width = w;
-    pixmap->height = h;
+    /* Load pixmap */
+    pixmap = LoadPixmapFromMemory(buffer, len);
+    free(buffer);
 
     return pixmap;
 }

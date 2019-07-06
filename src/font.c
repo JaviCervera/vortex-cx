@@ -7,6 +7,7 @@
 #ifdef USE_DEFAULT_FONT
 #include "default_font.h"
 #endif
+#include "file_system.h"
 #include "font.h"
 #include "resource.h"
 #include "util.h"
@@ -32,20 +33,15 @@ static void FontDeleter(struct Font* font) {
 }
 
 struct Font* LoadFont(const char* filename, float height) {
-    FILE* f;
     long len;
     unsigned char* buffer;
     struct Font* font;
 
     /* Read file */
-    f = fopen(filename, "rb");
-    if (!f) return NULL;
-    fseek(f, 0, SEEK_END);
-    len = ftell(f);
-    fseek(f, 0, SEEK_SET);
+    len = GetFileSize(filename);
+    if (len == 0) return NULL;
     buffer = AllocNum(unsigned char, len);
-    fread(buffer, sizeof(char), len, f);
-    fclose(f);
+    GetFileContents(filename, buffer);
 
     /* Load data */
     font = LoadFontFromMemory(filename, buffer, height);

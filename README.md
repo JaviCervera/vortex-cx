@@ -68,3 +68,23 @@ The library `libvortex.so` will be created on the `_build` folder (it is a 64 bi
 * The [**Allegro**](https://github.com/liballeg/allegro5) developers.
 * **Sean T. Barret** for his wonderful [**stb** libraries](https://github.com/nothings/stb).
 * **Zhicheng Wei** for his [Base64 library](https://github.com/zhicheng/base64).
+
+## TODO v3.0
+
+* [ ] Basic 3D: World, Camera, Primitives.
+* [ ] Add EntityLookAt function for billboards.
+* [ ] Mesh loading: MD2, Assbin.
+* [ ] Cache resources.
+* [ ] Collisions.
+* [ ] Audio support (wav and ogg).
+* [ ] Ambient light in materials.
+* [ ] Spot lights.
+* [ ] Lightmaps.
+* [ ] Ini file support.
+* [ ] More primitives (sphere, cone, cylinder, wedge).
+* [ ] Remove LiteLibs.
+* [ ] GLES 2 based renderer with shaders.
+* [ ] Emscripten support.
+* [ ] PBR.
+* [ ] bgfx.
+* [ ] Skeletal animation.
