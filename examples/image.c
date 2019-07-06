@@ -1,4 +1,5 @@
 #include "../src/vortex.h"
+#include <stdio.h>
 
 int main() {
     /* Data */

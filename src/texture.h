@@ -13,6 +13,7 @@ struct Texture;
 EXPORT struct Texture* CALL CreateTexture(int width, int height);
 EXPORT struct Texture* CALL CreateTextureFromPixmap(const struct Pixmap* pixmap);
 EXPORT struct Texture* CALL LoadTexture(const char* filename);
+EXPORT struct Texture* CALL LoadTextureFromMemory(const void* mem, size_t size);
 EXPORT void CALL FreeTexture(struct Texture* texture);
 EXPORT int CALL GetTextureWidth(const struct Texture* texture);
 EXPORT int CALL GetTextureHeight(const struct Texture* texture);

@@ -12,6 +12,7 @@
 
 struct Font {
     Resource resource;
+    char filename[STRING_SIZE];
     ltex_t* tex;
     stbtt_bakedchar glyphs[94];
     float height;
@@ -23,7 +24,30 @@ static void FontDeleter(struct Font* font) {
     free(font);
 }
 
-struct Font* CreateFont(const unsigned char* data, float height) {
+struct Font* LoadFont(const char* filename, float height) {
+    FILE* f;
+    long len;
+    unsigned char* buffer;
+    struct Font* font;
+
+    /* Read file */
+    f = fopen(filename, "rb");
+    if (!f) return NULL;
+    fseek(f, 0, SEEK_END);
+    len = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    buffer = AllocNum(unsigned char, len);
+    fread(buffer, sizeof(char), len, f);
+    fclose(f);
+
+    /* Load data */
+    font = LoadFontFromMemory(filename, buffer, height);
+    free(buffer);
+
+    return font;
+}
+
+struct Font* LoadFontFromMemory(const char* filename, const void* mem, float height) {
     struct Font* font;
     int w, h;
     unsigned char* alphabuffer;
@@ -36,12 +60,14 @@ struct Font* CreateFont(const unsigned char* data, float height) {
     /* Create font object */
     font = Alloc(struct Font);
     InitResource(&font->resource, (void(*)(void*))FontDeleter);
+    strncpy(font->filename, filename, STRING_SIZE);
+    font->filename[STRING_SIZE-1] = 0;
     font->height = height;
 
     /* Bake font into alpha buffer */
     w = h = 256;
     alphabuffer = AllocNum(unsigned char, w * h);
-    while (stbtt_BakeFontBitmap(data, 0, height, alphabuffer, w, h, 32, sizeof(font->glyphs) / sizeof(font->glyphs[0]), font->glyphs) <= 0) {
+    while (stbtt_BakeFontBitmap((const unsigned char*)mem, 0, height, alphabuffer, w, h, 32, sizeof(font->glyphs) / sizeof(font->glyphs[0]), font->glyphs) <= 0) {
         if (w == h) w *= 2;
         else h *= 2;
         alphabuffer = (unsigned char*)realloc(alphabuffer, w * h);
@@ -69,48 +95,6 @@ struct Font* CreateFont(const unsigned char* data, float height) {
     font->maxheight = maxy - miny;
 
     return font;
-}
-
-struct Font* LoadFont(const char* filename, float height) {
-    FILE* f;
-    long len;
-    unsigned char* buffer;
-    struct Font* font;
-
-    /* Read file */
-    f = fopen(filename, "rb");
-    if (!f) return NULL;
-    fseek(f, 0, SEEK_END);
-    len = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    buffer = AllocNum(unsigned char, len);
-    fread(buffer, sizeof(char), len, f);
-    fclose(f);
-
-    /* Load data */
-    font = CreateFont(buffer, height);
-    free(buffer);
-
-    return font;
-}
-
-struct Font* LoadFontBase64(const char* data, size_t size, float height) {
-#ifdef USE_DEFAULT_FONT
-    unsigned char* buffer;
-    struct Font* font;
-
-    /* Get data from base64 block */
-    buffer = AllocNum(unsigned char, BASE64_DECODE_OUT_SIZE(size));
-    base64_decode(data, size, buffer);
-
-    /* Load data */
-    font = CreateFont(buffer, height);
-    free(buffer);
-
-    return font;
-#else
-    return NULL;
-#endif
 }
 
 void FreeFont(struct Font* font) {
@@ -155,4 +139,23 @@ float GetFontTextHeight(const struct Font* font, const char* text) {
         maxy = Max(maxy, q.y1);
     }
     return maxy - miny;
+}
+
+struct Font* _LoadFontBase64(const char* data, size_t size, float height) {
+#ifdef USE_DEFAULT_FONT
+    unsigned char* buffer;
+    struct Font* font;
+
+    /* Get data from base64 block */
+    buffer = AllocNum(unsigned char, BASE64_DECODE_OUT_SIZE(size));
+    base64_decode(data, size, buffer);
+
+    /* Load data */
+    font = LoadFontFromMemory("", buffer, height);
+    free(buffer);
+
+    return font;
+#else
+    return NULL;
+#endif
 }

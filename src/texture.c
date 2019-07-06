@@ -48,6 +48,23 @@ EXPORT struct Texture* CALL LoadTexture(const char* filename) {
     return tex;
 }
 
+EXPORT struct Texture* CALL LoadTextureFromMemory(const void* mem, size_t size) {
+    struct Pixmap* pixmap;
+    struct Texture* tex;
+
+    /* Load pixmap */
+    pixmap = LoadPixmapFromMemory(mem, size);
+    if (!pixmap) return NULL;
+
+    /* Create texture */
+    tex = CreateTextureFromPixmap(pixmap);
+
+    /* Delete pixmap */
+    FreePixmap(pixmap);
+
+    return tex;
+}
+
 EXPORT void CALL FreeTexture(struct Texture* texture) {
     ReleaseResource(&texture->resource);
 }

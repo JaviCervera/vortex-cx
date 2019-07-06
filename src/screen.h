@@ -3,6 +3,13 @@
 
 #include "types.h"
 
+#ifndef VORTEX_NO_BLEND_MODES
+#define BLEND_SOLID 0
+#define BLEND_ALPHA 1
+#define BLEND_ADD 2
+#define BLEND_MUL 3
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -27,6 +34,7 @@ EXPORT int CALL GetDesktopHeight();
 EXPORT void CALL Setup2D();
 EXPORT void CALL SetViewport(int x, int y, int w, int h);
 EXPORT void CALL SetResolution(int w, int h);
+EXPORT void CALL SetBlendMode(int mode);
 EXPORT void CALL SetColor(int color);
 EXPORT void CALL SetFont(const char* filename, float height);
 EXPORT void CALL SetDefaultFont();

@@ -1,4 +1,5 @@
 #include "platform.h"
+#define VORTEX_NO_BLEND_MODES
 #include "screen.h"
 #include "vortex_config.h"
 #define LITE_ASSBIN_USE_GFX

@@ -8,6 +8,7 @@
 #endif
 #include "font.h"
 #include "platform.h"
+#define VORTEX_NO_BLEND_MODES
 #include "screen.h"
 #include "texture.h"
 #include "util.h"
@@ -46,7 +47,7 @@ EXPORT bool_t CALL OpenScreen(int width, int height, bool_t fullscreen, bool_t r
 #else
         const int size = 14;
 #endif
-        _default_font = LoadFontBase64(DEFAULT_FONT, DEFAULT_FONT_BLOCKSIZE, size);
+        _default_font = _LoadFontBase64(DEFAULT_FONT, DEFAULT_FONT_BLOCKSIZE, size);
         _screen_font = _default_font;
     }
 #endif
@@ -117,6 +118,10 @@ EXPORT void CALL SetViewport(int x, int y, int w, int h) {
 
 EXPORT void CALL SetResolution(int w, int h) {
     lgfx_setresolution(w, h);
+}
+
+EXPORT void CALL SetBlendMode(int mode) {
+    lgfx_setblend(mode);
 }
 
 EXPORT void CALL SetColor(int color) {

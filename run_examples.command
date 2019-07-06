@@ -1,12 +1,12 @@
 #!/bin/sh
 cd `dirname $0`
 
-echo "building tutorials..."
-cd tutorial
+echo "building examples..."
+cd examples
 gcc -o primitives primitives.c -L../_CMAKE -lvortex
 gcc -o image image.c -L../_CMAKE -lvortex
 
-echo "running tutorials..."
+echo "running examples..."
 echo ""
 ./primitives
 ./image

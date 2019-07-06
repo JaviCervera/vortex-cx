@@ -1,4 +1,5 @@
 #include "../src/vortex.h"
+#include <stdio.h>
 
 #define MAX_PRIMITIVES 1000
 

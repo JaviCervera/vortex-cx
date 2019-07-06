@@ -2,7 +2,7 @@
 cd `dirname $0`
 
 echo "building tests..."
-cd test
+cd tests
 gcc test.c -L../_CMAKE -lvortex
 
 echo "running tests..."

@@ -10,8 +10,8 @@ extern "C" {
 struct Pixmap;
 
 EXPORT struct Pixmap* CALL CreatePixmap(int width, int height);
-EXPORT struct Pixmap* CALL CreatePixmapFromPixels(const int* pixels, size_t num_pixels);
 EXPORT struct Pixmap* CALL LoadPixmap(const char* filename);
+EXPORT struct Pixmap* CALL LoadPixmapFromMemory(const void* mem, size_t size);
 EXPORT void CALL FreePixmap(struct Pixmap* pixmap);
 EXPORT int CALL GetPixmapWidth(const struct Pixmap* pixmap);
 EXPORT int CALL GetPixmapHeight(const struct Pixmap* pixmap);

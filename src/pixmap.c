@@ -16,13 +16,13 @@ EXPORT struct Pixmap* CALL CreatePixmap(int width, int height) {
     return pixmap;
 }
 
-EXPORT struct Pixmap* CALL CreatePixmapFromPixels(const int* pixels, size_t num_pixels) {
+EXPORT struct Pixmap* CALL LoadPixmap(const char* filename) {
     unsigned char* buffer;
     int w, h;
     struct Pixmap* pixmap;
 
     /* Load buffer */
-    buffer = stbi_load_from_memory((const unsigned char*)pixels, num_pixels * sizeof(int), &w, &h, NULL, 4);
+    buffer = stbi_load(filename, &w, &h, NULL, 4);
     if (!buffer) return NULL;
 
     /* Create pixmap */
@@ -34,13 +34,13 @@ EXPORT struct Pixmap* CALL CreatePixmapFromPixels(const int* pixels, size_t num_
     return pixmap;
 }
 
-EXPORT struct Pixmap* CALL LoadPixmap(const char* filename) {
+EXPORT struct Pixmap* CALL LoadPixmapFromMemory(const void* mem, size_t size) {
     unsigned char* buffer;
     int w, h;
     struct Pixmap* pixmap;
 
     /* Load buffer */
-    buffer = stbi_load(filename, &w, &h, NULL, 4);
+    buffer = stbi_load_from_memory((const unsigned char*)mem, size, &w, &h, NULL, 4);
     if (!buffer) return NULL;
 
     /* Create pixmap */
