@@ -117,7 +117,7 @@ void* p_OpenScreen(int width, int height, bool_t fullscreen, int samples, bool_t
     data->display = display;
     data->queue = queue;
     data->opened = TRUE;
-    al_set_window_title(display, "Micron");
+    al_set_window_title(display, "Vortex");
 
     return data;
 }
