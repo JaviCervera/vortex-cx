@@ -121,8 +121,17 @@ Returns the framebuffer into which this camera renders, or `Null` if it renders 
 # Method Framebuffer:Void(fb:Framebuffer) Property
 Sets the framebuffer into which this camera renders. Set it to `Null` to render to the screen.
 
+# Method Project:Void( inputPoint:Float[] )
+Projects a 3D point in world space to 2D screen coordinates.
+Links: [[ProjectedX]], [[ProjectedY]]
 
+# Method ProjectedX:Int() Property
+Returns the X coordinate of the last via *Project* projected 3D Point in world space.
+Links: [[Project]], [[ProjectedY]]
 
+# Method ProjectedY:Int() Property
+Returns the Y coordinate of the last via *Project* projected 3D Point in world space.
+Links: [[Project]], [[ProjectedX]]
 
 # Class Color
 
@@ -269,6 +278,12 @@ Sets the rotation of the entity.
 # Method Turn:Void(pitch:Float, yaw:Float, roll:Float)
 Adds a rotation to the entity.
 
+# Method LookAt:Void( targetEntity:Entity, rollAngle:Float = 0.0 )
+Rotates the entity towards the given entity.
+
+# Method LookAt:Void( targetPoint:Float[3], rollAngle:Float = 0.0 )
+Rotates the entity towards the given coordinates.
+
 # Method Width:Float() Property
 Returns the total width of the entity.
 
@@ -364,7 +379,14 @@ Returns the custom object associated with this entity.
 # Method UserData:Void(data:Object) Property
 Associates a custom object with this entity. This can be any object that you might want to associate with the entity (for example, an object with physics or gameplay information).
 
+# Method RayTrace:Bool( traceInfo:Object, rayOrigin:Float[], rayDirection:Float[], maxDistance:Float = 0.0 )
+tba
 
+# Method Pickable:Bool() Property
+Returns *True* if an entity is pickable via *Camera.Pick*.
+
+# Method Pickable:Void( state:Bool ) Property
+Set to *True* to make an entity pickable via *Camera.Pick*.
 
 
 # Class Font
@@ -796,7 +818,8 @@ Creates a skybox with a width, height and depth of 1.
 # Function CreateWedge:Mesh()
 Creates a wedge mesh with a width, height and depth of 1.
 
-
+# Method RayTrace:Bool( traceInfo:Object, rayOrigin:Float[], rayDirection:Float[], maxDistance:Float = 0.0 )
+tba
 
 
 # Class Model Extends Entity
@@ -837,6 +860,8 @@ Returns the last frame in the animation sequence.
 # Method LastFrame:Void(frame:Int) Property
 Sets the last frame in the animation sequence.
 
+# Method RayTrace:Bool( ti:Object, rayOrigin:Float[], rayDirection:Float[], maxDistance:Float = 0.0 )
+tba
 
 
 
@@ -1254,3 +1279,42 @@ Adds a box to the static collision list. This list contains global world collisi
 
 # Function ClearStaticCollisions:Void()
 Clears the static collision list.
+
+# Function LinePick:Bool( lineStart:Float[], lineEnd:Float[] )
+Pick all entities (models) in world with specific line start and end coords.
+
+# Function CameraPick:Bool( cameraEntity:Camera, screenX:Int, screenY:Int )
+Pick all entities (models) in world with specific camera and screen coords.
+
+# Function RayTrace:Bool( rayOrigin:Float[], rayDirection:Float[], maxDistance:Float = 0.0 )
+tba
+
+# Function PickedEntity:Entity()
+Returns the nearest picked entity.
+	
+# Function PickedSurface:Surface()
+Returns the picked surface.
+	
+# Function PickedTriangle:Int()
+Returns the picked triangle
+	
+# Function PickedDistance:Float()
+Returns the distance to the picked entity.
+	
+# Function PickedX:Float()
+Returns the x coordinate of the last succesful pick.
+	
+# Function PickedY:Float()
+Returns the y coordinate of the last succesful pick.
+	
+# Function PickedZ:Float()
+Returns the z coordinate of the last succesful pick.
+	
+# Function PickedNX:Float()
+Returns the x normal of the last succesful pick.
+	
+# Function PickedNY:Float()
+Returns the y normal of the last succesful pick.
+	
+# Function PickedNZ:Float()
+Returns the z normal of the last succesful pick.

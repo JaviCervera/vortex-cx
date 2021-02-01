@@ -36,8 +36,8 @@ Public
 		
 		'Load dwarf model
 		Local model:Model = New Model(Mesh.Load("dwarf.msh.dat"))
-		model.Mesh.LoadVertexAnimation("dwarf.vta.dat", "main")
-		model.AnimSequence = "main"
+		model.Mesh.LoadVertexAnimation("dwarf.vta.dat", "default")
+		model.AnimSequence = "default"
 		
 		Return False
 	End

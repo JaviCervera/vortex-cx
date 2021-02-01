@@ -9,6 +9,7 @@ Import mojo.app
 Import renderer
 Import renderstate
 Import world
+Import collision
 
 Public
 Import entity
@@ -18,6 +19,36 @@ Class Camera Extends Entity
 	Const ClearColor	: Int = 1
 	Const ClearSkybox	: Int = 2
 	
+    '--------------------------------------------------------
+
+Private
+
+	Field rtProjectionTransform:Float[16]
+	Field rtViewTransform:Float[16]
+	Field rtTempPoint:Float[3]
+	Field mProjectedPoint:Int[2]
+
+Public
+
+	Method ProjectedX:Int() Property
+	    Return mProjectedPoint[0]
+	End
+	
+	Method ProjectedY:Int() Property
+	    Return mProjectedPoint[1]
+	End
+	
+	Method Project:Void( inputPoint:Float[] )
+	    Mat4PerspectiveLH( FovY, AspectRatio, Near, Far, rtProjectionTransform )
+	    Mat4ViewEuler( WorldX, WorldY, WorldZ, Pitch, Yaw, Roll, rtViewTransform )
+	    Vec3TransformCoord( rtTempPoint, inputPoint, rtViewTransform )
+	    Vec3TransformCoord( rtTempPoint, rtTempPoint, rtProjectionTransform )
+	    mProjectedPoint[0] = ( rtTempPoint[0] + 1.0 ) * ( ViewportWidth  / 2 )
+	    mProjectedPoint[1] = ( 1.0 - rtTempPoint[1] ) * ( ViewportHeight / 2 )
+	End
+    
+    '--------------------------------------------------------
+    
 	Method New(parent:Entity = Null)
 		Super.New(parent)
 		Viewport(0, 0, -1, -1)
@@ -207,6 +238,9 @@ Class Camera Extends Entity
 			World._RenderSkybox(WorldX, WorldY, WorldZ)
 		End
 	End
+	
+
+	
 Private
 	Global mCurrent				: Camera
 	Field mVX					: Int

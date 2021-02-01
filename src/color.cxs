@@ -17,7 +17,7 @@ Public
 	Const Brown			: Int = $FF8B4513
 
 	Function RGB:Int(r:Int, g:Int, b:Int, a:Int = 255)
-		Return (a Shl 24) | (r Shl 16) | (g Shl 8) | b
+		Return (a Shl 24) + (r Shl 16) + (g Shl 8) + b
 	End
 
 	Function R:Int(color:Int)

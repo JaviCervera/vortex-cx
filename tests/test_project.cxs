@@ -1,0 +1,110 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Camera Project 3Dto2D Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+
+Import mojo.app
+Import mojo.input
+Import vortex
+Import vortex.src.math3d
+Import vortex.src.renderstate
+
+Class TestApp Extends App	
+	
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(60)
+		SetSwapInterval(1)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init() Then EndApp()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()+"~n"
+
+		'Load font
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
+
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.BackgroundColor = $FF0000FF
+		mCam.Position(0, 0, -2)
+		mCam.Rotate(0,0,0)
+		
+	
+		'Create mesh
+		Local mesh:Mesh = New Mesh(Mesh.CreateCube())
+		
+		'Create model
+		mModel = New Model(mesh)
+		mModel.Name("This is a cube")
+		
+		mModel.Position(0, 0, 2)
+		mModel.Material.Color = Color.Red
+		
+		'Disable sun
+		World.SunColor($FF000000)
+		
+
+		Return False
+	End
+	
+	Method OnUpdate:Int()
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		If KeyDown(KEY_LEFT)  mModel.Move(-0.05,    0,0)
+		If KeyDown(KEY_RIGHT) mModel.Move( 0.05,    0,0)
+		If KeyDown(KEY_UP)    mModel.Move(    0, 0.05,0)
+		If KeyDown(KEY_DOWN)  mModel.Move(    0,-0.05,0)
+		If KeyDown(KEY_PAGEUP)    mModel.Move( 0,   0, 0.05)
+		If KeyDown(KEY_PAGEDOWN)  mModel.Move( 0,   0,-0.05)
+
+		mCam.Project([mModel.X, mModel.Y, mModel.Z])
+		Return False
+	End
+
+
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Setup graphics for 2D
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw FPS
+		Local text:String = Graphics.FPS() + " FPS"
+		mFont.Draw(8, 25, text)				
+		text = "x/y/z = " + mModel.X + " : " + mModel.Y + " : " + mModel.Z
+		mFont.Draw(8, 50, text)				
+		text = "x/y   = " + mCam.ProjectedX + " : " + mCam.ProjectedY
+		mFont.Draw(8, 75, text)				
+		text = mModel.Name
+		mFont.Draw(mCam.ProjectedX, mCam.ProjectedY, text)				
+		Return False
+	End
+	
+Private
+	Field mFont				: Font
+	Field mCam				: Camera
+	Field mModel			: Model
+	Field mPos:Float[3]
+	Field out:Int[]
+	
+End
+
+Function Main:Int()
+	New TestApp
+	Return False
+End

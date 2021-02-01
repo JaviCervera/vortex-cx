@@ -43,7 +43,7 @@ inline void WriteString(const std::string& str, const std::string& filename, boo
 }
 
 inline std::string StripExt(const std::string& filename) {
-	return filename.substr(0, filename.find('.'));
+	return filename.substr(0, filename.rfind('.'));
 }
 
 inline std::string StripPath(const std::string& filename) {

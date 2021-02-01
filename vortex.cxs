@@ -52,6 +52,9 @@
 'Enable depth buffer when using this module
 #OPENGL_DEPTH_BUFFER_ENABLED=True
 
+#BINARY_FILES="*.bin|*.dat|*.obj|*.b3d|*.mtl|*.x|*.3ds"
+#IMAGE_FILES="*.png|*.jpg|*.bmp|*.tga"
+
 Strict
 
 'Import src.bone

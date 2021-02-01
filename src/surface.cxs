@@ -279,7 +279,11 @@ Public
 		Local a:Float = mVertices.PeekFloat(index*VertexSize + ColorOffset + 12)
 		Return Color.RGB(r * 255, g * 255, b * 255, a * 255)
 	End
-
+	
+	Method VertexCount:Int()
+		Return mVertices.Length()
+	End
+	
 	Method VertexU:Float(index:Int, set:Int = 0)
 		If set = 0
 			Return mVertices.PeekFloat(index*VertexSize + TexOffset)
