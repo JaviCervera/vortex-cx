@@ -435,26 +435,16 @@ Public
 	End
 
 	Function SetTextures:Void(diffuseTex:Int, normalTex:Int, shininessTex:Int, lightmap:Int, cubeTex:Int)
-		If diffuseTex <> 0
-			glActiveTexture(GL_TEXTURE0 + BaseTexUnit)
-			glBindTexture(GL_TEXTURE_2D, diffuseTex)
-		End
-		If normalTex <> 0
-			glActiveTexture(GL_TEXTURE0 + NormalTexUnit)
-			glBindTexture(GL_TEXTURE_2D, normalTex)
-		End
-		If shininessTex <> 0
-			glActiveTexture(GL_TEXTURE0 + ShininessTexUnit)
-			glBindTexture(GL_TEXTURE_2D, shininessTex)
-		End
-		If lightmap <> 0
-			glActiveTexture(GL_TEXTURE0 + LightmapUnit)
-			glBindTexture(GL_TEXTURE_2D, lightmap)
-		End
-		If cubeTex <> 0
-			glActiveTexture(GL_TEXTURE0 + CubemapUnit)
-			glBindTexture(GL_TEXTURE_CUBE_MAP, cubeTex)
-		End
+		glActiveTexture(GL_TEXTURE0 + BaseTexUnit)
+		glBindTexture(GL_TEXTURE_2D, diffuseTex)
+		glActiveTexture(GL_TEXTURE0 + NormalTexUnit)
+		glBindTexture(GL_TEXTURE_2D, normalTex)
+		glActiveTexture(GL_TEXTURE0 + ShininessTexUnit)
+		glBindTexture(GL_TEXTURE_2D, shininessTex)
+		glActiveTexture(GL_TEXTURE0 + LightmapUnit)
+		glBindTexture(GL_TEXTURE_2D, lightmap)
+		glActiveTexture(GL_TEXTURE0 + CubemapUnit)
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeTex)
 		glActiveTexture(GL_TEXTURE0)
 		
 		RenderState.UseColorTex = diffuseTex <> 0

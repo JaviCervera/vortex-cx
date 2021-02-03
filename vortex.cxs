@@ -3,7 +3,6 @@
 '- Fix framebuffer, retina display and rotation on iOS
 '- Make shadows work even when Material.Lighting = False
 '- Add alpha support to shadows
-'- Fix render to texture on HTML5
 '- Fix test_mojo2 on HTML5
 '- Add Building section to README.md
 '- Clean comments
