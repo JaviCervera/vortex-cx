@@ -1,0 +1,128 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Camera Picking Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+
+Import mojo.app
+Import mojo.input
+Import vortex
+Import vortex.src.math3d
+Import vortex.src.renderstate
+
+Class TestApp Extends App	
+	
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init() Then EndApp()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()+"~n"
+
+		'Load font
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
+
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.BackgroundColor = $FF0000FF
+		mCam.Position(0, 0, -2)
+		mCam.Rotate(0,0,0)
+		
+		'Create model
+		For Local i := 1 To 15
+			Local mModel := New Model(New Mesh(Mesh.CreateCube()))
+			mModel.Pickable(True)
+			mModel.Position(Rnd(-4,4), Rnd(-4,4), Rnd(4,20))
+			mModel.Rotate(Rnd(0,360),Rnd(0,360),Rnd(0,360))
+			mModel.Name("This is cube #"+i+"   ( "+mModel.X+" : "+mModel.Y+" : "+mModel.Z+" )")
+			mModel.Material.Color = Color.RGB(Rnd(0,255),Rnd(0,255),Rnd(0,255))
+		Next
+		'Disable sun
+		World.SunColor($FFffffff)
+		
+
+		Return False
+	End
+	
+	Method OnUpdate:Int()
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		If KeyDown(KEY_LEFT)  mCam.Move(-0.05,    0,0)
+		If KeyDown(KEY_RIGHT) mCam.Move( 0.05,    0,0)
+		If KeyDown(KEY_UP)    mCam.Move(    0, 0.05,0)
+		If KeyDown(KEY_DOWN)  mCam.Move(    0,-0.05,0)
+		If KeyDown(KEY_PAGEUP)    mCam.Move( 0,   0, 0.05)
+		If KeyDown(KEY_PAGEDOWN)  mCam.Move( 0,   0,-0.05)
+		If KeyDown(KEY_SPACE)
+		  mCam.Position( 0,   0, -2.0)
+		  mCam.Rotate(0,0,0)
+		Endif
+		If KeyDown(KEY_A)  mCam.Turn( 0,   -0.5, 0.0)
+		If KeyDown(KEY_D)  mCam.Turn( 0,    0.5, 0.0)
+		If KeyDown(KEY_W)  mCam.Turn( -0.5,   0, 0.0)
+		If KeyDown(KEY_S)  mCam.Turn( 0.5,    0, 0.0)
+		If KeyDown(KEY_Q)  mCam.Turn(  0,   0, 0.5)
+		If KeyDown(KEY_E)  mCam.Turn( 0.0,    0, -0.5)
+
+		If MouseDown(0) = True
+			If World.CameraPick(mCam, MouseX(), MouseY()) = True
+				mModelPicked = World.PickedEntity()
+				mModelPicked.Material.Color = Color.RGB(Rnd(0,255),Rnd(0,255),Rnd(0,255))
+			Else
+				mModelPicked = Null
+			Endif
+		Else
+			mModelPicked = Null
+		Endif
+		Return False
+	End
+
+
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Setup graphics for 2D
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw FPS
+		Local text:String = Graphics.FPS() + " FPS"
+		mFont.Draw(8, 8, text)
+		text = "Cam x/y/z = " + mCam.X + " : "+ mCam.Y + " : "+ mCam.Z
+		mFont.Draw(8, 25, text)
+		If mModelPicked <> Null				
+			text = "Picked Model = " + mModelPicked.Name
+			mFont.Draw(8, 50, text)				
+		Endif
+		Return False
+	End
+	
+Private
+	Field mFont				: Font
+	Field mCam				: Camera
+	Field mModel			: Model
+	Field mModelPicked      : Entity = Null
+	Field mPos:Float[3]
+	Field out:Int[]
+	
+End
+
+Function Main:Int()
+	New TestApp
+	Return False
+End

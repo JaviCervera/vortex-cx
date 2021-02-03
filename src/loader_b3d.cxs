@@ -1,0 +1,579 @@
+Import mesh
+Import material
+Import surface
+Import color
+Import texture
+Import renderer
+Import brl.datastream
+Import brl.filepath
+
+Import brl.databuffer
+
+Class B3D_Texture
+	Field filename:String = ""
+	Field flags:Int = 0
+	Field blend:Int = 0
+	Field xPos:Float = 0.0
+	Field yPos:Float = 0.0
+	Field xScale:Float = 1.0
+	Field yScale:Float = 1.0
+	Field rotation:Float = 0.0
+End
+
+Class B3D_Brush
+	Field name:String = ""
+	Field red:Float = 1.0
+	Field green:Float = 1.0
+	Field blue:Float = 1.0
+	Field alpha:Float = 1.0
+	Field shininess:Float = 1.0
+	Field blend:Int = 0
+	Field fx:Int = 0
+	Field texID:Int = 0
+End
+
+Class B3D_Vertex
+	Field x:Float = 0.0
+	Field y:Float = 0.0
+	Field z:Float = 0.0
+		
+	Field nx:Float = 0.0
+	Field ny:Float = 0.0
+	Field nz:Float = 0.0
+		
+	Field red:Float = 1.0
+	Field green:Float = 1.0
+	Field blue:Float = 1.0
+	Field alpha:Float = 1.0
+		
+	Field u:Float = 0.0
+	Field v:Float = 0.0
+End
+
+Class B3D_Tris
+	Field v0:Int = 0
+	Field v1:Int = 0
+	Field v2:Int = 0
+End
+
+
+Class LoaderB3D
+	Field buffer:DataBuffer = Null
+	Field ds:DataStream = Null
+	Field dsLen:Int = 0
+	Field mesh:Mesh = Null
+	Field surf:Surface = Null
+	Field mat:Material = Null
+	
+	Field fileName:String = ""
+	Field meshPath:String = ""
+	Field curChunk:String = ""
+	Field curChunkLen:Int
+	Field curChunkStartPos:Int
+
+	Field texList:List<B3D_Texture>= Null
+	Field brushList:List<B3D_Brush>= Null
+	Field vtxList:List<B3D_Vertex>= Null
+	Field trsList:List<B3D_Tris>= Null
+	
+	Field vtxO:Int = 0 'Vertex offset
+
+	Function DBPrint:Void(txt:String)
+#If CONFIG="debug"
+		Print (txt)
+#End
+	End
+	
+	Method New()
+		Self.texList   = New List<B3D_Texture>
+		Self.brushList = New List<B3D_Brush>
+		Self.vtxList   = New List<B3D_Vertex>
+		Self.trsList   = New List<B3D_Tris>
+	End
+
+	Method CreateMaterialB3D:Material(filename:String, texFilter:Int = Renderer.FilterTrilinear)
+		Local matr :Material
+		matr = New Material
+		
+		matr.Culling = True
+		matr.DepthWrite = True
+		matr.Lighting = True
+		matr.CastShadows = True
+		matr.ReceiveShadows = True
+		matr.Fog = True
+
+		matr.BlendMode=0
+		matr.Shininess=0   '1  
+		matr.RefractionCoef=-1
+		matr.SpecularPower=64
+		matr.CubeOpacity=0.5
+		matr.Color = -1
+
+		matr.ColorTexture = Texture.Load(filename, texFilter)
+
+		Return matr
+	End		
+	
+'------------------------------------------------------------------------------------------------------	
+	Method ReadChunk:String()
+		curChunk = ds.ReadString(4, "ascii" )
+		curChunkLen = ds.ReadInt()
+		curChunkStartPos = ds.Position()
+DBPrint "~nchunk= " + curChunk
+'DBPrint "length= " + curChunkLen
+'DBPrint "startpos= " + curChunkStartPos
+		Return curChunk
+	End
+
+'------------------------------------------------------------------------------------------------------	
+
+'TEXS
+'  {
+'	char file[]                 ;texture file name
+'  int flags,blend             ;blitz3D TextureFLags and TextureBlend: default=1,2
+'	float x_pos,y_pos           ;x and y position of texture: default=0,0
+'	float x_scale,y_scale       ;x and y scale of texture: default=1,1
+'	float rotation              ;rotation of texture (in radians): default=0
+'  }
+'
+'The TEXS chunk contains a list of all textures used in the file.
+'
+'The flags field value can conditional an additional flag value of '65536'. 
+'This is used to indicate that the texture uses secondary UV values, ala the TextureCoords command. 
+'Yes, I forgot about this one.
+	
+	Method ReadChunk_TEXS:Void()
+		While ds.Position() < (curChunkStartPos+curChunkLen)
+			Local char:Int
+			Local filename:String
+			Repeat
+				char = ds.ReadByte()
+				If char <> 0 Then filename += String.FromChar(char)
+			Until char = 0
+
+			Local nTx:B3D_Texture = New B3D_Texture
+			
+			nTx.filename = filename
+			nTx.flags    = ds.ReadInt()
+			nTx.blend    = ds.ReadInt()
+			nTx.xPos     = ds.ReadFloat()
+			nTx.yPos     = ds.ReadFloat()
+			nTx.xScale   = ds.ReadFloat()
+			nTx.yScale   = ds.ReadFloat()
+			nTx.rotation = ds.ReadFloat()
+
+DBPrint "~n~tTEXS filename= " + nTx.filename
+DBPrint "~tTextureFlags= " + nTx.flags
+DBPrint "~tTextureBlend= " + nTx.blend
+DBPrint "~tx_pos= " + nTx.xPos
+DBPrint "~ty_pos= " + nTx.yPos
+DBPrint "~tx_scale= " + nTx.xScale
+DBPrint "~ty_scale= " + nTx.yScale
+DBPrint "~trotation= " + nTx.rotation
+			texList.AddLast(nTx)
+		Wend
+	End
+	
+'------------------------------------------------------------------------------------------------------	
+
+'BRUS
+'  int n_texs
+'  {
+'  char name[]                 ;eg "WATER" - just use texture name by default
+'  float red,green,blue,alpha  ;Blitz3D Brushcolor and Brushalpha: default=1,1,1,1
+'  float shininess             ;Blitz3D BrushShininess: default=0
+'  int blend,fx                ;Blitz3D Brushblend and BrushFX: default=1,0
+'  int texture_id[n_texs]      ;textures used in brush
+'  }
+'
+'The BRUS chunk contains a list of all brushes used in the file.
+
+
+	Method ReadChunk_BRUS:Void()
+		Local n_texs:Int = ds.ReadInt()
+
+DBPrint "~n~tn_texs= "+n_texs
+
+		While ds.Position() < (curChunkStartPos+curChunkLen)
+
+			Local char:Int
+			Local name:String
+			Repeat
+				char = ds.ReadByte()
+				If char <> 0 Then name += String.FromChar(char)
+			Until char = 0
+			
+			Local nBrs:B3D_Brush = New B3D_Brush
+			nBrs.name = name
+			nBrs.red = ds.ReadFloat()
+			nBrs.green = ds.ReadFloat()
+			nBrs.blue = ds.ReadFloat()
+			nBrs.alpha = ds.ReadFloat()
+			nBrs.shininess = ds.ReadFloat()
+			nBrs.blend = ds.ReadInt()
+			nBrs.fx = ds.ReadInt()
+			For Local i:Int = 0 To n_texs-1
+				nBrs.texID = ds.ReadInt()
+			Next
+			
+DBPrint "~ntname= " + nBrs.name
+DBPrint "~tred= " + nBrs.red
+DBPrint "~tgreen= " + nBrs.green
+DBPrint "~tblue= " + nBrs.blue
+DBPrint "~talpha= " + nBrs.alpha
+DBPrint "~tshininess= " + nBrs.shininess
+DBPrint "~tblend= " + nBrs.blend
+DBPrint "~tfx= " + nBrs.fx
+DBPrint "~ttexture_id= " + nBrs.texID
+
+			Self.brushList.AddLast(nBrs)
+		Wend
+	End
+	
+'------------------------------------------------------------------------------------------------------	
+	
+'NODE:
+'  char name[]                 ;name of node
+'  float position[3]           ;local...
+'  float scale[3]              ;coord...
+'  float rotation[4]           ;system...
+'  [MESH|BONE]                 ;what 'kind' of node this is - if unrecognized, just use a Blitz3D pivot.
+'  [KEYS[,KEYS...]]            ;optional animation keys
+'  [NODE[,NODE...]]            ;optional child nodes
+'  [ANIM]                      ;optional animation
+'
+'The NODE chunk describes a Blitz3D Entity. The scene hierarchy is expressed by the nesting of NODE
+'chunks.
+'
+'NODE kinds are currently mutually exclusive - ie: a node can be a MESH, or a BONE, but not both!
+'However, it can be neither...if no kind is specified, the node is just a 'null' node - in Blitz3D
+'speak, a pivot.
+'
+'The presence of an ANIM chunk in a NODE indicates that an animation starts here in the hierarchy.
+'This allows animations of differing speeds/lengths to be potentially nested.
+'
+'There are many more 'kind' chunks coming, including camera, light, sprite, plane etc. For now, the
+'use of a Pivot in cases where the node kind is unknown will allow for backward compatibility.	
+	
+	
+	Method ReadChunk_NODE:Void()
+		Local char:Int
+		Local name:String
+		Repeat
+			char = ds.ReadByte()
+			If char <> 0 Then name += String.FromChar(char)
+		Until char = 0
+'DBPrint "~n~tname= "+name
+'DBPrint "x_pos= "+ds.ReadFloat()
+'DBPrint "y_pos= "+ds.ReadFloat()
+'DBPrint "z_pos= "+ds.ReadFloat()
+		ds.ReadFloat();ds.ReadFloat();ds.ReadFloat()
+'DBPrint "x_scale= "+ds.ReadFloat()
+'DBPrint "y_scale= "+ds.ReadFloat()
+'DBPrint "z_scale= "+ds.ReadFloat()
+		ds.ReadFloat();ds.ReadFloat();ds.ReadFloat()
+'DBPrint "w_rot= "+ds.ReadFloat()
+'DBPrint "x_rot= "+ds.ReadFloat()
+'DBPrint "y_rot= "+ds.ReadFloat()
+'DBPrint "z_rot= "+ds.ReadFloat()
+		ds.ReadFloat();ds.ReadFloat();ds.ReadFloat();ds.ReadFloat()
+
+	End
+
+'------------------------------------------------------------------------------------------------------	
+
+'MESH:
+'  int brush_id                ;'master' brush: default=-1
+'  VRTS                        ;vertices
+'  TRIS[,TRIS...]              ;1 or more sets of triangles
+'
+'The MESH chunk describes a mesh. A mesh only has one VRTS chunk, but potentially many TRIS chunks.
+
+	
+	Method ReadChunk_MESH:Void()
+DBPrint "~n~tMESH brush_id= "+ds.ReadInt()
+	End
+
+
+'------------------------------------------------------------------------------------------------------	
+
+'VRTS:
+'  int flags                   ;1=normal values present, 2=rgba values present
+'  int tex_coord_sets          ;texture coords per vertex (eg: 1 for simple U/V) max=8
+'  int tex_coord_set_size      ;components per set (eg: 2 for simple U/V) max=4
+'  {
+'  float x,y,z                 ;always present
+'  float nx,ny,nz              ;vertex normal: present if (flags&1)
+'  float red,green,blue,alpha  ;vertex color: present if (flags&2)
+'  float tex_coords[tex_coord_sets][tex_coord_set_size]	;tex coords
+'  }
+'
+'The VRTS chunk contains a list of vertices. The 'flags' value is used to indicate how much extra
+'data (normal/color) is stored with each vertex, and the tex_coord_sets and tex_coord_set_size
+'values describe texture coordinate information stored with each vertex.
+	
+	Method ReadChunk_VRTS:Void()
+		Local vrtCnt:Int = 0
+		Local flags:Int = ds.ReadInt()
+DBPrint "~n~tflags= " + flags
+DBPrint "~ttex_coord_sets= "+ds.ReadInt()
+DBPrint "~ttex_coord_set_size= "+ds.ReadInt()
+		
+		Local x:Float = 0.0
+		Local y:Float = 0.0
+		Local z:Float = 0.0
+		
+		Local nx:Float = 0.0
+		Local ny:Float = 0.0
+		Local nz:Float = 0.0
+		
+		Local r:Float = 1.0
+		Local g:Float = 1.0
+		Local b:Float = 1.0
+		Local a:Float = 1.0
+		
+		Local u:Float = 0.0
+		Local v:Float = 0.0
+		
+		While ds.Position() < (curChunkStartPos+curChunkLen)
+			Local nVtx:B3D_Vertex = New B3D_Vertex
+			nVtx.x = ds.ReadFloat()
+			nVtx.y = ds.ReadFloat()
+			nVtx.z = ds.ReadFloat()
+
+			If (flags&1)
+				nVtx.nx = ds.ReadFloat()
+				nVtx.ny = ds.ReadFloat()
+				nVtx.nz = ds.ReadFloat()
+			Endif
+			If (flags&2)
+				nVtx.red = ds.ReadFloat()
+				nVtx.green = ds.ReadFloat()
+				nVtx.blue = ds.ReadFloat()
+				nVtx.alpha = ds.ReadFloat()
+			Endif
+			nVtx.u = ds.ReadFloat()
+			nVtx.v = ds.ReadFloat()
+'Local col:= Color.RGB(nVtx.red*255,nVtx.green*255,nVtx.blue*255,nVtx.alpha*255)
+'surf.AddVertex( nVtx.x, nVtx.y, nVtx.z, nVtx.nx, nVtx.ny, nVtx.nz, col, nVtx.u, nVtx.v )
+''surf.VertexTangent(vrtCnt,nx,ny,nz)
+			Self.vtxList.AddLast(nVtx)
+			vrtCnt += 1
+		Wend
+DBPrint "~tvertex count= "+vrtCnt
+	End
+
+'------------------------------------------------------------------------------------------------------	
+
+'TRIS:
+'  int brush_id                ;brush applied to these TRIs: default=-1
+'  {
+'  int vertex_id[3]            ;vertex indices
+'  }
+'
+'The TRIS chunk contains a list of triangles that all share a common brush.
+
+	Method ReadChunk_TRIS:Void()
+		Local brsID:Int = ds.ReadInt()
+DBPrint "~n~tbrush_id= "+brsID
+		Local trsCnt:Int = 0
+		Local v0:Int
+		Local v1:Int
+		Local v2:Int
+		Local vtL:Int = 99999999
+		Local vtH:Int = 0
+
+		surf = New Surface
+		Self.trsList.Clear()
+		
+		While ds.Position() < (curChunkStartPos+curChunkLen)
+			Local nTrs:B3D_Tris = New B3D_Tris
+			' Read vertices of a triangle
+			v0 = ds.ReadInt()
+			v1 = ds.ReadInt()
+			v2 = ds.ReadInt()
+			' Determine lowest and highest vertex id
+			vtL = Min(vtL,v0)
+			vtL = Min(vtL,v1)
+			vtL = Min(vtL,v2)
+			vtH = Max(vtH,v0)
+			vtH = Max(vtH,v1)
+			vtH = Max(vtH,v2)
+			
+			nTrs.v0 = v0 - vtxO
+			nTrs.v1 = v1 - vtxO
+			nTrs.v2 = v2 - vtxO
+			trsCnt += 1
+			Self.trsList.AddLast(nTrs)
+
+		Wend
+		' Add surface vertices
+		Local vtxArray := Self.vtxList.ToArray()
+		For Local i:Int = vtL To vtH
+			Local nVtx:B3D_Vertex = vtxArray[i]
+			Local col:= Color.RGB(nVtx.red*255,nVtx.green*255,nVtx.blue*255,nVtx.alpha*255)
+'DBPrint "~t"+i+" = "+nVtx.x+":"+nVtx.y+":"+nVtx.z
+			surf.AddVertex( nVtx.x, nVtx.y, nVtx.z, nVtx.nx, nVtx.ny, nVtx.nz, col, nVtx.u, nVtx.v )
+			surf.VertexTangent(surf.NumVertices-1, 1, 0, 0)
+			'surf.VertexTangent(vrtCnt,nx,ny,nz)
+		Next
+		' Add surface tris
+		For Local nTrs:B3D_Tris = Eachin Self.trsList
+'DBPrint "~t"+nTrs.v0+"/"+nTrs.v1+"/"+nTrs.v2
+			surf.AddTriangle(nTrs.v0,nTrs.v1,nTrs.v2)
+		Next 
+'DBPrint "~ttris count= "+trsCnt+ " ("+Self.trsList.Count()+")"
+		' Update vertex offset
+		vtxO += vtH
+		Local brsh:B3D_Brush = Self.brushList.ToArray()[brsID]
+		Local tex:B3D_Texture = Self.texList.ToArray()[brsh.texID]
+		mat = CreateMaterialB3D(meshPath+StripDir(tex.filename), Texture.FilterNone)
+		mat.Color = Color.RGB(brsh.red*255,brsh.green*255,brsh.blue*255,brsh.alpha*255)
+		mesh.AddSurface(surf, mat)
+	End
+
+'------------------------------------------------------------------------------------------------------	
+
+'ANIM:
+'  int flags                   ;unused: default=0
+'  int frames                  ;how many frames in anim
+'  float fps                   ;default=60
+'
+'The ANIM chunk describes an animation.
+
+	Method ReadChunk_ANIM:Void()
+'DBPrint "~n~tflags= "+ds.ReadInt()
+	ds.ReadInt()
+'DBPrint "~tframes= "+ds.ReadInt()
+	ds.ReadInt()
+'DBPrint "~tfps= "+ds.ReadFloat()
+	ds.ReadInt()
+	End
+
+'------------------------------------------------------------------------------------------------------	
+
+'BONE:
+'  {
+'  int vertex_id               ;vertex affected by this bone
+'  float weight                ;how much the vertex is affected
+'  }
+'
+'The BONE chunk describes a bone. Weights are applied to the mesh described in the enclosing ANIM -
+'in 99% of cases, this will simply be the MESH contained in the root NODE chunk.
+
+
+	Method ReadChunk_BONE:Void()
+		Local bvi:Int
+		While ds.Position() < (curChunkStartPos+curChunkLen)
+'DBPrint "vertex_id= "+ds.ReadInt()
+			ds.ReadInt()
+'DBPrint "weight= "+ds.ReadFloat()
+			ds.ReadFloat()
+			bvi += 1
+		Wend
+'DBPrint "~n~tvertex_id_count=" + bvi
+	End
+
+'------------------------------------------------------------------------------------------------------	
+
+'KEYS:
+'  int flags		                ;1=position, 2=scale, 4=rotation
+'  {
+'  int frame                   ;where key occurs
+'  float position[3]           ;present if (flags&1)
+'  float scale[3]              ;present if (flags&2)
+'  float rotation[4]           ;present if (flags&4)
+'  }
+'
+'The KEYS chunk is a list of animation keys. The 'flags' value describes what kind of animation
+'info is stored in the chunk - position, scale, rotation, or any combination of.
+
+
+	Method ReadChunk_KEYS:Void()
+		Local flags:Int = ds.ReadInt()
+'DBPrint "~n~tflags= " + flags
+		Local frmCnt:Int = 0
+
+		While ds.Position() < (curChunkStartPos+curChunkLen)
+'DBPrint "frame= " + ds.ReadInt()
+			ds.ReadInt()
+			frmCnt += 1
+			If (flags&1)
+'DBPrint "x,y,z= "+ds.ReadFloat() + " " + ds.ReadFloat() + " " + ds.ReadFloat()
+				ds.ReadFloat();ds.ReadFloat();ds.ReadFloat()
+			Endif			
+			If (flags&2)
+'DBPrint "sx,sy,sz= "+ds.ReadFloat() + " " + ds.ReadFloat() + " " + ds.ReadFloat()
+				ds.ReadFloat();ds.ReadFloat();ds.ReadFloat()
+			Endif
+			If (flags&4)
+'DBPrint "rw,rx,ry,rz= "+ds.ReadFloat() + " " + ds.ReadFloat() + " " + ds.ReadFloat() + " " + ds.ReadFloat()
+				ds.ReadFloat();ds.ReadFloat();ds.ReadFloat();ds.ReadFloat()
+			Endif
+		Wend
+'DBPrint "~tfrmCnt= " + frmCnt
+	End
+
+'------------------------------------------------------------------------------------------------------	
+
+	Method ReadChunk_DEFAULT:Void()
+		While ds.Position() < (curChunkStartPos+curChunkLen)
+			ds.ReadByte()
+		Wend
+	End
+
+'------------------------------------------------------------------------------------------------------	
+	Method LoadData:Mesh(fixedfilename:String,filename:String)
+'DBPrint ("fixedfilename= "+fixedfilename)
+'DBPrint ("filename= "+filename)
+		meshPath = ExtractDir(filename)
+		If meshPath <> "" Then meshPath += "/"
+		
+		'surf = New Surface
+		mesh = New Mesh
+		
+		
+		
+		buffer = DataBuffer.Load(fixedfilename)
+		If buffer <> Null
+			ds = New DataStream(buffer)
+			dsLen = ds.Length()
+DBPrint "stream length= "+dsLen
+			ReadChunk()
+DBPrint "version= "+ds.ReadInt()
+			While ds.Position() < dsLen
+				Select ReadChunk()
+					Case "TEXS"
+						ReadChunk_TEXS()
+					Case "BRUS"
+						ReadChunk_BRUS()
+						'mat = CreateMaterialB3D(meshPath+StripDir(texList.ToArray()[0].filename), Texture.FilterNone)
+					Case "NODE"
+						ReadChunk_NODE()
+					Case "MESH"
+						ReadChunk_MESH()
+					Case "VRTS"
+						ReadChunk_VRTS()
+					Case "TRIS"
+						ReadChunk_TRIS()
+					Case "ANIM"
+						ReadChunk_ANIM()
+					Case "BONE"
+						ReadChunk_BONE()
+					Case "KEYS"
+						ReadChunk_KEYS()
+					Default 
+						ReadChunk_DEFAULT()
+'DBPrint "Pos="+ds.Position()
+				End
+			End
+		Endif
+		ds.Close()
+'DBPrint ("texture filename= "+mat.ColorTexture.Filename)
+		'mesh.AddSurface(surf,mat)
+DBPrint "NumSurfaces = "+mesh.NumSurfaces()	
+
+		mesh.Rebuild()
+		Return mesh
+	End
+End

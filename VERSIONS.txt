@@ -1,3 +1,20 @@
+***** v2021-02-01 *****
+
+FIX: [Meshtool]    (Author: MikeHart)
+New: [tests] Added test_models.cxs script.    (Author: MikeHart)
+New: [tests] Added test_project.cxs script.    (Author: MikeHart)
+New: [tests] Added test_picking.cxs script.    (Author: MikeHart)
+New: [Mesh] Added direct import of obj files with their corresponding material file (mtl)    (Author: MikeHart)
+New: [Mesh] Added direct import of static B3D files. Animations are missing atm.    (Author: MikeHart)
+New: [source] Added Line and Camera picking and projecting   (Author: innerloop) 
+New: [src.entity] Modded LookAt   (Author: innerloop) 
+
+KNOWN ISSUES: 
+- Normals seem to be not calculated correctly when directly loading B3D files.
+- No animation is imported when directly loading B3D files.
+
+
+---------------------------------------------------------------------------------------------------------------------------------
 V2.0-beta3
 - All constants changed to PascalCase
 - Red, Green, Blue, Alpha functions in Color class renamed to R, G, B, A

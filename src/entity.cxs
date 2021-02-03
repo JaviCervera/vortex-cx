@@ -10,17 +10,39 @@ Import renderer
 Import renderstate
 Import world
 
+
 Public
 Class Entity
 	Const CollisionNone	: Int = 0
 	Const CollisionSphere	: Int = 1
 	Const CollisionBox		: Int = 2
 
+    '---------------------------------------------------------------------------------------
+Private
+
+	Field mPickable: Bool
+	
+Public
+	
+	Method RayTrace:Bool( traceInfo:Object, rayOrigin:Float[], rayDirection:Float[], maxDistance:Float = 0.0 )
+	    Return False
+	End
+	
+	Method Pickable:Bool() Property
+	    Return mPickable
+	End
+	
+	Method Pickable:Void( state:Bool ) Property
+	    mPickable = state
+	End    
+	'---------------------------------------------------------------------------------------
+
 	Method New(parent:Entity = Null)
 		mChildren = New List<Entity>
 		Parent = parent
 		mActive = False		'Subclases should change this if needed
 		mVisible = False	'Subclases should change this if needed
+		mPickable = False
 		Scale(1, 1, 1)
 		World._AddEntity(Self)
 		_UpdateTransform()
@@ -91,6 +113,7 @@ Class Entity
 			c.Visible = visible
 		Next
 	End
+
 	
 	Method X:Float() Property
 		Return mPosition[0]
@@ -272,6 +295,19 @@ Class Entity
 		_UpdateTransform()
 	End
 	
+	Method LookAt:Void( targetPoint:Float[3], rollAngle:Float = 0.0 )
+	    Local dirX := targetPoint[0] - mPosition[0]
+	    Local dirY := targetPoint[1] - mPosition[1]
+	    Local dirZ := targetPoint[2] - mPosition[2]
+	    mRotation[0] = -ATan2( dirY, Sqrt( dirX * dirX + dirZ * dirZ ) )
+	    mRotation[1] =  ATan2( dirX, dirZ )
+	    mRotation[2] = rollAngle
+	End
+	
+	Method LookAt:Void( targetEntity:Entity, rollAngle:Float = 0.0 )
+	    LookAt( targetEntity.mPosition, rollAngle )
+	End
+		
 	Method Width:Float() Property
 		Return mScale[0]
 	End
@@ -412,20 +448,20 @@ Class Entity
 		Return mTransform
 	End
 Private
-	Field mName						: String
-	Field mParent					: Entity
+	Field mName					: String
+	Field mParent				: Entity
 	Field mChildren				: List<Entity>
-	Field mActive					: Bool
+	Field mActive				: Bool
 	Field mVisible				: Bool
 	Field mPosition				: Float[3]
 	Field mRotation				: Float[3]
-	Field mScale					: Float[3]
+	Field mScale				: Float[3]
 	Field mTransform			: Float[16]
-	Field mCollisionMode	: Int
-	Field mRadius					: Float
+	Field mCollisionMode		: Int
+	Field mRadius				: Float
 	Field mSqRadius				: Float
 	Field mCollided				: Bool
-	Field mCollidedEntity	: Entity
+	Field mCollidedEntity		: Entity
 	Field mUserData				: Object
 	
 	Method _UpdateTransform:Void()
