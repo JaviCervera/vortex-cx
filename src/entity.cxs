@@ -295,17 +295,17 @@ Public
 		_UpdateTransform()
 	End
 	
-	Method LookAt:Void( targetPoint:Float[3], rollAngle:Float = 0.0 )
-	    Local dirX := targetPoint[0] - mPosition[0]
-	    Local dirY := targetPoint[1] - mPosition[1]
-	    Local dirZ := targetPoint[2] - mPosition[2]
-	    mRotation[0] = -ATan2( dirY, Sqrt( dirX * dirX + dirZ * dirZ ) )
-	    mRotation[1] =  ATan2( dirX, dirZ )
+	Method LookAt:Void(targetX:Float, targetY:Float, targetZ:Float, rollAngle:Float = 0.0)
+	    Local dirX := targetX - mPosition[0]
+	    Local dirY := targetY - mPosition[1]
+	    Local dirZ := targetZ - mPosition[2]
+	    mRotation[0] = -ATan2(dirY, Sqrt(dirX * dirX + dirZ * dirZ))
+	    mRotation[1] =  ATan2(dirX, dirZ)
 	    mRotation[2] = rollAngle
 	End
 	
-	Method LookAt:Void( targetEntity:Entity, rollAngle:Float = 0.0 )
-	    LookAt( targetEntity.mPosition, rollAngle )
+	Method LookAt:Void(targetEntity:Entity, rollAngle:Float = 0.0)
+	    LookAt(targetEntity.mPosition[0], targetEntity.mPosition[1], targetEntity.mPosition[2], rollAngle)
 	End
 		
 	Method Width:Float() Property

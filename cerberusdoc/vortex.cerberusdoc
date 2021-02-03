@@ -278,10 +278,10 @@ Sets the rotation of the entity.
 # Method Turn:Void(pitch:Float, yaw:Float, roll:Float)
 Adds a rotation to the entity.
 
-# Method LookAt:Void( targetEntity:Entity, rollAngle:Float = 0.0 )
+# Method LookAt:Void(targetEntity:Entity, rollAngle:Float = 0.0)
 Rotates the entity towards the given entity.
 
-# Method LookAt:Void( targetPoint:Float[3], rollAngle:Float = 0.0 )
+# Method LookAt:Void(targetX:Float, targetY:Float, targetZ:Float, rollAngle:Float = 0.0)
 Rotates the entity towards the given coordinates.
 
 # Method Width:Float() Property
