@@ -34,7 +34,7 @@ Class TestApp Extends App
 		mCube.Turn(32 * World.DeltaTime(), 32 * World.DeltaTime(), 0)
 	End
 	
-	Method OnRender:Int()
+	Method OnRender:Int()		
 		'Render to framebuffer
 		mFramebuffer.Use()
 		
