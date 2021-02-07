@@ -1,4 +1,4 @@
-//#include "tinyfiledialogs.h"
+#include "tinyfiledialogs.h"
 
 bool Confirm(String title, String text, bool serious) {
   return tinyfd_messageBox(title.ToCString<char>(), text.ToCString<char>(), "yesno", serious ? "error" : "question", 1) == 1;

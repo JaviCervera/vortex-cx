@@ -2,8 +2,6 @@ Strict
 
 Private
 #If LANG="cpp"
-Import "native/tinyfiledialogs.h"
-Import "native/tinyfiledialogs.cpp"
 Import "native/dialog.cpp"
 '#If HOST="winnt"
 '#GLFW_GCC_CC_OPTS+="-lole32"
