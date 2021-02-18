@@ -399,6 +399,9 @@ You normally don't generate fonts by hand, but by using the bundled fonttool uti
 Loads and returns the font with the specified filename, or `Null` if the font could not be loaded.
 If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one font more than once).
 
+# Function IsLoaded:Bool(filename:String)
+Tells whether the font with the given filename has already been loaded and cached.
+
 # Method Discard:Void()
 When you are not going to render text usign this font anymore, you should call this method to deallocate its resources.
 
@@ -728,6 +731,9 @@ Creates a new mesh that is a copy of the mesh passed as parameter.
 # Function Load(filename:String, texFilter:Int = Texture.FilterTrilinear, cache:Bool = True)
 Loads and returns the mesh with the specified filename, or `Null` if the mesh could not be loaded.
 If `cache` is `True` and you call this function several times with the same filename, the same object will be returned (this is, it won't load one mesh more than once).
+
+# Function IsLoaded:Bool(filename:String)
+Tells whether the mesh with the given filename has already been loaded and cached.
 
 # Method LoadVertexAnimation:Bool(filename:String, sequenceName:String = "")
 Loads the vertex animation data from the specified file and adds it to the mesh.
@@ -1154,6 +1160,12 @@ The value of `filter` must be one of:
 * Texture.FilterLinear
 * Texture.FilterBilinear
 * Texture.FilterTrilinear
+
+# Function IsLoaded:Bool(filename:String)
+Tells whether the 2D texture with the given filename has already been loaded and cached.
+
+# Function IsLoaded:Bool(left:String, right:String, front:String, back:String, top:String, bottom:String)
+Tells whether the cubemap texture with the given filename has already been loaded and cached.
 
 # Method Discard:Void()
 Discards the resources used by this texture.

@@ -167,6 +167,10 @@ Public
 		Return mesh
 	End
 	
+	Function IsLoaded:Bool(filename:String)
+		Return Cache._LoadedMesh(filename) <> Null
+	End
+	
 	#Rem
 	Method LoadSkeleton:Bool(filename:String)
 		'Fix filename

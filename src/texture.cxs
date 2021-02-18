@@ -42,6 +42,14 @@ Public
 			Return _Load(left, right, front, back, top, bottom, filter)
 		End
 	End
+	
+	Function IsLoaded:Bool(filename:String)
+		Return Cache._LoadedTexture(filename) <> Null
+	End
+	
+	Function IsLoaded:Bool(left:String, right:String, front:String, back:String, top:String, bottom:String)
+		Return Cache._LoadedTexture(left + "," + right + "," + front + "," + back + "," + top + "," + bottom) <> Null
+	End
 
 	Method Discard:Void()
 		If mHandle <> 0 Then Renderer.FreeTexture(mHandle)

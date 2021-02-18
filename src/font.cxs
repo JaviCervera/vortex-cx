@@ -38,6 +38,10 @@ Public
 			Return _Load(filename)
 		End
 	End
+	
+	Function IsLoaded:Bool(filename:String)
+		Return Cache._LoadedFont(filename) <> Null
+	End
 
 	Method Discard:Void()
 		mTexture.Discard()
