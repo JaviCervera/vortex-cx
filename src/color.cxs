@@ -41,7 +41,7 @@ Public
 	End
 	
 	Function Multiply:Int(color:Int, factor:Float)
-		Return RGB(Int(Red(color) * factor), Int(Green(color) * factor), Int(Blue(color) * factor), Alpha(color))
+		Return RGB(Int(R(color) * factor), Int(G(color) * factor), Int(B(color) * factor), A(color))
 	End
 Private
 	Method New()
