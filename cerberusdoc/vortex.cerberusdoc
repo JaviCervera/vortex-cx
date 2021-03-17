@@ -79,10 +79,10 @@ Sets the clear mode for this camera. Depending on the value of this property, th
 | Camera.ClearColor | Clears the viewport with the color defined by the `ClearColor` property.
 | Camera.ClearSkybox | Clears the viewport with the skybox defined by the `World.SkyboxTexture` function (defaults to `Null`).
 
-# Method BackColor:Int() Property
+# Method BackgroundColor:Int() Property
 Returns the back color used by this camera in case that the `ClearMode` property is set to `Camera.ClearColor`.
 
-# Method BackColor:Void(color:Int) Property
+# Method BackgroundColor:Void(color:Int) Property
 Sets the clear back used by this camera in case that the `ClearMode` property is set to `Camera.ClearColor`.
 
 # Method Orthographic:Bool() Property
