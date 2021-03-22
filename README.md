@@ -1,4 +1,4 @@
-![Vortex](./stuff/vortex_med.png)
+# ![Vortex](./logo.png) Vortex
 
 ## Introduction
 Vortex is an open-source, lightweight 3D graphics rendering library which is easy to use and easy to integrate with any application that requires graphics. It can also be used as the base for a higher level graphics or game engine.
