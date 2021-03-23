@@ -18,7 +18,7 @@ It has been released under the terms of the [**MIT license**](https://en.wikiped
 * **Vertex based animation** for meshes (vertex animations are automatically generated from skeletal animations).
 * **Linear fog** for ambient effects.
 * **Collision detection** with cubes and spheres, triangle collision detection with raycasting.
-* **Mouse picking of entities**.
+* **Mouse picking** of entities.
 
 ## Installation
 You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, or download as a zip file and put the vortex folder on that same **<*CerberusFolder*>/modules_ext** location. You should select **Help -> Rebuild Help** on the Cerberus-X IDE (Ted) afterwards, and the documentation will be available in your modules help.
