@@ -1,4 +1,7 @@
 'TODO v2.0.0
+'- Export MD2 animation sequences in separate files.
+'- Flip render to texture Y
+'- Add Trigger and TriggerDelegate to Entity class
 '- Add fixes for Android
 '- Fix framebuffer, retina display and rotation on iOS
 '- Make shadows work even when Material.Lighting = False
