@@ -12,44 +12,26 @@
 '- Document tools
 '- Make sure that every class & method is documented
 
-'TODO v3.0.0:
-'- Rewrite backend using PicoGFX
-'- Add MD2, OBJ and ASSBIN loaders
-'- Make meshtool load meshes natively. Support for Irrlicht and Assimp command line converters. Save materials in separate JSON file, which can be specified when loading the mesh.
-'- Add shader test (maybe rewrite all samples?)
+'TODO v2.x:
+'- Add particles
+'- Add spot lights
+'- Add multiple shadows
+'- Add shader test
 '- Add cone, cylinder and sphere primitives (maybe rename wedge to ramp)?
-'- Add support for filters param in RequestFile (dialog module)
 '- Move matrices calculation out of ShaderUniforms.Prepare
 '- Add Material._RendersStep (should improve sprite rendering speed?)
 '- Added #defines to shader code, so there are several combinations for the default shader (static / skinned, no fog / fog, no shadows / shadows, no cubemap / cubemap, vlit / plit)
 '- Reduced shader vars (compact floats in vec4's, etc), rename and document them
-
-'TODO v3.1.0:
-'- Add particles
-'- Add SpriteBatch
-'- Add picking test
-
-'TODO v3.2.0:
-'- Add spot lights
-'- Add multiple shadows
 '- Improve shadows (PCF, cascaded...)
-
-'TODO v3.3.0:
-'- Add bone animation
 '- Make sure that shadows work correctly on skinned meshes
-'- Animate surface indices
-
-'TODO v3.4.0:
+'- Add bone animation
 '- Sort lights before rendering each model
 '- Check that an object's bounding box is in view before rendering
+'- Add SpriteBatch
 '- Add RenderList
-
-'TODO v3.x.x:
 '- Add bloom filter based on emissive and specular outputs
 '- Masked blend mode?
 '- Texture compression?
-'- Write worldtool with lightmapping support
-'- Write JSON based UI in tools
 
 'Enable depth buffer when using this module
 #OPENGL_DEPTH_BUFFER_ENABLED=True
