@@ -4,9 +4,6 @@
 '- Add Trigger and TriggerDelegate to Entity class
 '- Add fixes for Android
 '- Fix framebuffer, retina display and rotation on iOS
-'- Make shadows work even when Material.Lighting = False
-'- Add alpha support to shadows
-'- Fix test_mojo2 on HTML5
 '- Add Building section to README.md
 '- Clean comments
 '- Document tools
@@ -16,8 +13,9 @@
 '- Add particles
 '- Add spot lights
 '- Add multiple shadows
-'- Add shader test
-'- Add cone, cylinder and sphere primitives (maybe rename wedge to ramp)?
+'- Add shader test'- Make shadows work even when Material.Lighting = False
+'- Add alpha support to shadows
+'- Fix test_mojo2 on HTML5
 '- Move matrices calculation out of ShaderUniforms.Prepare
 '- Add Material._RendersStep (should improve sprite rendering speed?)
 '- Added #defines to shader code, so there are several combinations for the default shader (static / skinned, no fog / fog, no shadows / shadows, no cubemap / cubemap, vlit / plit)
