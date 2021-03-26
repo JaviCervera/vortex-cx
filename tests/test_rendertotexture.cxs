@@ -1,3 +1,5 @@
+Strict
+
 Import mojo.app
 Import vortex
 
@@ -24,6 +26,8 @@ Class TestApp Extends App
 		'Create light
 		Local light:Light = New Light()
 		light.Rotate(45, -45, 0)
+		
+		Return 0
 	End
 	
 	Method OnUpdate:Int()
@@ -32,6 +36,8 @@ Class TestApp Extends App
 
 		'Rotate cube
 		mCube.Turn(32 * World.DeltaTime(), 32 * World.DeltaTime(), 0)
+		
+		Return 0
 	End
 	
 	Method OnRender:Int()		
@@ -53,6 +59,8 @@ Class TestApp Extends App
 	
 		'Render world
 		World.Render()
+		
+		Return 0
 	End
 Private
 	Field mCam			: Camera

@@ -17,6 +17,7 @@ Public
 		mHandle = Renderer.CreateTexture(width, height)
 		mWidth = width
 		mHeight = height
+		mFilter = FilterNone
 		mIsCubic = False
 	End
 
@@ -24,6 +25,7 @@ Public
 		mHandle = Renderer.CreateTexture(buffer, width, height, filter)
 		mWidth = width
 		mHeight = height
+		mFilter = filter
 		mIsCubic = False
 	End
 	
@@ -79,6 +81,10 @@ Public
 	Method IsCubic:Bool() Property
 		Return mIsCubic
 	End
+	
+	Method SetPixels:Void(pixels:DataBuffer)
+		Renderer.SetTexturePixels(mHandle, pixels, Self.Width, Self.Height, mFilter)
+	End
 
 	Method Draw:Void(x:Float, y:Float, width:Float = 0, height:Float = 0, rectx:Float = 0, recty:Float = 0, rectwidth:Float = 0, rectheight:Float = 0)
 		If rectwidth = 0 Then rectwidth = Width
@@ -111,6 +117,7 @@ Public
 			tex.mHandle = handle
 			tex.mWidth = mSizeArr[0]
 			tex.mHeight = mSizeArr[1]
+			tex.mFilter = filter
 			tex.mIsCubic = False
 			Return tex
 		Else
@@ -132,6 +139,7 @@ Public
 			tex.mHandle = handle
 			tex.mWidth = mSizeArr[0]
 			tex.mHeight = mSizeArr[1]
+			tex.mFilter = filter
 			tex.mIsCubic = True
 			Return tex
 		Else
@@ -146,6 +154,7 @@ Private
 	Field mHandle	: Int
 	Field mWidth	: Int
 	Field mHeight	: Int
+	Field mFilter	: Int
 	Field mIsCubic	: Bool
 	Global mSizeArr	: Int[2]
 End

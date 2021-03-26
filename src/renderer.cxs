@@ -345,14 +345,7 @@ Public
 	
 	Function CreateTexture:Int(buffer:DataBuffer, width:Int, height:Int, filter:Int)
 		Local texture:Int = glCreateTexture()
-		glBindTexture(GL_TEXTURE_2D, texture)
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, MagFilter(filter))
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, MinFilter(filter))
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer)
-'#If TARGET<>"html5"
-		If filter > FilterLinear Then glGenerateMipmap(GL_TEXTURE_2D)
-'#EndIf
-		'glBindTexture(GL_TEXTURE_2D, 0)
+		SetTexturePixels(texture, buffer, width, height, filter)
 		Return texture
 	End
 
@@ -460,6 +453,14 @@ Public
 			glBindTexture(GL_TEXTURE_2D, depthTex)
 			glActiveTexture(GL_TEXTURE0)
 		End
+	End
+	
+	Function SetTexturePixels:Void(texture:Int, pixels:DataBuffer, width:Int, height:Int, filter:Int)
+		glBindTexture(GL_TEXTURE_2D, texture)
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, MagFilter(filter))
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, MinFilter(filter))
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels)
+		If filter > FilterLinear Then glGenerateMipmap(GL_TEXTURE_2D)
 	End
 	
 	'---------------------------------------------------------------------------

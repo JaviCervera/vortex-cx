@@ -1187,6 +1187,9 @@ Returns the height, in pixels, of the texture.
 # Method IsCubic:Bool() Property
 Returns whether the texture is a cube map.
 
+# Method SetPixels:Void(pixels:DataBuffer)
+Update the pixels in the texture with the information of the DataBuffer. The data buffer size must be 4 times the width of the texture multiplied by the height, with each int in the buffer representing a pixel in ARGB format.
+
 # Method Draw:Void(x:Float, y:Float, width:Float = 0, height:Float = 0, rectx:Float = 0, recty:Float = 0, rectwidth:Float = 0, rectheight:Float = 0)
 Draws the texture to the specified screen coordinates.
 You can also specifY a width and a height different than its original size, and a rectangle within the texture to draw instead of the whole thing.
