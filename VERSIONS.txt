@@ -8,6 +8,11 @@ V2.0-beta3
 - Fixed render to texture on HTML5.
 - Added collisions with static boxes (World.AddStaticCollisionBox).
 - Added Texture.SetPixels method.
+- Added Material.Ambient.
+- Replaced Material.LightTexture with Material.AmbientTexture.
+- Added Material.EmissiveTexture and Material.Emissive.
+- Replaced Material.ShininessTexture with Material.SpecularTexture.
+- Added Material.Specular (Shininess property only modifies the Alpha of this color).
 - Fixes to meshtool. (Author: MikeHart)
 - Added test_models.cxs script. (Author: MikeHart)
 - Added test_project.cxs script. (Author: MikeHart)

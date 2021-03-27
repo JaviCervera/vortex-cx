@@ -100,12 +100,12 @@ Public
 
 		'Render
 		If Not mIsCubic
-			Renderer.SetTextures(mHandle, 0, 0, 0, 0)
+			Renderer.SetTextures(mHandle, 0, 0, 0, 0, 0)
 		Else
-			Renderer.SetTextures(0, 0, 0, 0, mHandle)
+			Renderer.SetTextures(0, 0, 0, 0, 0, mHandle)
 		End
 		Renderer.DrawRectEx(x, y, Abs(width), Abs(height), u0, v0, u1, v1)
-		Renderer.SetTextures(0, 0, 0, 0, 0)
+		Renderer.SetTextures(0, 0, 0, 0, 0, 0)
 	End
 	
 	Function _Load:Texture(filename:String, filter:Int = Texture.FilterTrilinear)

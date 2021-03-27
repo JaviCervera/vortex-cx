@@ -259,7 +259,6 @@ Private
 			End
 			
 			'Prepare lighting
-			If numLights > 0 Then RenderState.Ambient = mAmbient
 			If sunLightEnabled
 				QuatSetEuler(mSunPitch, mSunYaw, 0, mTempArr)
 				QuatMulVec3(mTempArr[0], mTempArr[1], mTempArr[2], mTempArr[3], 0, 0, -1, mTempArr)

@@ -37,6 +37,6 @@ You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, 
 - [x] Fix render to texture on HTML5
 - [x] Add box collision with static boxes
 - [x] Add Texture.SetPixels method
-- [ ] Add Material.AmbientTexture and Material.AmbientColor
-- [ ] Add Material.EmissiveTexture and Material.EmissiveColor
-- [ ] Add Material.SpecularTexture and Material.SpecularColor (Shininess property only modifies the Alpha of this color)
+- [x] Add Material.AmbientTexture and Material.Ambient
+- [x] Add Material.SpecularTexture and Material.Specular (Shininess property only modifies the Alpha of this color)
+- [x] Add Material.EmissiveTexture and Material.Emissive

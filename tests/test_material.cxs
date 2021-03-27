@@ -64,8 +64,8 @@ Public
 		mCam.Move(0, 0, -3)
 		
 		'Update shininess
-		If KeyDown(KEY_LEFT) Then mModel.Material.Shininess = Clamp(mModel.Material.Shininess - 0.2 * World.DeltaTime(), 0.0, 1.0)
-		If KeyDown(KEY_RIGHT) Then mModel.Material.Shininess = Clamp(mModel.Material.Shininess + 0.2 * World.DeltaTime(), 0.0, 1.0)
+		If KeyDown(KEY_LEFT) Then mModel.Material.Shininess = Clamp(mModel.Material.Shininess - 0.3 * World.DeltaTime(), 0.0, 1.0)
+		If KeyDown(KEY_RIGHT) Then mModel.Material.Shininess = Clamp(mModel.Material.Shininess + 0.3 * World.DeltaTime(), 0.0, 1.0)
 
 		Return False
 	End

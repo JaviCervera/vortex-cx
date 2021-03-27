@@ -7,6 +7,7 @@ Import renderer
 Import renderstate
 Import shader
 Import texture
+Import world
 
 Public
 
@@ -15,8 +16,10 @@ Public
 	Method New(colorTex:Texture = Null, shader:Shader = Null)
 		mShader = shader
 		mColor = color.Color.White
+		mAmbient = color.Color.Black
+		mSpecular = color.Color.ChangeAlpha(color.Color.White, 1)
+		mEmissive = color.Color.Black
 		mColorTex = colorTex
-		mShininess = 0.001
 		mCubeOpacity = 0.5
 		mRefractCoef = -1
 		mBlendMode = Renderer.BlendSolid
@@ -36,15 +39,16 @@ Public
 	
 	Method DiscardTextures:Void()
 		If mColorTex Then mColorTex.Discard()
+		If mAmbientTex Then mAmbientTex.Discard()
+		If mSpecularTex Then mSpecularTex.Discard()
+		If mEmissiveTex Then mEmissiveTex.Discard()
 		If mNormalTex Then mNormalTex.Discard()
-		If mShininessTex Then mShininessTex.Discard()
-		If mLightTex Then mLightTex.Discard()
 		If mCubeTex Then mCubeTex.Discard()
 	End
 	
 	Method IsEqual:Bool(other:Material)
 		If Self = other Then Return True
-		If mShader = other.mShader And mColor = other.mColor And mColorTex = other.mColorTex And mNormalTex = other.mNormalTex And mShininessTex = other.mShininessTex And mLightTex = other.mLightTex And mCubeTex = other.mCubeTex And mShininess = other.mShininess And mSpecularPower = other.mSpecularPower And mCubeOpacity = other.mCubeOpacity And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mLighting = other.mLighting And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows And mReceiveShadows = other.mReceiveShadows And mFog = other.mFog
+		If mShader = other.mShader And mColor = other.mColor And mAmbient = other.mAmbient And mSpecular = other.mSpecular And mEmissive = other.mEmissive And mColorTex = other.mColorTex And mAmbientTex = other.mAmbientTex And mSpecularTex = other.mSpecularTex And mEmissiveTex = other.mEmissiveTex And mNormalTex = other.mNormalTex And mCubeTex = other.mCubeTex And mSpecularPower = other.mSpecularPower And mCubeOpacity = other.mCubeOpacity And mRefractCoef = other.mRefractCoef And mBlendMode = other.mBlendMode And mLighting = other.mLighting And mCulling = other.mCulling And mDepthWrite = other.mDepthWrite And mCastShadows = other.mCastShadows And mReceiveShadows = other.mReceiveShadows And mFog = other.mFog
 			Return True
 		Else
 			Return False
@@ -55,12 +59,15 @@ Public
 		If Self.IsEqual(other) Then Return
 		mShader = other.mShader
 		mColor = other.mColor
+		mAmbient = other.mAmbient
+		mSpecular = other.mSpecular
+		mEmissive = other.mEmissive
 		mColorTex = other.mColorTex
+		mAmbientTex = other.mAmbientTex
+		mSpecularTex = other.mSpecularTex
+		mEmissiveTex = other.mEmissiveTex
 		mNormalTex = other.mNormalTex
-		mShininessTex = other.mShininessTex
-		mLightTex = other.mLightTex
 		mCubeTex = other.mCubeTex
-		mShininess = other.mShininess
 		mSpecularPower = other.mSpecularPower
 		mCubeOpacity = other.mCubeOpacity
 		mRefractCoef = other.mRefractCoef
@@ -90,6 +97,30 @@ Public
 		Return mColor
 	End
 	
+	Method Ambient:Void(color:Int) Property
+		mAmbient = color
+	End
+	
+	Method Ambient:Int() Property
+		Return mAmbient
+	End
+	
+	Method Specular:Void(color:Int) Property
+		mSpecular = color
+	End
+	
+	Method Specular:Int() Property
+		Return mSpecular
+	End
+	
+	Method Emissive:Void(color:Int) Property
+		mEmissive = color
+	End
+	
+	Method Emissive:Int() Property
+		Return mEmissive
+	End
+	
 	Method ColorTexture:Void(tex:Texture) Property
 		mColorTex = tex
 	End
@@ -98,28 +129,36 @@ Public
 		Return mColorTex
 	End
 	
+	Method AmbientTexture:Void(tex:Texture) Property
+		mAmbientTex = tex
+	End
+	
+	Method AmbientTexture:Texture() Property
+		Return mAmbientTex
+	End
+	
+	Method SpecularTexture:Void(tex:Texture) Property
+		mSpecularTex = tex
+	End
+	
+	Method SpecularTexture:Texture() Property
+		Return mSpecularTex
+	End
+	
+	Method EmissiveTexture:Void(tex:Texture) Property
+		mEmissiveTex = tex
+	End
+	
+	Method EmissiveTexture:Texture() Property
+		Return mEmissiveTex
+	End
+	
 	Method NormalTexture:Void(tex:Texture) Property
 		mNormalTex = tex
 	End
 	
 	Method NormalTexture:Texture() Property
 		Return mNormalTex
-	End
-	
-	Method ShininessTexture:Void(tex:Texture) Property
-		mShininessTex = tex
-	End
-	
-	Method ShininessTexture:Texture() Property
-		Return mShininessTex
-	End
-	
-	Method LightTexture:Void(tex:Texture) Property
-		mLightTex = tex
-	End
-	
-	Method LightTexture:Texture() Property
-		Return mLightTex
 	End
 	
 	Method CubeTexture:Void(tex:Texture) Property
@@ -131,12 +170,11 @@ Public
 	End
 
 	Method Shininess:Void(shininess:Float) Property
-		'shininess = Clamp(shininess, 0.0, 1.0)
-		mShininess = shininess
+		mSpecular = color.Color.ChangeAlpha(mSpecular, Clamp(Int(shininess * 255.0), 0, 255))
 	End
 
 	Method Shininess:Float() Property
-		Return mShininess
+		Return color.Color.A(mSpecular) / 255.0
 	End
 	
 	Method SpecularPower:Void(power:Float) Property
@@ -232,8 +270,10 @@ Public
 		If step_ = StepNoDepthWrite And mDepthWrite Then Return False
 		
 		'Set renderer settings
-		Renderer.Color(mColor)
-		RenderState.Shininess = mShininess
+		RenderState.Color = Self.Color
+		RenderState.Ambient = color.Color.AddColors(World.Ambient(), Self.Ambient)
+		RenderState.Specular = Self.Specular
+		RenderState.Emissive = Self.Emissive
 		RenderState.SpecularPower = mSpecularPower
 		RenderState.CubeOpacity = mCubeOpacity
 		RenderState.RefractCoef = mRefractCoef
@@ -244,16 +284,18 @@ Public
 	
 		'Set textures
 		Local colorHandle:Int = 0
+		Local ambientHandle:Int = 0
+		Local specularHandle:Int = 0
+		Local emissiveHandle:Int = 0
 		Local normalHandle:Int = 0
-		Local shininessHandle:Int = 0
-		Local lightHandle:Int = 0
 		Local cubeHandle:Int = 0
 		If mColorTex <> Null Then colorHandle = mColorTex.Handle
+		If mAmbientTex <> Null Then ambientHandle = mAmbientTex.Handle
+		If mSpecularTex <> Null Then specularHandle = mSpecularTex.Handle
+		If mEmissiveTex <> Null Then emissiveHandle = mEmissiveTex.Handle
 		If mNormalTex <> Null Then normalHandle = mNormalTex.Handle
-		If mShininessTex <> Null Then shininessHandle = mShininessTex.Handle
-		If mLightTex <> Null Then lightHandle = mLightTex.Handle
 		If mCubeTex <> Null Then cubeHandle = mCubeTex.Handle
-		Renderer.SetTextures(colorHandle, normalHandle, shininessHandle, lightHandle, cubeHandle)
+		Renderer.SetTextures(colorHandle, ambientHandle, specularHandle, emissiveHandle, normalHandle, cubeHandle)
 		
 		'Override NumLights state with Lighting property
 		Local prevNumLights:Int = RenderState.NumLights
@@ -283,29 +325,32 @@ Public
 	End
 	
 	'Used internally by the engine
-	Const StepShadows:Int = 0				'Shadow step
-	Const StepSolid:Int = 1					'Solid blend with depth writing
-	Const StepDepthWrite:Int = 2			'Other blends with depth writing
-	Const StepNoDepthWrite:Int = 3		'All entitites with no depth writing
+	Const StepShadows:Int = 0 'Shadow step
+	Const StepSolid:Int = 1 'Solid blend with depth writing
+	Const StepDepthWrite:Int = 2 'Other blends with depth writing
+	Const StepNoDepthWrite:Int = 3 'All entitites with no depth writing
 	Const StepCount:Int = 4
 Private
-	Field mShader				: Shader
-	Field mColor					: Int
-	Field mColorTex				: Texture
-	Field mNormalTex			: Texture
-	Field mShininessTex    : Texture
-	Field mLightTex				: Texture
-	Field mCubeTex				: Texture
-	Field mShininess			: Float
-	Field mSpecularPower	: Float
-	Field mCubeOpacity		: Float
-	Field mRefractCoef		: Float
-	Field mBlendMode			: Int
-	Field mLighting				: Bool
-	Field mCulling				: Bool
-	Field mDepthWrite			: Bool
-	Field mCastShadows		: Bool
-	Field mReceiveShadows	: Bool
-	Field mFog				: Bool
-	Field mTextureMatrix	: Float[16]
+	Field mShader:Shader
+	Field mColor:Int
+	Field mAmbient:Int
+	Field mSpecular:Int
+	Field mEmissive:Int
+	Field mColorTex:Texture
+	Field mAmbientTex:Texture
+	Field mSpecularTex:Texture
+	Field mEmissiveTex:Texture
+	Field mNormalTex:Texture
+	Field mCubeTex:Texture
+	Field mSpecularPower:Float
+	Field mCubeOpacity:Float
+	Field mRefractCoef:Float
+	Field mBlendMode:Int
+	Field mLighting:Bool
+	Field mCulling:Bool
+	Field mDepthWrite:Bool
+	Field mCastShadows:Bool
+	Field mReceiveShadows:Bool
+	Field mFog:Bool
+	Field mTextureMatrix:Float[16]
 End

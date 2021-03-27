@@ -172,6 +172,9 @@ Returns the specified color, but replacing the alpha with the value specified in
 # Function Multiply:Int(color:Int, factor:Float)
 Multiples the given `color` by the specified `factor` and returns the resulting color.
 
+# Function AddColors:Int(a:Int, b:Int)
+Returns the addition of the two colors.
+
 
 
 
@@ -594,10 +597,34 @@ Sets the shader that this material uses. If you want to use the default builtin 
 Returns the shader that this material uses, or `Null` if the material uses the default builtin shader.
 
 # Method Color:Void(color:Int) Property
-Sets the color of the material.
+Sets the color of the material. This, combined with `ColorTexture`, will be used as the lighting diffuse component of the material if lights are present on the world.
 
 # Method Color:Int() Property
-Returns the color of the material.
+Returns the color of the material. This, combined with `ColorTexture`, will be used as the lighting diffuse component of the material if lights are present on the world.
+
+# Method Ambient:Void(color:Int) Property
+Sets the ambient color of the material. The total ambient of the element will be the addition of this ambient and the global ambient defined by `World.Ambient()`.
+This, combined with `AmbientTexture`, is the minimum level of lighting that a material receives, without the presence of any other lights.
+
+# Method Ambient:Int() Property
+Returns the ambient color of the material. The total ambient of the element will be the addition of this ambient and the global ambient defined by `World.Ambient()`.
+This, combined with `AmbientTexture`, is the minimum level of lighting that a material receives, without the presence of any other lights.
+
+# Method Specular:Void(color:Int) Property
+Sets the specular color of the material. The alpha component of the color will define the material shininess.
+This, combined with `SpecularTexture`, defines the color and strength of the specular highlights of the material.
+
+# Method Specular:Int() Property
+Returns the specular color of the material. The alpha component of the color defines the material shininess.
+This, combined with `SpecularTexture`, defines the color and strength of the specular highlights of the material.
+
+# Method Emissive:Void(color:Int) Property
+Sets the emissive color of the material. This property is used to simulate that the material is emitting lighting of the specified color.
+This, combined with `EmissiveTexture`, defines the total emissive component of the material.
+
+# Method Emissive:Int() Property
+Returns the emissve color of the material. This property is used to simulate that the material is emitting lighting of the specified color.
+This, combined with `EmissiveTexture`, defines the total emissive component of the material.
 
 # Method ColorTexture:Void(tex:Texture) Property
 Sets the color texture of the material.
@@ -605,23 +632,25 @@ Sets the color texture of the material.
 # Method ColorTexture:Texture() Property
 Returns the color texture of the material, or `Null` if there is no color texture.
 
+# Method AmbientTexture:Void(tex:Texture) Property
+Sets the ambient texture of the material. Lightmaps should be assigned to this property.
+This, combined with `Ambient` and `World.Ambient()`, is the minimum level of lighting that a material receives, without the presence of any other lights.
+
+# Method AmbientTexture:Texture() Property
+Returns the ambient texture of the material, or `Null` if there is no ambient texture. Lightmaps should be assigned to this property.
+This, combined with `Ambient` and `World.Ambient()`, is the minimum level of lighting that a material receives, without the presence of any other lights.
+
+# Method SpecularTexture:Void(tex:Texture) Property
+Sets the specular texture of the material. When this texture is set, the `Specular` property of the material is multiplied with the values on this texture to provide a variable specular across the surface of the object. When you set a specular texture, the `Specular` property is expected to be greater than zero.
+
+# Method SpecularTexture:Texture() Property
+Returns the specular texture of the material, or `Null` if there is no shininess texture.
+
 # Method NormalTexture:Void(tex:Texture) Property
 Sets the normal texture of the material.
 
 # Method NormalTexture:Texture() Property
 Returns the normal texture of the material, or `Null` if there is no normal texture.
-
-# Method ShininessTexture:Void(tex:Texture) Property
-Sets the shininess texture of the material, which is expected to be a grayscale image. When there is a shininess texture set, the `Shininess` property of the material is multiplied with the values on this texture to provide a variable shininess across the surface of the object. When you set a shininess texture, the `Shininess` property is expected to be greater than zero.
-
-# Method ShininessTexture:Texture() Property
-Returns the shininess texture of the material, or `Null` if there is no shininess texture.
-
-# Method LightTexture:Void(tex:Texture) Property
-Sets the light texture of the material.
-
-# Method LightTexture:Texture() Property
-Returns the light texture of the material, or `Null` if there is no light texture.
 
 # Method CubeTexture:Void(tex:Texture) Property
 Sets the cubemap texture of the material.
@@ -632,9 +661,10 @@ Returns the cubemap texture of the material, or `Null` if there is no cubemap te
 
 # Method Shininess:Void(shininess:Float) Property
 Sets the shininess of the material. A value of 0 will disable specular reflections entirely, whereas a value in the range (0,1] will indicate the strength of the specular reflection.
+This, multiplied by 255.0, will be set as the alpha component of the `Specular` color.
 
 # Method Shininess:Float() Property
-Returns the shininess of the material.
+Returns the shininess of the material. This will be the alpha component of the `Specular` color, divided by 255.0.
 
 # Method SpecularPower:Void(power:Float) Property
 Returns the specular power of the material.

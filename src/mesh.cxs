@@ -772,31 +772,37 @@ Public
 			'Material textures
 			Local usedTexs:Int = 0
 			usedTexs = stream.ReadByte() & $FF
-			If usedTexs & 1	'Color tex
+			If usedTexs & 1 'Color tex
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
 				mat.ColorTexture = Texture.Load(str, texFilter)
 			End
-			If usedTexs & 2	'Normal tex
+			If usedTexs & 2 'Normal tex
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
 				mat.NormalTexture = Texture.Load(str, texFilter)
 			End
-			If usedTexs & 4	'Specular tex (used for Shininess by now)
+			If usedTexs & 4 'Specular tex
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
-				mat.ShininessTexture = Texture.Load(str, texFilter)
+				mat.SpecularTexture = Texture.Load(str, texFilter)
 			End
-			If usedTexs & 32	'Lightmap
+			If usedTexs & 8 'Emissive
 				Local strLen:Int = stream.ReadInt()
 				Local str:String = stream.ReadString(strLen)
 				If str <> "" Then str = meshPath + str
-				mat.LightTexture = Texture.Load(str, texFilter)
+				mat.EmissiveTexture = Texture.Load(str, texFilter)
 			End
-			If usedTexs & 64	'Cubemap
+			If usedTexs & 32 'Ambient
+				Local strLen:Int = stream.ReadInt()
+				Local str:String = stream.ReadString(strLen)
+				If str <> "" Then str = meshPath + str
+				mat.AmbientTexture = Texture.Load(str, texFilter)
+			End
+			If usedTexs & 64 'Cubemap
 				Local strLen:Int = stream.ReadInt()
 				Local cubeTexs:String[] = stream.ReadString(strLen).Split(",")
 				For Local t:Int = 0 Until cubeTexs.Length

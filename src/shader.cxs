@@ -20,14 +20,16 @@ Public
 	Field mSolidMode:Int
 	'Field mFlags:Int
 	Field mUseColorTex:Int
+	Field mUseAmbientTex:Int
+	Field mUseSpecularTex:Int
+	Field mUseEmissiveTex:Int
 	Field mUseNormalTex:Int
-	Field mUseShininessTex:Int
-	Field mUseLightmap:Int
 	Field mUseCubemap:Int
 	Field mBaseTexSampler:Int
+	Field mAmbientTexSampler:Int
+	Field mSpecularTexSampler:Int
+	Field mEmissiveTexSampler:Int
 	Field mNormalTexSampler:Int
-	Field mShininessTexSampler:Int
-	Field mLightmapSampler:Int
 	Field mCubemapSampler:Int
 	Field mDepthSampler:Int
 	Field mNumLights:Int
@@ -35,7 +37,8 @@ Public
 	Field mLightData:Int[Renderer.MaxLights()]
 	Field mMaterialColor:Int
 	Field mAmbient:Int
-	Field mMaterialShininess:Int
+	Field mSpecular:Int
+	Field mEmissive:Int
 	Field mMaterialSpecularPower:Int
 	Field mCubeOpacity:Int
 	Field mRefractCoef:Int
@@ -56,9 +59,10 @@ Public
 		mSolidMode = Renderer.ShaderLocation(shader, "SolidMode")
 		'mFlags = Renderer.ShaderLocation(shader, "Flags")
 		mUseColorTex = Renderer.ShaderLocation(shader, "UseColorTex")
+		mUseAmbientTex = Renderer.ShaderLocation(shader, "UseAmbientTex")
+		mUseSpecularTex = Renderer.ShaderLocation(shader, "UseSpecularTex")
+		mUseEmissiveTex = Renderer.ShaderLocation(shader, "UseEmissiveTex")
 		mUseNormalTex = Renderer.ShaderLocation(shader, "UseNormalTex")
-		mUseShininessTex = Renderer.ShaderLocation(shader, "UseShininessTex")
-		mUseLightmap = Renderer.ShaderLocation(shader, "UseLightmap")
 		mUseCubemap = Renderer.ShaderLocation(shader, "UseCubemap")
 		mNumLights = Renderer.ShaderLocation(shader, "NumLights")
 		For Local i:Int = 0 Until Renderer.MaxLights()
@@ -67,7 +71,8 @@ Public
 		Next
 		mMaterialColor = Renderer.ShaderLocation(shader, "MaterialColor")
 		mAmbient = Renderer.ShaderLocation(shader, "Ambient")
-		mMaterialShininess = Renderer.ShaderLocation(shader, "MaterialShininess")
+		mSpecular = Renderer.ShaderLocation(shader, "Specular")
+		mEmissive = Renderer.ShaderLocation(shader, "Emissive")
 		mMaterialSpecularPower = Renderer.ShaderLocation(shader, "MaterialSpecularPower")
 		mCubeOpacity = Renderer.ShaderLocation(shader, "CubeOpacity")
 		mRefractCoef = Renderer.ShaderLocation(shader, "MaterialRefractCoef")
@@ -80,9 +85,10 @@ Public
 			mBones[i] = Renderer.ShaderLocation(shader, "Bones[" + i + "]")
 		Next
 		mBaseTexSampler = Renderer.ShaderLocation(shader, "BaseTexSampler")
+		mAmbientTexSampler = Renderer.ShaderLocation(shader, "AmbientTexSampler")
+		mSpecularTexSampler = Renderer.ShaderLocation(shader, "SpecularTexSampler")
+		mEmissiveTexSampler = Renderer.ShaderLocation(shader, "EmissiveTexSampler")
 		mNormalTexSampler = Renderer.ShaderLocation(shader, "NormalTexSampler")
-		mShininessTexSampler = Renderer.ShaderLocation(shader, "ShininessTexSampler")
-		mLightmapSampler = Renderer.ShaderLocation(shader, "LightmapSampler")
 		mCubemapSampler = Renderer.ShaderLocation(shader, "CubemapSampler")
 		mDepthSampler = Renderer.ShaderLocation(shader, "DepthSampler")
 	End
@@ -162,8 +168,11 @@ Public
 		'Set ambient
 		If mAmbient <> -1 Then Renderer.SetShaderVec3(mAmbient, Color.R(RenderState.Ambient) / 255.0, Color.G(RenderState.Ambient) / 255.0, Color.B(RenderState.Ambient) / 255.0)
 	
-		'Set shininess
-		If mMaterialShininess <> -1 Then Renderer.SetShaderFloat(mMaterialShininess, RenderState.Shininess)
+		'Set specular
+		If mSpecular <> -1 Then Renderer.SetShaderVec4(mSpecular, Color.R(RenderState.Specular) / 255.0, Color.G(RenderState.Specular) / 255.0, Color.B(RenderState.Specular) / 255.0, Color.A(RenderState.Specular) / 255.0)
+		
+		'Set emissive
+		If mEmissive <> -1 Then Renderer.SetShaderVec3(mEmissive, Color.R(RenderState.Emissive) / 255.0, Color.G(RenderState.Emissive) / 255.0, Color.B(RenderState.Emissive) / 255.0)
 		
 		'Set specular power
 		If mMaterialSpecularPower <> -1 Then Renderer.SetShaderFloat(mMaterialSpecularPower, RenderState.SpecularPower)
@@ -187,15 +196,17 @@ Public
 		
 		'Set textures
 		If mBaseTexSampler <> -1 Then Renderer.SetShaderInt(mBaseTexSampler, Renderer.BaseTexUnit)
+		If mAmbientTexSampler <> -1 Then Renderer.SetShaderInt(mAmbientTexSampler, Renderer.AmbientTexUnit)
+		If mSpecularTexSampler <> -1 Then Renderer.SetShaderInt(mSpecularTexSampler, Renderer.SpecularTexUnit)
+		If mEmissiveTexSampler <> -1 Then Renderer.SetShaderInt(mEmissiveTexSampler, Renderer.EmissiveTexUnit)
 		If mNormalTexSampler <> -1 Then Renderer.SetShaderInt(mNormalTexSampler, Renderer.NormalTexUnit)
-		If mShininessTexSampler <> -1 Then Renderer.SetShaderInt(mShininessTexSampler, Renderer.ShininessTexUnit)
-		If mLightmapSampler <> -1 Then Renderer.SetShaderInt(mLightmapSampler, Renderer.LightmapUnit)
 		If mCubemapSampler <> -1 Then Renderer.SetShaderInt(mCubemapSampler, Renderer.CubemapUnit)
 		If mDepthSampler <> -1 Then Renderer.SetShaderInt(mDepthSampler, Renderer.DepthTexUnit)
 		If mUseColorTex <> -1 Then Renderer.SetShaderInt(mUseColorTex, RenderState.UseColorTex)
+		If mUseAmbientTex <> -1 Then Renderer.SetShaderInt(mUseAmbientTex, RenderState.UseAmbientTex)
+		If mUseSpecularTex <> -1 Then Renderer.SetShaderInt(mUseSpecularTex, RenderState.UseSpecularTex)
+		If mUseEmissiveTex <> -1 Then Renderer.SetShaderInt(mUseEmissiveTex, RenderState.UseEmissiveTex)
 		If mUseNormalTex <> -1 Then Renderer.SetShaderInt(mUseNormalTex, RenderState.UseNormalTex)
-		If mUseShininessTex <> -1 Then Renderer.SetShaderInt(mUseShininessTex, RenderState.UseShininessTex)
-		If mUseLightmap <> -1 Then Renderer.SetShaderInt(mUseLightmap, RenderState.UseLightTex)
 		If mUseCubemap <> -1 Then Renderer.SetShaderInt(mUseCubemap, RenderState.UseCubeTex)
 	
 		'Set texture matrix

@@ -36,18 +36,19 @@ Public
 	'Const TextureDisabled:Int = 0
 	'Const Texture2D:Int = 1
 	
-	Const ModePoints					: Int = 0
-	Const ModeLines					: Int = 1
-	Const ModeTriangles			: Int = 2
-	Const ModeTriangleStrip	: Int = 3
-	Const ModeTriangleFan		: Int = 4
+	Const ModePoints:Int = 0
+	Const ModeLines:Int = 1
+	Const ModeTriangles:Int = 2
+	Const ModeTriangleStrip:Int = 3
+	Const ModeTriangleFan:Int = 4
 	
 	Const BaseTexUnit:Int = 0
-	Const NormalTexUnit:Int = 1
-	Const ShininessTexUnit:Int = 2
-	Const LightmapUnit:Int = 3
-	Const CubemapUnit:Int = 4
-	Const DepthTexUnit:Int = 5
+	Const AmbientTexUnit:Int = 1
+	Const SpecularTexUnit:Int = 2
+	Const EmissiveTexUnit:Int = 3
+	Const NormalTexUnit:Int = 4
+	Const CubemapUnit:Int = 5
+	Const DepthTexUnit:Int = 6
 	
 	Const EllipsePoints:Int = 64
 
@@ -154,8 +155,8 @@ Public
 		glEnable(GL_SCISSOR_TEST)
 		glFrontFace(GL_CW)
 		BlendMode(BlendAlpha)
-		Color(color.Color.White)
-		SetTextures(0, 0, 0, 0, 0)
+		RenderState.Color = color.Color.White
+		SetTextures(0, 0, 0, 0, 0, 0)
 
 		'Setup viewport
 		y = fbHeight - y - h
@@ -186,8 +187,8 @@ Public
 		glFrontFace(GL_CW)
 		SetDepthWrite(True)
 		BlendMode(BlendSolid)
-		Color(color.Color.White)
-		SetTextures(0, 0, 0, 0, 0)
+		RenderState.Color = color.Color.White
+		SetTextures(0, 0, 0, 0, 0, 0)
 		RenderState.Skinned = False
 
 		'Setup viewport
@@ -223,7 +224,7 @@ Public
 		glEnable(GL_SCISSOR_TEST)
 		glFrontFace(GL_CCW)
 		BlendMode(BlendAlpha)
-		Color(color.Color.White)
+		RenderState.Color = color.Color.White
 		
 		'Bind Mojo buffers
 		glBindBuffer(GL_ARRAY_BUFFER, mMojoVertexBuffer)
@@ -252,10 +253,6 @@ Public
 		Case BlendMul
 			glBlendFunc(GL_DST_COLOR, GL_ZERO)
 		End
-	End
-	
-	Function Color:Void(color:Int)
-		RenderState.Color = color
 	End
 
 	Function SetCulling:Void(enable:Bool)
@@ -427,23 +424,26 @@ Public
 		glDeleteTexture(texture)
 	End
 
-	Function SetTextures:Void(diffuseTex:Int, normalTex:Int, shininessTex:Int, lightmap:Int, cubeTex:Int)
+	Function SetTextures:Void(diffuseTex:Int, ambientTex:Int, specularTex:Int, emissiveTex:Int, normalTex:Int, cubeTex:Int)
 		glActiveTexture(GL_TEXTURE0 + BaseTexUnit)
 		glBindTexture(GL_TEXTURE_2D, diffuseTex)
+		glActiveTexture(GL_TEXTURE0 + AmbientTexUnit)
+		glBindTexture(GL_TEXTURE_2D, ambientTex)
+		glActiveTexture(GL_TEXTURE0 + SpecularTexUnit)
+		glBindTexture(GL_TEXTURE_2D, specularTex)
+		glActiveTexture(GL_TEXTURE0 + EmissiveTexUnit)
+		glBindTexture(GL_TEXTURE_2D, emissiveTex)
 		glActiveTexture(GL_TEXTURE0 + NormalTexUnit)
 		glBindTexture(GL_TEXTURE_2D, normalTex)
-		glActiveTexture(GL_TEXTURE0 + ShininessTexUnit)
-		glBindTexture(GL_TEXTURE_2D, shininessTex)
-		glActiveTexture(GL_TEXTURE0 + LightmapUnit)
-		glBindTexture(GL_TEXTURE_2D, lightmap)
 		glActiveTexture(GL_TEXTURE0 + CubemapUnit)
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeTex)
 		glActiveTexture(GL_TEXTURE0)
 		
 		RenderState.UseColorTex = diffuseTex <> 0
+		RenderState.UseAmbientTex = ambientTex <> 0
+		RenderState.UseSpecularTex = specularTex <> 0
+		RenderState.UseEmissiveTex = emissiveTex <> 0
 		RenderState.UseNormalTex = normalTex <> 0
-		RenderState.UseShininessTex = shininessTex <> 0
-		RenderState.UseLightTex = lightmap <> 0
 		RenderState.UseCubeTex = cubeTex <> 0
 	End
 	

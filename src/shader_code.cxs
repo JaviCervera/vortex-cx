@@ -16,7 +16,8 @@ Const StdUniforms:String = "" +
 "uniform LightInfo Lights[MAX_LIGHTS];" +
 "uniform vec3 Ambient;" +
 "uniform vec4 MaterialColor;" +
-"uniform float MaterialShininess;" +
+"uniform vec4 Specular;" +
+"uniform vec3 Emissive;" +
 "uniform float MaterialSpecularPower;" +
 "uniform float CubeOpacity;" +
 "uniform float MaterialRefractCoef;" +
@@ -26,9 +27,10 @@ Const StdUniforms:String = "" +
 'These uniforms should be compacted into a flags int
 '"uniform int Flags;" +
 "uniform bool UseColorTex;" +
+"uniform bool UseAmbientTex;" +
+"uniform bool UseSpecularTex;" +
+"uniform bool UseEmissiveTex;" +
 "uniform bool UseNormalTex;" +
-"uniform bool UseShininessTex;" +
-"uniform bool UseLightmap;" +
 "uniform bool UseCubemap;" +
 "uniform bool Skinned;" +
 "uniform bool SolidMode;" +
@@ -101,11 +103,11 @@ Const ShaderCalcLighting:String = "" +
 "		lighting.Diffuse += NdotL * vec3(Lights[i].Data) * att;" +
 
 		'Specular
-"		if ( MaterialShininess > 0.0 && NdotL > 0.0 ) {" +
+"		if ( Specular.a > 0.0 && NdotL > 0.0 ) {" +
 "			vec3 H = normalize(L - NV);" +
 "			float NdotH = max(dot(N, H), 0.0);" +
-"			lighting.Specular += pow(NdotH, MaterialSpecularPower * MaterialShininess * texShininess.r) * vec3(Lights[i].Data) * MaterialShininess * texShininess * att;" +
-'"			float SpecPower = MaterialSpecularPower * MaterialShininess * texShininess.r;" +
+"			lighting.Specular += pow(NdotH, MaterialSpecularPower * Specular.a * texShininess.r) * vec3(Lights[i].Data) * Specular.a * texShininess * att;" +
+'"			float SpecPower = MaterialSpecularPower * Specular.a * texShininess.r;" +
 '"			lighting.Specular += pow(NdotH, SpecPower) * vec3(Lights[i].Data) * texShininess * ((SpecPower + 8.0) / 50.26548245744) * att;" +
 "		}~n" +
 "	}~n" +
@@ -184,7 +186,7 @@ Const MinFragmentShader:String = StdFragmentVars +
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
 
 	'Get other texture data
-"	vec3 LightTexture = UseLightmap ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
+"	vec3 LightTexture = UseAmbientTex ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
 
 	'Lighting
 "	vec4 LightingDiffuse = vec4(0, 0, 0, 1);" +
@@ -194,7 +196,7 @@ Const MinFragmentShader:String = StdFragmentVars +
 "		LightingSpecular = vec4(FCombinedSpecular, 0);" +
 "		LightingDiffuse += vec4(LightTexture, 0.0);" +
 "	} else {"+
-"		LightingDiffuse = UseLightmap ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
+"		LightingDiffuse = UseAmbientTex ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
 "	}" +
 
 	'Compute color
@@ -254,7 +256,7 @@ Const MinShadowsFragmentShader:String = StdFragmentVars +
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
 
 	'Get other texture data
-"	vec3 LightTexture = UseLightmap ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
+"	vec3 LightTexture = UseAmbientTex ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
 "	float DepthTexture = texture2D(DepthSampler, vec2(FDepthCoords)).z;" +
 
 	'Shadows
@@ -274,7 +276,7 @@ Const MinShadowsFragmentShader:String = StdFragmentVars +
 "		}" +
 "		LightingDiffuse += vec4(LightTexture, 0.0);" +
 "	} else {"+
-"		LightingDiffuse = UseLightmap ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
+"		LightingDiffuse = UseAmbientTex ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
 "	}" +
 
 	'Compute color
@@ -337,8 +339,8 @@ Const VLitFragmentShader:String = StdFragmentVars +
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
 
 	'Get other texture data
-"	vec3 ShininessTexture = UseShininessTex ? vec3(texture2D(ShininessTexSampler, vec2(FVertexTexCoords))) : vec3(1, 1, 1);" +
-"	vec3 LightTexture = UseLightmap ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
+"	vec3 ShininessTexture = UseSpecularTex ? vec3(texture2D(SpecularTexSampler, vec2(FVertexTexCoords))) : vec3(1, 1, 1);" +
+"	vec3 LightTexture = UseAmbientTex ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
 "	vec4 CubeTexture = UseCubemap ? vec4(vec3(textureCube(CubemapSampler, FCubeCoords)), CubeOpacity) : vec4(0, 0, 0, 0);" +
 "	float DepthTexture = texture2D(DepthSampler, vec2(FDepthCoords)).z;" +
 
@@ -359,7 +361,7 @@ Const VLitFragmentShader:String = StdFragmentVars +
 "		}" +
 "		LightingDiffuse += vec4(LightTexture, 0.0);" +
 "	} else {"+
-"		LightingDiffuse = UseLightmap ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
+"		LightingDiffuse = UseAmbientTex ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
 "	}" +
 
 	'Compute color
@@ -391,7 +393,7 @@ Const PLitVertexShader:String = StdVertexVars + ShaderCalcCubeCoords + ShaderCal
 "	vec3 V;" +
 "	vec3 NV;" +
 "	vec3 N;" +
-"	if ( NumLights > 0 || UseNormalTex || UseShininessTex || UseCubemap || Fog.Data[2] != 0.0 ) {" +
+"	if ( NumLights > 0 || UseNormalTex || UseSpecularTex || UseCubemap || Fog.Data[2] != 0.0 ) {" +
 " 	V = vec3(ModelView * VertexPos4);" +
 "		NV = normalize(V);" +
 "		N = normalize(vec3(NormalMatrix * vec4(VertexNormal, 0.0)));" +
@@ -430,8 +432,8 @@ Const PLitFragmentShader:String = StdFragmentVars + ShaderCalcLighting +
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
 
 	'Get other texture data
-"	vec3 ShininessTexture = UseShininessTex ? vec3(texture2D(ShininessTexSampler, vec2(FVertexTexCoords))) : vec3(1, 1, 1);" +
-"	vec3 LightTexture = UseLightmap ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
+"	vec3 ShininessTexture = UseSpecularTex ? vec3(texture2D(ShininessTexSampler, vec2(FVertexTexCoords))) : vec3(1, 1, 1);" +
+"	vec3 LightTexture = UseAmbientTex ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
 "	vec4 CubeTexture = UseCubemap ? vec4(vec3(textureCube(CubemapSampler, FCubeCoords)), CubeOpacity) : vec4(0, 0, 0, 0);" +
 "	float DepthTexture = texture2D(DepthSampler, vec2(FDepthCoords)).z;" +
 
@@ -465,7 +467,7 @@ Const PLitFragmentShader:String = StdFragmentVars + ShaderCalcLighting +
 "		}" +
 "		LightingDiffuse += vec4(LightTexture, 0.0);" +
 "	} else {"+
-"		LightingDiffuse = UseLightmap ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
+"		LightingDiffuse = UseAmbientTex ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
 "	}" +
 
 	'Compute color
@@ -542,8 +544,8 @@ Const DefaultFragmentShader:String = StdFragmentVars + ShaderCalcLighting +
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
 
 	'Get other texture data
-"	vec3 ShininessTexture = UseShininessTex ? vec3(texture2D(ShininessTexSampler, vec2(FVertexTexCoords))) : vec3(1, 1, 1);" +
-"	vec3 LightTexture = UseLightmap ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
+"	vec3 ShininessTexture = UseSpecularTex ? vec3(texture2D(ShininessTexSampler, vec2(FVertexTexCoords))) : vec3(1, 1, 1);" +
+"	vec3 LightTexture = UseAmbientTex ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
 "	vec4 CubeTexture = UseCubemap ? vec4(vec3(textureCube(CubemapSampler, FCubeCoords)), CubeOpacity) : vec4(0, 0, 0, 0);" +
 "	float DepthTexture = texture2D(DepthSampler, vec2(FDepthCoords)).z;" +
 
@@ -577,7 +579,7 @@ Const DefaultFragmentShader:String = StdFragmentVars + ShaderCalcLighting +
 "		}" +
 "		LightingDiffuse += vec4(LightTexture, 0.0);" +
 "	} else {"+
-"		LightingDiffuse = UseLightmap ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
+"		LightingDiffuse = UseAmbientTex ? vec4(LightTexture, 0.0) : vec4(1, 1, 1, 1);" +
 "	}" +
 
 	'Compute color

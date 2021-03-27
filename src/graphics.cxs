@@ -3,6 +3,7 @@ Strict
 Private
 Import color
 Import renderer
+Import renderstate
 Import world
 
 Public
@@ -26,7 +27,7 @@ Public
 	End
 	
 	Function Color:Void(color:Int)
-		Renderer.Color(color)
+		RenderState.Color = color
 	End
 	
 	Function Clear:Void(col:Int = color.Color.Black)

@@ -43,6 +43,10 @@ Public
 	Function Multiply:Int(color:Int, factor:Float)
 		Return RGB(Int(R(color) * factor), Int(G(color) * factor), Int(B(color) * factor), A(color))
 	End
+	
+	Function AddColors:Int(a:Int, b:Int)
+		Return RGB(Clamp(R(a) + R(b), 0, 255), Clamp(G(a) + G(b), 0, 255), Clamp(B(a) + B(b), 0, 255), Clamp(A(a) + A(b), 0, 255))
+	End
 Private
 	Method New()
 	End
