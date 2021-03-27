@@ -79,7 +79,7 @@ StdSamplers +
 StdVaryings
 
 Const ShaderCalcLighting:String = "" +
-"LightingResult CalcLighting(vec3 V, vec3 NV, vec3 N, vec3 texShininess) {" +
+"LightingResult CalcLighting(vec3 V, vec3 NV, vec3 N, vec4 texSpecular) {" +
 "	LightingResult lighting;" +
 "	lighting.Diffuse = Ambient;" +
 "	lighting.Specular = vec3(0.0, 0.0, 0.0);" +
@@ -106,7 +106,8 @@ Const ShaderCalcLighting:String = "" +
 "		if ( Specular.a > 0.0 && NdotL > 0.0 ) {" +
 "			vec3 H = normalize(L - NV);" +
 "			float NdotH = max(dot(N, H), 0.0);" +
-"			lighting.Specular += pow(NdotH, MaterialSpecularPower * Specular.a * texShininess.r) * vec3(Lights[i].Data) * Specular.a * texShininess * att;" +
+"			float SpecPower = pow(NdotH, MaterialSpecularPower * Specular.a * texSpecular.a);" +
+"			lighting.Specular += SpecPower * vec3(Lights[i].Data) * vec3(Specular) * vec3(texSpecular) * Specular.a * texSpecular.a * att;" +
 '"			float SpecPower = MaterialSpecularPower * Specular.a * texShininess.r;" +
 '"			lighting.Specular += pow(NdotH, SpecPower) * vec3(Lights[i].Data) * texShininess * ((SpecPower + 8.0) / 50.26548245744) * att;" +
 "		}~n" +
@@ -160,7 +161,7 @@ Const MinVertexShader:String = StdVertexVars + ShaderCalcLighting + 'ShaderCalcS
 
 	'Calculate vertex lighting
 "	if ( NumLights > 0 ) {" +
-"		LightingResult lighting = CalcLighting(V, NV, N, vec3(1, 1, 1));" +
+"		LightingResult lighting = CalcLighting(V, NV, N, vec4(1, 1, 1, 1));" +
 "		FCombinedDiffuse = lighting.Diffuse;" +
 "		FCombinedSpecular = lighting.Specular;" +
 "	}" +
@@ -229,7 +230,7 @@ Const MinShadowsVertexShader:String = StdVertexVars + ShaderCalcLighting + 'Shad
 
 	'Calculate vertex lighting
 "	if ( NumLights > 0 ) {" +
-"		LightingResult lighting = CalcLighting(V, NV, N, vec3(1, 1, 1));" +
+"		LightingResult lighting = CalcLighting(V, NV, N, vec4(1, 1, 1, 1));" +
 "		FCombinedDiffuse = lighting.Diffuse;" +
 "		FCombinedSpecular = lighting.Specular;" +
 "	}" +
@@ -312,7 +313,7 @@ Const VLitVertexShader:String = StdVertexVars + ShaderCalcLighting + ShaderCalcC
 
 	'Calculate vertex lighting
 "	if ( NumLights > 0 ) {" +
-"		LightingResult lighting = CalcLighting(V, NV, N, vec3(1, 1, 1));" +
+"		LightingResult lighting = CalcLighting(V, NV, N, vec4(1, 1, 1, 1));" +
 "		FCombinedDiffuse = lighting.Diffuse;" +
 "		FCombinedSpecular = lighting.Specular;" +
 "	}" +
@@ -339,7 +340,7 @@ Const VLitFragmentShader:String = StdFragmentVars +
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
 
 	'Get other texture data
-"	vec3 ShininessTexture = UseSpecularTex ? vec3(texture2D(SpecularTexSampler, vec2(FVertexTexCoords))) : vec3(1, 1, 1);" +
+"	vec4 SpecularTexture = UseSpecularTex ? texture2D(SpecularTexSampler, vec2(FVertexTexCoords)) : vec4(1, 1, 1, 1);" +
 "	vec3 LightTexture = UseAmbientTex ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
 "	vec4 CubeTexture = UseCubemap ? vec4(vec3(textureCube(CubemapSampler, FCubeCoords)), CubeOpacity) : vec4(0, 0, 0, 0);" +
 "	float DepthTexture = texture2D(DepthSampler, vec2(FDepthCoords)).z;" +
@@ -432,7 +433,7 @@ Const PLitFragmentShader:String = StdFragmentVars + ShaderCalcLighting +
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
 
 	'Get other texture data
-"	vec3 ShininessTexture = UseSpecularTex ? vec3(texture2D(ShininessTexSampler, vec2(FVertexTexCoords))) : vec3(1, 1, 1);" +
+"	vec4 SpecularTexture = UseSpecularTex ? texture2D(ShininessTexSampler, vec2(FVertexTexCoords)) : vec4(1, 1, 1, 1);" +
 "	vec3 LightTexture = UseAmbientTex ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
 "	vec4 CubeTexture = UseCubemap ? vec4(vec3(textureCube(CubemapSampler, FCubeCoords)), CubeOpacity) : vec4(0, 0, 0, 0);" +
 "	float DepthTexture = texture2D(DepthSampler, vec2(FDepthCoords)).z;" +
@@ -459,7 +460,7 @@ Const PLitFragmentShader:String = StdFragmentVars + ShaderCalcLighting +
 "			}" +
 
 			'Calc lighting
-"			LightingResult lighting = CalcLighting(FVertexPos, FNormalizedVertexPos, normal, ShininessTexture);" +
+"			LightingResult lighting = CalcLighting(FVertexPos, FNormalizedVertexPos, normal, SpecularTexture);" +
 "			LightingDiffuse = vec4(lighting.Diffuse, 1);" +
 "			LightingSpecular = vec4(lighting.Specular, 0);" +
 "		} else {" +
@@ -544,7 +545,7 @@ Const DefaultFragmentShader:String = StdFragmentVars + ShaderCalcLighting +
 "	if ( !SolidMode && (FVertexColor.a <= 0.004 || ColorTexture.a <= 0.004) ) discard;" +
 
 	'Get other texture data
-"	vec3 ShininessTexture = UseSpecularTex ? vec3(texture2D(ShininessTexSampler, vec2(FVertexTexCoords))) : vec3(1, 1, 1);" +
+"	vec4 SpecularTexture = UseSpecularTex ? texture2D(ShininessTexSampler, vec2(FVertexTexCoords)) : vec4(1, 1, 1, 1);" +
 "	vec3 LightTexture = UseAmbientTex ? vec3(texture2D(LightmapSampler, vec2(FVertexTexCoords.z, FVertexTexCoords.w))) : vec3(0, 0, 0);" +
 "	vec4 CubeTexture = UseCubemap ? vec4(vec3(textureCube(CubemapSampler, FCubeCoords)), CubeOpacity) : vec4(0, 0, 0, 0);" +
 "	float DepthTexture = texture2D(DepthSampler, vec2(FDepthCoords)).z;" +
@@ -571,7 +572,7 @@ Const DefaultFragmentShader:String = StdFragmentVars + ShaderCalcLighting +
 "			}" +
 
 			'Calc lighting
-"			LightingResult lighting = CalcLighting(FVertexPos, FNormalizedVertexPos, normal, ShininessTexture);" +
+"			LightingResult lighting = CalcLighting(FVertexPos, FNormalizedVertexPos, normal, SpecularTexture);" +
 "			LightingDiffuse = vec4(lighting.Diffuse, 1);" +
 "			LightingSpecular = vec4(lighting.Specular, 0);" +
 "		} else {" +
