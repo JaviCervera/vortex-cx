@@ -271,7 +271,7 @@ Public
 		
 		'Set renderer settings
 		RenderState.Color = Self.Color
-		RenderState.Ambient = color.Color.AddColors(World.Ambient(), Self.Ambient)
+		RenderState.Ambient = color.Color.AddColors(color.Color.AddColors(World.Ambient(), Self.Ambient), Self.Emissive)
 		RenderState.Specular = Self.Specular
 		RenderState.Emissive = Self.Emissive
 		RenderState.SpecularPower = mSpecularPower
