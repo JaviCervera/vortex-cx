@@ -29,21 +29,25 @@ Public
 		'mRollRect = New Rect(430, 8, 96, 24)
 		
 		mMaterialRect = New Rect(4, 0, 732, 136)
-		mSelMatRect = New Rect(0, -28, 100, 24)
-		mDiffuseColorRect = New Rect(4, 4, 100, 24)
+		mSelMatRect = New Rect(4, 4, 100, 24)
+		mDiffuseColorRect = New Rect(6, 34, 96, 24)
+		mAmbientColorRect = New Rect(110, 34, 96, 24)
+		mSpecularColorRect = New Rect(214, 34, 96, 24)
+		mEmissiveColorRect = New Rect(318, 34, 96, 24)
 		mDiffuseTexRect = New Rect(4, 32, 100, 100)
+		mAmbientTexRect = New Rect(108, 32, 100, 100)
+		mSpecularTexRect = New Rect(212, 32, 100, 100)
+		mEmissiveTexRect = New Rect(316, 32, 100, 100)
+		mNormalTexRect = New Rect(420, 32, 100, 100)
+		mCubemapRect = New Rect(524, 32, 100, 100)
 		mOpacityRect = New Rect(108, 4, 100, 24)
-		mNormalTexRect = New Rect(108, 32, 100, 100)
 		mShininessRect = New Rect(212, 4, 100, 24)
-		mShininessTexRect = New Rect(212, 32, 100, 100)
 		mSpecularPowerRect = New Rect(316, 4, 100, 24)
-		mLightmapRect = New Rect(316, 32, 100, 100)
 		mCubeOpacityRect = New Rect(420, 4, 100, 24)
-		mCubemapRect = New Rect(420, 32, 100, 100)
 		mRefractionCoefRect = New Rect(524, 4, 100, 24)
-		mBlendModeRect = New Rect(524, 32, 100, 24)
-		mCullingRect = New Rect(524, 60, 100, 24)
-		mDepthWriteRect = New Rect(524, 88, 100, 24)
+		mBlendModeRect = New Rect(628, 32, 100, 24)
+		mCullingRect = New Rect(628, 60, 100, 24)
+		mDepthWriteRect = New Rect(628, 88, 100, 24)
 		
 		'mExportAnimations = True
 		mAnimationMode = MESH_VERTEXANIM
@@ -111,6 +115,21 @@ Public
 				If RequestColor("Select color", Color.R(currentModel.Material(mSelMat).Color), Color.G(currentModel.Material(mSelMat).Color), Color.B(currentModel.Material(mSelMat).Color))
 					currentModel.Material(mSelMat).Color = Color.RGB(RequestedRed(), RequestedGreen(), RequestedBlue(), Color.A(currentModel.Material(mSelMat).Color))
 				End
+			'Ambient color
+			Elseif mAmbientColorRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
+				If RequestColor("Select ambient color", Color.R(currentModel.Material(mSelMat).Ambient), Color.G(currentModel.Material(mSelMat).Ambient), Color.B(currentModel.Material(mSelMat).Ambient))
+					currentModel.Material(mSelMat).Ambient = Color.RGB(RequestedRed(), RequestedGreen(), RequestedBlue(), Color.A(currentModel.Material(mSelMat).Ambient))
+				End
+			'Specular color
+			Elseif mSpecularColorRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
+				If RequestColor("Select specular color", Color.R(currentModel.Material(mSelMat).Specular), Color.G(currentModel.Material(mSelMat).Specular), Color.B(currentModel.Material(mSelMat).Specular))
+					currentModel.Material(mSelMat).Specular = Color.RGB(RequestedRed(), RequestedGreen(), RequestedBlue(), Color.A(currentModel.Material(mSelMat).Specular))
+				End
+			'Emissive color
+			Elseif mEmissiveColorRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
+				If RequestColor("Select emissive color", Color.R(currentModel.Material(mSelMat).Emissive), Color.G(currentModel.Material(mSelMat).Emissive), Color.B(currentModel.Material(mSelMat).Emissive))
+					currentModel.Material(mSelMat).Emissive = Color.RGB(RequestedRed(), RequestedGreen(), RequestedBlue(), Color.A(currentModel.Material(mSelMat).Emissive))
+				End
 			'Diffuse texture
 			Elseif mDiffuseTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local filename:String = RequestFile("Select color texture")
@@ -120,6 +139,33 @@ Public
 				Else
 					currentModel.Material(mSelMat).ColorTexture = Null
 				End
+			'Ambient texture
+			Elseif mAmbientTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
+				Local filename:String = RequestFile("Select ambient texture")
+				If filename <> ""
+					Local tex:Texture = Texture.Load(filename)
+					If tex Then currentModel.Material(mSelMat).AmbientTexture = tex
+				Else
+					currentModel.Material(mSelMat).AmbientTexture = Null
+				End
+			'Specular texture
+			Elseif mSpecularTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
+				Local filename:String = RequestFile("Select specular texture")
+				If filename <> ""
+					Local tex:Texture = Texture.Load(filename)
+					If tex Then currentModel.Material(mSelMat).SpecularTexture = tex
+				Else
+					currentModel.Material(mSelMat).SpecularTexture = Null
+				End
+			'Emissive texture
+			Elseif mEmissiveTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
+				Local filename:String = RequestFile("Select emissive texture")
+				If filename <> ""
+					Local tex:Texture = Texture.Load(filename)
+					If tex Then currentModel.Material(mSelMat).EmissiveTexture = tex
+				Else
+					currentModel.Material(mSelMat).EmissiveTexture = Null
+				End
 			'Normal texture
 			Elseif mNormalTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
 				Local filename:String = RequestFile("Select normal texture")
@@ -128,24 +174,6 @@ Public
 					If tex Then currentModel.Material(mSelMat).NormalTexture = tex
 				Else
 					currentModel.Material(mSelMat).NormalTexture = Null
-				End
-			'Specular texture
-			Elseif mShininessTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local filename:String = RequestFile("Select specular texture")
-				If filename <> ""
-					Local tex:Texture = Texture.Load(filename)
-					If tex Then currentModel.Material(mSelMat).SpecularTexture = tex
-				Else
-					currentModel.Material(mSelMat).SpecularTexture = Null
-				End
-			'Ambient texture
-			Elseif mLightmapRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local filename:String = RequestFile("Select ambient texture")
-				If filename <> ""
-					Local tex:Texture = Texture.Load(filename)
-					If tex Then currentModel.Material(mSelMat).AmbientTexture = tex
-				Else
-					currentModel.Material(mSelMat).AmbientTexture = Null
 				End
 			'Cubemap
 			Elseif mCubemapRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
@@ -295,11 +323,6 @@ Public
 			
 			'Draw material panel
 			DrawPanel(mMaterialRect)
-			DrawPanel(mMaterialRect.x + mSelMatRect.x, mMaterialRect.y + mSelMatRect.y, mSelMatRect.width, mSelMatRect.height, "Material #" + mSelMat, mFont)
-			
-			'Draw color panel
-			Local color:Int = currentModel.Material(mSelMat).Color
-			DrawPanel(mMaterialRect.x + mDiffuseColorRect.x, mMaterialRect.y + mDiffuseColorRect.y, mDiffuseColorRect.width, mDiffuseColorRect.height, "Color", mFont, Color.RGB(Color.R(color), Color.G(color), Color.B(color), 255))
 			
 			'Diffuse texture
 			If currentModel.Material(mSelMat).ColorTexture
@@ -308,6 +331,38 @@ Public
 			Else
 				DrawPanel(mMaterialRect.x + mDiffuseTexRect.x, mMaterialRect.y + mDiffuseTexRect.y, mDiffuseTexRect.width, mDiffuseTexRect.height)
 			End
+			Local color:Int = currentModel.Material(mSelMat).Color
+			DrawPanel(mMaterialRect.x + mDiffuseColorRect.x, mMaterialRect.y + mDiffuseColorRect.y, mDiffuseColorRect.width, mDiffuseColorRect.height, "Color", mFont, Color.RGB(Color.R(color), Color.G(color), Color.B(color), 255))
+			
+			'Ambient texture
+			If currentModel.Material(mSelMat).AmbientTexture
+				Graphics.Color(Color.White)
+				currentModel.Material(mSelMat).AmbientTexture.Draw(mMaterialRect.x + mAmbientTexRect.x, mMaterialRect.y + mAmbientTexRect.y, mAmbientTexRect.width, mAmbientTexRect.height)
+			Else
+				DrawPanel(mMaterialRect.x + mAmbientTexRect.x, mMaterialRect.y + mAmbientTexRect.y, mAmbientTexRect.width, mAmbientTexRect.height)
+			End
+			color = currentModel.Material(mSelMat).Ambient
+			DrawPanel(mMaterialRect.x + mAmbientColorRect.x, mMaterialRect.y + mAmbientColorRect.y, mAmbientColorRect.width, mAmbientColorRect.height, "Ambient", mFont, Color.RGB(Color.R(color), Color.G(color), Color.B(color), 255))
+			
+			'Specular texture
+			If currentModel.Material(mSelMat).SpecularTexture
+				Graphics.Color(Color.White)
+				currentModel.Material(mSelMat).SpecularTexture.Draw(mMaterialRect.x + mSpecularTexRect.x, mMaterialRect.y + mSpecularTexRect.y, mSpecularTexRect.width, mSpecularTexRect.height)
+			Else
+				DrawPanel(mMaterialRect.x + mSpecularTexRect.x, mMaterialRect.y + mSpecularTexRect.y, mSpecularTexRect.width, mSpecularTexRect.height)
+			End
+			color = currentModel.Material(mSelMat).Specular
+			DrawPanel(mMaterialRect.x + mSpecularColorRect.x, mMaterialRect.y + mSpecularColorRect.y, mSpecularColorRect.width, mSpecularColorRect.height, "Specular", mFont, Color.RGB(Color.R(color), Color.G(color), Color.B(color), 255))
+			
+			'Emissive texture
+			If currentModel.Material(mSelMat).EmissiveTexture
+				Graphics.Color(Color.White)
+				currentModel.Material(mSelMat).EmissiveTexture.Draw(mMaterialRect.x + mEmissiveTexRect.x, mMaterialRect.y + mEmissiveTexRect.y, mEmissiveTexRect.width, mEmissiveTexRect.height)
+			Else
+				DrawPanel(mMaterialRect.x + mEmissiveTexRect.x, mMaterialRect.y + mEmissiveTexRect.y, mEmissiveTexRect.width, mEmissiveTexRect.height)
+			End
+			color = currentModel.Material(mSelMat).Emissive
+			DrawPanel(mMaterialRect.x + mEmissiveColorRect.x, mMaterialRect.y + mEmissiveColorRect.y, mEmissiveColorRect.width, mEmissiveColorRect.height, "Emissive", mFont, Color.RGB(Color.R(color), Color.G(color), Color.B(color), 255))
 			
 			'Normal texture
 			If currentModel.Material(mSelMat).NormalTexture
@@ -315,22 +370,6 @@ Public
 				currentModel.Material(mSelMat).NormalTexture.Draw(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
-			End
-			
-			'Specular texture
-			If currentModel.Material(mSelMat).SpecularTexture
-				Graphics.Color(Color.White)
-				currentModel.Material(mSelMat).SpecularTexture.Draw(mMaterialRect.x + mShininessTexRect.x, mMaterialRect.y + mShininessTexRect.y, mShininessTexRect.width, mShininessTexRect.height)
-			Else
-				DrawPanel(mMaterialRect.x + mShininessTexRect.x, mMaterialRect.y + mShininessTexRect.y, mNormalTexRect.width, mShininessTexRect.height)
-			End
-			
-			'Ambient texture
-			If currentModel.Material(mSelMat).AmbientTexture
-				Graphics.Color(Color.White)
-				currentModel.Material(mSelMat).AmbientTexture.Draw(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
-			Else
-				DrawPanel(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
 			End
 			
 			'Cube texture
@@ -343,17 +382,15 @@ Public
 			
 			'Draw texts
 			Graphics.Color(Color.White)
-			mFont.Draw(mMaterialRect.x + mDiffuseTexRect.x + 2, mMaterialRect.y + mDiffuseTexRect.y, "Color")
 			mFont.Draw(mMaterialRect.x + mNormalTexRect.x + 2, mMaterialRect.y + mNormalTexRect.y, "Normal")
-			mFont.Draw(mMaterialRect.x + mShininessTexRect.x + 2, mMaterialRect.y + mShininessTexRect.y, "Shininess")
-			mFont.Draw(mMaterialRect.x + mLightmapRect.x + 2, mMaterialRect.y + mLightmapRect.y, "Light")
 			mFont.Draw(mMaterialRect.x + mCubemapRect.x + 2, mMaterialRect.y + mCubemapRect.y, "Cube")
-	
-			DrawPanel(mMaterialRect.x + mRefractionCoefRect.x, mMaterialRect.y + mRefractionCoefRect.y, mRefractionCoefRect.width, mRefractionCoefRect.height, "RefrCoef: " + String(currentModel.Material(mSelMat).RefractionCoef)[..4], mFont)
+
+			DrawPanel(mMaterialRect.x + mSelMatRect.x, mMaterialRect.y + mSelMatRect.y, mSelMatRect.width, mSelMatRect.height, "Material #" + mSelMat, mFont)
 			DrawPanel(mMaterialRect.x + mOpacityRect.x, mMaterialRect.y + mOpacityRect.y, mOpacityRect.width, mOpacityRect.height, "Opacity: " + String(Color.A(currentModel.Material(mSelMat).Color))[..3], mFont)
 			DrawPanel(mMaterialRect.x + mShininessRect.x, mMaterialRect.y + mShininessRect.y, mShininessRect.width, mShininessRect.height, "Shininess: " + String(currentModel.Material(mSelMat).Shininess)[..4], mFont)
-			DrawPanel(mMaterialRect.x + mCubeOpacityRect.x, mMaterialRect.y + mCubeOpacityRect.y, mCubeOpacityRect.width, mCubeOpacityRect.height, "CubeOp: " + String(currentModel.Material(mSelMat).CubeOpacity)[..4], mFont)
 			DrawPanel(mMaterialRect.x + mSpecularPowerRect.x, mMaterialRect.y + mSpecularPowerRect.y, mSpecularPowerRect.width, mSpecularPowerRect.height, "SpecPow: " + String(currentModel.Material(mSelMat).SpecularPower)[..6], mFont)
+			DrawPanel(mMaterialRect.x + mCubeOpacityRect.x, mMaterialRect.y + mCubeOpacityRect.y, mCubeOpacityRect.width, mCubeOpacityRect.height, "CubeOp: " + String(currentModel.Material(mSelMat).CubeOpacity)[..4], mFont)
+			DrawPanel(mMaterialRect.x + mRefractionCoefRect.x, mMaterialRect.y + mRefractionCoefRect.y, mRefractionCoefRect.width, mRefractionCoefRect.height, "RefrCoef: " + String(currentModel.Material(mSelMat).RefractionCoef)[..4], mFont)
 			Local blendStr:String = ""
 			Select currentModel.Material(mSelMat).BlendMode
 			Case Graphics.BlendSolid
@@ -379,44 +416,48 @@ Public
 	End
 Private
 	'Resources
-	Field mFont					: Font
-	Field mCubeTex				: Texture
-	Field mOpenTex				: Texture
-	Field mSaveTex				: Texture
-	Field mCube					: Mesh
+	Field mFont:Font
+	Field mCubeTex:Texture
+	Field mOpenTex:Texture
+	Field mSaveTex:Texture
+	Field mCube:Mesh
 	
 	'Widgets
-	Field mCubeRect				: Rect
-	Field mOpenRect				: Rect
-	Field mSaveRect				: Rect
-	Field mAnimationsRect		: Rect
-	'Field mPitchRect			: Rect
-	'Field mYawRect				: Rect
-	'Field mRollRect				: Rect
-	Field mMaterialRect			: Rect
-	Field mSelMatRect				: Rect
-	Field mDiffuseColorRect		: Rect
-	Field mDiffuseTexRect			: Rect
-	Field mNormalTexRect			: Rect
-	Field mShininessTexRect		: Rect
-	Field mLightmapRect				: Rect
-	Field mCubemapRect				: Rect
-	Field mOpacityRect				: Rect
-	Field mShininessRect			: Rect
-	Field mSpecularPowerRect	: Rect
-	Field mCubeOpacityRect		: Rect
-	Field mRefractionCoefRect	: Rect
-	Field mBlendModeRect			: Rect
-	Field mCullingRect				: Rect
-	Field mDepthWriteRect			: Rect
+	Field mCubeRect:Rect
+	Field mOpenRect:Rect
+	Field mSaveRect:Rect
+	Field mAnimationsRect:Rect
+	'Field mPitchRect:Rect
+	'Field mYawRect:Rect
+	'Field mRollRect:Rect
+	Field mMaterialRect:Rect
+	Field mSelMatRect:Rect
+	Field mDiffuseColorRect:Rect
+	Field mAmbientColorRect:Rect
+	Field mSpecularColorRect:Rect
+	Field mEmissiveColorRect:Rect
+	Field mDiffuseTexRect:Rect
+	Field mAmbientTexRect:Rect
+	Field mSpecularTexRect:Rect
+	Field mEmissiveTexRect:Rect
+	Field mNormalTexRect:Rect
+	Field mCubemapRect:Rect
+	Field mOpacityRect:Rect
+	Field mShininessRect:Rect
+	Field mSpecularPowerRect:Rect
+	Field mCubeOpacityRect:Rect
+	Field mRefractionCoefRect:Rect
+	Field mBlendModeRect:Rect
+	Field mCullingRect:Rect
+	Field mDepthWriteRect:Rect
 	
 	'Logic
-	Field mAnimationModeButtonColor	: Int
-	'Field mExportAnimations		: Bool
-	Field mAnimationMode			: Int
-	Field mAnimationModeNames	: String[]
-	Field mSelMat				: Int
-	Field mPitchFix				: Int
-	Field mYawFix				: Int
-	Field mRollFix				: Int
+	Field mAnimationModeButtonColor:Int
+	'Field mExportAnimations:Bool
+	Field mAnimationMode:Int
+	Field mAnimationModeNames:String[]
+	Field mSelMat:Int
+	Field mPitchFix:Int
+	Field mYawFix:Int
+	Field mRollFix:Int
 End
