@@ -729,9 +729,9 @@ Public
 			Local mat:Material = New Material
 			Local flags:Int = 0
 			mat.Color = stream.ReadInt()
-			Local specular:Int = stream.ReadInt()	'Used for shininess only by now
-			stream.ReadInt()	'Unused emissive color
-			stream.ReadInt()	'Unused ambient color
+			mat.Specular = stream.ReadInt()
+			mat.Emissive = stream.ReadInt()
+			mat.Ambient = stream.ReadInt()
 			mat.BlendMode = stream.ReadByte() & $FF
 			flags = stream.ReadByte() & $FF
 			If flags & 1 
@@ -764,7 +764,6 @@ Public
 			Else
 				mat.Fog = True
 			Endif
-			mat.Shininess = Color.A(specular) / 255.0 'stream.ReadFloat()
 			mat.SpecularPower = stream.ReadFloat()
 			mat.CubeOpacity = stream.ReadFloat()
 			mat.RefractionCoef = stream.ReadFloat()

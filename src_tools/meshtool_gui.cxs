@@ -28,7 +28,7 @@ Public
 		'mYawRect = New Rect(330, 8, 96, 24)
 		'mRollRect = New Rect(430, 8, 96, 24)
 		
-		mMaterialRect = New Rect(4, 0, 628, 136)
+		mMaterialRect = New Rect(4, 0, 732, 136)
 		mSelMatRect = New Rect(0, -28, 100, 24)
 		mDiffuseColorRect = New Rect(4, 4, 100, 24)
 		mDiffuseTexRect = New Rect(4, 32, 100, 100)
@@ -129,23 +129,23 @@ Public
 				Else
 					currentModel.Material(mSelMat).NormalTexture = Null
 				End
-			'Shininess texture
+			'Specular texture
 			Elseif mShininessTexRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local filename:String = RequestFile("Select shininess texture")
+				Local filename:String = RequestFile("Select specular texture")
 				If filename <> ""
 					Local tex:Texture = Texture.Load(filename)
-					If tex Then currentModel.Material(mSelMat).ShininessTexture = tex
+					If tex Then currentModel.Material(mSelMat).SpecularTexture = tex
 				Else
-					currentModel.Material(mSelMat).ShininessTexture = Null
+					currentModel.Material(mSelMat).SpecularTexture = Null
 				End
-			'Lightmap
+			'Ambient texture
 			Elseif mLightmapRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
-				Local filename:String = RequestFile("Select light texture")
+				Local filename:String = RequestFile("Select ambient texture")
 				If filename <> ""
 					Local tex:Texture = Texture.Load(filename)
-					If tex Then currentModel.Material(mSelMat).LightTexture = tex
+					If tex Then currentModel.Material(mSelMat).AmbientTexture = tex
 				Else
-					currentModel.Material(mSelMat).LightTexture = Null
+					currentModel.Material(mSelMat).AmbientTexture = Null
 				End
 			'Cubemap
 			Elseif mCubemapRect.IsPointInside(MouseX() - mMaterialRect.x, MouseY() - mMaterialRect.y)
@@ -317,18 +317,18 @@ Public
 				DrawPanel(mMaterialRect.x + mNormalTexRect.x, mMaterialRect.y + mNormalTexRect.y, mNormalTexRect.width, mNormalTexRect.height)
 			End
 			
-			'Shininess texture
-			If currentModel.Material(mSelMat).ShininessTexture
+			'Specular texture
+			If currentModel.Material(mSelMat).SpecularTexture
 				Graphics.Color(Color.White)
-				currentModel.Material(mSelMat).ShininessTexture.Draw(mMaterialRect.x + mShininessTexRect.x, mMaterialRect.y + mShininessTexRect.y, mShininessTexRect.width, mShininessTexRect.height)
+				currentModel.Material(mSelMat).SpecularTexture.Draw(mMaterialRect.x + mShininessTexRect.x, mMaterialRect.y + mShininessTexRect.y, mShininessTexRect.width, mShininessTexRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mShininessTexRect.x, mMaterialRect.y + mShininessTexRect.y, mNormalTexRect.width, mShininessTexRect.height)
 			End
 			
-			'Light texture
-			If currentModel.Material(mSelMat).LightTexture
+			'Ambient texture
+			If currentModel.Material(mSelMat).AmbientTexture
 				Graphics.Color(Color.White)
-				currentModel.Material(mSelMat).LightTexture.Draw(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
+				currentModel.Material(mSelMat).AmbientTexture.Draw(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
 			Else
 				DrawPanel(mMaterialRect.x + mLightmapRect.x, mMaterialRect.y + mLightmapRect.y, mLightmapRect.width, mLightmapRect.height)
 			End

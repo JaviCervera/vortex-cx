@@ -66,9 +66,10 @@ Function MaterialSize:Int(mat:Material)
 	
 	'Texture names
 	If mat.ColorTexture Then size += 4 + StripDir(mat.ColorTexture.Filename).Length
+	If mat.AmbientTexture Then size += 4 + StripDir(mat.AmbientTexture.Filename).Length
+	If mat.SpecularTexture Then size += 4 + StripDir(mat.SpecularTexture.Filename).Length
+	If mat.EmissiveTexture Then size += 4 + StripDir(mat.EmissiveTexture.Filename).Length
 	If mat.NormalTexture Then size += 4 + StripDir(mat.NormalTexture.Filename).Length
-	If mat.ShininessTexture Then size += 4 + StripDir(mat.ShininessTexture.Filename).Length
-	If mat.LightTexture Then size += 4 + StripDir(mat.LightTexture.Filename).Length
 	If mat.CubeTexture Then size += 4 + StripDir(mat.CubeTexture.Filename).Length
 	
 	Return size
@@ -162,18 +163,11 @@ Function MeshSize:Int(mesh:Mesh)
 End
 
 Function WriteMaterialData:Void(stream:DataStream, mat:Material)
-	'Base Color
+	'Colors
 	stream.WriteInt(mat.Color)
-	
-	'Specular Color
-	'stream.WriteInt(Color.White)
-	stream.WriteInt(Color.ChangeAlpha(Color.White, Min(Int(mat.Shininess * 255), 255)))
-	
-	'Emissive Color
-	stream.WriteInt(Color.Black)
-	
-	'Ambient color
-	stream.WriteInt(Color.White)
+	stream.WriteInt(mat.Specular)
+	stream.WriteInt(mat.Emissive)
+	stream.WriteInt(mat.Ambient)
 	
 	'Blend mode
 	stream.WriteByte(mat.BlendMode)
@@ -201,14 +195,12 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	stream.WriteFloat(mat.RefractionCoef)
 	
 	'Used textures
-	Local usedTexs:Int = 0	'1=Color,2=Normal,4=Specular/Shininess,8=Emissive,16=Ambient,32=Lightmap,64=Cube
+	Local usedTexs:Int = 0	'1=Color,2=Normal,4=Specular/Shininess,8=Emissive,32=Ambient,64=Cube
 	If mat.ColorTexture Then usedTexs |= 1
 	If mat.NormalTexture Then usedTexs |= 2
-	If mat.ShininessTexture Then usedTexs |= 4
-	'If mat.SpecularTexture Then usedTexs |= 4
-	'If mat.EmissiveTexture Then usedTexs |= 8
-	'If mat.AmbientTexture Then usedTexs |= 16
-	If mat.LightTexture Then usedTexs |= 32
+	If mat.SpecularTexture Then usedTexs |= 4
+	If mat.EmissiveTexture Then usedTexs |= 8
+	If mat.AmbientTexture Then usedTexs |= 32
 	If mat.CubeTexture Then usedTexs |= 64
 	stream.WriteByte(usedTexs)
 	
@@ -216,8 +208,9 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	Local filename:String = ""
 	If mat.ColorTexture Then filename = StripDir(mat.ColorTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.NormalTexture Then filename = StripDir(mat.NormalTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
-	If mat.ShininessTexture Then filename = StripDir(mat.ShininessTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
-	If mat.LightTexture Then filename = StripDir(mat.LightTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.SpecularTexture Then filename = StripDir(mat.SpecularTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.EmissiveTexture Then filename = StripDir(mat.EmissiveTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
+	If mat.AmbientTexture Then filename = StripDir(mat.AmbientTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 	If mat.CubeTexture Then filename = StripDir(mat.CubeTexture.Filename); stream.WriteInt(filename.Length); stream.WriteString(filename)
 End
 
