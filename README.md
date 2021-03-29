@@ -41,4 +41,5 @@ You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, 
 - [x] Add Material.SpecularTexture and Material.Specular (Shininess property only modifies the Alpha of this color)
 - [x] Add Material.EmissiveTexture and Material.Emissive
 - [x] Use specular color and emissive.
-- [ ] Update meshtool with new material properties.
+- [x] Update meshtool with new material properties.
+- [ ] Use new textures in shader.

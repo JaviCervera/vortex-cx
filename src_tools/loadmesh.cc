@@ -59,15 +59,24 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
 
     // material
     std::string base_tex = mat.getTexture(0) ? mat.getTexture(0)->getName().getPath().c_str() : "";
-    std::string lightmap = mat.getTexture(1) ? mat.getTexture(1)->getName().getPath().c_str() : "";
+    std::string ambient_tex = mat.getTexture(1) ? mat.getTexture(1)->getName().getPath().c_str() : "";
     unsigned char r = mat.DiffuseColor.getRed();
     unsigned char g = mat.DiffuseColor.getGreen();
     unsigned char b = mat.DiffuseColor.getBlue();
     unsigned char a = mat.DiffuseColor.getAlpha();
+    unsigned char amb_r = 0; //mat.AmbientColor.getRed();
+    unsigned char amb_g = 0; //mat.AmbientColor.getGreen();
+    unsigned char amb_b = 0; //mat.AmbientColor.getBlue();
+    unsigned char spec_r = 255; //mat.SpecularColor.getRed();
+    unsigned char spec_g = 255; //mat.SpecularColor.getGreen();
+    unsigned char spec_b = 255; //mat.SpecularColor.getBlue();
     float shininess = mat.Shininess > 0 ? mat.Shininess : 0.001f;
+    unsigned char emi_r = mat.EmissiveColor.getRed();
+    unsigned char emi_g = mat.EmissiveColor.getGreen();
+    unsigned char emi_b = mat.EmissiveColor.getBlue();
     int culling = mat.BackfaceCulling;
     int depth_write = mat.ZWriteEnable;
-    surf.material = material_t(0, base_tex, lightmap, r, g, b, a, shininess, DEFAULT_SPECULARPOWER, culling, depth_write);
+    surf.material = material_t(0, base_tex, ambient_tex, "", "", r, g, b, a, amb_r, amb_g, amb_b, spec_r, spec_g, spec_b, shininess, emi_r, emi_g, emi_b, DEFAULT_SPECULARPOWER, culling, depth_write);
 
     // indices
     for (size_t j = 0; j < mesh_buffer->getIndexCount(); ++j) {
