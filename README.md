@@ -37,8 +37,5 @@ You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, 
 - [x] Fix render to texture on HTML5
 - [x] Add box collision with static boxes
 - [x] Add Texture.SetPixels method
-- [ ] Clean comments
-- [ ] Moved docs from vortex.cerberusdoc to within code files
 - [ ] Add Building section to README.md
 - [ ] Document tools
-- [ ] Make sure that every class & method is documented
