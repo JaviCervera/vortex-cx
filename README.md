@@ -29,7 +29,7 @@ You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, 
 
 ![meshtool](./stuff/meshtool.jpg)
 
-## TODO v2.0.0-beta3
+## TODO v2.0
 - [x] Use CamelCase in constants
 - [x] Vertex color importing in meshtool
 - [x] Add Material.Fog and export flag to mesh file
@@ -37,6 +37,7 @@ You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, 
 - [x] Fix render to texture on HTML5
 - [x] Add box collision with static boxes
 - [x] Add Texture.SetPixels method
-- [ ] Add Material.AmbientTexture and Material.AmbientColor
-- [ ] Add Material.EmissiveTexture and Material.EmissiveColor
-- [ ] Add Material.SpecularTexture and Material.SpecularColor (Shininess property only modifies the Alpha of this color)
+- [ ] Add Building section to README.md
+- [ ] Clean comments
+- [ ] Document tools
+- [ ] Make sure that every class & method is documented
