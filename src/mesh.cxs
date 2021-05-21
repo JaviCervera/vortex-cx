@@ -1,7 +1,6 @@
 Strict
 
 Private
-Import bone
 Import brl.datastream
 Import brl.filepath
 Import brl.databuffer
@@ -94,7 +93,6 @@ Public
 		mFilename = ""
 		mSurfaces = New Surface[0]
 		mMaterials = New Material[0]
-		mBones = New Bone[0]
 		mSequences = New AnimSequence[0]
 		'mNumFrames = 0
 		'mAnimSpeed = 0
@@ -109,10 +107,6 @@ Public
 		mMaterials = New Material[other.mMaterials.Length]
 		For Local i:Int = 0 Until other.mMaterials.Length
 			mMaterials[i] = New Material(other.mMaterials[i])
-		Next
-		mBones = New Bone[other.mBones.Length]
-		For Local i:Int = 0 Until other.mBones.Length
-			mBones[i] = New Bone(other.mBones[i])
 		Next
 		mSequences = New AnimSequence[other.mSequences.Length]
 		For Local i:Int = 0 Until other.mSequences.Length
@@ -1371,116 +1365,6 @@ Print "Load OBJ file:"+filename
 	End
 
 #end
-
-	Method _LoadSkeletonData:Bool(data:DataBuffer)
-		If Not data Then Return False
-		Local stream:DataStream = New DataStream(data)
-		
-		'Id
-		Local id:String = stream.ReadString(4)
-		If id <> "SK01" Then Return False
-		
-		'Number of bones
-		Local numBones:Int = stream.ReadShort() & $FFFF
-		
-		'Bones
-		For Local b:Int = 0 Until numBones
-			'Name
-			Local nameLen:Int = stream.ReadInt()
-			Local name:String = stream.ReadString(nameLen)
-			
-			'Parent index
-			Local parentIndex:Int = stream.ReadInt()
-			
-			'Create bone
-			Local bone:Bone = New Bone(name, parentIndex)
-			
-			'Transform matrix
-			For Local i:Int = 0 Until 16
-				bone.TransformMatrix[i] = stream.ReadFloat()
-			Next
-			
-			'Inv pose matrix
-			For Local i:Int = 0 Until 16
-				bone.InversePoseMatrix[i] = stream.ReadFloat()
-			Next
-			
-			'Surfaces
-			bone.NumSurfaces = stream.ReadShort() & $FFFF
-			For Local i:Int = 0 Until bone.NumSurfaces
-				bone.SurfaceIndex(i, stream.ReadShort() & $FFFF)
-			Next
-			
-			'Add to hierarchy
-			AddBone(bone)
-		Next
-		
-		Return True
-	End
-	
-	Method _LoadAnimationData:Bool(data:DataBuffer, sequenceName:String)
-		If Not data Then Return False
-		Local stream:DataStream = New DataStream(data)
-		
-		'Id
-		Local id:String = stream.ReadString(4)
-		If id <> "AN01" Then Return False
-		
-		'Get first frame and last frame
-		Local firstFrame:Int = NumFrames
-		Local lastFrame:Int = firstFrame
-		
-		'Number of frames
-		Local numFrames:Int = stream.ReadShort() & $FFFF
-		
-		'Animation speed in FPS
-		Local animFps:Float = stream.ReadFloat()
-		
-		'Number of bones
-		Local numBones:Int = stream.ReadShort() & $FFFF
-		
-		'Bone animations
-		For Local i:Int = 0 Until numBones
-			'Position keys
-			Local numKeys:Int = stream.ReadShort() & $FFFF
-			For Local k:Int = 0 Until numKeys
-				Local frame:Int = stream.ReadShort() & $FFFF
-				lastFrame = Max(lastFrame, frame + firstFrame)
-				Local x:Float = stream.ReadFloat()
-				Local y:Float = stream.ReadFloat()
-				Local z:Float = stream.ReadFloat()
-				Bone(i).AddPositionKey(firstFrame + frame, x, y, z)
-			Next
-			
-			'Rotation keys
-			numKeys = stream.ReadShort() & $FFFF
-			For Local k:Int = 0 Until numKeys
-				Local frame:Int = stream.ReadShort() & $FFFF
-				lastFrame = Max(lastFrame, frame + firstFrame)
-				Local w:Float = stream.ReadFloat()
-				Local x:Float = stream.ReadFloat()
-				Local y:Float = stream.ReadFloat()
-				Local z:Float = stream.ReadFloat()
-				Bone(i).AddRotationKey(firstFrame + frame, w, x, y, z)
-			Next
-			
-			'Scale keys
-			numKeys = stream.ReadShort() & $FFFF
-			For Local k:Int = 0 Until numKeys
-				Local frame:Int = stream.ReadShort() & $FFFF
-				lastFrame = Max(lastFrame, frame + firstFrame)
-				Local x:Float = stream.ReadFloat()
-				Local y:Float = stream.ReadFloat()
-				Local z:Float = stream.ReadFloat()
-				Bone(i).AddScaleKey(firstFrame + frame, x, y, z)
-			Next
-		Next
-		
-		mSequences = mSequences.Resize(mSequences.Length + 1)
-		mSequences[mSequences.Length - 1] = New AnimSequence(sequenceName, animFps, firstFrame, lastFrame)
-		
-		Return True
-	End
 	
 	Method _LoadVertexAnimationData:Bool(data:DataBuffer, sequenceName:String)
 		If Not data Then Return False
@@ -1599,7 +1483,6 @@ Private
 	Field mFilename		: String
 	Field mSurfaces		: Surface[]
 	Field mMaterials	: Material[]
-	Field mBones			: Bone[]
 	Field mSequences	: AnimSequence[]
 	'Field mNumFrames	: Int
 	'Field mAnimSpeed	: Float
