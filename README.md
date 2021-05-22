@@ -28,12 +28,3 @@ You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, 
 * **Sean T. Barret** for his **stb_image_write** and **stb_truetype** libraries, used on the tools (these libraries are public domain).
 
 ![meshtool](./stuff/meshtool.jpg)
-
-## TODO v2.0
-- [x] Use CamelCase in constants
-- [x] Vertex color importing in meshtool
-- [x] Add Material.Fog and export flag to mesh file
-- [x] Add Entity.LookAt
-- [x] Fix render to texture on HTML5
-- [x] Add box collision with static boxes
-- [x] Add Texture.SetPixels method

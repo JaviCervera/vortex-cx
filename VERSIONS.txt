@@ -1,4 +1,4 @@
-V2.0-beta3
+V2.0
 - All constants changed to PascalCase.
 - Red, Green, Blue, Alpha functions in Color class renamed to R, G, B, A.
 - Camera.ClearColor property changed to Camera.BackgroundColor.
@@ -15,6 +15,8 @@ V2.0-beta3
 - Added direct import of obj files with their corresponding material file (mtl). (Author: MikeHart)
 - Added direct import of static B3D files. Animations are missing atm. (Author: MikeHart)
 - Added Line and Camera picking and projecting. (Author: innerloop) 
+- Added vertex color importing in meshtool.
+- Added Material.Fog and export flag to mesh file
 - Modded LookAt. (Author: innerloop)
 - Known issue: Normals seem to be not calculated correctly when directly loading B3D files.
 - Known issue: No animation is imported when directly loading B3D files.
