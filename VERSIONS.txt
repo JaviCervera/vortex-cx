@@ -1,3 +1,26 @@
+V2.0
+- All constants changed to PascalCase.
+- Red, Green, Blue, Alpha functions in Color class renamed to R, G, B, A.
+- Camera.ClearColor property changed to Camera.BackgroundColor.
+- Meshtool now supports animated MD2 meshes.
+- Fixed Color.Multiply compilation error.
+- Added IsLoaded methods to resources.
+- Fixed render to texture on HTML5.
+- Added collisions with static boxes (World.AddStaticCollisionBox).
+- Added Texture.SetPixels method.
+- Fixes to meshtool. (Author: MikeHart)
+- Added test_models.cxs script. (Author: MikeHart)
+- Added test_project.cxs script. (Author: MikeHart)
+- Added test_picking.cxs script. (Author: MikeHart)
+- Added direct import of obj files with their corresponding material file (mtl). (Author: MikeHart)
+- Added direct import of static B3D files. Animations are missing atm. (Author: MikeHart)
+- Added Line and Camera picking and projecting. (Author: innerloop) 
+- Added vertex color importing in meshtool.
+- Added Material.Fog and export flag to mesh file
+- Modded LookAt. (Author: innerloop)
+- Known issue: Normals seem to be not calculated correctly when directly loading B3D files.
+- Known issue: No animation is imported when directly loading B3D files.
+
 V2.0-beta2
 This release brings lots of changes. API should be more or less stabilized now:
 - Added vertex animation support (which is now the default in meshtool since there is a bug with skinned meshes)

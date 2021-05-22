@@ -1,6 +1,5 @@
-![Vortex](./stuff/vortex_med.png)
+# ![Vortex](./logo.png) Vortex
 
-## Introduction
 Vortex is an open-source, lightweight 3D graphics rendering library which is easy to use and easy to integrate with any application that requires graphics. It can also be used as the base for a higher level graphics or game engine.
 
 It has been released under the terms of the [**MIT license**](https://en.wikipedia.org/wiki/MIT_License), which allows its use within both open and closed source software. This license allows to use the library in commercial applications.
@@ -18,6 +17,8 @@ It has been released under the terms of the [**MIT license**](https://en.wikiped
 * **Realtime shadows** from a single directional light source.
 * **Vertex based animation** for meshes (vertex animations are automatically generated from skeletal animations).
 * **Linear fog** for ambient effects.
+* **Collision detection** with cubes and spheres, triangle collision detection with raycasting.
+* **Camera picking** of entities.
 
 ## Installation
 You should clone the repository onto **<*CerberusFolder*>/modules_ext/vortex**, or download as a zip file and put the vortex folder on that same **<*CerberusFolder*>/modules_ext** location. You should select **Help -> Rebuild Help** on the Cerberus-X IDE (Ted) afterwards, and the documentation will be available in your modules help.

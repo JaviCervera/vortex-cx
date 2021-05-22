@@ -9,7 +9,7 @@
 using namespace irr;
 
 // forward declaration of functions
-std::set<int> KeyframeSet(irr::scene::ISkinnedMesh* skinned_mesh);
+std::set<int> KeyframeSet(irr::scene::IAnimatedMesh* anim_mesh);
 int FindParentIndex(scene::ISkinnedMesh* mesh, const scene::ISkinnedMesh::SJoint* joint);
 std::vector<int> BoneIndicesForSurface(scene::ISkinnedMesh* mesh, u32 surface);
 std::vector<float> BoneWeightsForSurface(scene::ISkinnedMesh* mesh, u32 surface);
@@ -39,10 +39,16 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
   scene::IMesh* tangent_mesh = device->getVideoDriver()->getMeshManipulator()->createMeshWithTangents(irr_mesh);
 
   // get keyframes set (used for vertex animation)
-  std::set<int> keyframes = KeyframeSet(skinned_mesh);
+  std::set<int> keyframes = KeyframeSet(anim_mesh);
 
   // create mesh object
   mesh = new mesh_t;
+
+  // num frames
+  mesh->num_frames = (keyframes.size() > 0) ? anim_mesh->getFrameCount() : 0;
+    
+  // anim duration
+  mesh->anim_speed = (keyframes.size() > 0) ? anim_mesh->getAnimationSpeed() : 0;
 
   // surfaces
   for ( size_t i = 0; i < irr_mesh->getMeshBufferCount(); ++i ) {
@@ -69,6 +75,7 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
     }
 
     // vertices
+    video::S3DVertex* vertices = static_cast<video::S3DVertex*>(mesh_buffer->getVertices());
     video::S3DVertex2TCoords* vertices2t = mesh_buffer->getVertexType() == video::EVT_2TCOORDS ? static_cast<video::S3DVertex2TCoords*>(mesh_buffer->getVertices()) : 0;
     video::S3DVertexTangents* verticesTangents = tangent_mesh->getMeshBuffer(i)->getVertexType() == video::EVT_TANGENTS ? static_cast<video::S3DVertexTangents*>(tangent_mesh->getMeshBuffer(i)->getVertices()) : 0;
     for ( size_t v = 0; v < mesh_buffer->getVertexCount(); ++v ) {
@@ -89,10 +96,11 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
       surf.vertices.back().tx = tx;
       surf.vertices.back().ty = ty;
       surf.vertices.back().tz = tz;
+      surf.vertices.back().color = vertices[v].Color.color;
     }
 
     // vertex animation frames
-    if ( skinned_mesh && keyframes.size() > 0 ) {
+    if ( keyframes.size() > 0 ) {
       for ( std::set<int>::const_iterator it = keyframes.begin(); it != keyframes.end(); ++it ) {
         scene::IMeshBuffer* mesh_buffer = anim_mesh->getMesh(*it)->getMeshBuffer(i);
         vertexframe_t frame;
@@ -214,12 +222,6 @@ EXPORT mesh_t* CALL LoadMesh(const char* filename) {
 
       mesh->bones.push_back(bone);
     }
-
-    // num frames
-    mesh->num_frames = skinned_mesh ? anim_mesh->getFrameCount() : 0;
-    
-    // anim duration
-    mesh->anim_speed = skinned_mesh ? anim_mesh->getAnimationSpeed() : 0;
   }
 
   // optimize mesh
@@ -278,7 +280,7 @@ EXPORT void CALL DeleteMesh(mesh_t* mesh) {
 
 std::set<int> KeyframeSet(irr::scene::ISkinnedMesh* skinned_mesh) {
   // make sure that it has frames
-  if ( !skinned_mesh || skinned_mesh->getFrameCount() == 0 ) return std::set<int>();
+  if ( skinned_mesh->getFrameCount() == 0 ) return std::set<int>();
 
   // create set and add all keyframes to it
   std::set<int> keyframe_set;
@@ -296,6 +298,45 @@ std::set<int> KeyframeSet(irr::scene::ISkinnedMesh* skinned_mesh) {
 
   // return set
   return keyframe_set;
+}
+
+std::set<int> KeyframeSet(irr::scene::IAnimatedMeshMD2* md2_mesh) {
+  // make sure that it has frames
+  if ( md2_mesh->getFrameCount() == 0 ) return std::set<int>();
+
+  // create set and add all keyframes to it
+  std::set<int> keyframe_set;
+  for ( s32 a = 0; a < md2_mesh->getAnimationCount(); ++a ) {
+    s32 first = 0;
+    s32 last = 0;
+    s32 fps = 0;
+    md2_mesh->getFrameLoop(md2_mesh->getAnimationName(a), first, last, fps);
+
+    s32 num_frames = (last - first + 1) / 4;
+    float step = float(last - first) / (num_frames - 1);
+    for ( s32 i = 0; i < num_frames; ++i ) {
+      keyframe_set.insert(static_cast<int>(first + step * i));
+    }
+  }
+
+  // return set
+  return keyframe_set;
+}
+
+std::set<int> KeyframeSet(irr::scene::IAnimatedMesh* anim_mesh) {
+  scene::ISkinnedMesh* skinned_mesh = ( anim_mesh->getMeshType() == scene::EAMT_SKINNED && anim_mesh->getFrameCount() > 1 )
+    ? static_cast<scene::ISkinnedMesh*>(anim_mesh)
+    : NULL;
+  scene::IAnimatedMeshMD2* md2_mesh = ( anim_mesh->getMeshType() == scene::EAMT_MD2 && anim_mesh->getFrameCount() > 1 )
+    ? static_cast<scene::IAnimatedMeshMD2*>(anim_mesh)
+    : NULL;
+  if (skinned_mesh) {
+    return KeyframeSet(skinned_mesh);
+  } else if (md2_mesh) {
+    return KeyframeSet(md2_mesh);
+  } else {
+    return std::set<int>();
+  }
 }
 
 std::vector<int> BoneIndicesForSurface(scene::ISkinnedMesh* mesh, u32 surface) {

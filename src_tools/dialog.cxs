@@ -2,12 +2,10 @@ Strict
 
 Private
 #If LANG="cpp"
-Import "native/tinyfiledialogs.h"
-Import "native/tinyfiledialogs.cpp"
 Import "native/dialog.cpp"
-'#If HOST="winnt"
-'#GLFW_GCC_CC_OPTS+="-lole32"
-'#End
+#If HOST="winnt"
+#GLFW_GCC_LIB_OPTS+="-lole32"
+#End
 #Else
 #Error "Only the C++ language is supported in Dialog module"
 #End

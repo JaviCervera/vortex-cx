@@ -66,10 +66,12 @@ struct vertex_t {
   float tx, ty, tz;
   float u0, v0;
   float u1, v1;
+  unsigned int color;
   int bones[4];
   float weights[4];
   vertex_t(float x, float y, float z, float nx, float ny, float nz, float u0, float v0, float u1, float v1)
     : x(x), y(y), z(z), nx(nx), ny(ny), nz(nz), tx(0), ty(0), tz(0), u0(u0), v0(v0), u1(u1), v1(v1) {
+      color = 0xFFFFFFFF;
       bones[0] = bones[1] = bones[2] = bones[3] = -1;
       weights[0] = weights[1] = weights[2] = weights[3] = 0;
     }

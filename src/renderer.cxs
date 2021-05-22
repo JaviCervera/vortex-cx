@@ -14,42 +14,42 @@ Import renderstate
 Import shader
 
 '#If TARGET="html5"
-Const GLSL_VERSION : String = ""
+Const GlslVersion : String = ""
 '#Else
-'Const GLSL_VERSION:String = "#version 120~n"
+'Const GlslVersion:String = "#version 120~n"
 '#EndIf
 
 Public
 
 Class Renderer
 Public
-	Const BLEND_SOLID:Int = 0
-	Const BLEND_ALPHA:Int = 1
-	Const BLEND_ADD:Int = 2
-	Const BLEND_MUL:Int = 3
+	Const BlendSolid:Int = 0
+	Const BlendAlpha:Int = 1
+	Const BlendAdd:Int = 2
+	Const BlendMul:Int = 3
 	
-	Const FILTER_NONE:Int = 0
-	Const FILTER_LINEAR:Int = 1
-	Const FILTER_BILINEAR:Int = 2
-	Const FILTER_TRILINEAR:Int = 3
+	Const FilterNone:Int = 0
+	Const FilterLinear:Int = 1
+	Const FilterBilinear:Int = 2
+	Const FilterTrilinear:Int = 3
 	
-	'Const TEXTURE_DISABLED:Int = 0
-	'Const TEXTURE_2D:Int = 1
+	'Const TextureDisabled:Int = 0
+	'Const Texture2D:Int = 1
 	
-	Const MODE_POINTS					: Int = 0
-	Const MODE_LINES					: Int = 1
-	Const MODE_TRIANGLES			: Int = 2
-	Const MODE_TRIANGLESTRIP	: Int = 3
-	Const MODE_TRIANGLEFAN		: Int = 4
+	Const ModePoints					: Int = 0
+	Const ModeLines					: Int = 1
+	Const ModeTriangles			: Int = 2
+	Const ModeTriangleStrip	: Int = 3
+	Const ModeTriangleFan		: Int = 4
 	
-	Const BASETEX_UNIT:Int = 0
-	Const NORMALTEX_UNIT:Int = 1
-	Const SHININESSTEX_UNIT:Int = 2
-	Const LIGHTMAP_UNIT:Int = 3
-	Const CUBEMAP_UNIT:Int = 4
-	Const DEPTHTEX_UNIT:Int = 5
+	Const BaseTexUnit:Int = 0
+	Const NormalTexUnit:Int = 1
+	Const ShininessTexUnit:Int = 2
+	Const LightmapUnit:Int = 3
+	Const CubemapUnit:Int = 4
+	Const DepthTexUnit:Int = 5
 	
-	Const ELLIPSEPOINTS:Int = 64
+	Const EllipsePoints:Int = 64
 
 	'---------------------------------------------------------------------------
 	'Setup
@@ -63,7 +63,7 @@ Public
 		Next
 		RenderState.LightColor = New Int[numLights]
 		RenderState.LightRadius = New Float[numLights]
-		RenderState.Color = color.Color.WHITE
+		RenderState.Color = color.Color.White
 	
 		'Set the max number of lights and bones supported
 		mMaxLights = numLights
@@ -89,9 +89,9 @@ Public
 		If mRectBuffer <> 0 Then FreeBuffer(mRectBuffer)
 
 		'Create ellipse buffer
-		Local dataBuffer:DataBuffer = New DataBuffer(ELLIPSEPOINTS*12, True)
-		Local inc:Float = 360.0 / ELLIPSEPOINTS
-		For Local i:Int = 0 Until ELLIPSEPOINTS
+		Local dataBuffer:DataBuffer = New DataBuffer(EllipsePoints*12, True)
+		Local inc:Float = 360.0 / EllipsePoints
+		For Local i:Int = 0 Until EllipsePoints
 			Local x:Float = 0.5 + 0.5 * Cos(i * inc)
 			Local y:Float = 0.5 + 0.5 * Sin(i * inc)
 			dataBuffer.PokeFloat(i*12, x)
@@ -153,8 +153,8 @@ Public
 		glEnable(GL_BLEND)
 		glEnable(GL_SCISSOR_TEST)
 		glFrontFace(GL_CW)
-		BlendMode(BLEND_ALPHA)
-		Color(color.Color.WHITE)
+		BlendMode(BlendAlpha)
+		Color(color.Color.White)
 		SetTextures(0, 0, 0, 0, 0)
 
 		'Setup viewport
@@ -185,8 +185,8 @@ Public
 		SetCulling(True)
 		glFrontFace(GL_CW)
 		SetDepthWrite(True)
-		BlendMode(BLEND_SOLID)
-		Color(color.Color.WHITE)
+		BlendMode(BlendSolid)
+		Color(color.Color.White)
 		SetTextures(0, 0, 0, 0, 0)
 		RenderState.Skinned = False
 
@@ -222,8 +222,8 @@ Public
 		glEnable(GL_BLEND)
 		glEnable(GL_SCISSOR_TEST)
 		glFrontFace(GL_CCW)
-		BlendMode(BLEND_ALPHA)
-		Color(color.Color.WHITE)
+		BlendMode(BlendAlpha)
+		Color(color.Color.White)
 		
 		'Bind Mojo buffers
 		glBindBuffer(GL_ARRAY_BUFFER, mMojoVertexBuffer)
@@ -243,13 +243,13 @@ Public
 	Function BlendMode:Void(mode:Int)
 		RenderState.BlendMode = mode
 		Select mode
-		Case BLEND_SOLID
+		Case BlendSolid
 			glBlendFunc(GL_ONE, GL_ZERO)
-		Case BLEND_ALPHA
+		Case BlendAlpha
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-		Case BLEND_ADD
+		Case BlendAdd
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE)
-		Case BLEND_MUL
+		Case BlendMul
 			glBlendFunc(GL_DST_COLOR, GL_ZERO)
 		End
 	End
@@ -274,8 +274,8 @@ Public
 	' Drawing
 	'---------------------------------------------------------------------------
 
-	Function ClearColorBuffer:Void(col:Int = color.Color.BLACK)
-		glClearColor(color.Color.Red(col) / 255.0, color.Color.Green(col) / 255.0, color.Color.Blue(col) / 255.0, color.Color.Alpha(col) / 255.0)
+	Function ClearColorBuffer:Void(col:Int = color.Color.Black)
+		glClearColor(color.Color.R(col) / 255.0, color.Color.G(col) / 255.0, color.Color.B(col) / 255.0, color.Color.A(col) / 255.0)
 		glClear(GL_COLOR_BUFFER_BIT)
 	End
 
@@ -287,7 +287,7 @@ Public
 #If TARGET<>"html5"
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, 1, 1, 1, RenderState.ModelMatrix)
 		Shader._CurrentDefault()._Prepare()
-		DrawBuffers(mLineBuffer, 0, 1, 0, -1, -1, -1, -1, -1, -1, 0, MODE_POINTS)
+		DrawBuffers(mLineBuffer, 0, 1, 0, -1, -1, -1, -1, -1, -1, 0, ModePoints)
 #Else
 		'Drawing points do not seem to work on HTML5, so emulate it with a line instead
 		DrawLine(x-0.5, y-0.5, x+0.5, y+0.5)
@@ -297,19 +297,19 @@ Public
 	Function DrawLine:Void(x1:Float, y1:Float, x2:Float, y2:Float)
 		Mat4TransformEuler(x1, y1, 0, 0, 0, 0, x2-x1, y2-y1, 1, RenderState.ModelMatrix)
 		Shader._CurrentDefault()._Prepare()
-		DrawBuffers(mLineBuffer, 0, 2, 0, -1, -1, -1, -1, -1, -1, 0, MODE_LINES)
+		DrawBuffers(mLineBuffer, 0, 2, 0, -1, -1, -1, -1, -1, -1, 0, ModeLines)
 	End
 	
 	Function DrawEllipse:Void(x:Float, y:Float, width:Float, height:Float)
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, RenderState.ModelMatrix)
 		Shader._CurrentDefault()._Prepare()
-		DrawBuffers(mEllipseBuffer, 0, ELLIPSEPOINTS, 0, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
+		DrawBuffers(mEllipseBuffer, 0, EllipsePoints, 0, -1, -1, -1, -1, -1, -1, 0, ModeTriangleFan)
 	End
 
 	Function DrawRect:Void(x:Float, y:Float, width:Float, height:Float)
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, RenderState.ModelMatrix)
 		Shader._CurrentDefault()._Prepare()
-		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, -1, -1, -1, 0, MODE_TRIANGLEFAN)
+		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, -1, -1, -1, 0, ModeTriangleFan)
 	End
 	
 	Function DrawRectEx:Void(x:Float, y:Float, width:Float, height:Float, u0:Float, v0:Float, u1:Float, v1:Float)
@@ -324,7 +324,7 @@ Public
 		SetVertexBufferData(mRectBuffer, 48, mTexDataBuffer.Length(), mTexDataBuffer)
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, RenderState.ModelMatrix)
 		Shader._CurrentDefault()._Prepare()
-		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, 48, -1, -1, 0, MODE_TRIANGLEFAN)
+		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, 48, -1, -1, 0, ModeTriangleFan)
 	End
 
 	'---------------------------------------------------------------------------
@@ -345,14 +345,7 @@ Public
 	
 	Function CreateTexture:Int(buffer:DataBuffer, width:Int, height:Int, filter:Int)
 		Local texture:Int = glCreateTexture()
-		glBindTexture(GL_TEXTURE_2D, texture)
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, MagFilter(filter))
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, MinFilter(filter))
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer)
-'#If TARGET<>"html5"
-		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
-'#EndIf
-		'glBindTexture(GL_TEXTURE_2D, 0)
+		SetTexturePixels(texture, buffer, width, height, filter)
 		Return texture
 	End
 
@@ -380,7 +373,7 @@ Public
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, MinFilter(filter))
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, filename)
 '#If TARGET<>"html5"
-		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_2D)
+		If filter > FilterLinear Then glGenerateMipmap(GL_TEXTURE_2D)
 '#EndIf
 		'glBindTexture(GL_TEXTURE_2D, 0)
 
@@ -423,7 +416,7 @@ Public
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, top)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, bottom)
 '#If TARGET<>"html5"
-		If filter > FILTER_LINEAR Then glGenerateMipmap(GL_TEXTURE_CUBE_MAP)
+		If filter > FilterLinear Then glGenerateMipmap(GL_TEXTURE_CUBE_MAP)
 '#Endif
 		'glBindTexture(GL_TEXTURE_2D, 0)
 
@@ -435,26 +428,16 @@ Public
 	End
 
 	Function SetTextures:Void(diffuseTex:Int, normalTex:Int, shininessTex:Int, lightmap:Int, cubeTex:Int)
-		If diffuseTex <> 0
-			glActiveTexture(GL_TEXTURE0 + BASETEX_UNIT)
-			glBindTexture(GL_TEXTURE_2D, diffuseTex)
-		End
-		If normalTex <> 0
-			glActiveTexture(GL_TEXTURE0 + NORMALTEX_UNIT)
-			glBindTexture(GL_TEXTURE_2D, normalTex)
-		End
-		If shininessTex <> 0
-			glActiveTexture(GL_TEXTURE0 + SHININESSTEX_UNIT)
-			glBindTexture(GL_TEXTURE_2D, shininessTex)
-		End
-		If lightmap <> 0
-			glActiveTexture(GL_TEXTURE0 + LIGHTMAP_UNIT)
-			glBindTexture(GL_TEXTURE_2D, lightmap)
-		End
-		If cubeTex <> 0
-			glActiveTexture(GL_TEXTURE0 + CUBEMAP_UNIT)
-			glBindTexture(GL_TEXTURE_CUBE_MAP, cubeTex)
-		End
+		glActiveTexture(GL_TEXTURE0 + BaseTexUnit)
+		glBindTexture(GL_TEXTURE_2D, diffuseTex)
+		glActiveTexture(GL_TEXTURE0 + NormalTexUnit)
+		glBindTexture(GL_TEXTURE_2D, normalTex)
+		glActiveTexture(GL_TEXTURE0 + ShininessTexUnit)
+		glBindTexture(GL_TEXTURE_2D, shininessTex)
+		glActiveTexture(GL_TEXTURE0 + LightmapUnit)
+		glBindTexture(GL_TEXTURE_2D, lightmap)
+		glActiveTexture(GL_TEXTURE0 + CubemapUnit)
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeTex)
 		glActiveTexture(GL_TEXTURE0)
 		
 		RenderState.UseColorTex = diffuseTex <> 0
@@ -466,10 +449,18 @@ Public
 	
 	Function SetDepthTexture:Void(depthTex:Int)
 		If depthTex <> 0
-			glActiveTexture(GL_TEXTURE0 + DEPTHTEX_UNIT)
+			glActiveTexture(GL_TEXTURE0 + DepthTexUnit)
 			glBindTexture(GL_TEXTURE_2D, depthTex)
 			glActiveTexture(GL_TEXTURE0)
 		End
+	End
+	
+	Function SetTexturePixels:Void(texture:Int, pixels:DataBuffer, width:Int, height:Int, filter:Int)
+		glBindTexture(GL_TEXTURE_2D, texture)
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, MagFilter(filter))
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, MinFilter(filter))
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels)
+		If filter > FilterLinear Then glGenerateMipmap(GL_TEXTURE_2D)
 	End
 	
 	'---------------------------------------------------------------------------
@@ -486,7 +477,7 @@ Public
 		Return fb
 #Else
 		Return 0
-#EndIf
+#Endif
 	End
 	
 	Function FreeFramebuffer:Void(fb:Int)
@@ -562,18 +553,18 @@ Public
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
 	End
 
-	Function DrawBuffers:Void(vertexBuffer:Int, indexBuffer:Int, numIndices:Int, coordsOffset:Int, normalsOffset:Int, tangentsOffset:Int, colorsOffset:Int, texCoordsOffset:Int, boneIndicesOffset:Int, boneWeightsOffset:Int, stride:Int, mode:Int = MODE_TRIANGLES)
+	Function DrawBuffers:Void(vertexBuffer:Int, indexBuffer:Int, numIndices:Int, coordsOffset:Int, normalsOffset:Int, tangentsOffset:Int, colorsOffset:Int, texCoordsOffset:Int, boneIndicesOffset:Int, boneWeightsOffset:Int, stride:Int, mode:Int = ModeTriangles)
 		Local glMode:Int = GL_TRIANGLES
 		Select mode
-		Case MODE_POINTS
+		Case ModePoints
 			glMode = GL_POINTS
-		Case MODE_LINES
+		Case ModeLines
 			glMode = GL_LINES
-		Case MODE_TRIANGLES
+		Case ModeTriangles
 			glMode = GL_TRIANGLES
-		Case MODE_TRIANGLESTRIP
+		Case ModeTriangleStrip
 			glMode = GL_TRIANGLE_STRIP
-		Case MODE_TRIANGLEFAN
+		Case ModeTriangleFan
 			glMode = GL_TRIANGLE_FAN
 		End
 		
@@ -777,13 +768,13 @@ Private
 
 	Function MagFilter:Int(filtering:Int)
 		Select filtering
-		Case FILTER_NONE
+		Case FilterNone
 			Return GL_NEAREST
-		Case FILTER_LINEAR
+		Case FilterLinear
 			Return GL_LINEAR
-		Case FILTER_BILINEAR
+		Case FilterBilinear
 			Return GL_LINEAR
-		Case FILTER_TRILINEAR
+		Case FilterTrilinear
 			Return GL_LINEAR
 		Default
 			Return GL_LINEAR
@@ -792,19 +783,19 @@ Private
 
 	Function MinFilter:Int(filtering:Int, isCubeMap:Bool = False)
 		Select filtering
-		Case FILTER_NONE
+		Case FilterNone
 			Return GL_NEAREST
-		Case FILTER_LINEAR
+		Case FilterLinear
 			Return GL_LINEAR
 #If TARGET<>"html5"
-		Case FILTER_BILINEAR
+		Case FilterBilinear
 			Return GL_LINEAR_MIPMAP_NEAREST
-		Case FILTER_TRILINEAR
+		Case FilterTrilinear
 			Return GL_LINEAR_MIPMAP_LINEAR
 #Else
-		Case FILTER_BILINEAR
+		Case FilterBilinear
 			If Not isCubeMap Then Return GL_LINEAR_MIPMAP_NEAREST Else Return GL_LINEAR
-		Case FILTER_TRILINEAR
+		Case FilterTrilinear
 			If Not isCubeMap Then Return GL_LINEAR_MIPMAP_LINEAR Else Return GL_LINEAR
 #End
 		Default

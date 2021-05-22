@@ -38,6 +38,10 @@ Public
 			Return _Load(filename)
 		End
 	End
+	
+	Function IsLoaded:Bool(filename:String)
+		Return Cache._LoadedFont(filename) <> Null
+	End
 
 	Method Discard:Void()
 		mTexture.Discard()
@@ -152,7 +156,7 @@ Public
 		Local firstChar:Int = stream.ReadInt()
 		
 		'Load texture
-		Local tex:Texture = texture.Texture.Load(texName, Renderer.FILTER_NONE, False)
+		Local tex:Texture = texture.Texture.Load(texName, texture.Texture.FilterNone, False)
 		If Not tex Then Return Null
 		
 		'Create font

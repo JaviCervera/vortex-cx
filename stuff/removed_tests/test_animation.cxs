@@ -78,7 +78,7 @@ Public
 		
 		'Setup graphics for 2D
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
-		Graphics.Color(Color.WHITE)
+		Graphics.Color(Color.White)
 		'mFont.Draw(4, DeviceHeight() - 20, "Time: " + Int(mDwarfModel.AnimTime))
 		
 		'Draw FPS

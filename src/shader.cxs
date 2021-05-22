@@ -124,16 +124,16 @@ Public
 		#Rem
 		If mFlags <> -1
 			Local flags:Int = 0
-			If RenderState.BaseTexMode <> 0 Then flags |= Shader.FLAG_BASETEX
-			If RenderState.UseNormalTex Then flags |= Shader.FLAG_NORMALTEX
-			If RenderState.UseShininessTex Then flags |= Shader.FLAG_SHININESSTEX
-			If RenderState.UseLightTex Then flags |= Shader.FLAG_LIGHTMAP
-			If RenderState.UseCubeTex Then flags |= Shader.FLAG_CUBEMAP
-			If RenderState.BlendMode = Renderer.BLEND_SOLID Then flags |= Shader.FLAG_SOLID
-			If RenderState.FogEnabled Then flags |= Shader.FLAG_FOG
-			If RenderState.ShadowsEnabled Then flags |= Shader.FLAG_SHADOWS
-			If RenderState.Skinned Then flags |= Shader.FLAG_SKINNED
-			If RenderState.BaseTexMode = 2 Then flags |= Shader.FLAG_BASECUBE
+			If RenderState.BaseTexMode <> 0 Then flags |= Shader.FlagBaseTex
+			If RenderState.UseNormalTex Then flags |= Shader.FlagNormalTex
+			If RenderState.UseShininessTex Then flags |= Shader.FlagShininessTex
+			If RenderState.UseLightTex Then flags |= Shader.FlagLightmap
+			If RenderState.UseCubeTex Then flags |= Shader.FlagCubemap
+			If RenderState.BlendMode = Renderer.BlendSolid Then flags |= Shader.FlagSolid
+			If RenderState.FogEnabled Then flags |= Shader.FlagFog
+			If RenderState.ShadowsEnabled Then flags |= Shader.FlagShadows
+			If RenderState.Skinned Then flags |= Shader.FlagSkinned
+			If RenderState.BaseTexMode = 2 Then flags |= Shader.FlagBaseCube
 			Renderer.SetShaderInt(mFlags, flags)
 		End
 		#End
@@ -153,14 +153,14 @@ Public
 		
 		'Set solid mode
 		If mSolidMode <> -1
-			If RenderState.BlendMode = Renderer.BLEND_SOLID Then Renderer.SetShaderInt(mSolidMode, True) Else Renderer.SetShaderInt(mSolidMode, False)
+			If RenderState.BlendMode = Renderer.BlendSolid Then Renderer.SetShaderInt(mSolidMode, True) Else Renderer.SetShaderInt(mSolidMode, False)
 		End
 		
 		'Set color
-		If mMaterialColor <> -1 Then Renderer.SetShaderVec4(mMaterialColor, Color.Red(RenderState.Color) / 255.0, Color.Green(RenderState.Color) / 255.0, Color.Blue(RenderState.Color) / 255.0, Color.Alpha(RenderState.Color) / 255.0)
+		If mMaterialColor <> -1 Then Renderer.SetShaderVec4(mMaterialColor, Color.R(RenderState.Color) / 255.0, Color.G(RenderState.Color) / 255.0, Color.B(RenderState.Color) / 255.0, Color.A(RenderState.Color) / 255.0)
 		
 		'Set ambient
-		If mAmbient <> -1 Then Renderer.SetShaderVec3(mAmbient, Color.Red(RenderState.Ambient) / 255.0, Color.Green(RenderState.Ambient) / 255.0, Color.Blue(RenderState.Ambient) / 255.0)
+		If mAmbient <> -1 Then Renderer.SetShaderVec3(mAmbient, Color.R(RenderState.Ambient) / 255.0, Color.G(RenderState.Ambient) / 255.0, Color.B(RenderState.Ambient) / 255.0)
 	
 		'Set shininess
 		If mMaterialShininess <> -1 Then Renderer.SetShaderFloat(mMaterialShininess, RenderState.Shininess)
@@ -173,7 +173,7 @@ Public
 		
 		'Set fog
 		Renderer.SetShaderVec3(mFogData, RenderState.FogMinDistance, RenderState.FogMaxDistance, Int(RenderState.FogEnabled))
-		If RenderState.FogEnabled Then Renderer.SetShaderVec3(mFogColor, Color.Red(RenderState.FogColor) / 255.0, Color.Green(RenderState.FogColor) / 255.0, Color.Blue(RenderState.FogColor) / 255.0)
+		If RenderState.FogEnabled Then Renderer.SetShaderVec3(mFogColor, Color.R(RenderState.FogColor) / 255.0, Color.G(RenderState.FogColor) / 255.0, Color.B(RenderState.FogColor) / 255.0)
 		
 		'Set refract coef
 		If mRefractCoef <> -1 Then Renderer.SetShaderFloat(mRefractCoef, RenderState.RefractCoef)
@@ -182,16 +182,16 @@ Public
 		If mNumLights <> -1 Then Renderer.SetShaderInt(mNumLights, RenderState.NumLights)
 		For Local i:Int = 0 Until RenderState.NumLights
 			If mLightVector[i] <> -1 Then Renderer.SetShaderVec4(mLightVector[i], RenderState.LightPos[i][0], RenderState.LightPos[i][1], RenderState.LightPos[i][2], RenderState.LightPos[i][3])
-			If mLightData[i] <> -1 Then Renderer.SetShaderVec4(mLightData[i], Color.Red(RenderState.LightColor[i]) / 255.0, Color.Green(RenderState.LightColor[i]) / 255.0, Color.Blue(RenderState.LightColor[i]) / 255.0, RenderState.LightRadius[i])
+			If mLightData[i] <> -1 Then Renderer.SetShaderVec4(mLightData[i], Color.R(RenderState.LightColor[i]) / 255.0, Color.G(RenderState.LightColor[i]) / 255.0, Color.B(RenderState.LightColor[i]) / 255.0, RenderState.LightRadius[i])
 		Next
 		
 		'Set textures
-		If mBaseTexSampler <> -1 Then Renderer.SetShaderInt(mBaseTexSampler, Renderer.BASETEX_UNIT)
-		If mNormalTexSampler <> -1 Then Renderer.SetShaderInt(mNormalTexSampler, Renderer.NORMALTEX_UNIT)
-		If mShininessTexSampler <> -1 Then Renderer.SetShaderInt(mShininessTexSampler, Renderer.SHININESSTEX_UNIT)
-		If mLightmapSampler <> -1 Then Renderer.SetShaderInt(mLightmapSampler, Renderer.LIGHTMAP_UNIT)
-		If mCubemapSampler <> -1 Then Renderer.SetShaderInt(mCubemapSampler, Renderer.CUBEMAP_UNIT)
-		If mDepthSampler <> -1 Then Renderer.SetShaderInt(mDepthSampler, Renderer.DEPTHTEX_UNIT)
+		If mBaseTexSampler <> -1 Then Renderer.SetShaderInt(mBaseTexSampler, Renderer.BaseTexUnit)
+		If mNormalTexSampler <> -1 Then Renderer.SetShaderInt(mNormalTexSampler, Renderer.NormalTexUnit)
+		If mShininessTexSampler <> -1 Then Renderer.SetShaderInt(mShininessTexSampler, Renderer.ShininessTexUnit)
+		If mLightmapSampler <> -1 Then Renderer.SetShaderInt(mLightmapSampler, Renderer.LightmapUnit)
+		If mCubemapSampler <> -1 Then Renderer.SetShaderInt(mCubemapSampler, Renderer.CubemapUnit)
+		If mDepthSampler <> -1 Then Renderer.SetShaderInt(mDepthSampler, Renderer.DepthTexUnit)
 		If mUseColorTex <> -1 Then Renderer.SetShaderInt(mUseColorTex, RenderState.UseColorTex)
 		If mUseNormalTex <> -1 Then Renderer.SetShaderInt(mUseNormalTex, RenderState.UseNormalTex)
 		If mUseShininessTex <> -1 Then Renderer.SetShaderInt(mUseShininessTex, RenderState.UseShininessTex)
@@ -254,10 +254,10 @@ End
 
 Class Shader Final
 Public
-	Const TYPE_MINIMAL					: Int = 0
-	Const TYPE_MINIMAL_SHADOWS	: Int = 1
-	Const TYPE_VERTEX_LIGHTING	: Int = 2
-	Const TYPE_PIXEL_LIGHTING		: Int = 3
+	Const TypeMinimal					: Int = 0
+	Const TypeMinimalShadows	: Int = 1
+	Const TypeVertexLighting	: Int = 2
+	Const TypePixelLighting		: Int = 3
 
 	Method New(vertex:String, fragment:String, delegate:ShaderDelegate = Null)
 '#If TARGET="html5"
@@ -279,17 +279,17 @@ Public
 
 		Local flags:String = "" '+
 		#Rem
-			"#define FLAG_BASETEX " + FLAG_BASETEX + "~n" +
-			"#define FLAG_NORMALTEX " + FLAG_NORMALTEX + "~n" +
-			"#define FLAG_SHININESSTEX " + FLAG_SHININESSTEX + "~n" +
-			"#define FLAG_LIGHTMAP " + FLAG_LIGHTMAP + "~n" +
-			"#define FLAG_CUBEMAP " + FLAG_CUBEMAP + "~n" +
-			"#define FLAG_SOLID " + FLAG_SOLID + "~n" +
-			"#define FLAG_PIXELLIGHTING " + FLAG_PIXELLIGHTING + "~n" +
-			"#define FLAG_FOG " + FLAG_FOG + "~n" +
-			"#define FLAG_SHADOWS " + FLAG_SHADOWS + "~n" +
-			"#define FLAG_SKINNED " + FLAG_SKINNED + "~n" +
-			"#define FLAG_BASECUBE " + FLAG_BASECUBE + "~n"
+			"#define FlagBaseTex " + FlagBaseTex + "~n" +
+			"#define FlagNormalTex " + FlagNormalTex + "~n" +
+			"#define FlagShininessTex " + FlagShininessTex + "~n" +
+			"#define FlagLightmap " + FlagLightmap + "~n" +
+			"#define FlagCubemap " + FlagCubemap + "~n" +
+			"#define FlagSolid " + FlagSolid + "~n" +
+			"#define FlagPixelLighting " + FlagPixelLighting + "~n" +
+			"#define FlagFog " + FlagFog + "~n" +
+			"#define FlagShadows " + FlagShadows + "~n" +
+			"#define FlagSkinned " + FlagSkinned + "~n" +
+			"#define FlagBaseCube " + FlagBaseCube + "~n"
 		#End
 		
 		vertex = version + precision + defines + flags + vertex
@@ -352,15 +352,15 @@ Public
 	End
 	
 	Function DefaultType:Void(type:Int)
-		type = Clamp(type, TYPE_MINIMAL, TYPE_PIXEL_LIGHTING)
-		If type = TYPE_PIXEL_LIGHTING And _PixelLighting().Handle = 0 Then type -= 1
-		If type = TYPE_VERTEX_LIGHTING And _VertexLighting().Handle = 0 Then type -= -1
-		If type = TYPE_MINIMAL_SHADOWS And _MinimalShadows().Handle = 0 Then type -= -1
+		type = Clamp(type, TypeMinimal, TypePixelLighting)
+		If type = TypePixelLighting And _PixelLighting().Handle = 0 Then type -= 1
+		If type = TypeVertexLighting And _VertexLighting().Handle = 0 Then type -= -1
+		If type = TypeMinimalShadows And _MinimalShadows().Handle = 0 Then type -= -1
 		mDefaultType = type
 	End
 	
 	Function DefaultType:Int()
-		If mDefaultType = -1 Then DefaultType(TYPE_PIXEL_LIGHTING)
+		If mDefaultType = -1 Then DefaultType(TypePixelLighting)
 		Return mDefaultType
 	End
 	
@@ -380,17 +380,17 @@ Public
 	End
 	
 	Function _Default2D:Shader()
-		If mDefault2D = Null Then mDefault2D = New Shader(_2D_VERTEX_SHADER, _2D_FRAGMENT_SHADER)
+		If mDefault2D = Null Then mDefault2D = New Shader(_2DVertexShader, _2DFragmentShader)
 		Return mDefault2D
 	End
 	
 	Function _Default3D:Shader()
 		Select DefaultType()
-		Case TYPE_PIXEL_LIGHTING
+		Case TypePixelLighting
 			Return _PixelLighting()
-		Case TYPE_VERTEX_LIGHTING
+		Case TypeVertexLighting
 			Return _VertexLighting()
-		Case TYPE_MINIMAL_SHADOWS
+		Case TypeMinimalShadows
 			Return _MinimalShadows()
 		Default
 			Return _Minimal()
@@ -398,32 +398,32 @@ Public
 	End
 	
 	Function _Shadow:Shader()
-		If mShadow = Null Then mShadow = New Shader(SHADOW_VERTEX_SHADER, SHADOW_FRAGMENT_SHADER)
+		If mShadow = Null Then mShadow = New Shader(ShadowVertexShader, ShadowFragmentShader)
 		Return mShadow
 	End
 	
 	Function _Skybox:Shader()
-		If mSkybox = Null Then mSkybox = New Shader(SKYBOX_VERTEX_SHADER, SKYBOX_FRAGMENT_SHADER)
+		If mSkybox = Null Then mSkybox = New Shader(SkyboxVertexShader, SkyboxFragmentShader)
 		Return mSkybox
 	End
 	
 	Function _Minimal:Shader()
-		If mMinimal = Null Then mMinimal = New Shader(MIN_VERTEX_SHADER, MIN_FRAGMENT_SHADER)
+		If mMinimal = Null Then mMinimal = New Shader(MinVertexShader, MinFragmentShader)
 		Return mMinimal
 	End
 	
 	Function _MinimalShadows:Shader()
-		If mMinimalShadows = Null Then mMinimalShadows = New Shader(MIN_SHADOWS_VERTEX_SHADER, MIN_SHADOWS_FRAGMENT_SHADER)
+		If mMinimalShadows = Null Then mMinimalShadows = New Shader(MinShadowsVertexShader, MinShadowsFragmentShader)
 		Return mMinimalShadows
 	End
 	
 	Function _VertexLighting:Shader()
-		If mVertexLighting = Null Then mVertexLighting = New Shader(VLIT_VERTEX_SHADER, VLIT_FRAGMENT_SHADER)
+		If mVertexLighting = Null Then mVertexLighting = New Shader(VLitVertexShader, VLitFragmentShader)
 		Return mVertexLighting
 	End
 	
 	Function _PixelLighting:Shader()
-		If mPixelLighting = Null Then mPixelLighting = New Shader(PLIT_VERTEX_SHADER, PLIT_FRAGMENT_SHADER)
+		If mPixelLighting = Null Then mPixelLighting = New Shader(PLitVertexShader, PLitFragmentShader)
 		Return mPixelLighting
 	End
 	
@@ -440,16 +440,16 @@ Public
 	'	Return mBound
 	'End
 Private
-	Const FLAG_BASETEX			: Int = 1
-	Const FLAG_NORMALTEX		: Int = 2
-	Const FLAG_SHININESSTEX		: Int = 4
-	Const FLAG_LIGHTMAP			: Int = 8
-	Const FLAG_CUBEMAP			: Int = 16
-	Const FLAG_SOLID			: Int = 32
-	Const FLAG_FOG				: Int = 64
-	Const FLAG_SHADOWS			: Int = 128
-	Const FLAG_SKINNED			: Int = 256
-	Const FLAG_BASECUBE			: Int = 512
+	Const FlagBaseTex			: Int = 1
+	Const FlagNormalTex		: Int = 2
+	Const FlagShininessTex		: Int = 4
+	Const FlagLightmap			: Int = 8
+	Const FlagCubemap			: Int = 16
+	Const FlagSolid			: Int = 32
+	Const FlagFog				: Int = 64
+	Const FlagShadows			: Int = 128
+	Const FlagSkinned			: Int = 256
+	Const FlagBaseCube			: Int = 512
 
 	Field mHandle		: Int
 	Field mDelegate		: ShaderDelegate

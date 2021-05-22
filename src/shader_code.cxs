@@ -1,11 +1,11 @@
 Strict
 
-Const STD_STRUCTS:String = "" +
+Const StdStructs:String = "" +
 "struct FogInfo { vec3 Data; vec3 Color; };" +						'Data[0], Data[1] -> Min and max distance. Data[2] -> 0 if fog is disabled, 1 if fog is enabled.
 "struct LightInfo { vec4 Vector; vec4 Data; };" +					'Vector contains light pos in viewer space. Data contains light color on xyz, and radius on w
 "struct LightingResult { vec3 Diffuse; vec3 Specular; };"
 
-Const STD_UNIFORMS:String = "" +
+Const StdUniforms:String = "" +
 "uniform mat4 ModelViewProjection;" +
 "uniform mat4 ModelView;" +
 "uniform mat4 InverseView;" +
@@ -34,7 +34,7 @@ Const STD_UNIFORMS:String = "" +
 "uniform bool SolidMode;" +
 "uniform bool ShadowsEnabled;"
 
-Const STD_ATTRIBUTES:String = "" +
+Const StdAttributes:String = "" +
 "attribute vec3 VertexPos;" +
 "attribute vec3 VertexNormal;" +
 "attribute vec3 VertexTangent;" +
@@ -43,7 +43,7 @@ Const STD_ATTRIBUTES:String = "" +
 "attribute vec4 VertexBoneIndices;" +
 "attribute vec4 VertexBoneWeights;"
 
-Const STD_SAMPLERS:String = "" +
+Const StdSamplers:String = "" +
 "uniform sampler2D BaseTexSampler;" +
 "uniform sampler2D NormalTexSampler;" +
 "uniform sampler2D ShininessTexSampler;" +
@@ -51,7 +51,7 @@ Const STD_SAMPLERS:String = "" +
 "uniform samplerCube CubemapSampler;" +
 "uniform sampler2D DepthSampler;"
 
-Const STD_VARYINGS:String = "" +
+Const StdVaryings:String = "" +
 "varying vec3 FVertexPos;" +						'Used in fragment lighting only
 "varying vec3 FNormalizedVertexPos;" +	'Used in fragment lighting only
 "varying vec3 FVertexNormal;" +					'Used in fragment lighting only
@@ -64,19 +64,19 @@ Const STD_VARYINGS:String = "" +
 "varying vec3 FDepthCoords;" +					'Used when shadowing only
 "varying mat3 FTBNMatrix;"							'Used in normal mapping only
 
-Const STD_VERTEX_VARS:String = "" +
-STD_STRUCTS +
-STD_UNIFORMS +
-STD_ATTRIBUTES +
-STD_VARYINGS
+Const StdVertexVars:String = "" +
+StdStructs +
+StdUniforms +
+StdAttributes +
+StdVaryings
 
-Const STD_FRAGMENT_VARS:String = "" +
-STD_STRUCTS +
-STD_UNIFORMS +
-STD_SAMPLERS +
-STD_VARYINGS
+Const StdFragmentVars:String = "" +
+StdStructs +
+StdUniforms +
+StdSamplers +
+StdVaryings
 
-Const SHADER_CALC_LIGHTING:String = "" +
+Const ShaderCalcLighting:String = "" +
 "LightingResult CalcLighting(vec3 V, vec3 NV, vec3 N, vec3 texShininess) {" +
 "	LightingResult lighting;" +
 "	lighting.Diffuse = Ambient;" +
@@ -116,7 +116,7 @@ Const SHADER_CALC_LIGHTING:String = "" +
 "}~n"
 
 #Rem
-Const SHADER_CALC_SKINNING:String = "" +
+Const ShaderCalcSkinning:String = "" +
 "vec4 CalcSkinning(vec4 vertex) {" +
 "	mat4 boneTransform = mat4(1);" +
 "	for ( int i = 0; i < 4; ++i ) {" +
@@ -127,18 +127,18 @@ Const SHADER_CALC_SKINNING:String = "" +
 "}~n"
 #End
 
-Const SHADER_CALC_CUBE_COORDS:String = "" +
+Const ShaderCalcCubeCoords:String = "" +
 "vec3 CalcCubeCoords(vec3 NV, vec3 N) {" +
 "	if ( MaterialRefractCoef < 0.0 ) return normalize(vec3(InverseView * vec4(reflect(NV, N), 0)));" +
 "	else return normalize(vec3(InverseView * vec4(refract(NV, N, MaterialRefractCoef), 0)));" +
 "}"
 
-Const SHADER_CALC_TBN_MATRIX:String = "" +
+Const ShaderCalcTbnMatrix:String = "" +
 "mat3 CalcTBNMatrix(vec3 normal, vec3 tangent) {" +
 "	return mat3(tangent, cross(tangent, normal), normal);" +
 "}"
 
-Const MIN_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + 'SHADER_CALC_SKINNING +
+Const MinVertexShader:String = StdVertexVars + ShaderCalcLighting + 'ShaderCalcSkinning +
 "void main() {" +
 	'Get vec4 version of VertexPos
 "	vec4 VertexPos4 = vec4(VertexPos, 1);" +
@@ -172,7 +172,7 @@ Const MIN_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + 'SHADE
 "	gl_Position = ModelViewProjection * VertexPos4;" +
 "}"
 
-Const MIN_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
+Const MinFragmentShader:String = StdFragmentVars +
 "void main() {" +
 	'First, if the fragment is in the fog completely, set it's color directly
 "	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
@@ -207,7 +207,7 @@ Const MIN_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
 "	if ( Fog.Data[2] != 0.0 ) gl_FragColor = vec4(mix(Fog.Color, vec3(gl_FragColor), FFogFactor), gl_FragColor.a);" +
 "}"
 
-Const MIN_SHADOWS_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + 'SHADER_CALC_SKINNING +
+Const MinShadowsVertexShader:String = StdVertexVars + ShaderCalcLighting + 'ShaderCalcSkinning +
 "void main() {" +
 	'Get vec4 version of VertexPos
 "	vec4 VertexPos4 = vec4(VertexPos, 1);" +
@@ -242,7 +242,7 @@ Const MIN_SHADOWS_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING 
 "	gl_Position = ModelViewProjection * VertexPos4;" +
 "}"
 
-Const MIN_SHADOWS_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
+Const MinShadowsFragmentShader:String = StdFragmentVars +
 "void main() {" +
 	'First, if the fragment is in the fog completely, set it's color directly
 "	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
@@ -287,7 +287,7 @@ Const MIN_SHADOWS_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
 "	if ( Fog.Data[2] != 0.0 ) gl_FragColor = vec4(mix(Fog.Color, vec3(gl_FragColor), FFogFactor), gl_FragColor.a);" +
 "}"
 
-Const VLIT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER_CALC_CUBE_COORDS + 'SHADER_CALC_SKINNING +
+Const VLitVertexShader:String = StdVertexVars + ShaderCalcLighting + ShaderCalcCubeCoords + 'ShaderCalcSkinning +
 "void main() {" +
 	'Get vec4 version of VertexPos
 "	vec4 VertexPos4 = vec4(VertexPos, 1);" +
@@ -325,7 +325,7 @@ Const VLIT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADE
 "	gl_Position = ModelViewProjection * VertexPos4;" +
 "}"
 
-Const VLIT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
+Const VLitFragmentShader:String = StdFragmentVars +
 "void main() {" +
 	'First, if the fragment is in the fog completely, set it's color directly
 "	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
@@ -379,7 +379,7 @@ Const VLIT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS +
 "	if ( Fog.Data[2] != 0.0 ) gl_FragColor = vec4(mix(Fog.Color, vec3(gl_FragColor), FFogFactor), gl_FragColor.a);" +
 "}"
 
-Const PLIT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_CUBE_COORDS + SHADER_CALC_TBN_MATRIX + 'SHADER_CALC_SKINNING +
+Const PLitVertexShader:String = StdVertexVars + ShaderCalcCubeCoords + ShaderCalcTbnMatrix + 'ShaderCalcSkinning +
 "void main() {" +
 	'Get vec4 version of VertexPos
 "	vec4 VertexPos4 = vec4(VertexPos, 1);" +
@@ -418,7 +418,7 @@ Const PLIT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_CUBE_COORDS + SH
 "	gl_Position = ModelViewProjection * VertexPos4;" +
 "}"
 
-Const PLIT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING +
+Const PLitFragmentShader:String = StdFragmentVars + ShaderCalcLighting +
 "void main() {" +
 	'First, if the fragment is in the fog completely, set it's color directly
 "	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
@@ -485,7 +485,7 @@ Const PLIT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING +
 "	if ( Fog.Data[2] != 0.0 ) gl_FragColor = vec4(mix(Fog.Color, vec3(gl_FragColor), FFogFactor), gl_FragColor.a);" +
 "}"
 
-Const DEFAULT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SHADER_CALC_CUBE_COORDS + SHADER_CALC_TBN_MATRIX + 'SHADER_CALC_SKINNING +
+Const DefaultVertexShader:String = StdVertexVars + ShaderCalcLighting + ShaderCalcCubeCoords + ShaderCalcTbnMatrix + 'ShaderCalcSkinning +
 "void main() {" +
 	'Get vec4 version of VertexPos
 "	vec4 VertexPos4 = vec4(VertexPos, 1);~n" +
@@ -530,7 +530,7 @@ Const DEFAULT_VERTEX_SHADER:String = STD_VERTEX_VARS + SHADER_CALC_LIGHTING + SH
 "	gl_Position = ModelViewProjection * VertexPos4;" +
 "}"
 
-Const DEFAULT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING +
+Const DefaultFragmentShader:String = StdFragmentVars + ShaderCalcLighting +
 "void main() {" +
 	'First, if the fragment is in the fog completely, set it's color directly
 "	if ( Fog.Data[2] != 0.0 && FFogFactor < 0.004 ) { gl_FragColor = vec4(Fog.Color, 1); return; }" +
@@ -597,7 +597,7 @@ Const DEFAULT_FRAGMENT_SHADER:String = STD_FRAGMENT_VARS + SHADER_CALC_LIGHTING 
 "	if ( Fog.Data[2] != 0.0 ) gl_FragColor = vec4(mix(Fog.Color, vec3(gl_FragColor), FFogFactor), gl_FragColor.a);" +
 "}"
 
-Const SHADOW_VERTEX_SHADER:String = "" +
+Const ShadowVertexShader:String = "" +
 "uniform mat4 ModelViewProjection;" +
 "attribute vec3 VertexPos;" +
 '"varying float depth;" +
@@ -606,14 +606,14 @@ Const SHADOW_VERTEX_SHADER:String = "" +
 '"	depth = gl_Position.z / gl_Position.w;" +
 "}"
 
-Const SHADOW_FRAGMENT_SHADER:String = "" +
+Const ShadowFragmentShader:String = "" +
 '"varying float depth;" +
 "void main() {" +
 "	float depth = gl_FragCoord.z / gl_FragCoord.w;" +
 "	gl_FragColor = vec4(depth, depth, depth, 1);" +
 "}"
 
-Const _2D_VERTEX_SHADER:String = "" +
+Const _2DVertexShader:String = "" +
 "uniform mat4 ModelViewProjection;" +
 "uniform mat4 TextureMatrix;" +
 "attribute vec3 VertexPos;" +
@@ -624,7 +624,7 @@ Const _2D_VERTEX_SHADER:String = "" +
 "	FVertexTexCoords = vec2(TextureMatrix * vec4(vec2(VertexTexCoords), 0, 1));" +
 "}"
 
-Const _2D_FRAGMENT_SHADER:String = "" +
+Const _2DFragmentShader:String = "" +
 "uniform bool UseColorTex;" +
 "uniform bool UseCubemap;" +
 "uniform sampler2D BaseTexSampler;" +
@@ -637,7 +637,7 @@ Const _2D_FRAGMENT_SHADER:String = "" +
 "	if ( UseCubemap ) gl_FragColor *= textureCube(CubemapSampler, vec3(FVertexTexCoords.x, -FVertexTexCoords.y, 1));" +
 "}"
 
-Const SKYBOX_VERTEX_SHADER:String = "" +
+Const SkyboxVertexShader:String = "" +
 "uniform mat4 ModelViewProjection;" +
 "uniform mat4 ModelView;" +
 "uniform mat4 InverseView;" +
@@ -648,7 +648,7 @@ Const SKYBOX_VERTEX_SHADER:String = "" +
 "	FCubeCoords = vec3(InverseView * vec4(normalize(vec3(ModelView * vec4(VertexPos, 1))), 0));" +
 "}"
 
-Const SKYBOX_FRAGMENT_SHADER:String = "" +
+Const SkyboxFragmentShader:String = "" +
 "uniform samplerCube CubemapSampler;" +
 "varying vec3 FCubeCoords;" +
 "void main() { gl_FragColor = textureCube(CubemapSampler, FCubeCoords); }"

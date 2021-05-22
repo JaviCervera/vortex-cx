@@ -18,6 +18,15 @@ static int NormalsSize(const surface_t& surf) {
   return 0;
 }
 
+static int ColorsSize(const surface_t& surf) {
+  for (size_t v = 0; v < surf.vertices.size(); ++v) {
+    if (surf.vertices[v].color != 0xFFFFFFFF) {
+      return surf.vertices.size() * 4;
+    }
+  }
+  return 0;
+}
+
 static int TangentsSize(const surface_t& surf) {
   for (size_t v = 0; v < surf.vertices.size(); ++v) {
     if (surf.vertices[v].tx != 0 || surf.vertices[v].ty != 0 || surf.vertices[v].tz != 0) {
@@ -106,6 +115,7 @@ void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights
     unsigned char vertexFlags = 0;
     if ( NormalsSize(surf) > 0 ) vertexFlags |= 1;
     if ( TangentsSize(surf) > 0 ) vertexFlags |= 2;
+    if ( ColorsSize(surf) > 0 ) vertexFlags |= 4;
     if ( Tex0Size(surf) > 0 ) vertexFlags |= 8;
     if ( Tex1Size(surf) > 0 ) vertexFlags |= 16;
     if ( exportWeights ) vertexFlags |= 32;
@@ -126,6 +136,9 @@ void SaveMSH(const mesh_t* mesh, const std::string& filename, bool exportWeights
         f.write(reinterpret_cast<const char*>(&surf.vertices[v].tx), sizeof(float));
         f.write(reinterpret_cast<const char*>(&surf.vertices[v].ty), sizeof(float));
         f.write(reinterpret_cast<const char*>(&surf.vertices[v].tz), sizeof(float));
+      }
+      if ( vertexFlags & 4 ) {
+        f.write(reinterpret_cast<const char*>(&surf.vertices[v].color), sizeof(unsigned int));
       }
       if ( vertexFlags & 8 ) {
         f.write(reinterpret_cast<const char*>(&surf.vertices[v].u0), sizeof(float));

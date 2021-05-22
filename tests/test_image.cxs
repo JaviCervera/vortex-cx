@@ -56,7 +56,7 @@ Public
 		mImage.Draw((DeviceWidth() - mImage.Width)/2, (DeviceHeight() - mImage.Height)/2)
 		
 		'Draw FPS
-		Graphics.Color(Color.WHITE)
+		Graphics.Color(Color.White)
 		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 	

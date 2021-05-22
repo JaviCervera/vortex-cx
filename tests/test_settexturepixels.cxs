@@ -1,0 +1,72 @@
+Strict
+
+Import brl.databuffer
+Import mojo.app
+Import vortex
+
+Class TestApp Extends App
+	Method OnCreate:Int()
+		'Init Vortex
+		If Not World.Init()
+			'Print Graphics.ShaderError()
+			EndApp()
+		End
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.Position(0, 0, -3)
+		mCam.BackgroundColor = Color.RGB(255, 200, 155)
+		
+		'Create texture
+		mTex = New Texture(128, 128)
+		
+		'Create data buffer
+		mBuffer = New DataBuffer(mTex.Width * mTex.Height * 4, False)
+		
+		'Create cube
+		mCube = New Model(Mesh.CreateCube())
+		mCube.Material.BlendMode = Graphics.BlendAlpha
+		mCube.Material.ColorTexture = mTex
+		
+		'Create light
+		Local light:Light = New Light()
+		light.Rotate(45, -45, 0)
+		
+		Return 0
+	End
+	
+	Method OnUpdate:Int()
+		'Update world
+		World.Update()
+		
+		'Update pixels
+		For Local y:Int = 0 Until mTex.Height
+			For Local x:Int = 0 Until mTex.Width
+				mBuffer.PokeInt((y*mTex.Width + x) * 4, Color.RGB(Int(Rnd(0, 255)), Int(Rnd(0, 255)), Int(Rnd(0, 255)), Int(Rnd(0, 255))))
+			Next
+		Next
+		mTex.SetPixels(mBuffer)
+
+		'Rotate cube
+		mCube.Turn(32 * World.DeltaTime(), 32 * World.DeltaTime(), 0)
+		
+		Return 0
+	End
+	
+	Method OnRender:Int()		
+		'Render world
+		World.Render()
+		
+		Return 0
+	End
+Private
+	Field mCam:Camera
+	Field mTex:Texture
+	Field mBuffer:DataBuffer
+	Field mCube:Model
+End
+
+Function Main:Int()
+	New TestApp
+	Return False
+End

@@ -9,26 +9,26 @@ Import renderer
 Public
 Class Surface
 Public
-	Const MODE_POINTS					: Int = Renderer.MODE_POINTS
-	Const MODE_LINES					: Int = Renderer.MODE_LINES
-	Const MODE_TRIANGLES			: Int = Renderer.MODE_TRIANGLES
-	Const MODE_TRIANGLESTRIP	: Int = Renderer.MODE_TRIANGLESTRIP
-	Const MODE_TRIANGLEFAN		: Int = Renderer.MODE_TRIANGLEFAN
+	Const ModePoints					: Int = Renderer.ModePoints
+	Const ModeLines					: Int = Renderer.ModeLines
+	Const ModeTriangles			: Int = Renderer.ModeTriangles
+	Const ModeTriangleStrip	: Int = Renderer.ModeTriangleStrip
+	Const ModeTriangleFan		: Int = Renderer.ModeTriangleFan
 	
-	Method New(mode:Int = Surface.MODE_TRIANGLES)
+	Method New(mode:Int = Surface.ModeTriangles)
 		mMode = mode
-		mIndices = New DataBuffer(INC * 2, True)
-		mVertices = New DataBuffer(INC * VERTEX_SIZE, True)
+		mIndices = New DataBuffer(Inc * 2, True)
+		mVertices = New DataBuffer(Inc * VertexSize, True)
 		mNumIndices = 0
 		mNumVertices = 0
 		mVertexBuffer = Renderer.CreateVertexBuffer(0)
 		mIndexBuffer = Renderer.CreateIndexBuffer(0)
-		mStatus = STATUS_OK
+		mStatus = StatusOk
 	End
 	
 	Method New(other:Surface)
-		mIndices = New DataBuffer(INC * 2, True)
-		mVertices = New DataBuffer(INC * VERTEX_SIZE, True)
+		mIndices = New DataBuffer(Inc * 2, True)
+		mVertices = New DataBuffer(Inc * VertexSize, True)
 		mNumIndices = 0
 		mNumVertices = 0
 		mVertexBuffer = Renderer.CreateVertexBuffer(0)
@@ -50,9 +50,9 @@ Public
 	Method Set:Void(other:Surface)
 		If Self = other Then Return
 		mMode = other.mMode
-		mStatus = STATUS_V_DIRTY | STATUS_I_DIRTY
-		If mNumIndices <> other.mNumIndices Then mStatus |= STATUS_I_RESIZED
-		If mNumVertices <> other.mNumVertices Then mStatus |= STATUS_V_RESIZED
+		mStatus = StatusVerticesDrty | StatusIndicesDirty
+		If mNumIndices <> other.mNumIndices Then mStatus |= StatusIndicesResized
+		If mNumVertices <> other.mNumVertices Then mStatus |= StatusVerticesResized
 		If mIndices.Length <> other.mIndices.Length
 			mIndices.Discard()
 			mIndices = New DataBuffer(other.mIndices.Length, True)
@@ -76,7 +76,7 @@ Public
 		'Create new buffer if current is too short
 		If mIndices.Length() < (mNumIndices + 1) * 2
 			'Copy old buffer into new one
-			Local buf:DataBuffer = New DataBuffer(mIndices.Length() + INC*2)
+			Local buf:DataBuffer = New DataBuffer(mIndices.Length() + Inc*2)
 			mIndices.CopyBytes(0, buf, 0, mIndices.Length())
 			mIndices.Discard()
 			mIndices = buf
@@ -87,7 +87,7 @@ Public
 		mNumIndices += 1
 		
 		'Update status
-		mStatus |= STATUS_I_DIRTY | STATUS_I_RESIZED
+		mStatus |= StatusIndicesDirty | StatusIndicesResized
 		
 		Return NumIndices-1
 	End
@@ -98,7 +98,7 @@ Public
 	
 	Method Index:Void(num:Int, v:Int)
 		mIndices.PokeShort(num*2, v)
-		mStatus |= STATUS_I_DIRTY
+		mStatus |= StatusIndicesDirty
 	End
 	
 	Method Index:Int(num:Int)
@@ -106,7 +106,7 @@ Public
 	End
 
 	Method AddTriangle:Int(v0:Int, v1:Int, v2:Int)
-		If mMode = MODE_TRIANGLES
+		If mMode = ModeTriangles
 			AddIndex(v0)
 			AddIndex(v1)
 			AddIndex(v2)
@@ -118,9 +118,9 @@ Public
 
 	Method NumTriangles:Int() Property
 		Select mMode
-		Case MODE_TRIANGLES
+		Case ModeTriangles
 			Return NumIndices / 3
-		Case MODE_TRIANGLESTRIP, MODE_TRIANGLEFAN
+		Case ModeTriangleStrip, ModeTriangleFan
 			Return Max(0, NumIndices - 2)
 		Default
 			Return 0
@@ -128,58 +128,58 @@ Public
 	End
 
 	Method Triangle:Void(tri:Int, v0:Int, v1:Int, v2:Int)
-		If mMode = MODE_TRIANGLES
+		If mMode = ModeTriangles
 			mIndices.PokeShort(tri * 6, v0)
 			mIndices.PokeShort(tri * 6 + 2, v1)
 			mIndices.PokeShort(tri * 6 + 4, v2)
-			mStatus |= STATUS_I_DIRTY
+			mStatus |= StatusIndicesDirty
 		End
 	End
 
 	Method TriangleV0:Int(tri:Int)
-		If mMode = MODE_TRIANGLES Then Return mIndices.PeekShort(tri*6) Else Return -1
+		If mMode = ModeTriangles Then Return mIndices.PeekShort(tri*6) Else Return -1
 	End
 
 	Method TriangleV1:Int(tri:Int)
-		If mMode = MODE_TRIANGLES Then Return mIndices.PeekShort(tri*6 + 2) Else Return -1
+		If mMode = ModeTriangles Then Return mIndices.PeekShort(tri*6 + 2) Else Return -1
 	End
 
 	Method TriangleV2:Int(tri:Int)
-		If mMode = MODE_TRIANGLES Then Return mIndices.PeekShort(tri*6 + 4) Else Return -1
+		If mMode = ModeTriangles Then Return mIndices.PeekShort(tri*6 + 4) Else Return -1
 	End
 
 	Method AddVertex:Int(x:Float, y:Float, z:Float, nx:Float, ny:Float, nz:Float, color:Int, u0:Float, v0:Float)
 		'Create new buffer if current is too short
-		If mVertices.Length() < (NumVertices + 1) * VERTEX_SIZE
+		If mVertices.Length() < (NumVertices + 1) * VertexSize
 			'Copy old buffer into new one
-			Local buf:DataBuffer = New DataBuffer(mVertices.Length() + INC*VERTEX_SIZE)
+			Local buf:DataBuffer = New DataBuffer(mVertices.Length() + Inc*VertexSize)
 			mVertices.CopyBytes(0, buf, 0, mVertices.Length())
 			mVertices.Discard()
 			mVertices = buf
 		End
 
 		'Copy new vertex data
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE, x)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 4, y)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 8, z)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 12, nx)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 16, ny)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 20, nz)
-		'mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 24, 1)
-		'mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 28, 0)
-		'mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 32, 0)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 36, Color.Red(color) / 255.0)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 40, Color.Green(color) / 255.0)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 44, Color.Blue(color) / 255.0)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 48, Color.Alpha(color) / 255.0)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 52, u0)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 56, v0)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 60, u0)
-		mVertices.PokeFloat(mNumVertices * VERTEX_SIZE + 64, v0)
+		mVertices.PokeFloat(mNumVertices * VertexSize, x)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 4, y)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 8, z)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 12, nx)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 16, ny)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 20, nz)
+		'mVertices.PokeFloat(mNumVertices * VertexSize + 24, 1)
+		'mVertices.PokeFloat(mNumVertices * VertexSize + 28, 0)
+		'mVertices.PokeFloat(mNumVertices * VertexSize + 32, 0)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 36, Color.R(color) / 255.0)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 40, Color.G(color) / 255.0)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 44, Color.B(color) / 255.0)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 48, Color.A(color) / 255.0)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 52, u0)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 56, v0)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 60, u0)
+		mVertices.PokeFloat(mNumVertices * VertexSize + 64, v0)
 		mNumVertices += 1
 		
 		'Update status
-		mStatus |= STATUS_V_DIRTY | STATUS_V_RESIZED
+		mStatus |= StatusVerticesDrty | StatusVerticesResized
 
 		Return NumVertices-1
 	End
@@ -189,119 +189,123 @@ Public
 	End
 
 	Method VertexPosition:Void(index:Int, x:Float, y:Float, z:Float)
-		mVertices.PokeFloat(index * VERTEX_SIZE + POS_OFFSET, x)
-		mVertices.PokeFloat(index * VERTEX_SIZE + POS_OFFSET + 4, y)
-		mVertices.PokeFloat(index * VERTEX_SIZE + POS_OFFSET + 8, z)
-		mStatus |= STATUS_V_DIRTY
+		mVertices.PokeFloat(index * VertexSize + PosOffset, x)
+		mVertices.PokeFloat(index * VertexSize + PosOffset + 4, y)
+		mVertices.PokeFloat(index * VertexSize + PosOffset + 8, z)
+		mStatus |= StatusVerticesDrty
 	End
 
 	Method VertexNormal:Void(index:Int, nx:Float, ny:Float, nz:Float)
-		mVertices.PokeFloat(index * VERTEX_SIZE + NORMAL_OFFSET, nx)
-		mVertices.PokeFloat(index * VERTEX_SIZE + NORMAL_OFFSET + 4, ny)
-		mVertices.PokeFloat(index * VERTEX_SIZE + NORMAL_OFFSET + 8, nz)
-		mStatus |= STATUS_V_DIRTY
+		mVertices.PokeFloat(index * VertexSize + NormalOffset, nx)
+		mVertices.PokeFloat(index * VertexSize + NormalOffset + 4, ny)
+		mVertices.PokeFloat(index * VertexSize + NormalOffset + 8, nz)
+		mStatus |= StatusVerticesDrty
 	End
 	
 	Method VertexTangent:Void(index:Int, tx:Float, ty:Float, tz:Float)
-		mVertices.PokeFloat(index * VERTEX_SIZE + TANGENT_OFFSET, tx)
-		mVertices.PokeFloat(index * VERTEX_SIZE + TANGENT_OFFSET + 4, ty)
-		mVertices.PokeFloat(index * VERTEX_SIZE + TANGENT_OFFSET + 8, tz)
-		mStatus |= STATUS_V_DIRTY
+		mVertices.PokeFloat(index * VertexSize + TangentOffset, tx)
+		mVertices.PokeFloat(index * VertexSize + TangentOffset + 4, ty)
+		mVertices.PokeFloat(index * VertexSize + TangentOffset + 8, tz)
+		mStatus |= StatusVerticesDrty
 	End
 
 	Method VertexColor:Void(index:Int, color:Int)
-		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET, Color.Red(color) / 255.0)
-		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 4, Color.Green(color) / 255.0)
-		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 8, Color.Blue(color) / 255.0)
-		mVertices.PokeFloat(index * VERTEX_SIZE + COLOR_OFFSET + 12, Color.Alpha(color) / 255.0)
-		mStatus |= STATUS_V_DIRTY
+		mVertices.PokeFloat(index * VertexSize + ColorOffset, Color.R(color) / 255.0)
+		mVertices.PokeFloat(index * VertexSize + ColorOffset + 4, Color.G(color) / 255.0)
+		mVertices.PokeFloat(index * VertexSize + ColorOffset + 8, Color.B(color) / 255.0)
+		mVertices.PokeFloat(index * VertexSize + ColorOffset + 12, Color.A(color) / 255.0)
+		mStatus |= StatusVerticesDrty
 	End
 
 	Method VertexTexCoords:Void(index:Int, u:Float, v:Float, set:Int = 0)
 		If set = 0
-			mVertices.PokeFloat(index * VERTEX_SIZE + TEX_OFFSET, u)
-			mVertices.PokeFloat(index * VERTEX_SIZE + TEX_OFFSET + 4, v)
+			mVertices.PokeFloat(index * VertexSize + TexOffset, u)
+			mVertices.PokeFloat(index * VertexSize + TexOffset + 4, v)
 		Else
-			mVertices.PokeFloat(index * VERTEX_SIZE + TEX_OFFSET + 8, u)
-			mVertices.PokeFloat(index * VERTEX_SIZE + TEX_OFFSET + 12, v)
+			mVertices.PokeFloat(index * VertexSize + TexOffset + 8, u)
+			mVertices.PokeFloat(index * VertexSize + TexOffset + 12, v)
 
 		End
-		mStatus |= STATUS_V_DIRTY
+		mStatus |= StatusVerticesDrty
 	End
 	
 	Method VertexBone:Void(vertex:Int, index:Int, bone:Int, weight:Float)
 		'WebGL does not support int attributes, so storing it as a float is a trick I am using
-		mVertices.PokeFloat(vertex * VERTEX_SIZE + BONEINDICES_OFFSET + index * 4, bone)
-		mVertices.PokeFloat(vertex * VERTEX_SIZE + BONEWEIGHTS_OFFSET + index * 4, weight)
-		mStatus |= STATUS_V_DIRTY
+		mVertices.PokeFloat(vertex * VertexSize + BoneIndicesOffset + index * 4, bone)
+		mVertices.PokeFloat(vertex * VertexSize + BoneWeightsOffset + index * 4, weight)
+		mStatus |= StatusVerticesDrty
 	End
 
 	Method VertexX:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + POS_OFFSET)
+		Return mVertices.PeekFloat(index*VertexSize + PosOffset)
 	End
 
 	Method VertexY:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + POS_OFFSET + 4)
+		Return mVertices.PeekFloat(index*VertexSize + PosOffset + 4)
 	End
 
 	Method VertexZ:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + POS_OFFSET + 8)
+		Return mVertices.PeekFloat(index*VertexSize + PosOffset + 8)
 	End
 
 	Method VertexNX:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + NORMAL_OFFSET)
+		Return mVertices.PeekFloat(index*VertexSize + NormalOffset)
 	End
 
 	Method VertexNY:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + NORMAL_OFFSET + 4)
+		Return mVertices.PeekFloat(index*VertexSize + NormalOffset + 4)
 	End
 
 	Method VertexNZ:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + NORMAL_OFFSET + 8)
+		Return mVertices.PeekFloat(index*VertexSize + NormalOffset + 8)
 	End
 	
 	Method VertexTX:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + TANGENT_OFFSET)
+		Return mVertices.PeekFloat(index*VertexSize + TangentOffset)
 	End
 	
 	Method VertexTY:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + TANGENT_OFFSET + 4)
+		Return mVertices.PeekFloat(index*VertexSize + TangentOffset + 4)
 	End
 	
 	Method VertexTZ:Float(index:Int)
-		Return mVertices.PeekFloat(index*VERTEX_SIZE + TANGENT_OFFSET + 8)
+		Return mVertices.PeekFloat(index*VertexSize + TangentOffset + 8)
 	End
 	
 	Method VertexColor:Int(index:Int)
-		Local r:Float = mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET)
-		Local g:Float = mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 4)
-		Local b:Float = mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 8)
-		Local a:Float = mVertices.PeekFloat(index*VERTEX_SIZE + COLOR_OFFSET + 12)
+		Local r:Float = mVertices.PeekFloat(index*VertexSize + ColorOffset)
+		Local g:Float = mVertices.PeekFloat(index*VertexSize + ColorOffset + 4)
+		Local b:Float = mVertices.PeekFloat(index*VertexSize + ColorOffset + 8)
+		Local a:Float = mVertices.PeekFloat(index*VertexSize + ColorOffset + 12)
 		Return Color.RGB(r * 255, g * 255, b * 255, a * 255)
 	End
-
+	
+	Method VertexCount:Int()
+		Return mVertices.Length()
+	End
+	
 	Method VertexU:Float(index:Int, set:Int = 0)
 		If set = 0
-			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET)
+			Return mVertices.PeekFloat(index*VertexSize + TexOffset)
 		Else
-			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET + 8)
+			Return mVertices.PeekFloat(index*VertexSize + TexOffset + 8)
 		End
 	End
 
 	Method VertexV:Float(index:Int, set:Int = 0)
 		If set = 0
-			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET + 4)
+			Return mVertices.PeekFloat(index*VertexSize + TexOffset + 4)
 		Else
-			Return mVertices.PeekFloat(index*VERTEX_SIZE + TEX_OFFSET + 12)
+			Return mVertices.PeekFloat(index*VertexSize + TexOffset + 12)
 		End
 	End
 	
 	Method VertexBoneIndex:Int(vertex:Int, index:Int)
-		Return mVertices.PeekFloat(vertex * VERTEX_SIZE + BONEINDICES_OFFSET + index * 4)
+		Return mVertices.PeekFloat(vertex * VertexSize + BoneIndicesOffset + index * 4)
 	End
 	
 	Method VertexBoneWeight:Float(vertex:Int, index:Int)
-		Return mVertices.PeekFloat(vertex * VERTEX_SIZE + BONEWEIGHTS_OFFSET + index * 4)
+		Return mVertices.PeekFloat(vertex * VertexSize + BoneWeightsOffset + index * 4)
 	End
 	
 	Method Translate:Void(x:Float, y:Float, z:Float, rebuild:Bool = True)
@@ -337,7 +341,7 @@ Public
 		For Local i:Int = 0 Until NumVertices
 			VertexNormal(i, -VertexNX(i), -VertexNY(i), -VertexNZ(i))
 		Next
-		If mMode = MODE_TRIANGLES
+		If mMode = ModeTriangles
 			For Local i:Int = 0 Until NumTriangles
 				Triangle(i, TriangleV2(i), TriangleV1(i), TriangleV0(i))
 			Next
@@ -353,11 +357,11 @@ Public
 	End
 
 	Method Rebuild:Void()
-		If mStatus & STATUS_I_RESIZED Then Renderer.ResizeIndexBuffer(mIndexBuffer, mNumIndices * 2)
-		If mStatus & STATUS_I_DIRTY Then Renderer.SetIndexBufferData(mIndexBuffer, 0, mNumIndices * 2, mIndices)
-		If mStatus & STATUS_V_RESIZED Then Renderer.ResizeVertexBuffer(mVertexBuffer, mNumVertices * VERTEX_SIZE)
-		If mStatus & STATUS_V_DIRTY Then Renderer.SetVertexBufferData(mVertexBuffer, 0, mNumVertices * VERTEX_SIZE, mVertices)
-		mStatus = STATUS_OK
+		If mStatus & StatusIndicesResized Then Renderer.ResizeIndexBuffer(mIndexBuffer, mNumIndices * 2)
+		If mStatus & StatusIndicesDirty Then Renderer.SetIndexBufferData(mIndexBuffer, 0, mNumIndices * 2, mIndices)
+		If mStatus & StatusVerticesResized Then Renderer.ResizeVertexBuffer(mVertexBuffer, mNumVertices * VertexSize)
+		If mStatus & StatusVerticesDrty Then Renderer.SetVertexBufferData(mVertexBuffer, 0, mNumVertices * VertexSize, mVertices)
+		mStatus = StatusOk
 	End
 	
 	Method _AddVertexFrame:Void(frame:Int, positions:DataBuffer, normals:DataBuffer)
@@ -399,24 +403,24 @@ Public
 	End
 	
 	Method _Render:Void()
-		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, POS_OFFSET, NORMAL_OFFSET, TANGENT_OFFSET, COLOR_OFFSET, TEX_OFFSET, BONEINDICES_OFFSET, BONEWEIGHTS_OFFSET, VERTEX_SIZE, mMode)
+		Renderer.DrawBuffers(mVertexBuffer, mIndexBuffer, mNumIndices, PosOffset, NormalOffset, TangentOffset, ColorOffset, TexOffset, BoneIndicesOffset, BoneWeightsOffset, VertexSize, mMode)
 	End
 Private
-	Const POS_OFFSET:Int = 0			'12 bytes
-	Const NORMAL_OFFSET:Int = 12		'12 bytes
-	Const TANGENT_OFFSET:Int = 24		'12 bytes
-	Const COLOR_OFFSET:Int = 36			'16 bytes
-	Const TEX_OFFSET:Int = 52			'16 bytes
-	Const BONEINDICES_OFFSET:Int = 68	'16 bytes
-	Const BONEWEIGHTS_OFFSET:Int = 84	'16 bytes
-	Const VERTEX_SIZE:Int = 100
-	Const INC:Int = 128
+	Const PosOffset:Int = 0			'12 bytes
+	Const NormalOffset:Int = 12		'12 bytes
+	Const TangentOffset:Int = 24		'12 bytes
+	Const ColorOffset:Int = 36			'16 bytes
+	Const TexOffset:Int = 52			'16 bytes
+	Const BoneIndicesOffset:Int = 68	'16 bytes
+	Const BoneWeightsOffset:Int = 84	'16 bytes
+	Const VertexSize:Int = 100
+	Const Inc:Int = 128
 	
-	Const STATUS_OK			: Int = 0
-	Const STATUS_V_DIRTY	: Int = 1
-	Const STATUS_V_RESIZED	: Int = 2
-	Const STATUS_I_DIRTY	: Int = 4
-	Const STATUS_I_RESIZED	: Int = 8
+	Const StatusOk			: Int = 0
+	Const StatusVerticesDrty	: Int = 1
+	Const StatusVerticesResized	: Int = 2
+	Const StatusIndicesDirty	: Int = 4
+	Const StatusIndicesResized	: Int = 8
 
 	Field mMode				: Int
 	Field mIndices		: DataBuffer

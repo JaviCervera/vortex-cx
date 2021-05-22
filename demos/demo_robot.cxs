@@ -35,7 +35,7 @@ Public
 		mCam = New Camera()
 		mCam.Position(16, 16, -16)
 		mCam.Rotate(20, -45, 0)
-		mCam.ClearColor = Color.RGB(15, 15, 15)
+		mCam.BackgroundColor = Color.RGB(15, 15, 15)
 		
 		'Create robot model
 		mModel = New Model(Mesh.Load("robot.msh.dat"))
@@ -61,7 +61,7 @@ Public
 		mLights[1].Color = Color.RGB(255, 100, 0)
 		
 		'Disable sun & enable shadows (sun rotation is used only to cast shadows)
-		World.SunColor(Color.BLACK)
+		World.SunColor(Color.Black)
 		World.SunRotation(30, 0)
 		World.Shadows(True, 50)
 

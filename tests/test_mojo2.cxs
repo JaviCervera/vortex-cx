@@ -28,15 +28,15 @@ Class TestApp Extends App
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.ClearColor = Color.WHITE
+		mCam.BackgroundColor = vortex.color.Color.White
 		mCam.Position(0, 0, -2)
 		
 		'Create surface
 		Local quad:Surface = New Surface()
-		quad.AddVertex(-0.5,  0.5, 0,  0,0,-1, Color.WHITE, 0, 0)
-		quad.AddVertex( 0.5,  0.5, 0,  0,0,-1, Color.WHITE,	1, 0)
-		quad.AddVertex(-0.5, -0.5, 0,  0,0,-1, Color.WHITE,	0, 1)
-		quad.AddVertex( 0.5, -0.5, 0,  0,0,-1, Color.WHITE,	1, 1)
+		quad.AddVertex(-0.5,  0.5, 0,  0,0,-1, vortex.color.Color.White, 0, 0)
+		quad.AddVertex( 0.5,  0.5, 0,  0,0,-1, vortex.color.Color.White,	1, 0)
+		quad.AddVertex(-0.5, -0.5, 0,  0,0,-1, vortex.color.Color.White,	0, 1)
+		quad.AddVertex( 0.5, -0.5, 0,  0,0,-1, vortex.color.Color.White,	1, 1)
 		quad.AddTriangle(0, 1, 2)
 		quad.AddTriangle(2, 1, 3)
 		
@@ -50,7 +50,7 @@ Class TestApp Extends App
 		mModel = New Model(mesh)
 		
 		'Disable sun
-		World.SunColor(Color.BLACK)
+		World.SunColor(vortex.color.Color.Black)
 		
 		'Create Mojo2 stuff
 		mCanvas = New Canvas

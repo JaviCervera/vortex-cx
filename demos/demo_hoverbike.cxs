@@ -35,7 +35,7 @@ Public
 		mCam = New Camera()
 		mCam.Position(0, 4, -8)
 		mCam.Rotate(20, 0, 0)
-		mCam.ClearMode = Camera.CLEAR_SKYBOX
+		mCam.ClearMode = Camera.ClearSkybox
 		World.SkyboxTexture(Texture.Load("xneg.png", "xpos.png", "zpos.png", "zneg.png", "ypos.png", "yneg.png"))
 		
 		'Create hoverbike model
@@ -73,7 +73,7 @@ Public
 		
 		'Draw mesh credits
 		Local text:String = "Hover Bike by Ptis is licensed under CC Attribution-NonCommercial"
-		Graphics.Color(Color.BLACK)
+		Graphics.Color(Color.Black)
 		mFont.Draw((DeviceWidth() - mFont.TextWidth(text)) / 2, 8, text)
 		
 		'Draw shader type

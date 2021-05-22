@@ -41,8 +41,8 @@ Function LoadMesh:Mesh(filename:String, animMode:Int)
 	
 	'Load native mesh
 	Local baseName:String = StripExt(StripExt(filename))
-	'Local mesh:Mesh = Mesh.Load(filename, baseName + ".skl.dat", Texture.FILTER_TRILINEAR, False)
-	Local mesh:Mesh = Mesh.Load(filename, Texture.FILTER_TRILINEAR, False)
+	'Local mesh:Mesh = Mesh.Load(filename, baseName + ".skl.dat", Texture.FilterTrilinear, False)
+	Local mesh:Mesh = Mesh.Load(filename, Texture.FilterTrilinear, False)
 	If mesh
 		'If Not mesh.LoadAnimation(baseName + ".anm.dat") Then mesh.LoadVertexAnimation(baseName + ".vta.dat")
 		mesh.LoadVertexAnimation(baseName + ".vta.dat")
@@ -94,8 +94,8 @@ End
 
 Function ColorsSize:Int(surf:Surface)
 	For Local v:Int = 0 Until surf.NumVertices
-		If surf.VertexColor(v) <> Color.WHITE
-			Return surf.NumVertices * 1 * 4
+		If surf.VertexColor(v) <> Color.White
+			Return surf.NumVertices * 4
 		End
 	Next
 	Return 0
@@ -166,14 +166,14 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	stream.WriteInt(mat.Color)
 	
 	'Specular Color
-	'stream.WriteInt(Color.WHITE)
-	stream.WriteInt(Color.ChangeAlpha(Color.WHITE, Min(Int(mat.Shininess * 255), 255)))
+	'stream.WriteInt(Color.White)
+	stream.WriteInt(Color.ChangeAlpha(Color.White, Min(Int(mat.Shininess * 255), 255)))
 	
 	'Emissive Color
-	stream.WriteInt(Color.BLACK)
+	stream.WriteInt(Color.Black)
 	
 	'Ambient color
-	stream.WriteInt(Color.WHITE)
+	stream.WriteInt(Color.White)
 	
 	'Blend mode
 	stream.WriteByte(mat.BlendMode)
@@ -185,6 +185,7 @@ Function WriteMaterialData:Void(stream:DataStream, mat:Material)
 	If Not mat.Lighting Then flags |= 4
 	If Not mat.CastShadows Then flags |= 8
 	If Not mat.ReceiveShadows Then flags |= 16
+	If Not mat.Fog Then flags |= 32
 	stream.WriteByte(flags)
 	
 	'Shininess

@@ -69,12 +69,21 @@ Function Vec3Length#(x#, y#, z#)
 	Return Sqrt(Vec3SqLength(x, y, z))
 End
 
+Function Vec2String$(v#[])
+	Return "(x=" + v[0] + ", y=" + v[1]+")"
+End
+
 Function Vec3String$(v#[])
 	Return "(x=" + v[0] + ", y=" + v[1] + ", z=" + v[2] + ")"
 End
 
 
-
+Function Vec4Set:Void(x#, y#, z#, w#, out#[])
+	out[0] = x
+	out[1] = y
+	out[2] = z
+	out[3] = w
+End
 
 Function Vec4String$(v#[])
 	Return "(x=" + v[0] + ", y=" + v[1] + ", z=" + v[2] + ", w=" + v[3] + ")"
@@ -550,5 +559,136 @@ Function Mat4String$(m#[])
 End
 
 Private
+
 Global tempMat4#[] = New Float[16]
 Global tempMat4B#[] = New Float[16]
+
+'--------------------------------------------------------------- 
+
+Public
+
+Function Vec3Sub:Void( result:Float[], l:Float[], r:Float[] )
+    result[0] = l[0] - r[0]
+    result[1] = l[1] - r[1]
+    result[2] = l[2] - r[2]
+End
+
+Function Vec3Cross:Void( result:Float[], l:Float[], r:Float[] )
+    result[0] = l[1] * r[2] - l[2] * r[1]
+    result[1] = l[2] * r[0] - l[0] * r[2]
+    result[2] = l[0] * r[1] - l[1] * r[0]
+End
+
+Function Vec3Dot:Float( l:Float[], r:Float[] )
+    Return l[0] * r[0] + l[1] * r[1] + l[2] * r[2]
+End
+
+Function Vec3Transform:Void( result:Float[], v:Float[], m:Float[] )
+    Local x:Float = v[0]
+    Local y:Float = v[1]
+    Local z:Float = v[2]
+    result[0] = x * m[0] + y * m[4] + z * m[ 8] + m[12]
+    result[1] = x * m[1] + y * m[5] + z * m[ 9] + m[13]
+    result[2] = x * m[2] + y * m[6] + z * m[10] + m[14]
+End
+
+Function Vec3TransformCoord:Void( result:Float[], v:Float[], m:Float[] )
+    Local x:Float = v[0]
+    Local y:Float = v[1]
+    Local z:Float = v[2]
+    Local t:Float = 1.0 / ( x * m[3] + y * m[7] + z * m[11] + m[15] )
+    result[0] = ( x * m[0] + y * m[4] + z * m[ 8] + m[12] ) * t
+    result[1] = ( x * m[1] + y * m[5] + z * m[ 9] + m[13] ) * t
+    result[2] = ( x * m[2] + y * m[6] + z * m[10] + m[14] ) * t
+End
+
+Function Vec3TransformNormal:Void( result:Float[], v:Float[], m:Float[] )
+    Local x:Float = v[0]
+    Local y:Float = v[1]
+    Local z:Float = v[2]
+    result[0] = x * m[0] + y * m[4] + z * m[ 8]
+    result[1] = x * m[1] + y * m[5] + z * m[ 9]
+    result[2] = x * m[2] + y * m[6] + z * m[10]
+End
+
+Function Vec3Normalize:Float( result:Float[], v:Float[] )
+    Local l:Float = Vec3Dot( v, v )
+    If l > 0.0 Then
+        l = Sqrt( l )
+        Local s:Float = 1.0 / l
+        result[0] = v[0] * s
+        result[1] = v[1] * s
+        result[2] = v[2] * s
+    End If
+    Return l
+End
+
+Function RayTriangleIntersection:Bool( result:Float[], origin:Float[], direction:Float[], point1:Float[], point2:Float[], point3:Float[] )
+    Local e1x := point2[0] - point1[0]
+    Local e1y := point2[1] - point1[1]
+    Local e1z := point2[2] - point1[2]
+    Local e2x := point3[0] - point1[0]
+    Local e2y := point3[1] - point1[1]
+    Local e2z := point3[2] - point1[2]
+    Local pvx := direction[1] * e2z - direction[2] * e2y
+    Local pvy := direction[2] * e2x - direction[0] * e2z
+    Local pvz := direction[0] * e2y - direction[1] * e2x
+    Local d := e1x * pvx + e1y * pvy + e1z * pvz
+    If d > -0.001 And d < 0.001 Then Return False
+    d = 1.0 / d
+    Local tvx := origin[0] - point1[0]
+    Local tvy := origin[1] - point1[1]
+    Local tvz := origin[2] - point1[2]
+    Local u := ( tvx * pvx + tvy * pvy + tvz * pvz ) * d
+    If u < 0.0 Or u > 1.0 Then Return False
+    Local qvx := tvy * e1z - tvz * e1y
+    Local qvy := tvz * e1x - tvx * e1z
+    Local qvz := tvx * e1y - tvy * e1x
+    Local v := ( direction[0] * qvx + direction[1] * qvy + direction[2] * qvz ) * d
+    If v < 0.0 Or u + v > 1.0 Then Return False
+    Local t := ( e2x * qvx + e2y * qvy + e2z * qvz ) * d
+    result[0] = t
+    result[1] = u
+    result[2] = v
+    Return True
+End
+
+Function RayAxisAlignedBoxIntersection:Bool( result:Float[], origin:Float[], direction:Float[], min:Float[], max:Float[] )
+    Local l1:Float = ( min[0] - origin[0] ) / direction[0]
+    Local l2:Float = ( max[0] - origin[0] ) / direction[0]
+    Local t1:Float = Min( l1, l2 )
+    Local t2:Float = Max( l1, l2 )
+    l1 = ( min[1] - origin[1] ) / direction[1]
+    l2 = ( max[1] - origin[1] ) / direction[1]
+    t1 = Max( Min( l1, l2 ), t1 )
+    t2 = Min( Max( l1, l2 ), t2 )
+    l1 = ( min[2] - origin[2] ) / direction[2]
+    l2 = ( max[2] - origin[2] ) / direction[2]
+    t1 = Max( Min( l1, l2 ), t1 )
+    t2 = Min( Max( l1, l2 ), t2 )
+    If t2 < 0.0 Or t2 < t1 Then Return False
+    result[0] = t1
+    result[1] = t2
+    Return True
+End
+
+Function RaySphereIntersection:Bool(result:Float[], origin:Float[], direction:Float[], sphere:Float[] )
+    Local rox := origin[0] - sphere[0]
+    Local roy := origin[1] - sphere[1]
+    Local roz := origin[2] - sphere[2]
+    Local a := direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]
+    Local b := 2.0 * ( rox * direction[0] + roy * direction[1] + roz * direction[2] )
+    Local c := ( rox * rox + roy * roy + roz * roz ) - sphere[3] * sphere[3]
+    Local d := b * b - 4.0 * a * c
+    If d < 0.0 Then Return False
+    d = Sqrt( d )
+    a = 0.5 / a
+    Local t1 := ( d - b ) * a
+    Local t2 := ( -b - d ) * a
+    If t1 < 0.0 Then t1 = t2
+    If t2 < 0.0 Then t2 = t1
+    t1 = Min( t1, t2 )
+    If t1 < 0.0 Then Return False
+    result[0] = t1
+    Return True
+End

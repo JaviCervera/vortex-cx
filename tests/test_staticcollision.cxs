@@ -1,0 +1,127 @@
+Strict
+
+#GLFW_WINDOW_TITLE="Vortex2 Static Collision Test"
+#GLFW_WINDOW_WIDTH=800
+#GLFW_WINDOW_HEIGHT=600
+#GLFW_WINDOW_RESIZABLE=True
+#GLFW_WINDOW_SAMPLES=2
+
+Import mojo.app
+Import mojo.audio
+Import mojo.input
+Import vortex
+
+Class TestApp Extends App Final
+Public
+	Method OnCreate:Int()
+		'Setup
+		SetUpdateRate(0)
+		SetSwapInterval(0)
+		Seed = Millisecs()
+	
+		'Init vortex
+		If Not World.Init() Then EndApp()
+		Print "Vendor name: " + Graphics.VendorName()
+		Print "Renderer name: " + Graphics.RendererName()
+		Print "API version name: " + Graphics.APIVersionName()
+		Print "Shading version name: " + Graphics.ShadingVersionName()
+		
+		'Load font
+		mFont = Font.Load("Roboto-Black_16.fnt.dat")
+		
+		'Create camera
+		mCam = New Camera()
+		mCam.BackgroundColor = Color.Multiply(Color.DarkGray, 0.5)
+		mCam.Position(-25, 05, 5)
+		mCam.CollisionMode = Entity.CollisionSphere
+		mCam.Radius = 2
+		
+		'Create mesh
+		Local mesh:Mesh = Mesh.CreateCube()
+		mesh.Scale(10, 10, 10)
+		mesh.Rebuild()
+		
+		'Create floor
+		Local floor:Model = New Model(mesh)
+		floor.Position(0, -0.5, 0)
+		floor.Scale(8, 0.1, 8)
+		floor.Material.ColorTexture = Texture.Load("floor.png")
+		
+		'Create walls
+		For Local i:Int = -40 To 40 Step 10
+			Local wall:Model = New Model(mesh)
+			wall.Position(-40, 5, i)
+			wall.Material.ColorTexture = Texture.Load("wall.png")
+			World.AddStaticCollisionBox(-45, 0, i-5, 10, 10, 10)
+			wall = New Model(mesh)
+			wall.Position(40, 5, i)
+			wall.Material.ColorTexture = Texture.Load("wall.png")
+			World.AddStaticCollisionBox(35, 0, i-5, 10, 10, 10)
+		Next
+		For Local i:Int = -30 To 30 Step 10
+			Local wall:Model = New Model(mesh)
+			wall.Position(i, 5, -40)
+			wall.Material.ColorTexture = Texture.Load("wall.png")
+			World.AddStaticCollisionBox(i-5, 0, -45, 10, 10, 10)
+			wall = New Model(mesh)
+			wall.Position(i, 5, 40)
+			wall.Material.ColorTexture = Texture.Load("wall.png")
+			World.AddStaticCollisionBox(i-5, 0, 35, 10, 10, 10)
+		Next
+		For Local i:Int = -30 To 20 Step 10
+			Local wall:Model = New Model(mesh)
+			wall.Position(0, 5, i)
+			wall.Material.ColorTexture = Texture.Load("wall.png")
+			World.AddStaticCollisionBox(-5, 0, i-5, 10, 10, 10)
+		Next
+		
+		'Setup lighting
+		World.SunColor(Color.Gray)
+		World.SunRotation(45, 215)
+		World.Shadows(True, 100, 100)
+		World.Ambient(Color.DarkGray)
+		
+		Return False
+	End
+	
+	Method OnUpdate:Int()	
+		'End with escape key
+		#If TARGET<>"html5"
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		#End
+		
+		'Update world
+		World.Update()
+		
+		'Rotate and move camera
+		If KeyDown(KEY_LEFT) Then mCam.Yaw -= 64 * World.DeltaTime()
+		If KeyDown(KEY_RIGHT) Then mCam.Yaw += 64 * World.DeltaTime()
+		If KeyDown(KEY_UP) Then mCam.Move(0, 0, 20 * World.DeltaTime())
+		If KeyDown(KEY_DOWN) Then mCam.Move(0, 0, -20 * World.DeltaTime())
+
+		Return False
+	End
+	
+	Method OnRender:Int()
+		'Render world
+		World.Render()
+		
+		'Setup graphics for 2D
+		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
+		
+		'Draw FPS
+		Graphics.Color(Color.White)
+		Local text:String = Graphics.FPS() + " FPS"
+		mFont.Draw(2, 2, text)
+	
+		Return False
+	End
+Private
+	Field mFont:Font
+	Field mCam:Camera
+End
+
+Function Main:Int()
+	New TestApp()
+	Return False
+End

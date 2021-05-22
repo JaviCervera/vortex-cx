@@ -2,37 +2,37 @@ Strict
 
 Class Color
 Public
-	Const RED			: Int = $FFFF0000
-	Const GREEN			: Int = $FF00FF00
-	Const BLUE			: Int = $FF0000FF
-	Const CYAN			: Int = $FF00FFFF
-	Const MAGENTA		: Int = $FFFF00FF
-	Const YELLOW		: Int = $FFFFFF00
-	Const BLACK			: Int = $FF000000
-	Const WHITE			: Int = $FFFFFFFF
-	Const GRAY			: Int = $FF808080
-	Const LIGHT_GRAY	: Int = $FFBFBFBF
-	Const DARK_GRAY		: Int = $FF404040
-	Const ORANGE		: Int = $FFFFA500
-	Const BROWN			: Int = $FF8B4513
+	Const Red			: Int = $FFFF0000
+	Const Green			: Int = $FF00FF00
+	Const Blue			: Int = $FF0000FF
+	Const Cyan			: Int = $FF00FFFF
+	Const Magenta		: Int = $FFFF00FF
+	Const Yellow		: Int = $FFFFFF00
+	Const Black			: Int = $FF000000
+	Const White			: Int = $FFFFFFFF
+	Const Gray			: Int = $FF808080
+	Const LightGray		: Int = $FFBFBFBF
+	Const DarkGray		: Int = $FF404040
+	Const Orange		: Int = $FFFFA500
+	Const Brown			: Int = $FF8B4513
 
 	Function RGB:Int(r:Int, g:Int, b:Int, a:Int = 255)
-		Return (a Shl 24) | (r Shl 16) | (g Shl 8) | b
+		Return (a Shl 24) + (r Shl 16) + (g Shl 8) + b
 	End
 
-	Function Red:Int(color:Int)
+	Function R:Int(color:Int)
 		Return (color Shr 16) & $FF
 	End
 
-	Function Green:Int(color:Int)
+	Function G:Int(color:Int)
 		Return (color Shr 8) & $FF
 	End
 
-	Function Blue:Int(color:Int)
+	Function B:Int(color:Int)
 		Return color & $FF
 	End
 
-	Function Alpha:Int(color:Int)
+	Function A:Int(color:Int)
 		Return (color Shr 24) & $FF
 	End
 	
@@ -41,7 +41,7 @@ Public
 	End
 	
 	Function Multiply:Int(color:Int, factor:Float)
-		Return RGB(Int(Red(color) * factor), Int(Green(color) * factor), Int(Blue(color) * factor), Alpha(color))
+		Return RGB(Int(R(color) * factor), Int(G(color) * factor), Int(B(color) * factor), A(color))
 	End
 Private
 	Method New()

@@ -23,75 +23,96 @@ Public
 
 	Function _LoadFont:Font(filename:String)
 		'Search for the font in all allocated caches
+		Local font:Font = _LoadedFont(filename)
+		If font <> Null Then Return font
+
+		'If it was not found, load it
+		font = Font.Load(filename, False)
+		If font <> Null Then mStack[mStack.Length() -1].mFonts.Set(filename, font)
+		Return font
+	End
+	
+	Function _LoadedFont:Font(filename:String)
 		For Local i:Int = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mFonts.Contains(filename)
 				Return mStack[i].mFonts.Get(filename)
 			End
 		Next
-
-		'If it was not found, load it
-		Local font:Font = Font.Load(filename, False)
-		If font <> Null Then mStack[mStack.Length() -1].mFonts.Set(filename, font)
-		Return font
+		Return Null
 	End
 
-	Function _LoadMesh:Mesh(filename:String, skeletonFilename:String = "", texFilter:Int = Renderer.FILTER_TRILINEAR)
+	Function _LoadMesh:Mesh(filename:String, skeletonFilename:String = "", texFilter:Int = Renderer.FilterTrilinear)
 		'Search for the mesh in all allocated caches
+		Local mesh:Mesh = _LoadedMesh(filename)
+		If mesh <> Null Then Return mesh
+
+		'If it was not found, load it
+		'mesh = Mesh.Load(filename, skeletonFilename, texFilter, False)
+		mesh = Mesh.Load(filename, texFilter, False)
+		If mesh <> Null Then mStack[mStack.Length() -1].mMeshes.Set(filename, mesh)
+		Return mesh
+	End
+	
+	Function _LoadedMesh:Mesh(filename:String)
 		For Local i:Int = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mMeshes.Contains(filename)
 				Return mStack[i].mMeshes.Get(filename)
 			End
 		Next
-
-		'If it was not found, load it
-		'Local mesh:Mesh = Mesh.Load(filename, skeletonFilename, texFilter, False)
-		Local mesh:Mesh = Mesh.Load(filename, texFilter, False)
-		If mesh <> Null Then mStack[mStack.Length() -1].mMeshes.Set(filename, mesh)
-		Return mesh
+		Return Null
 	End
 	
 	Function _LoadSound:Sound(filename:String)
 		'Search for the sound in all allocated caches
+		Local sound:Sound = _LoadedSound(filename)
+		If sound <> Null Then Return sound
+
+		'If it was not found, load it
+		sound = LoadSound(filename)
+		If sound <> Null Then mStack[mStack.Length() - 1].mSounds.Set(filename, sound)
+		Return sound
+	End
+	
+	Function _LoadedSound:Sound(filename:String)
 		For Local i:Int = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mSounds.Contains(filename)
 				Return mStack[i].mSounds.Get(filename)
 			End
 		Next
-
-		'If it was not found, load it
-		Local sound:Sound = LoadSound(filename)
-		If sound <> Null Then mStack[mStack.Length() - 1].mSounds.Set(filename, sound)
-		Return sound
+		Return Null
 	End
 
-	Function _LoadTexture:Texture(filename:String, filter:Int = Renderer.FILTER_TRILINEAR)
+	Function _LoadTexture:Texture(filename:String, filter:Int = Renderer.FilterTrilinear)
 		'Search for the texture in all allocated caches
-		For Local i:Int = mStack.Length()-1 To 0 Step -1
-			If mStack[i].mTextures.Contains(filename)
-				Return mStack[i].mTextures.Get(filename)
-			End
-		Next
+		Local tex:Texture = _LoadedTexture(filename)
+		If tex <> Null Then Return tex
 
 		'If it was not found, load it
-		Local tex:Texture = Texture.Load(filename, filter, False)
+		tex = Texture.Load(filename, filter, False)
 		If tex <> Null Then mStack[mStack.Length() - 1].mTextures.Set(filename, tex)
 		Return tex
 	End
 	
-	Function _LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FILTER_TRILINEAR)
+	Function _LoadTexture:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Renderer.FilterTrilinear)
 		Local filename:String = left + "," + right + "," + front + "," + back + "," + top + "," + bottom
 		
 		'Search for the texture in all allocated caches
+		Local tex:Texture = _LoadedTexture(filename)
+		If tex <> Null Then Return tex
+
+		'If it was not found, load it
+		tex = Texture.Load(left, right, front, back, top, bottom, filter, False)
+		If tex <> Null Then mStack[mStack.Length() - 1].mTextures.Set(filename, tex)
+		Return tex
+	End
+	
+	Function _LoadedTexture:Texture(filename:String)
 		For Local i:Int = mStack.Length()-1 To 0 Step -1
 			If mStack[i].mTextures.Contains(filename)
 				Return mStack[i].mTextures.Get(filename)
 			End
 		Next
-
-		'If it was not found, load it
-		Local tex:Texture = Texture.Load(left, right, front, back, top, bottom, filter, False)
-		If tex <> Null Then mStack[mStack.Length() - 1].mTextures.Set(filename, tex)
-		Return tex
+		Return Null
 	End
 Private
 	Method New()

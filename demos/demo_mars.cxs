@@ -33,7 +33,7 @@ Public
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.ClearColor = Color.RGB(15, 15, 15)
+		mCam.BackgroundColor = Color.RGB(15, 15, 15)
 		mCam.Position(0, 50, 150)
 		mCam.Yaw = 180
 		mCam.Far = 5000
@@ -42,7 +42,7 @@ Public
 		mModel = New Model(Mesh.Load("mars_one_base.msh.dat"))
 		
 		'Disable sun and enable fog
-		World.SunColor(Color.BLACK)
+		World.SunColor(Color.Black)
 		World.FogEnabled(True)
 		World.FogColor(Color.RGB(15, 15, 15))
 		World.FogMinDistance(1000)
@@ -87,7 +87,7 @@ Public
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Graphics.Color(Color.WHITE)
+		Graphics.Color(Color.White)
 		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

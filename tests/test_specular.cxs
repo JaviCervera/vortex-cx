@@ -33,11 +33,11 @@ Public
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.ClearMode = Camera.CLEAR_SKYBOX
+		mCam.ClearMode = Camera.ClearSkybox
 		
 		'Create sphere
 		mModel = New Model(Mesh.Load("sphere.msh.dat"))
-		mModel.Material.Color = Color.ORANGE
+		mModel.Material.Color = Color.Orange
 		mModel.Material.CubeTexture = World.SkyboxTexture()
 		mModel.Material.Shininess = 0
 		
@@ -77,7 +77,7 @@ Public
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Graphics.Color(Color.WHITE)
+		Graphics.Color(Color.White)
 		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

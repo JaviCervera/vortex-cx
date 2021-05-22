@@ -45,7 +45,7 @@ Class RenderState
 		Next
 		LightColor = New Int[maxLights]
 		LightRadius = New Float[maxLights]
-		Color = color.Color.WHITE
+		Color = color.Color.White
 	End
 	#End
 Private

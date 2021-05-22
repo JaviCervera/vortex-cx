@@ -8,26 +8,28 @@ Import renderer
 Public
 Class Texture
 Public
-	Const FILTER_NONE:Int = Renderer.FILTER_NONE
-	Const FILTER_LINEAR:Int = Renderer.FILTER_LINEAR
-	Const FILTER_BILINEAR:Int = Renderer.FILTER_BILINEAR
-	Const FILTER_TRILINEAR:Int = Renderer.FILTER_TRILINEAR
+	Const FilterNone:Int = Renderer.FilterNone
+	Const FilterLinear:Int = Renderer.FilterLinear
+	Const FilterBilinear:Int = Renderer.FilterBilinear
+	Const FilterTrilinear:Int = Renderer.FilterTrilinear
 
 	Method New(width:Int, height:Int)
 		mHandle = Renderer.CreateTexture(width, height)
 		mWidth = width
 		mHeight = height
+		mFilter = FilterNone
 		mIsCubic = False
 	End
 
-	Method New(buffer:DataBuffer, width:Int, height:Int, filter:Int = Texture.FILTER_TRILINEAR)
+	Method New(buffer:DataBuffer, width:Int, height:Int, filter:Int = Texture.FilterTrilinear)
 		mHandle = Renderer.CreateTexture(buffer, width, height, filter)
 		mWidth = width
 		mHeight = height
+		mFilter = filter
 		mIsCubic = False
 	End
 	
-	Function Load:Texture(filename:String, filter:Int = Texture.FILTER_TRILINEAR, cache:Bool = True)
+	Function Load:Texture(filename:String, filter:Int = Texture.FilterTrilinear, cache:Bool = True)
 		If cache
 			Return Cache._LoadTexture(filename, filter)
 		Else
@@ -35,12 +37,20 @@ Public
 		End
 	End
 	
-	Function Load:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Texture.FILTER_TRILINEAR, cache:Bool = True)
+	Function Load:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Texture.FilterTrilinear, cache:Bool = True)
 		If cache
 			Return Cache._LoadTexture(left, right, front, back, top, bottom, filter)
 		Else
 			Return _Load(left, right, front, back, top, bottom, filter)
 		End
+	End
+	
+	Function IsLoaded:Bool(filename:String)
+		Return Cache._LoadedTexture(filename) <> Null
+	End
+	
+	Function IsLoaded:Bool(left:String, right:String, front:String, back:String, top:String, bottom:String)
+		Return Cache._LoadedTexture(left + "," + right + "," + front + "," + back + "," + top + "," + bottom) <> Null
 	End
 
 	Method Discard:Void()
@@ -71,6 +81,10 @@ Public
 	Method IsCubic:Bool() Property
 		Return mIsCubic
 	End
+	
+	Method SetPixels:Void(pixels:DataBuffer)
+		Renderer.SetTexturePixels(mHandle, pixels, Self.Width, Self.Height, mFilter)
+	End
 
 	Method Draw:Void(x:Float, y:Float, width:Float = 0, height:Float = 0, rectx:Float = 0, recty:Float = 0, rectwidth:Float = 0, rectheight:Float = 0)
 		If rectwidth = 0 Then rectwidth = Width
@@ -94,7 +108,7 @@ Public
 		Renderer.SetTextures(0, 0, 0, 0, 0)
 	End
 	
-	Function _Load:Texture(filename:String, filter:Int = Texture.FILTER_TRILINEAR)
+	Function _Load:Texture(filename:String, filter:Int = Texture.FilterTrilinear)
 		filename = filename.Replace("\", "/")
 		Local handle:Int = Renderer.LoadTexture(filename, mSizeArr, filter)
 		If mSizeArr[0] > 0
@@ -103,6 +117,7 @@ Public
 			tex.mHandle = handle
 			tex.mWidth = mSizeArr[0]
 			tex.mHeight = mSizeArr[1]
+			tex.mFilter = filter
 			tex.mIsCubic = False
 			Return tex
 		Else
@@ -110,7 +125,7 @@ Public
 		End
 	End
 	
-	Function _Load:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Texture.FILTER_TRILINEAR)
+	Function _Load:Texture(left:String, right:String, front:String, back:String, top:String, bottom:String, filter:Int = Texture.FilterTrilinear)
 		left = left.Replace("\", "/")
 		right = right.Replace("\", "/")
 		front = front.Replace("\", "/")
@@ -124,6 +139,7 @@ Public
 			tex.mHandle = handle
 			tex.mWidth = mSizeArr[0]
 			tex.mHeight = mSizeArr[1]
+			tex.mFilter = filter
 			tex.mIsCubic = True
 			Return tex
 		Else
@@ -138,6 +154,7 @@ Private
 	Field mHandle	: Int
 	Field mWidth	: Int
 	Field mHeight	: Int
+	Field mFilter	: Int
 	Field mIsCubic	: Bool
 	Global mSizeArr	: Int[2]
 End

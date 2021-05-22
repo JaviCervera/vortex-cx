@@ -30,7 +30,7 @@ Public
 		
 		'Create camera
 		mCam = New Camera()
-		mCam.ClearColor = Color.RGB(15, 15, 15)
+		mCam.BackgroundColor = Color.RGB(15, 15, 15)
 		mCam.Position(0, 15, -25)
 		mCam.Rotate(30, 0, 0)
 		
@@ -38,7 +38,7 @@ Public
 		mModel = New Model(Mesh.Load("swamp.msh.dat"))
 		
 		'Disable sun
-		World.SunColor(Color.BLACK)
+		World.SunColor(Color.Black)
 		
 		Return False
 	End
@@ -66,7 +66,7 @@ Public
 		Graphics.Setup2D(0, 0, DeviceWidth(), DeviceHeight())
 		
 		'Draw FPS
-		Graphics.Color(Color.WHITE)
+		Graphics.Color(Color.White)
 		Local text:String = Graphics.FPS() + " FPS"
 		mFont.Draw(2, 2, text)
 		

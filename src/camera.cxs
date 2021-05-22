@@ -9,20 +9,51 @@ Import mojo.app
 Import renderer
 Import renderstate
 Import world
+Import collision
 
 Public
 Import entity
 
 Class Camera Extends Entity
-	Const CLEAR_NONE	: Int = 0
-	Const CLEAR_COLOR	: Int = 1
-	Const CLEAR_SKYBOX	: Int = 2
+	Const ClearNone	: Int = 0
+	Const ClearColor	: Int = 1
+	Const ClearSkybox	: Int = 2
 	
+    '--------------------------------------------------------
+
+Private
+
+	Field rtProjectionTransform:Float[16]
+	Field rtViewTransform:Float[16]
+	Field rtTempPoint:Float[3]
+	Field mProjectedPoint:Int[2]
+
+Public
+
+	Method ProjectedX:Int() Property
+	    Return mProjectedPoint[0]
+	End
+	
+	Method ProjectedY:Int() Property
+	    Return mProjectedPoint[1]
+	End
+	
+	Method Project:Void( inputPoint:Float[] )
+	    Mat4PerspectiveLH( FovY, AspectRatio, Near, Far, rtProjectionTransform )
+	    Mat4ViewEuler( WorldX, WorldY, WorldZ, Pitch, Yaw, Roll, rtViewTransform )
+	    Vec3TransformCoord( rtTempPoint, inputPoint, rtViewTransform )
+	    Vec3TransformCoord( rtTempPoint, rtTempPoint, rtProjectionTransform )
+	    mProjectedPoint[0] = ( rtTempPoint[0] + 1.0 ) * ( ViewportWidth  / 2 )
+	    mProjectedPoint[1] = ( 1.0 - rtTempPoint[1] ) * ( ViewportHeight / 2 )
+	End
+    
+    '--------------------------------------------------------
+    
 	Method New(parent:Entity = Null)
 		Super.New(parent)
 		Viewport(0, 0, -1, -1)
-		mClearMode = CLEAR_COLOR
-		mClearColor = Color.RGB(55, 155, 255)
+		mClearMode = ClearColor
+		mBackgroundColor = Color.RGB(55, 155, 255)
 		FovY = 50
 		AspectRatio = -1
 		Near = 1
@@ -39,7 +70,7 @@ Class Camera Extends Entity
 	Method CollisionMode:Void(mode:Int) Property
 		If mode <> Super.CollisionMode
 			Super.CollisionMode(mode)
-			If mode <> COLLISION_NONE Then Active = True
+			If mode <> CollisionNone Then Active = True
 		End
 	End
 	
@@ -106,15 +137,15 @@ Class Camera Extends Entity
 	End
 	
 	Method ClearMode:Void(mode:Int) Property
-		mClearMode = Clamp(mode, CLEAR_NONE, CLEAR_SKYBOX)
+		mClearMode = Clamp(mode, ClearNone, ClearSkybox)
 	End
 	
-	Method ClearColor:Int() Property
-		Return mClearColor
+	Method BackgroundColor:Int() Property
+		Return mBackgroundColor
 	End
 	
-	Method ClearColor:Void(color:Int) Property
-		mClearColor = color
+	Method BackgroundColor:Void(color:Int) Property
+		mBackgroundColor = color
 	End
 	
 	Method Orthographic:Bool() Property
@@ -201,12 +232,15 @@ Class Camera Extends Entity
 		'Clear buffers
 		Renderer.ClearDepthBuffer()
 		Select mClearMode
-		Case CLEAR_COLOR
-			Renderer.ClearColorBuffer(ClearColor)
-		Case CLEAR_SKYBOX
+		Case ClearColor
+			Renderer.ClearColorBuffer(BackgroundColor)
+		Case ClearSkybox
 			World._RenderSkybox(WorldX, WorldY, WorldZ)
 		End
 	End
+	
+
+	
 Private
 	Global mCurrent				: Camera
 	Field mVX					: Int
@@ -214,7 +248,7 @@ Private
 	Field mVW					: Int
 	Field mVH					: Int
 	Field mClearMode	: Int
-	Field mClearColor	: Int
+	Field mBackgroundColor	: Int
 	Field mOrtho			: Bool
 	Field mFovY				: Float
 	Field mRatio			: Float

@@ -12,6 +12,57 @@ Public
 Import entity
 
 Class Model Extends Entity 'Implements IMaterialDelegate Final
+
+    '---------------------------------------------------------
+
+
+Private
+
+	Field rtModelBox:Float[6]
+	Field rtModelSphere:Float[4]
+	Field rtIntersectionInfo:Float[2]
+	Field rtModelTransform:Float[16]
+	Field rtInverseModelTransform:Float[16]
+	Field rtLocalRayOrigin:Float[3]
+	Field rtLocalRayDirection:Float[3]
+	
+Public
+	
+	Method RayTrace:Bool( ti:Object, rayOrigin:Float[], rayDirection:Float[], maxDistance:Float = 0.0 )
+	    Local traceInfo:TraceInfo = TraceInfo( ti )
+	    rtModelBox[0] = BoxMinX
+	    rtModelBox[1] = BoxMinY
+	    rtModelBox[2] = BoxMinZ
+	    rtModelBox[3] = BoxMaxX
+	    rtModelBox[4] = BoxMaxY
+	    rtModelBox[5] = BoxMaxZ
+	    rtModelSphere[0] = ( rtModelBox[0] + rtModelBox[3] ) * 0.5
+	    rtModelSphere[1] = ( rtModelBox[1] + rtModelBox[4] ) * 0.5
+	    rtModelSphere[2] = ( rtModelBox[2] + rtModelBox[5] ) * 0.5
+	    rtModelSphere[3] = Max( rtModelBox[5] - rtModelBox[2],
+	                       Max( rtModelBox[3] - rtModelBox[0],
+	                            rtModelBox[4] - rtModelBox[1] ) )
+	    If Not RaySphereIntersection( rtIntersectionInfo, rayOrigin, rayDirection, rtModelSphere ) Then Return False
+	    If maxDistance > 0.0 And rtIntersectionInfo[0] > maxDistance Then Return False
+	    Mat4TransformEuler( WorldX, WorldY, WorldZ, Pitch, Yaw, Roll, ScaleX, ScaleY, ScaleZ, rtModelTransform )
+	    Mat4Invert( rtModelTransform, rtInverseModelTransform )
+	    Vec3TransformCoord( rtLocalRayOrigin, rayOrigin, rtInverseModelTransform )
+	    Vec3TransformNormal( rtLocalRayDirection, rayDirection, rtInverseModelTransform )
+	    If Not Mesh.RayTrace( traceInfo, rtLocalRayOrigin, rtLocalRayDirection ) Then Return False
+	    If maxDistance > 0.0 And traceInfo.mDistance > maxDistance Then Return False
+	    Vec3Transform( traceInfo.mPoint, traceInfo.mPoint, rtModelTransform )
+	    Return True
+	End
+
+    '---------------------------------------------------------
+
+
+	Function Copy:Model(srcModel:Model)
+		Local newModel:Model = New Model(srcModel.Mesh)
+		newModel.UserData(srcModel.UserData)
+		Return newModel
+	End
+
 	Method New(mesh:Mesh, parent:Entity = Null)
 		Super.New(parent)
 		mMesh = mesh

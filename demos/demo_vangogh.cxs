@@ -38,7 +38,7 @@ Public
 		mModel.Yaw = 180
 		
 		'Disable sun
-		World.SunColor(Color.BLACK)
+		World.SunColor(Color.Black)
 		
 		Return False
 	End

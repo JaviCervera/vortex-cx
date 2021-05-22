@@ -35,18 +35,18 @@ Function DrawRectOutline:Void(r:Rect)
 End
 
 Function DrawRectOutline:Void(x:Float, y:Float, width:Float, height:Float)
-	Graphics.Color(Color.DARK_GRAY)
+	Graphics.Color(Color.DarkGray)
 	Graphics.DrawLine(x-1, y, x+width, y)
 	Graphics.DrawLine(x, y+height, x+width, y+height)
 	Graphics.DrawLine(x, y, x, y+height)
 	Graphics.DrawLine(x+width, y, x+width, y+height)
 End
 
-Function DrawPanel:Void(r:Rect, text:String = "", font:Font = Null, color:Int = Color.LIGHT_GRAY, textColor:Int = Color.DARK_GRAY)
+Function DrawPanel:Void(r:Rect, text:String = "", font:Font = Null, color:Int = Color.LightGray, textColor:Int = Color.DarkGray)
 	DrawPanel(r.x, r.y, r.width, r.height, text, font, color, textColor)
 End
 
-Function DrawPanel:Void(x:Float, y:Float, width:Float, height:Float, text:String = "", font:Font = Null, color:Int = Color.LIGHT_GRAY, textColor:Int = Color.DARK_GRAY)
+Function DrawPanel:Void(x:Float, y:Float, width:Float, height:Float, text:String = "", font:Font = Null, color:Int = Color.LightGray, textColor:Int = Color.DarkGray)
 	Graphics.Color(color)
 	Graphics.DrawRect(x, y, width, height)
 	DrawRectOutline(x, y, width, height)
@@ -67,6 +67,6 @@ Function DrawCheckbox:Void(x:Float, y:Float, width:Float, height:Float, text:Str
 		Graphics.DrawLine(x + 4, y + 4, x + 20, y + 20)
 		Graphics.DrawLine(x + 4, y + 20, x + 20, y + 4)
 	End
-	Graphics.Color(Color.DARK_GRAY)
+	Graphics.Color(Color.DarkGray)
 	font.Draw(x + 24, y + height/2 - font.TextHeight(text)/2, text)
 End
