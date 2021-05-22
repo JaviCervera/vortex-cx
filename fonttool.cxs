@@ -22,7 +22,6 @@ Strict
 'Imports
 Import mojo.app
 Import mojo.input
-Import src_tools.dialog
 Import src_tools.fonttool_gui
 Import vortex
 
