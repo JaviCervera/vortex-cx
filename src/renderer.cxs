@@ -306,7 +306,7 @@ Public
 	Function DrawRect:Void(x:Float, y:Float, width:Float, height:Float)
 		Mat4TransformEuler(x, y, 0, 0, 0, 0, width, height, 1, RenderState.ModelMatrix)
 		Shader._CurrentDefault()._Prepare()
-		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, -1, -1, -1, 0, ModeTriangleFan)
+		DrawBuffers(mRectBuffer, 0, 4, 0, -1, -1, -1, 48, -1, -1, 0, ModeTriangleFan)
 	End
 	
 	Function DrawRectEx:Void(x:Float, y:Float, width:Float, height:Float, u0:Float, v0:Float, u1:Float, v1:Float)
