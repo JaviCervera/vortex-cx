@@ -8,12 +8,13 @@ Import os
 Function Main:Int()
 	'Move to the root dir
 	ChangeDir("../..")
-	If FileType("vortex.cerberusdoc") = FILETYPE_NONE And FileType("vortex.monkeydoc") = FILETYPE_NONE Then ChangeDir("../..")
-	If FileType("vortex.cerberusdoc") = FILETYPE_NONE And FileType("vortex.monkeydoc") = FILETYPE_NONE Then ChangeDir("../../../..")
+	If FileType("cerberusdoc") = FILETYPE_NONE And FileType("monkeydoc") = FILETYPE_NONE Then ChangeDir("../..")
+	If FileType("cerberusdoc") = FILETYPE_NONE And FileType("monkeydoc") = FILETYPE_NONE Then ChangeDir("../../../..")
 	Print CurrentDir()
 	
 	'Rename doc file
-	CopyFile("vortex.cerberusdoc", "vortex.monkeydoc")
+	CreateDir("monkeydoc")
+	CopyFile("cerberusdoc/vortex.cerberusdoc", "monkeydoc/vortex.monkeydoc")
 	
 	'Convert root dir
 	ConvertDir(".")
