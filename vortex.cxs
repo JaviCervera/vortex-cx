@@ -1,10 +1,12 @@
-'TODO v2.0.0
+'TODO v2.1
+'- Use specular color and emissive.
+'- Update meshtool with new material properties.
+'- Use new textures in shader.
+'- Export MD2 animation sequences in separate files.
+'- Flip render to texture Y
+'- Add Trigger and TriggerDelegate to Entity class
 '- Add fixes for Android
 '- Fix framebuffer, retina display and rotation on iOS
-'- Add Building section to README.md
-'- Clean comments
-'- Document tools
-'- Make sure that every class & method is documented
 
 'TODO v2.x:
 '- Export MD2 animation sequences in separate files.

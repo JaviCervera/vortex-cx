@@ -9,7 +9,7 @@ Strict
 #GLFW_WINDOW_HEIGHT=600
 #GLFW_WINDOW_RESIZABLE=True
 #GLFW_WINDOW_SAMPLES=2
-'#GLFW_GCC_MSIZE_WINNT="32"
+#GLFW_GCC_MSIZE_WINNT="32"
 #If HOST = "winnt"
 #BINARY_FILES += "*.exe"
 #End
@@ -22,7 +22,6 @@ Strict
 'Imports
 Import mojo.app
 Import mojo.input
-Import src_tools.dialog
 Import src_tools.fonttool_gui
 Import vortex
 
